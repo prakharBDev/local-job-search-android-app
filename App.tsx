@@ -1,8 +1,8 @@
 import React from 'react';
-import HomeScreen from './src/screens/HomeScreen';
+import DashboardScreen from './src/screens/DashboardScreen';
 
 const App = () => {
-  return <HomeScreen />;
+  return <DashboardScreen />;
 };
 
 export default App;

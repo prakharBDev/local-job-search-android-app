@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { theme } from '../../theme';
 import { useProfile, type SavedProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -28,7 +27,7 @@ interface ProfileSwitcherProps {
 }
 
 const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
-  size = 'medium',
+  size = 'small',
   showName = false,
   style,
 }) => {
@@ -106,8 +105,8 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
     }
   };
 
-  const getProfileColor = (profile: SavedProfile) => {
-    const colors = [
+  const getProfileColor = (profile: SavedProfile): string[] => {
+    const colors: string[][] = [
       [theme.colors.primary.emerald, theme.colors.primary.forest],
       ['#2196F3', '#1976D2'],
       [theme.colors.accent.orange, '#F44336'],
@@ -117,7 +116,7 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
     ];
     
     const index = profile.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-    return colors[index];
+    return colors[index] || ['#2196F3', '#1976D2'];
   };
 
   const handleSwitchProfile = async (profileId: string) => {
@@ -230,13 +229,13 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
 
     return (
       <TouchableOpacity
-        style={[styles.profileButton, style]}
+        style={[styles.circularProfileButton, style]}
         onPress={showProfileSwitcher}
-        activeOpacity={0.8}
+        activeOpacity={0.7}
       >
         <LinearGradient
           colors={profileColors}
-          style={[styles.profileAvatar, sizeStyle]}
+          style={[styles.circularAvatar, sizeStyle]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
@@ -244,12 +243,6 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
             {getProfileInitials(activeProfile)}
           </Text>
         </LinearGradient>
-        {showName && (
-          <Text style={styles.profileName} numberOfLines={1}>
-            {getProfileDisplayName(activeProfile)}
-          </Text>
-        )}
-        <Feather name="chevron-down" size={12} color={theme.colors.text.secondary} />
       </TouchableOpacity>
     );
   };
@@ -491,6 +484,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
+  },
+  circularProfileButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circularAvatar: {
+    borderRadius: 50, // Make it perfectly circular
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
   },
   profileInitials: {
     color: '#FFFFFF',

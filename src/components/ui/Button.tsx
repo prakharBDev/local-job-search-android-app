@@ -1,22 +1,28 @@
 import React from 'react';
 import {
-  TouchableOpacity,
-  Text,
-  View,
   ActivityIndicator,
+  Text,
+  TextStyle,
+  TouchableOpacity,
   TouchableOpacityProps,
+  View,
+  ViewStyle,
 } from 'react-native';
 // import LinearGradient from 'react-native-linear-gradient';
 import { theme } from '../../theme';
 
-export interface ButtonProps extends Omit<TouchableOpacityProps, 'style'> {
+type ButtonVariant = 'default' | 'outline' | 'ghost' | 'gradient';
+type ButtonSize = 'sm' | 'md' | 'lg';
+
+interface ButtonProps extends TouchableOpacityProps {
   children: React.ReactNode;
-  variant?: 'default' | 'outline' | 'ghost' | 'gradient';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   loading?: boolean;
   icon?: React.ReactNode;
   fullWidth?: boolean;
-  style?: any;
+  disabled?: boolean;
+  style?: ViewStyle;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -26,20 +32,20 @@ const Button: React.FC<ButtonProps> = ({
   loading = false,
   icon,
   fullWidth = false,
-  disabled,
+  disabled = false,
   style,
   ...props
 }) => {
-  const getButtonStyle = () => {
-    const baseStyle = {
+  const getButtonStyle = (): ViewStyle => {
+    const baseStyle: ViewStyle = {
       borderRadius: theme.borderRadius.xl,
-      flexDirection: 'row' as const,
-      alignItems: 'center' as const,
-      justifyContent: 'center' as const,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
       ...theme.shadows.md,
     };
 
-    const sizeStyles = {
+    const sizeStyles: Record<ButtonSize, ViewStyle> = {
       sm: {
         paddingHorizontal: theme.spacing[4],
         paddingVertical: theme.spacing[2],
@@ -57,7 +63,7 @@ const Button: React.FC<ButtonProps> = ({
       },
     };
 
-    const variantStyles = {
+    const variantStyles: Record<ButtonVariant, ViewStyle> = {
       default: {
         backgroundColor: theme.colors.primary.emerald,
       },
@@ -72,7 +78,6 @@ const Button: React.FC<ButtonProps> = ({
         elevation: 0,
       },
       gradient: {
-        // Gradient handled by LinearGradient wrapper
         backgroundColor: 'transparent',
       },
     };
@@ -86,13 +91,13 @@ const Button: React.FC<ButtonProps> = ({
     };
   };
 
-  const getTextStyle = () => {
-    const baseTextStyle = {
-      textAlign: 'center' as const,
-      fontWeight: theme.typography.button.fontWeight,
+  const getTextStyle = (): TextStyle => {
+    const baseTextStyle: TextStyle = {
+      textAlign: 'center',
+      fontWeight: theme.typography.button.fontWeight as any,
     };
 
-    const sizeTextStyles = {
+    const sizeTextStyles: Record<ButtonSize, TextStyle> = {
       sm: {
         fontSize: theme.typography.buttonSmall.fontSize,
         lineHeight: theme.typography.buttonSmall.lineHeight,
@@ -107,7 +112,7 @@ const Button: React.FC<ButtonProps> = ({
       },
     };
 
-    const variantTextStyles = {
+    const variantTextStyles: Record<ButtonVariant, TextStyle> = {
       default: {
         color: theme.colors.text.white,
       },
@@ -134,25 +139,29 @@ const Button: React.FC<ButtonProps> = ({
       {loading && (
         <ActivityIndicator
           size="small"
-          color={variant === 'default' || variant === 'gradient' ? theme.colors.text.white : theme.colors.primary.emerald}
+          color={
+            variant === 'default' || variant === 'gradient'
+              ? theme.colors.text.white
+              : theme.colors.primary.emerald
+          }
           style={{ marginRight: theme.spacing[2] }}
         />
       )}
       {icon && !loading && (
-        <View style={{ marginRight: theme.spacing[2] }}>
-          {icon}
-        </View>
+        <View style={{ marginRight: theme.spacing[2] }}>{icon}</View>
       )}
-      <Text style={getTextStyle()}>
-        {children}
-      </Text>
+      <Text style={getTextStyle()}>{children}</Text>
     </>
   );
 
   if (variant === 'gradient') {
     return (
       <TouchableOpacity
-        style={[getButtonStyle(), { backgroundColor: theme.colors.primary.emerald }, style]}
+        style={[
+          getButtonStyle(),
+          { backgroundColor: theme.colors.primary.emerald },
+          style,
+        ]}
         disabled={disabled || loading}
         {...props}
       >

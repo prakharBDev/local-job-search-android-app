@@ -1,12 +1,21 @@
 import React from 'react';
-import { View, Text, ViewProps } from 'react-native';
+import { Text, TextStyle, View, ViewStyle } from 'react-native';
 import { theme } from '../../theme';
 
-export interface BadgeProps extends ViewProps {
+type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'outline'
+  | 'success'
+  | 'warning'
+  | 'error';
+type BadgeSize = 'sm' | 'md';
+
+interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'error';
-  size?: 'sm' | 'md';
-  style?: any;
+  variant?: BadgeVariant;
+  size?: BadgeSize;
+  style?: ViewStyle;
 }
 
 const Badge: React.FC<BadgeProps> = ({
@@ -16,31 +25,30 @@ const Badge: React.FC<BadgeProps> = ({
   style,
   ...props
 }) => {
-  const getBadgeStyle = () => {
-    const baseStyle = {
+  const getBadgeStyle = (): ViewStyle => {
+    const baseStyle: ViewStyle = {
       borderRadius: theme.borderRadius.full,
-      paddingHorizontal: theme.spacing[3],
-      paddingVertical: theme.spacing[1],
-      alignSelf: 'flex-start' as const,
+      alignItems: 'center',
+      justifyContent: 'center',
     };
 
-    const sizeStyles = {
+    const sizeStyles: Record<BadgeSize, ViewStyle> = {
       sm: {
         paddingHorizontal: theme.spacing[2],
         paddingVertical: theme.spacing[1],
       },
       md: {
         paddingHorizontal: theme.spacing[3],
-        paddingVertical: theme.spacing[1],
+        paddingVertical: theme.spacing[2],
       },
     };
 
-    const variantStyles = {
+    const variantStyles: Record<BadgeVariant, ViewStyle> = {
       default: {
         backgroundColor: theme.colors.primary.emerald,
       },
       secondary: {
-        backgroundColor: '#F5F5F5', // bg-gray-100 from web
+        backgroundColor: theme.colors.text.secondary,
       },
       outline: {
         backgroundColor: 'transparent',
@@ -48,13 +56,13 @@ const Badge: React.FC<BadgeProps> = ({
         borderColor: theme.colors.border.primary,
       },
       success: {
-        backgroundColor: '#E8F5E8', // Light green background
+        backgroundColor: theme.colors.status.success,
       },
       warning: {
-        backgroundColor: '#FFF3E0', // Light orange background
+        backgroundColor: theme.colors.status.warning,
       },
       error: {
-        backgroundColor: '#FFEBEE', // Light red background
+        backgroundColor: theme.colors.status.error,
       },
     };
 
@@ -65,31 +73,31 @@ const Badge: React.FC<BadgeProps> = ({
     };
   };
 
-  const getTextStyle = () => {
-    const baseTextStyle = {
-      fontSize: size === 'sm' ? theme.typography.labelSmall.fontSize : theme.typography.caption.fontSize,
-      fontWeight: theme.typography.label.fontWeight,
-      textAlign: 'center' as const,
+  const getTextStyle = (): TextStyle => {
+    const baseTextStyle: TextStyle = {
+      fontSize: theme.typography.labelSmall.fontSize,
+      fontWeight: theme.typography.labelSmall.fontWeight as any,
+      textAlign: 'center',
     };
 
-    const variantTextStyles = {
+    const variantTextStyles: Record<BadgeVariant, TextStyle> = {
       default: {
         color: theme.colors.text.white,
       },
       secondary: {
-        color: theme.colors.text.secondary,
+        color: theme.colors.text.white,
       },
       outline: {
         color: theme.colors.text.primary,
       },
       success: {
-        color: theme.colors.primary.forest,
+        color: theme.colors.text.white,
       },
       warning: {
-        color: '#E65100', // Dark orange
+        color: theme.colors.text.primary,
       },
       error: {
-        color: theme.colors.status.error,
+        color: theme.colors.text.white,
       },
     };
 
@@ -101,9 +109,7 @@ const Badge: React.FC<BadgeProps> = ({
 
   return (
     <View style={[getBadgeStyle(), style]} {...props}>
-      <Text style={getTextStyle()}>
-        {children}
-      </Text>
+      <Text style={getTextStyle()}>{children}</Text>
     </View>
   );
 };

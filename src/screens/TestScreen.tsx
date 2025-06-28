@@ -5,26 +5,37 @@ import { theme } from '../theme';
 
 const TestScreen = () => {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background.primary }}>
-      <ScrollView contentContainerStyle={{ padding: theme.spacing[4], gap: theme.spacing[4] }}>
-        <Text style={{
-          fontSize: theme.typography.h2.fontSize,
-          fontWeight: theme.typography.h2.fontWeight,
-          color: theme.colors.text.primary,
-          textAlign: 'center',
-          marginBottom: theme.spacing[4],
-        }}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: theme.colors.background.primary }}
+    >
+      <ScrollView
+        contentContainerStyle={{
+          padding: theme.spacing[4],
+          gap: theme.spacing[4],
+        }}
+      >
+        <Text
+          style={{
+            fontSize: theme.typography.h2.fontSize,
+            fontWeight: theme.typography.h2.fontWeight,
+            color: theme.colors.text.primary,
+            textAlign: 'center',
+            marginBottom: theme.spacing[4],
+          }}
+        >
           UI Components Test
         </Text>
 
         {/* Button Tests */}
         <Card>
-          <Text style={{
-            fontSize: theme.typography.h5.fontSize,
-            fontWeight: theme.typography.h5.fontWeight,
-            color: theme.colors.text.primary,
-            marginBottom: theme.spacing[3],
-          }}>
+          <Text
+            style={{
+              fontSize: theme.typography.h5.fontSize,
+              fontWeight: theme.typography.h5.fontWeight,
+              color: theme.colors.text.primary,
+              marginBottom: theme.spacing[3],
+            }}
+          >
             Buttons
           </Text>
           <View style={{ gap: theme.spacing[3] }}>
@@ -40,19 +51,18 @@ const TestScreen = () => {
 
         {/* Input Tests */}
         <Card>
-          <Text style={{
-            fontSize: theme.typography.h5.fontSize,
-            fontWeight: theme.typography.h5.fontWeight,
-            color: theme.colors.text.primary,
-            marginBottom: theme.spacing[3],
-          }}>
+          <Text
+            style={{
+              fontSize: theme.typography.h5.fontSize,
+              fontWeight: theme.typography.h5.fontWeight,
+              color: theme.colors.text.primary,
+              marginBottom: theme.spacing[3],
+            }}
+          >
             Inputs
           </Text>
           <View style={{ gap: theme.spacing[3] }}>
-            <Input
-              label="Default Input"
-              placeholder="Enter some text..."
-            />
+            <Input label="Default Input" placeholder="Enter some text..." />
             <Input
               label="Glass Input"
               variant="glass"
@@ -68,19 +78,23 @@ const TestScreen = () => {
 
         {/* Badge Tests */}
         <Card>
-          <Text style={{
-            fontSize: theme.typography.h5.fontSize,
-            fontWeight: theme.typography.h5.fontWeight,
-            color: theme.colors.text.primary,
-            marginBottom: theme.spacing[3],
-          }}>
+          <Text
+            style={{
+              fontSize: theme.typography.h5.fontSize,
+              fontWeight: theme.typography.h5.fontWeight,
+              color: theme.colors.text.primary,
+              marginBottom: theme.spacing[3],
+            }}
+          >
             Badges
           </Text>
-          <View style={{ 
-            flexDirection: 'row', 
-            flexWrap: 'wrap', 
-            gap: theme.spacing[2] 
-          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: theme.spacing[2],
+            }}
+          >
             <Badge>Default</Badge>
             <Badge variant="secondary">Secondary</Badge>
             <Badge variant="outline">Outline</Badge>
@@ -93,35 +107,43 @@ const TestScreen = () => {
 
         {/* Card Tests */}
         <Card variant="glass">
-          <Text style={{
-            fontSize: theme.typography.h5.fontSize,
-            fontWeight: theme.typography.h5.fontWeight,
-            color: theme.colors.text.primary,
-            marginBottom: theme.spacing[2],
-          }}>
+          <Text
+            style={{
+              fontSize: theme.typography.h5.fontSize,
+              fontWeight: theme.typography.h5.fontWeight,
+              color: theme.colors.text.primary,
+              marginBottom: theme.spacing[2],
+            }}
+          >
             Glass Card
           </Text>
-          <Text style={{
-            fontSize: theme.typography.body.fontSize,
-            color: theme.colors.text.secondary,
-          }}>
+          <Text
+            style={{
+              fontSize: theme.typography.body.fontSize,
+              color: theme.colors.text.secondary,
+            }}
+          >
             This is a glass variant card with backdrop blur effect.
           </Text>
         </Card>
 
         <Card variant="gradient">
-          <Text style={{
-            fontSize: theme.typography.h5.fontSize,
-            fontWeight: theme.typography.h5.fontWeight,
-            color: theme.colors.text.primary,
-            marginBottom: theme.spacing[2],
-          }}>
+          <Text
+            style={{
+              fontSize: theme.typography.h5.fontSize,
+              fontWeight: theme.typography.h5.fontWeight,
+              color: theme.colors.text.primary,
+              marginBottom: theme.spacing[2],
+            }}
+          >
             Gradient Card
           </Text>
-          <Text style={{
-            fontSize: theme.typography.body.fontSize,
-            color: theme.colors.text.secondary,
-          }}>
+          <Text
+            style={{
+              fontSize: theme.typography.body.fontSize,
+              color: theme.colors.text.secondary,
+            }}
+          >
             This is a gradient card with linear gradient background.
           </Text>
         </Card>

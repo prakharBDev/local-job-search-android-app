@@ -1,8 +1,8 @@
 module.exports = {
   root: true,
-  extends: '@react-native',
+  extends: ['@react-native', 'prettier'],
+  plugins: ['react', 'react-hooks', 'react-native'],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -14,6 +14,7 @@ module.exports = {
     'react-native/react-native': true,
     es6: true,
     node: true,
+    jest: true,
   },
   rules: {
     // Cross-platform compatibility
@@ -26,18 +27,34 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
 
     // React Native specific
+    'react-native/no-unused-styles': 'warn',
+    'react-native/split-platform-components': 'warn',
     'react-native/no-inline-styles': 'warn',
-    'react-native/no-unused-styles': 'error',
-    'react-native/split-platform-components': 'error',
+    'react-native/no-color-literals': 'warn',
+    'react-native/no-raw-text': 'warn',
 
-    // Code quality
+    // React Hooks
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
+
+    // General
+    'no-console': 'warn',
+    'no-debugger': 'error',
     'prefer-const': 'error',
     'no-var': 'error',
+    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+
+    // React
+    'react/react-in-jsx-scope': 'off',
+    'react/prop-types': 'off',
+    'react/display-name': 'off',
+
+    // Code quality
     'object-shorthand': 'error',
     'quote-props': ['error', 'as-needed'],
   },
   settings: {
-    'react-native': {
+    react: {
       version: 'detect',
     },
   },

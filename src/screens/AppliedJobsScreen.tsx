@@ -47,7 +47,9 @@ const AppliedJobsScreen: React.FC = () => {
     },
   ]);
 
-  const getStatusColor = (status: string): 'default' | 'success' | 'warning' | 'error' => {
+  const getStatusColor = (
+    status: string,
+  ): 'default' | 'success' | 'warning' | 'error' => {
     switch (status) {
       case 'accepted':
       case 'interview':
@@ -110,7 +112,8 @@ const AppliedJobsScreen: React.FC = () => {
             onPress={() => console.log('Navigate to job search')}
             icon={null}
             disabled={false}
-            style={styles.emptyButton}>
+            style={styles.emptyButton}
+          >
             <Text style={styles.emptyButtonText}>Find Jobs</Text>
           </Button>
         </View>
@@ -125,17 +128,20 @@ const AppliedJobsScreen: React.FC = () => {
         <Text style={styles.subtitle}>{applications.length} applications</Text>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {applications.map((application) => (
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        {applications.map(application => (
           <Card key={application.id} style={styles.applicationCard}>
             <View style={styles.cardHeader}>
               <View style={styles.jobInfo}>
                 <Text style={styles.jobTitle}>{application.jobTitle}</Text>
-                <Text style={styles.companyName}>{application.companyName}</Text>
+                <Text style={styles.companyName}>
+                  {application.companyName}
+                </Text>
               </View>
-              <Badge
-                variant={getStatusColor(application.status)}
-                size="sm">
+              <Badge variant={getStatusColor(application.status)} size="sm">
                 {getStatusLabel(application.status)}
               </Badge>
             </View>
@@ -178,7 +184,8 @@ const AppliedJobsScreen: React.FC = () => {
                 onPress={() => handleViewDetails(application.id)}
                 icon={null}
                 disabled={false}
-                style={styles.actionButton}>
+                style={styles.actionButton}
+              >
                 <View style={styles.buttonContent}>
                   <FontAwesome
                     name="eye"
@@ -197,7 +204,8 @@ const AppliedJobsScreen: React.FC = () => {
                   onPress={() => console.log('Schedule interview')}
                   icon={null}
                   disabled={false}
-                  style={styles.actionButton}>
+                  style={styles.actionButton}
+                >
                   <Text style={styles.primaryButtonText}>Schedule</Text>
                 </Button>
               )}

@@ -105,7 +105,12 @@ export type Job = {
 };
 
 // Application-related types
-export type ApplicationStatus = 'pending' | 'reviewed' | 'interview' | 'rejected' | 'accepted';
+export type ApplicationStatus =
+  | 'pending'
+  | 'reviewed'
+  | 'interview'
+  | 'rejected'
+  | 'accepted';
 
 export type JobApplication = {
   id: string;
@@ -121,20 +126,27 @@ export type JobApplication = {
 
 // Navigation props types for screens
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { CompositeNavigationProp, RouteProp } from '@react-navigation/native';
-import type { StackNavigationProp } from '@react-navigation/native-stack';
+import type {
+  CompositeNavigationProp,
+  RouteProp,
+} from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Root Stack Navigation Props
-export type RootStackNavigationProp = StackNavigationProp<RootStackParamList>;
+export type RootStackNavigationProp =
+  NativeStackNavigationProp<RootStackParamList>;
 
 // Auth Stack Navigation Props
-export type AuthStackNavigationProp = StackNavigationProp<AuthStackParamList>;
+export type AuthStackNavigationProp =
+  NativeStackNavigationProp<AuthStackParamList>;
 
 // Seeker Tab Navigation Props
-export type SeekerTabNavigationProp = BottomTabNavigationProp<SeekerTabParamList>;
+export type SeekerTabNavigationProp =
+  BottomTabNavigationProp<SeekerTabParamList>;
 
 // Poster Tab Navigation Props
-export type PosterTabNavigationProp = BottomTabNavigationProp<PosterTabParamList>;
+export type PosterTabNavigationProp =
+  BottomTabNavigationProp<PosterTabParamList>;
 
 // Combined navigation prop for screens that can navigate to both tabs and root stack
 export type CombinedNavigationProp = CompositeNavigationProp<
@@ -144,16 +156,25 @@ export type CombinedNavigationProp = CompositeNavigationProp<
 
 // Screen-specific navigation and route props
 export type DashboardScreenNavigationProp = CombinedNavigationProp;
-export type DashboardScreenRouteProp = RouteProp<SeekerTabParamList | PosterTabParamList, 'Dashboard'>;
+export type DashboardScreenRouteProp = RouteProp<
+  SeekerTabParamList | PosterTabParamList,
+  'Dashboard'
+>;
 
 export type ProfileScreenNavigationProp = CombinedNavigationProp;
-export type ProfileScreenRouteProp = RouteProp<SeekerTabParamList | PosterTabParamList, 'Profile'>;
+export type ProfileScreenRouteProp = RouteProp<
+  SeekerTabParamList | PosterTabParamList,
+  'Profile'
+>;
 
 export type AppliedJobsScreenNavigationProp = CompositeNavigationProp<
   RootStackNavigationProp,
   SeekerTabNavigationProp
 >;
-export type AppliedJobsScreenRouteProp = RouteProp<SeekerTabParamList, 'AppliedJobs'>;
+export type AppliedJobsScreenRouteProp = RouteProp<
+  SeekerTabParamList,
+  'AppliedJobs'
+>;
 
 export type MyJobsScreenNavigationProp = CompositeNavigationProp<
   RootStackNavigationProp,
@@ -162,16 +183,28 @@ export type MyJobsScreenNavigationProp = CompositeNavigationProp<
 export type MyJobsScreenRouteProp = RouteProp<PosterTabParamList, 'MyJobs'>;
 
 export type JobDetailsScreenNavigationProp = RootStackNavigationProp;
-export type JobDetailsScreenRouteProp = RouteProp<RootStackParamList, 'JobDetails'>;
+export type JobDetailsScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'JobDetails'
+>;
 
 export type CreateJobScreenNavigationProp = RootStackNavigationProp;
-export type CreateJobScreenRouteProp = RouteProp<RootStackParamList, 'CreateJob'>;
+export type CreateJobScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'CreateJob'
+>;
 
 export type JobApplicationsScreenNavigationProp = RootStackNavigationProp;
-export type JobApplicationsScreenRouteProp = RouteProp<RootStackParamList, 'JobApplications'>;
+export type JobApplicationsScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'JobApplications'
+>;
 
 export type ApplicationDetailsScreenNavigationProp = RootStackNavigationProp;
-export type ApplicationDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ApplicationDetails'>;
+export type ApplicationDetailsScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'ApplicationDetails'
+>;
 
 // Combined screen props for easy use
 export type DashboardScreenProps = {

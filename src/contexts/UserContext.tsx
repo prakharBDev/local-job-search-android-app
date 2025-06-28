@@ -1,5 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, ReactNode, useContext, useEffect, useReducer } from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useReducer,
+} from 'react';
 import type { UserMode } from '../types/navigation';
 
 // User state interface
@@ -116,13 +122,17 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       dispatch({ type: 'SET_MODE_SUCCESS', payload: mode });
     } catch (error) {
       console.error('Failed to switch mode:', error);
-      dispatch({ type: 'SET_MODE_ERROR', payload: 'Failed to switch mode. Please try again.' });
+      dispatch({
+        type: 'SET_MODE_ERROR',
+        payload: 'Failed to switch mode. Please try again.',
+      });
     }
   };
 
   // Toggle between modes
   const toggleMode = async (): Promise<void> => {
-    const newMode: UserMode = state.currentMode === 'seeker' ? 'poster' : 'seeker';
+    const newMode: UserMode =
+      state.currentMode === 'seeker' ? 'poster' : 'seeker';
     await switchMode(newMode);
   };
 
@@ -147,9 +157,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={contextValue}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
 };
 

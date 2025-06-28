@@ -11,13 +11,13 @@ export const fontFamily = {
   }),
   medium: Platform.select({
     ios: 'System',
-    android: 'Roboto-Medium', 
+    android: 'Roboto-Medium',
     default: 'System',
   }),
   semibold: Platform.select({
     ios: 'System',
     android: 'Roboto-Medium',
-    default: 'System', 
+    default: 'System',
   }),
   bold: Platform.select({
     ios: 'System',
@@ -38,18 +38,18 @@ export const fontWeight = {
 
 // Font sizes matching the web app exactly
 export const fontSize = {
-  '2xs': 10,    // 0.625rem - Very small text
-  xs: 12,       // 0.75rem  - Small text
-  sm: 14,       // 0.875rem - Small text
-  base: 16,     // 1rem     - Base text
-  lg: 18,       // 1.125rem - Large text
-  xl: 20,       // 1.25rem  - Extra large
-  '2xl': 24,    // 1.5rem   - 2x large
-  '3xl': 30,    // 1.875rem - 3x large (custom from web)
-  '4xl': 36,    // 2.25rem  - 4x large (custom from web)
-  '5xl': 48,    // 3rem     - 5x large (custom from web)
-  '6xl': 60,    // 3.75rem  - 6x large
-  '7xl': 72,    // 4.5rem   - 7x large
+  '2xs': 10, // 0.625rem - Very small text
+  xs: 12, // 0.75rem  - Small text
+  sm: 14, // 0.875rem - Small text
+  base: 16, // 1rem     - Base text
+  lg: 18, // 1.125rem - Large text
+  xl: 20, // 1.25rem  - Extra large
+  '2xl': 24, // 1.5rem   - 2x large
+  '3xl': 30, // 1.875rem - 3x large (custom from web)
+  '4xl': 36, // 2.25rem  - 4x large (custom from web)
+  '5xl': 48, // 3rem     - 5x large (custom from web)
+  '6xl': 60, // 3.75rem  - 6x large
+  '7xl': 72, // 4.5rem   - 7x large
 };
 
 // Line heights for optimal readability

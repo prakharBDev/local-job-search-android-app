@@ -1,0 +1,208 @@
+import React from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useUser } from '../../contexts/UserContext';
+import { theme } from '../../theme';
+
+interface ModeToggleProps {
+  style?: any;
+  showLabels?: boolean;
+  size?: 'small' | 'medium' | 'large';
+}
+
+const ModeToggle: React.FC<ModeToggleProps> = ({
+  style,
+  showLabels = true,
+  size = 'medium',
+}) => {
+  const { currentMode, isSeekerMode, isPosterMode, toggleMode, isLoading } =
+    useUser();
+
+  const sizes = {
+    small: {
+      container: { height: 32, width: 160 },
+      toggle: { height: 28, width: 28 },
+      text: { fontSize: 12 },
+    },
+    medium: {
+      container: { height: 40, width: 200 },
+      toggle: { height: 36, width: 36 },
+      text: { fontSize: 14 },
+    },
+    large: {
+      container: { height: 48, width: 240 },
+      toggle: { height: 44, width: 44 },
+      text: { fontSize: 16 },
+    },
+  };
+
+  const currentSize = sizes[size];
+
+  const handleToggle = async () => {
+    if (!isLoading) {
+      await toggleMode();
+    }
+  };
+
+  return (
+    <View style={[styles.container, style]}>
+      {showLabels && (
+        <View style={styles.labelsContainer}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isSeekerMode
+                  ? theme.colors.primary.emerald
+                  : theme.colors.text.secondary,
+              },
+            ]}
+          >
+            Job Seeker
+          </Text>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isPosterMode
+                  ? theme.colors.primary.emerald
+                  : theme.colors.text.secondary,
+              },
+            ]}
+          >
+            Job Poster
+          </Text>
+        </View>
+      )}
+
+      <TouchableOpacity
+        style={[
+          styles.toggleContainer,
+          currentSize.container,
+          {
+            backgroundColor: isPosterMode
+              ? theme.colors.primary.emerald
+              : theme.colors.background.secondary,
+          },
+        ]}
+        onPress={handleToggle}
+        disabled={isLoading}
+        activeOpacity={0.7}
+      >
+        <View
+          style={[
+            styles.toggleButton,
+            currentSize.toggle,
+            {
+              backgroundColor: theme.colors.background.primary,
+              transform: [
+                {
+                  translateX: isSeekerMode
+                    ? 2
+                    : currentSize.container.width -
+                      currentSize.toggle.width -
+                      2,
+                },
+              ],
+            },
+          ]}
+        >
+          {isLoading ? (
+            <ActivityIndicator
+              size="small"
+              color={theme.colors.primary.emerald}
+            />
+          ) : (
+            <Text style={[styles.toggleIcon, currentSize.text]}>
+              {isSeekerMode ? '👤' : '🏢'}
+            </Text>
+          )}
+        </View>
+
+        {/* Mode indicators on toggle track */}
+        <View style={styles.trackIcons}>
+          <Text style={[styles.trackIcon, { opacity: isSeekerMode ? 1 : 0.3 }]}>
+            👤
+          </Text>
+          <Text style={[styles.trackIcon, { opacity: isPosterMode ? 1 : 0.3 }]}>
+            🏢
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      {showLabels && (
+        <Text style={styles.currentModeText}>
+          {currentMode === 'seeker' ? 'Finding Jobs' : 'Posting Jobs'}
+        </Text>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+  },
+  labelsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 20,
+    position: 'relative',
+    elevation: 2,
+    shadowColor: theme.colors.shadow.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  toggleButton: {
+    position: 'absolute',
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: theme.colors.shadow.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    zIndex: 2,
+  },
+  toggleIcon: {
+    fontWeight: 'bold',
+  },
+  trackIcons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    width: '100%',
+    zIndex: 1,
+  },
+  trackIcon: {
+    fontSize: 16,
+  },
+  currentModeText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: theme.colors.text.secondary,
+    fontWeight: '500',
+  },
+});
+
+export default ModeToggle;

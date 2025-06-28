@@ -1,4 +1,10 @@
-import React, { createContext, ReactNode, useContext, useEffect, useReducer } from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useReducer,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserProfile } from '../types/navigation';
 
@@ -115,7 +121,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      dispatch({ type: 'AUTH_ERROR', payload: 'Failed to check authentication status' });
+      dispatch({
+        type: 'AUTH_ERROR',
+        payload: 'Failed to check authentication status',
+      });
     }
   };
 
@@ -133,7 +142,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       dispatch({ type: 'AUTH_SUCCESS', payload: user });
     } catch (error) {
       console.error('Login failed:', error);
-      dispatch({ type: 'AUTH_ERROR', payload: 'Login failed. Please try again.' });
+      dispatch({
+        type: 'AUTH_ERROR',
+        payload: 'Login failed. Please try again.',
+      });
     }
   };
 
@@ -143,12 +155,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       dispatch({ type: 'AUTH_LOADING' });
 
       // Clear stored data
-      await AsyncStorage.multiRemove([AUTH_STORAGE_KEY, 'USER_MODE_PREFERENCE']);
+      await AsyncStorage.multiRemove([
+        AUTH_STORAGE_KEY,
+        'USER_MODE_PREFERENCE',
+      ]);
 
       dispatch({ type: 'AUTH_LOGOUT' });
     } catch (error) {
       console.error('Logout failed:', error);
-      dispatch({ type: 'AUTH_ERROR', payload: 'Logout failed. Please try again.' });
+      dispatch({
+        type: 'AUTH_ERROR',
+        payload: 'Logout failed. Please try again.',
+      });
     }
   };
 
@@ -178,9 +196,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
@@ -197,4 +213,3 @@ export const useAuth = (): AuthContextType => {
 
 // Export auth context for advanced usage
 export { AuthContext };
-

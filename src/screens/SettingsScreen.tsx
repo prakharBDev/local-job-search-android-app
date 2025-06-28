@@ -5,20 +5,20 @@ const SettingsScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings Screen</Text>
-      
+
       <View style={styles.settingsSection}>
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>Notifications</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>Privacy</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>Account</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>Help & Support</Text>
         </TouchableOpacity>

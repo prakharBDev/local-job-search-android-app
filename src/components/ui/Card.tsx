@@ -1,65 +1,31 @@
 import React from 'react';
-import { View, ViewProps } from 'react-native';
+import { View, ViewStyle } from 'react-native';
 // import LinearGradient from 'react-native-linear-gradient';
 import { theme } from '../../theme';
 
-export interface CardProps extends ViewProps {
+interface CardProps {
   children: React.ReactNode;
-  variant?: 'default' | 'glass' | 'gradient';
-  padding?: keyof typeof theme.spacing;
-  style?: any;
+  style?: ViewStyle;
+  padding?: boolean;
 }
 
 const Card: React.FC<CardProps> = ({
   children,
-  variant = 'default',
-  padding = 4,
   style,
+  padding = true,
   ...props
 }) => {
-  const getCardStyle = () => {
-    const baseStyle = {
-      borderRadius: theme.borderRadius['2xl'],
-      padding: theme.spacing[padding],
-      ...theme.shadows.lg,
-    };
-
-    const variantStyles = {
-      default: {
-        backgroundColor: theme.colors.background.secondary,
-        borderWidth: 1,
-        borderColor: theme.colors.border.primary,
-      },
-      glass: {
-        backgroundColor: theme.colors.glass.white80,
-        borderWidth: 1,
-        borderColor: theme.colors.border.primary,
-        // Note: Blur effect would require react-native-blur
-      },
-      gradient: {
-        backgroundColor: 'transparent',
-      },
-    };
-
-    return {
-      ...baseStyle,
-      ...variantStyles[variant],
-    };
+  const cardStyle: ViewStyle = {
+    backgroundColor: theme.colors.background.secondary,
+    borderRadius: theme.borderRadius.lg,
+    ...theme.shadows.sm,
+    ...(padding && {
+      padding: theme.spacing[4],
+    }),
   };
 
-  if (variant === 'gradient') {
-    return (
-      <View 
-        style={[getCardStyle(), { backgroundColor: theme.colors.background.secondary }, style]} 
-        {...props}
-      >
-        {children}
-      </View>
-    );
-  }
-
   return (
-    <View style={[getCardStyle(), style]} {...props}>
+    <View style={[cardStyle, style]} {...props}>
       {children}
     </View>
   );

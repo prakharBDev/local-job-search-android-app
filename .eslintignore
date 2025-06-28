@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+
+# React Native
+android/
+ios/
+
+# Configuration files
+babel.config.js
+metro.config.js
+jest.config.js 

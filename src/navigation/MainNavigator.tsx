@@ -4,7 +4,10 @@ import React from 'react';
 import { Platform } from 'react-native';
 
 // Import navigation types
-import type { PosterTabParamList, SeekerTabParamList } from '../types/navigation';
+import type {
+  PosterTabParamList,
+  SeekerTabParamList,
+} from '../types/navigation';
 
 // Import screens
 import AppliedJobsScreen from '../screens/AppliedJobsScreen';
@@ -62,7 +65,8 @@ const SeekerTabNavigator: React.FC = () => {
           marginBottom: Platform.OS === 'ios' ? 0 : 4,
         },
         headerShown: false,
-      })}>
+      })}
+    >
       <SeekerTab.Screen
         name="Dashboard"
         component={DashboardScreen}
@@ -127,7 +131,8 @@ const PosterTabNavigator: React.FC = () => {
           marginBottom: Platform.OS === 'ios' ? 0 : 4,
         },
         headerShown: false,
-      })}>
+      })}
+    >
       <PosterTab.Screen
         name="Dashboard"
         component={DashboardScreen}

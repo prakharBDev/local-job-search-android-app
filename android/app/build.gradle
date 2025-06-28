@@ -2,6 +2,9 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+import com.android.build.OutputFile
+import org.apache.tools.ant.taskdefs.condition.Os
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -49,9 +52,6 @@ react {
     //
     //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
     // hermesFlags = ["-O", "-output-source-map"]
-
-    /* Autolinking */
-    autolinkLibrariesWithApp()
 }
 
 /**
@@ -72,10 +72,14 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+project.ext.react = [
+    enableHermes: true,  // enable Hermes for better performance and compatibility
+]
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
-    compileSdk rootProject.ext.compileSdkVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
     namespace "com.basicapp"
     defaultConfig {
@@ -84,8 +88,20 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
+        }
     }
-    signingConfigs {
+
+    // Disable CMake builds for react-native-screens
+    externalNativeBuild {
+        cmake {
+            path null
+        }
+    }
+
+        signingConfigs {
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -105,10 +121,27 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-    
+
     packagingOptions {
         pickFirst "**/libc++_shared.so"
         pickFirst "**/libjsc.so"
+        pickFirst "**/libfbjni.so"
+        doNotStrip "*/x86_64/libjsc.so"
+        doNotStrip "*/x86_64/libc++_shared.so"
+        doNotStrip "*/x86_64/libfbjni.so"
+        // Fixed: Allow react-native-screens native libraries
+        pickFirst "**/libreactnativescreens.so"
+        pickFirst "**/librnscreens.so"
+    }
+
+            buildFeatures {
+        buildConfig false
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            force 'com.android.support:support-annotations:28.0.0'
+        }
     }
 }
 
@@ -122,3 +155,23 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+configurations.all {
+    exclude group: 'com.swmansion.rnscreens', module: 'rnscreens'
+}
+
+// Force exclude react-native-screens native components to prevent CMake issues
+project.tasks.whenTaskAdded { task ->
+    if (task.name.contains('externalNativeBuild')) {
+        task.enabled = false
+    }
+    if (task.name.contains('cmake') || task.name.contains('CMake')) {
+        task.enabled = false
+    }
+    if (task.name.contains('configureCMake')) {
+        task.enabled = false
+    }
+}
+
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
+apply from: "../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"; applyNativeModulesAppBuildGradle(project)

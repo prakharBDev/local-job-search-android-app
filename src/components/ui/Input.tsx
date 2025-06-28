@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import {
-  View,
-  TextInput,
+  StyleProp,
   Text,
+  TextInput,
+  TextStyle,
   TouchableOpacity,
-  TextInputProps,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { theme } from '../../theme';
 
-export interface InputProps extends TextInputProps {
+interface InputProps {
   label?: string;
   error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   onRightIconPress?: () => void;
   variant?: 'default' | 'glass';
-  style?: any;
-  containerStyle?: any;
+  style?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
+  [key: string]: any;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -44,12 +47,16 @@ const Input: React.FC<InputProps> = ({
 
     const variantStyles = {
       default: {
-        backgroundColor: '#F5F5F5', // bg-gray-50 from web
-        borderColor: isFocused ? theme.colors.border.focus : theme.colors.border.primary,
+        backgroundColor: '#F5F5F5',
+        borderColor: isFocused
+          ? theme.colors.border.focus
+          : theme.colors.border.primary,
       },
       glass: {
         backgroundColor: theme.colors.glass.white90,
-        borderColor: isFocused ? theme.colors.border.focus : theme.colors.border.primary,
+        borderColor: isFocused
+          ? theme.colors.border.focus
+          : theme.colors.border.primary,
         ...theme.shadows.lg,
       },
     };
@@ -73,7 +80,7 @@ const Input: React.FC<InputProps> = ({
 
   const getLabelStyle = () => ({
     fontSize: theme.typography.label.fontSize,
-    fontWeight: theme.typography.label.fontWeight,
+    fontWeight: theme.typography.label.fontWeight as any,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[2],
   });
@@ -87,14 +94,10 @@ const Input: React.FC<InputProps> = ({
   return (
     <View style={containerStyle}>
       {label && <Text style={getLabelStyle()}>{label}</Text>}
-      
       <View style={getContainerStyle()}>
         {leftIcon && (
-          <View style={{ marginRight: theme.spacing[2] }}>
-            {leftIcon}
-          </View>
+          <View style={{ marginRight: theme.spacing[2] }}>{leftIcon}</View>
         )}
-        
         <TextInput
           style={[getInputStyle(), style]}
           placeholderTextColor={theme.colors.text.tertiary}
@@ -102,7 +105,6 @@ const Input: React.FC<InputProps> = ({
           onBlur={() => setIsFocused(false)}
           {...props}
         />
-        
         {rightIcon && (
           <TouchableOpacity
             onPress={onRightIconPress}
@@ -113,7 +115,6 @@ const Input: React.FC<InputProps> = ({
           </TouchableOpacity>
         )}
       </View>
-      
       {error && <Text style={getErrorStyle()}>{error}</Text>}
     </View>
   );

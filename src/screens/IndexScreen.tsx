@@ -7,21 +7,20 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  Alert,
   StyleSheet,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 import { Button, Card, Input } from '../components/ui';
 import { theme } from '../theme';
-import { useAuth } from '../contexts/AuthContext';
-import type { AuthStackParamList, UserProfile } from '../types/navigation';
+import type { RootStackNavigationProp } from '../types/navigation';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const IndexScreen = () => {
-  const { login } = useAuth();
+  const navigation = useNavigation<RootStackNavigationProp>();
   const [isLogin, setIsLogin] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -84,33 +83,13 @@ const IndexScreen = () => {
     animateFloating();
   }, []);
 
-  const handleLogin = async () => {
-    if (!phoneNumber.trim()) {
-      Alert.alert('Error', 'Please enter your phone number');
-      return;
-    }
-
+  const handleLogin = () => {
     setIsLoading(true);
-    try {
-      // Simulate authentication - in real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Create a user profile object
-      const userProfile: UserProfile = {
-        id: Date.now().toString(), // In real app, this would come from the API
-        name: `User ${phoneNumber}`, // In real app, get from API
-        email: email || `user${phoneNumber}@example.com`,
-        mode: 'seeker', // Default to seeker, can add user selection later
-      };
-      
-      // Use your existing login method
-      await login(userProfile);
-      
-    } catch (error) {
-      Alert.alert('Error', 'Login failed. Please try again.');
-    } finally {
+    // Simple navigation to Dashboard for POC demo
+    setTimeout(() => {
       setIsLoading(false);
-    }
+      navigation.navigate('Main'); // Navigate to the main app which includes Dashboard
+    }, 300); // Short delay for visual feedback
   };
 
   const features = [
@@ -379,17 +358,17 @@ const IndexScreen = () => {
             <Card style={styles.authCard}>
               <View style={styles.authCardHeader}>
                 <Text style={styles.authCardHeaderTitle}>
-                  {isLogin ? 'Welcome Back' : 'Join the Revolution'}
+                  Welcome to JobConnect
                 </Text>
                 <Text style={styles.authCardHeaderSubtitle}>
-                  Start your journey to career success
+                  Explore the amazing features and interface
                 </Text>
               </View>
 
               <View style={styles.authCardBody}>
                 {/* Phone input */}
                 <Input
-                  label="Phone Number"
+                  label="Phone Number (Optional for Demo)"
                   placeholder="+91 98765 43210"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
@@ -415,7 +394,7 @@ const IndexScreen = () => {
                 >
                   <View style={styles.authButtonContent}>
                     <Text style={styles.authButtonText}>
-                      {isLoading ? 'Signing in...' : isLogin ? 'Enter Dashboard' : 'Begin Journey'}
+                      {isLoading ? 'Loading...' : 'Enter Dashboard'}
                     </Text>
                     <FontAwesome name="arrow-circle-right" size={20} color={theme.colors.text.white} />
                   </View>

@@ -30,7 +30,41 @@ const DashboardScreen = () => {
     }).start();
   }, [fadeAnim]);
 
-  const stats = [
+  // Dynamic stats based on user mode
+  const stats = user?.mode === 'poster' ? [
+    {
+      label: 'Jobs Posted',
+      value: '12',
+      change: '+3',
+      trend: 'up',
+      color: theme.colors.primary.emerald,
+      icon: 'briefcase',
+    },
+    {
+      label: 'Applications Received',
+      value: '89',
+      change: '+25%',
+      trend: 'up',
+      color: '#2196F3',
+      icon: 'users',
+    },
+    {
+      label: 'Interviews Conducted',
+      value: '7',
+      change: '+2',
+      trend: 'up',
+      color: theme.colors.accent.orange,
+      icon: 'video',
+    },
+    {
+      label: 'Hired Candidates',
+      value: '3',
+      change: '+1',
+      trend: 'up',
+      color: '#9C27B0',
+      icon: 'user-check',
+    },
+  ] : [
     {
       label: 'Applications Sent',
       value: '24',
@@ -235,9 +269,26 @@ const DashboardScreen = () => {
                 <Text style={{
                   fontSize: theme.typography.body.fontSize,
                   color: theme.colors.text.secondary,
+                  marginBottom: theme.spacing[2],
                 }}>
-                  Here's your job search progress
+                  {user?.mode === 'poster' ? 'Your job posting dashboard' : 'Here\'s your job search progress'}
                 </Text>
+                <View style={{
+                  backgroundColor: user?.mode === 'poster' ? '#4CAF50' : '#2196F3',
+                  paddingHorizontal: theme.spacing[2],
+                  paddingVertical: theme.spacing[1],
+                  borderRadius: theme.borderRadius.md,
+                  alignSelf: 'flex-start',
+                }}>
+                  <Text style={{
+                    fontSize: theme.typography.caption.fontSize,
+                    fontWeight: '600',
+                    color: 'white',
+                    textTransform: 'uppercase',
+                  }}>
+                    {user?.mode === 'poster' ? '👔 Job Poster Mode' : '🔍 Job Seeker Mode'}
+                  </Text>
+                </View>
               </View>
               <ProfileSwitcher 
                 size="medium" 

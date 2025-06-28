@@ -16,6 +16,8 @@ import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { theme } from '../../theme';
 import { useProfile, type SavedProfile } from '../../contexts/ProfileContext';
+import { useAuth } from '../../contexts/AuthContext';
+import type { UserProfile } from '../../types/navigation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -45,6 +47,8 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
     error,
     clearError,
   } = useProfile();
+
+  const { login } = useAuth();
 
   const [isAddingProfile, setIsAddingProfile] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
@@ -118,10 +122,30 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
 
   const handleSwitchProfile = async (profileId: string) => {
     try {
+      // Find the profile being switched to
+      const newProfile = profiles.find(p => p.id === profileId);
+      if (!newProfile) {
+        throw new Error('Profile not found');
+      }
+
+      // Switch the profile in ProfileContext
       await switchProfile(profileId);
+
+      // Also update the AuthContext with the new profile data
+      // This ensures DashboardScreen gets the correct user mode (seeker/poster)
+      const userProfile: UserProfile = {
+        id: newProfile.id,
+        name: newProfile.name,
+        email: newProfile.email,
+        mode: newProfile.mode,
+      };
+      
+      await login(userProfile);
+
       hideProfileSwitcher();
     } catch (error) {
       // Error handled by useEffect
+      console.error('Profile switch failed:', error);
     }
   };
 

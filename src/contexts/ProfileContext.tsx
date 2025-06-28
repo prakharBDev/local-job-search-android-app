@@ -183,9 +183,9 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
       const profiles: SavedProfile[] = savedProfiles ? JSON.parse(savedProfiles) : [];
       
       if (profiles.length === 0) {
-        // Create default profile if none exist
-        const defaultProfile = await createDefaultProfile();
-        profiles.push(defaultProfile);
+        // Create default profiles if none exist (both seeker and poster)
+        const defaultProfiles = await createDefaultProfiles();
+        profiles.push(...defaultProfiles);
       }
 
       dispatch({ type: 'SET_PROFILES', payload: profiles });
@@ -216,6 +216,36 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
       isActive: true,
       description: 'Personal job search profile',
     };
+  };
+
+  // Create default profiles (both seeker and poster)
+  const createDefaultProfiles = async (): Promise<SavedProfile[]> => {
+    const now = new Date().toISOString();
+    const seekerProfile: SavedProfile = {
+      id: 'seeker-' + Date.now(),
+      name: 'Demo User',
+      email: 'demo@jobconnect.app',
+      mode: 'seeker',
+      nickname: 'Personal',
+      lastUsed: now,
+      createdAt: now,
+      isActive: true,
+      description: 'Personal job search profile',
+    };
+
+    const posterProfile: SavedProfile = {
+      id: 'poster-' + (Date.now() + 1),
+      name: 'Demo Recruiter',
+      email: 'recruiter@jobconnect.app',
+      mode: 'poster',
+      nickname: 'Work',
+      lastUsed: now,
+      createdAt: now,
+      isActive: false,
+      description: 'Work profile for posting jobs',
+    };
+
+    return [seekerProfile, posterProfile];
   };
 
   // Save profiles to storage

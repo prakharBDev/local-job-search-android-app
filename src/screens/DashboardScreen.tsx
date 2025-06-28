@@ -5,24 +5,12 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
-  Dimensions,
   Animated,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { Button, Card, Badge } from '../components/ui';
+import { Card, Badge } from '../components/ui';
 import { theme } from '../theme';
-
-// Mock icons (we'll replace with actual icons later)
-const IconPlaceholder = ({ name, size = 20, color = theme.colors.text.primary }) => (
-  <View style={{
-    width: size,
-    height: size,
-    backgroundColor: color,
-    borderRadius: size / 4,
-  }} />
-);
-
-const { width: screenWidth } = Dimensions.get('window');
+import Feather from 'react-native-vector-icons/Feather';
 
 const DashboardScreen = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('This Week');
@@ -34,7 +22,7 @@ const DashboardScreen = () => {
       duration: 800,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fadeAnim]);
 
   const stats = [
     {
@@ -226,7 +214,7 @@ const DashboardScreen = () => {
                   ...theme.shadows.md,
                 }}
               >
-                <IconPlaceholder name="bell" size={24} color={theme.colors.text.primary} />
+                <Feather name="bell" size={24} color={theme.colors.text.primary} />
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -317,7 +305,7 @@ const DashboardScreen = () => {
                         alignItems: 'center',
                         justifyContent: 'center',
                       }}>
-                        <IconPlaceholder name={stat.icon} size={16} color={stat.color} />
+                        <Feather name={stat.icon} size={16} color={stat.color} />
                       </View>
                       <Badge
                         variant="success"
@@ -405,7 +393,7 @@ const DashboardScreen = () => {
                         ...theme.shadows.md,
                       }}
                     >
-                      <IconPlaceholder name={action.icon} size={24} color={theme.colors.text.white} />
+                      <Feather name={action.icon} size={24} color={theme.colors.text.white} />
                     </LinearGradient>
                     <View style={{ alignItems: 'center' }}>
                       <Text style={{
@@ -497,7 +485,7 @@ const DashboardScreen = () => {
                         justifyContent: 'center',
                         marginRight: theme.spacing[3],
                       }}>
-                        <IconPlaceholder name={activity.type} size={20} color={theme.colors.text.white} />
+                        <Feather name={activity.type} size={20} color={theme.colors.text.white} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{

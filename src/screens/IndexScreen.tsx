@@ -257,19 +257,19 @@ const IndexScreen = () => {
                 }),
               },
             ],
-          }}
+          } as any}
         >
-          <Feather name={element.icon} size={24} color={theme.colors.text.tertiary} />
+          <Feather name={element.icon as any} size={24} color={theme.colors.text.tertiary} />
         </Animated.View>
       ))}
     </View>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.container}>
       <LinearGradient
         colors={['#E3F2FD', '#F3E5F5', '#FCE4EC']} // Blue to purple to pink gradient
-        style={{ flex: 1 }}
+        style={styles.container}
       >
         <AnimatedBackground />
         
@@ -341,86 +341,33 @@ const IndexScreen = () => {
           </View>
 
           {/* Hero Section */}
-          <View style={{
-            paddingHorizontal: theme.spacing[4],
-            paddingVertical: theme.spacing[8],
-            alignItems: 'center',
-          }}>
-            <View style={{
-              maxWidth: 400,
-              alignItems: 'center',
-              gap: theme.spacing[6],
-            }}>
+          <View style={styles.heroContainer}>
+            <View style={styles.heroInner}>
               <View style={{ alignItems: 'center', gap: theme.spacing[4] }}>
-                <Text style={{
-                  fontSize: 48,
-                  fontWeight: theme.typography.h1.fontWeight,
-                  textAlign: 'center',
-                  lineHeight: 52,
-                  color: theme.colors.text.primary,
-                }}>
+                <Text style={styles.heroTitle}>
                   <Text>Swipe Into</Text>
                   {'\n'}
                   <Text>Your Dream Job</Text>
                 </Text>
-                <Text style={{
-                  fontSize: theme.typography.bodyLarge.fontSize,
-                  fontWeight: '500',
-                  color: theme.colors.text.primary,
-                  textAlign: 'center',
-                }}>
+                <Text style={styles.heroSubtitle}>
                   Discover opportunities with a swipe
                 </Text>
-                <Text style={{
-                  fontSize: theme.typography.body.fontSize,
-                  color: theme.colors.text.secondary,
-                  textAlign: 'center',
-                }}>
+                <Text style={styles.heroDescription}>
                   Revolutionary job discovery that feels like magic
                 </Text>
               </View>
 
               {/* Interactive Stats */}
-              <View style={{
-                flexDirection: 'row',
-                gap: theme.spacing[4],
-                paddingVertical: theme.spacing[6],
-              }}>
+              <View style={styles.statsRow}>
                 {stats.map((stat, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={{
-                      flex: 1,
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: theme.borderRadius['2xl'],
-                      padding: theme.spacing[4],
-                      alignItems: 'center',
-                      ...theme.shadows.lg,
-                      borderWidth: 1,
-                      borderColor: theme.colors.border.primary,
-                    }}
-                  >
+                  <TouchableOpacity key={index} style={styles.statCard}>
                     {stat.type === 'Feather' ? (
                       <Feather name={stat.icon} size={24} color={theme.colors.primary.emerald} />
                     ) : (
                       <FontAwesome name={stat.icon} size={24} color={theme.colors.primary.emerald} />
                     )}
-                    <Text style={{
-                      fontSize: 24,
-                      fontWeight: theme.typography.h3.fontWeight,
-                      color: theme.colors.text.primary,
-                      marginTop: theme.spacing[2],
-                      marginBottom: theme.spacing[1],
-                    }}>
-                      {stat.number}
-                    </Text>
-                    <Text style={{
-                      fontSize: theme.typography.caption.fontSize,
-                      color: theme.colors.text.secondary,
-                      textAlign: 'center',
-                    }}>
-                      {stat.label}
-                    </Text>
+                    <Text style={styles.statNumber}>{stat.number}</Text>
+                    <Text style={styles.statLabel}>{stat.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -428,37 +375,18 @@ const IndexScreen = () => {
           </View>
 
           {/* Auth Card */}
-          <View style={{
-            paddingHorizontal: theme.spacing[4],
-            paddingBottom: theme.spacing[8],
-          }}>
-                          <Card
-                style={{
-                  maxWidth: 400,
-                  alignSelf: 'center',
-                  width: '100%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  ...theme.shadows.xl,
-                }}
-            >
-              <View style={{ alignItems: 'center', gap: theme.spacing[2], marginBottom: theme.spacing[4] }}>
-                <Text style={{
-                  fontSize: theme.typography.h4.fontSize,
-                  fontWeight: theme.typography.h4.fontWeight,
-                  color: theme.colors.text.primary,
-                }}>
+          <View style={styles.authCardContainer}>
+            <Card style={styles.authCard}>
+              <View style={styles.authCardHeader}>
+                <Text style={styles.authCardHeaderTitle}>
                   {isLogin ? 'Welcome Back' : 'Join the Revolution'}
                 </Text>
-                <Text style={{
-                  fontSize: theme.typography.body.fontSize,
-                  color: theme.colors.text.secondary,
-                  textAlign: 'center',
-                }}>
+                <Text style={styles.authCardHeaderSubtitle}>
                   Start your journey to career success
                 </Text>
               </View>
 
-              <View style={{ gap: theme.spacing[4] }}>
+              <View style={styles.authCardBody}>
                 {/* Phone input */}
                 <Input
                   label="Phone Number"
@@ -481,151 +409,62 @@ const IndexScreen = () => {
                 <Button
                   variant="gradient"
                   size="lg"
-                  style={{
-                    backgroundColor: theme.colors.primary.emerald,
-                    ...theme.shadows.lg,
-                  }}
+                  style={styles.authCardButton}
+                  onPress={handleLogin}
+                  disabled={isLoading}
                 >
-                  <Text style={{ color: theme.colors.text.white, marginRight: theme.spacing[2] }}>
-                    {isLogin ? 'Enter Dashboard' : 'Begin Journey'}
-                  </Text>
-                  <FontAwesome name="arrow-circle-right" size={20} color={theme.colors.text.white} />
+                  <View style={styles.authButtonContent}>
+                    <Text style={styles.authButtonText}>
+                      {isLoading ? 'Signing in...' : isLogin ? 'Enter Dashboard' : 'Begin Journey'}
+                    </Text>
+                    <FontAwesome name="arrow-circle-right" size={20} color={theme.colors.text.white} />
+                  </View>
                 </Button>
 
-                <View style={{
-                  alignItems: 'center',
-                  marginVertical: theme.spacing[4],
-                }}>
-                  <View style={{
-                    height: 1,
-                    backgroundColor: theme.colors.border.primary,
-                    width: '100%',
-                    position: 'absolute',
-                    top: '50%',
-                  }} />
-                  <Text style={{
-                    backgroundColor: theme.colors.background.secondary,
-                    paddingHorizontal: theme.spacing[4],
-                    fontSize: theme.typography.caption.fontSize,
-                    color: theme.colors.text.secondary,
-                    textTransform: 'uppercase',
-                  }}>
-                    Or continue with
-                  </Text>
+                <View style={styles.dividerContainer}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>Or continue with</Text>
                 </View>
 
                 {/* Social login options */}
-                <View style={{ gap: theme.spacing[3] }}>
-                  <Button
-                    variant="outline"
-                    style={{
-                      backgroundColor: '#F5F5F5',
-                      borderColor: theme.colors.border.primary,
-                    }}
-                  >
-                    <FontAwesome name="google" size={20} color={theme.colors.text.primary} />
-                    <Text style={{ color: theme.colors.text.primary, marginLeft: theme.spacing[2] }}>
-                      Continue with Google
-                    </Text>
+                <View style={styles.socialButtonsContainer}>
+                  <Button variant="outline" style={styles.socialButton}>
+                    <View style={styles.socialButtonContent}>
+                      <FontAwesome name="google" size={20} color={theme.colors.text.primary} />
+                      <Text style={styles.socialButtonText}>Continue with Google</Text>
+                    </View>
                   </Button>
 
-                  <Button
-                    variant="outline"
-                    style={{
-                      backgroundColor: '#F5F5F5',
-                      borderColor: theme.colors.border.primary,
-                    }}
-                  >
-                    <FontAwesome name="phone" size={20} color={theme.colors.text.primary} />
-                    <Text style={{ color: theme.colors.text.primary, marginLeft: theme.spacing[2] }}>
-                      Connect with WhatsApp
-                    </Text>
+                  <Button variant="outline" style={styles.socialButton}>
+                    <View style={styles.socialButtonContent}>
+                      <FontAwesome name="phone" size={20} color={theme.colors.text.primary} />
+                      <Text style={styles.socialButtonText}>Connect with WhatsApp</Text>
+                    </View>
                   </Button>
                 </View>
 
-                <Text style={{
-                  fontSize: theme.typography.labelSmall.fontSize,
-                  textAlign: 'center',
-                  color: theme.colors.text.tertiary,
-                  marginTop: theme.spacing[4],
-                }}>
+                <Text style={styles.agreementText}>
                   By continuing you agree to our{' '}
-                  <Text style={{ color: theme.colors.primary.emerald, fontWeight: '500' }}>
-                    Terms of Service
-                  </Text>
+                  <Text style={styles.agreementLink}>Terms of Service</Text>
                   {' '}and{' '}
-                  <Text style={{ color: theme.colors.primary.emerald, fontWeight: '500' }}>
-                    Privacy Policy
-                  </Text>
+                  <Text style={styles.agreementLink}>Privacy Policy</Text>
                 </Text>
               </View>
             </Card>
           </View>
 
           {/* Features Grid */}
-          <View style={{
-            paddingHorizontal: theme.spacing[4],
-            paddingVertical: theme.spacing[8],
-          }}>
-            <View style={{ maxWidth: 400, alignSelf: 'center', width: '100%' }}>
-              <Text style={{
-                fontSize: theme.typography.h4.fontSize,
-                fontWeight: theme.typography.h4.fontWeight,
-                textAlign: 'center',
-                marginBottom: theme.spacing[6],
-                color: theme.colors.text.primary,
-              }}>
-                Why Choose Our Platform?
-              </Text>
-              <View style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                gap: theme.spacing[4],
-                justifyContent: 'space-between',
-              }}>
+          <View style={styles.featuresContainer}>
+            <View style={styles.featuresInner}>
+              <Text style={styles.featuresTitle}>Why Choose Our Platform?</Text>
+              <View style={styles.featuresGrid}>
                 {features.map((feature, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={{
-                      width: '47%',
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: theme.borderRadius['2xl'],
-                      padding: theme.spacing[4],
-                      alignItems: 'center',
-                      gap: theme.spacing[3],
-                      ...theme.shadows.lg,
-                      borderWidth: 1,
-                      borderColor: theme.colors.border.primary,
-                    }}
-                  >
-                    <LinearGradient
-                      colors={feature.color}
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: theme.borderRadius.xl,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        ...theme.shadows.lg,
-                      }}
-                    >
+                  <TouchableOpacity key={index} style={styles.featureCard}>
+                    <LinearGradient colors={feature.color} style={styles.featureIcon}>
                       <Feather name={feature.icon} size={24} color={theme.colors.text.white} />
                     </LinearGradient>
-                    <Text style={{
-                      fontWeight: theme.typography.label.fontWeight,
-                      fontSize: theme.typography.bodySmall.fontSize,
-                      color: theme.colors.text.primary,
-                      textAlign: 'center',
-                    }}>
-                      {feature.title}
-                    </Text>
-                    <Text style={{
-                      fontSize: theme.typography.labelSmall.fontSize,
-                      color: theme.colors.text.secondary,
-                      textAlign: 'center',
-                    }}>
-                      {feature.description}
-                    </Text>
+                    <Text style={styles.featureTitle}>{feature.title}</Text>
+                    <Text style={styles.featureDescription}>{feature.description}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -633,31 +472,16 @@ const IndexScreen = () => {
           </View>
 
           {/* Bottom CTA */}
-          <View style={{
-            paddingHorizontal: theme.spacing[4],
-            paddingVertical: theme.spacing[6],
-          }}>
-            <View style={{ maxWidth: 400, alignSelf: 'center', width: '100%', alignItems: 'center', gap: theme.spacing[4] }}>
-              <Text style={{
-                fontSize: theme.typography.body.fontSize,
-                color: theme.colors.text.secondary,
-                textAlign: 'center',
-              }}>
+          <View style={styles.bottomCtaContainer}>
+            <View style={styles.bottomCtaInner}>
+              <Text style={styles.bottomCtaText}>
                 Ready to revolutionize your job search?
               </Text>
-              <Button
-                variant="outline"
-                size="lg"
-                fullWidth
-                style={{
-                  backgroundColor: '#F5F5F5',
-                  borderColor: theme.colors.border.primary,
-                }}
-              >
-                <Feather name="briefcase" size={20} color={theme.colors.text.primary} />
-                <Text style={{ color: theme.colors.text.primary, marginLeft: theme.spacing[2] }}>
-                  Post a Job for Employers
-                </Text>
+              <Button variant="outline" size="lg" fullWidth style={styles.bottomCtaButton}>
+                <View style={styles.bottomCtaButtonContent}>
+                  <Feather name="briefcase" size={20} color={theme.colors.text.primary} />
+                  <Text style={styles.bottomCtaButtonText}>Post a Job for Employers</Text>
+                </View>
               </Button>
             </View>
           </View>
@@ -666,5 +490,241 @@ const IndexScreen = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  backgroundContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: screenWidth,
+    height: screenHeight,
+  },
+  heroContainer: {
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing[4],
+    paddingTop: theme.spacing[12],
+    paddingBottom: theme.spacing[8],
+  },
+  heroInner: {
+    maxWidth: 400,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  heroTitle: {
+    fontSize: theme.typography.h1.fontSize,
+    fontWeight: theme.typography.h1.fontWeight,
+    textAlign: 'center',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[4],
+  },
+  heroSubtitle: {
+    fontSize: theme.typography.bodyLarge.fontSize,
+    fontWeight: '500',
+    color: theme.colors.text.primary,
+    textAlign: 'center',
+  },
+  heroDescription: {
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: theme.spacing[4],
+    paddingVertical: theme.spacing[6],
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: theme.borderRadius['2xl'],
+    padding: theme.spacing[4],
+    alignItems: 'center',
+    ...theme.shadows.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: theme.typography.h3.fontWeight,
+    color: theme.colors.text.primary,
+    marginTop: theme.spacing[2],
+    marginBottom: theme.spacing[1],
+  },
+  statLabel: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+  },
+  authCardContainer: {
+    paddingHorizontal: theme.spacing[4],
+    paddingBottom: theme.spacing[8],
+  },
+  authCard: {
+    maxWidth: 400,
+    alignSelf: 'center',
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    ...theme.shadows.xl,
+  },
+  authCardHeader: {
+    alignItems: 'center',
+    gap: theme.spacing[2],
+    marginBottom: theme.spacing[4],
+  },
+  authCardHeaderTitle: {
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: theme.typography.h4.fontWeight,
+    color: theme.colors.text.primary,
+  },
+  authCardHeaderSubtitle: {
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+  },
+  authCardBody: {
+    gap: theme.spacing[4],
+  },
+  authCardButton: {
+    backgroundColor: theme.colors.primary.emerald,
+    ...theme.shadows.lg,
+  },
+  authButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[2],
+  },
+  authButtonText: {
+    color: theme.colors.text.white,
+  },
+  dividerContainer: {
+    alignItems: 'center',
+    marginVertical: theme.spacing[4],
+  },
+  dividerLine: {
+    height: 1,
+    backgroundColor: theme.colors.border.primary,
+    width: '100%',
+    position: 'absolute',
+    top: '50%',
+  },
+  dividerText: {
+    backgroundColor: theme.colors.background.secondary,
+    paddingHorizontal: theme.spacing[4],
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.text.secondary,
+    textTransform: 'uppercase',
+  },
+  socialButtonsContainer: {
+    gap: theme.spacing[3],
+  },
+  socialButton: {
+    backgroundColor: '#F5F5F5',
+    borderColor: theme.colors.border.primary,
+  },
+  socialButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[2],
+  },
+  socialButtonText: {
+    color: theme.colors.text.primary,
+  },
+  agreementText: {
+    fontSize: theme.typography.labelSmall.fontSize,
+    textAlign: 'center',
+    color: theme.colors.text.tertiary,
+    marginTop: theme.spacing[4],
+  },
+  agreementLink: {
+    color: theme.colors.primary.emerald,
+    fontWeight: '500',
+  },
+  featuresContainer: {
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[8],
+  },
+  featuresInner: {
+    maxWidth: 400,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  featuresTitle: {
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: theme.typography.h4.fontWeight,
+    textAlign: 'center',
+    marginBottom: theme.spacing[6],
+    color: theme.colors.text.primary,
+  },
+  featuresGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing[4],
+    justifyContent: 'space-between',
+  },
+  featureCard: {
+    width: '47%',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: theme.borderRadius['2xl'],
+    padding: theme.spacing[4],
+    alignItems: 'center',
+    gap: theme.spacing[3],
+    ...theme.shadows.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+  },
+  featureIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: theme.borderRadius.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...theme.shadows.lg,
+  },
+  featureTitle: {
+    fontWeight: theme.typography.label.fontWeight,
+    fontSize: theme.typography.bodySmall.fontSize,
+    color: theme.colors.text.primary,
+    textAlign: 'center',
+  },
+  featureDescription: {
+    fontSize: theme.typography.labelSmall.fontSize,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+  },
+  bottomCtaContainer: {
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[6],
+  },
+  bottomCtaInner: {
+    maxWidth: 400,
+    alignSelf: 'center',
+    width: '100%',
+    alignItems: 'center',
+    gap: theme.spacing[4],
+  },
+  bottomCtaText: {
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+  },
+  bottomCtaButton: {
+    backgroundColor: '#F5F5F5',
+    borderColor: theme.colors.border.primary,
+  },
+  bottomCtaButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[2],
+  },
+  bottomCtaButtonText: {
+    color: theme.colors.text.primary,
+  },
+
+});
 
 export default IndexScreen;

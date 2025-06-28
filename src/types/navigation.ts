@@ -273,25 +273,10 @@ export type DeepLinkConfig = {
         MyJobs: 'my-jobs';
       };
     };
-    JobDetails: {
-      path: '/job/:jobId';
-      parse: {
-        jobId: (id: string) => String(id),
-      };
-    };
+    JobDetails: '/job/:jobId';
     CreateJob: 'create-job';
-    JobApplications: {
-      path: '/job/:jobId/applications';
-      parse: {
-        jobId: (id: string) => String(id),
-      };
-    };
-    ApplicationDetails: {
-      path: '/application/:applicationId';
-      parse: {
-        applicationId: (id: string) => String(id),
-      };
-    };
+    JobApplications: '/job/:jobId/applications';
+    ApplicationDetails: '/application/:applicationId';
   };
 };
 

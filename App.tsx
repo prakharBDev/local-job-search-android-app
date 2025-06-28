@@ -21,6 +21,7 @@ import JobDetailsScreen from './src/screens/JobDetailsScreen';
 // Import providers
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { UserProvider } from './src/contexts/UserContext';
+import { ProfileProvider } from './src/contexts/ProfileContext';
 
 // Import theme
 import { theme } from './src/theme';
@@ -244,14 +245,16 @@ const App: React.FC = () => {
       />
       <AuthProvider>
         <UserProvider>
-          {!isReady ? (
-            <AppLoadingScreen />
-          ) : (
-            <InnerApp
-              initialState={initialState}
-              onStateChange={onStateChange}
-            />
-          )}
+          <ProfileProvider>
+            {!isReady ? (
+              <AppLoadingScreen />
+            ) : (
+              <InnerApp
+                initialState={initialState}
+                onStateChange={onStateChange}
+              />
+            )}
+          </ProfileProvider>
         </UserProvider>
       </AuthProvider>
     </>

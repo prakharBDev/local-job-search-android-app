@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { Card, Badge } from '../components/ui';
+import { Card, Badge, ProfileSwitcher } from '../components/ui';
 import { theme } from '../theme';
 import Feather from 'react-native-vector-icons/Feather';
 import { useAuth } from '../contexts/AuthContext';
@@ -239,33 +239,19 @@ const DashboardScreen = () => {
                   Here's your job search progress
                 </Text>
               </View>
-              <TouchableOpacity
+              <ProfileSwitcher 
+                size="medium" 
+                showName={true}
                 style={{
-                  paddingHorizontal: theme.spacing[3],
-                  paddingVertical: theme.spacing[2],
+                  paddingHorizontal: theme.spacing[2],
+                  paddingVertical: theme.spacing[1],
                   borderRadius: theme.borderRadius.lg,
                   backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   ...theme.shadows.md,
                   borderWidth: 1,
                   borderColor: 'rgba(255, 255, 255, 0.5)',
                 }}
-                onPress={() => logout()}
-                activeOpacity={0.8}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Feather name="log-out" size={18} color={theme.colors.text.primary} />
-                  <Text style={{
-                    marginLeft: theme.spacing[2],
-                    fontSize: theme.typography.buttonSmall.fontSize,
-                    fontWeight: theme.typography.button.fontWeight,
-                    color: theme.colors.text.primary,
-                  }}>
-                    Logout
-                  </Text>
-                </View>
-              </TouchableOpacity>
+              />
             </View>
           </Animated.View>
 
@@ -504,7 +490,6 @@ const DashboardScreen = () => {
               </View>
               
               <Card
-                variant="glass"
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.9)',
                   ...theme.shadows.lg,
@@ -596,7 +581,6 @@ const DashboardScreen = () => {
               </Text>
               
               <Card
-                variant="glass"
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.9)',
                   ...theme.shadows.lg,

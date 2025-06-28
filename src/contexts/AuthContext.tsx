@@ -120,7 +120,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         dispatch({ type: 'AUTH_RESTORE', payload: null });
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
       dispatch({
         type: 'AUTH_ERROR',
         payload: 'Failed to check authentication status',
@@ -141,7 +140,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       dispatch({ type: 'AUTH_SUCCESS', payload: user });
     } catch (error) {
-      console.error('Login failed:', error);
       dispatch({
         type: 'AUTH_ERROR',
         payload: 'Login failed. Please try again.',
@@ -162,7 +160,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       dispatch({ type: 'AUTH_LOGOUT' });
     } catch (error) {
-      console.error('Logout failed:', error);
       dispatch({
         type: 'AUTH_ERROR',
         payload: 'Logout failed. Please try again.',

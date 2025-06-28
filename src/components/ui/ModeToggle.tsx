@@ -126,10 +126,20 @@ const ModeToggle: React.FC<ModeToggleProps> = ({
 
         {/* Mode indicators on toggle track */}
         <View style={styles.trackIcons}>
-          <Text style={[styles.trackIcon, { opacity: isSeekerMode ? 1 : 0.3 }]}>
+          <Text
+            style={[
+              styles.trackIcon,
+              isSeekerMode ? styles.trackIconActive : styles.trackIconInactive,
+            ]}
+          >
             👤
           </Text>
-          <Text style={[styles.trackIcon, { opacity: isPosterMode ? 1 : 0.3 }]}>
+          <Text
+            style={[
+              styles.trackIcon,
+              isPosterMode ? styles.trackIconActive : styles.trackIconInactive,
+            ]}
+          >
             🏢
           </Text>
         </View>
@@ -196,6 +206,12 @@ const styles = StyleSheet.create({
   },
   trackIcon: {
     fontSize: 16,
+  },
+  trackIconActive: {
+    opacity: 1,
+  },
+  trackIconInactive: {
+    opacity: 0.3,
   },
   currentModeText: {
     marginTop: 8,

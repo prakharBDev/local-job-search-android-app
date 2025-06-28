@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { theme } from '../theme';
 
 const AboutScreen = () => {
   return (
@@ -18,25 +19,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background.secondary,
     padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#333',
+    color: theme.colors.text.primary,
   },
   description: {
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 20,
-    color: '#666',
+    color: theme.colors.text.secondary,
     lineHeight: 24,
   },
   version: {
     fontSize: 14,
-    color: '#888',
+    color: theme.colors.text.tertiary,
     fontStyle: 'italic',
   },
 });

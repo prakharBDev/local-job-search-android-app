@@ -89,8 +89,8 @@ const AppliedJobsScreen: React.FC = () => {
     });
   };
 
-  const handleViewDetails = (applicationId: string) => {
-    console.log('View application details:', applicationId);
+  const handleViewDetails = (_applicationId: string) => {
+    // Handle view application details logic
   };
 
   if (applications.length === 0) {
@@ -109,7 +109,7 @@ const AppliedJobsScreen: React.FC = () => {
           </Text>
           <Button
             variant="default"
-            onPress={() => console.log('Navigate to job search')}
+            onPress={() => {}}
             icon={null}
             disabled={false}
             style={styles.emptyButton}
@@ -201,7 +201,7 @@ const AppliedJobsScreen: React.FC = () => {
                 <Button
                   variant="default"
                   size="sm"
-                  onPress={() => console.log('Schedule interview')}
+                  onPress={() => {}}
                   icon={null}
                   disabled={false}
                   style={styles.actionButton}

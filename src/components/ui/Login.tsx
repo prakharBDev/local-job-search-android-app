@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { theme } from '../../theme';
 
 interface LoginProps {
   onLogin?: (_email: string, _password: string) => void;
@@ -62,31 +63,31 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background.primary,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 30,
-    color: '#333',
+    color: theme.colors.text.primary,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: theme.colors.border.primary,
     padding: 15,
     marginBottom: 15,
     borderRadius: 8,
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: theme.colors.primary.emerald,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.text.white,
     fontSize: 16,
     fontWeight: 'bold',
   },

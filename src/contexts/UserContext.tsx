@@ -100,7 +100,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           dispatch({ type: 'RESTORE_MODE', payload: savedMode as UserMode });
         }
       } catch (error) {
-        console.error('Failed to load user mode:', error);
         // Continue with default mode
       }
     };
@@ -121,7 +120,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
       dispatch({ type: 'SET_MODE_SUCCESS', payload: mode });
     } catch (error) {
-      console.error('Failed to switch mode:', error);
       dispatch({
         type: 'SET_MODE_ERROR',
         payload: 'Failed to switch mode. Please try again.',

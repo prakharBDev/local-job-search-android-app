@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Animated,
+  StyleSheet,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { Card, Badge } from '../components/ui';
@@ -162,64 +163,25 @@ const DashboardScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.container}>
       <LinearGradient
         colors={['#E8F5E8', '#F3E5F5', '#E3F2FD']} // Green to purple to blue gradient
-        style={{ flex: 1 }}
+        style={styles.gradient}
       >
         <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: theme.spacing[8] }}
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}
         >
           {/* Header */}
-          <Animated.View
-            style={{
-              opacity: fadeAnim,
-              paddingHorizontal: theme.spacing[4],
-              paddingVertical: theme.spacing[6],
-            }}
-          >
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
+          <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
+            <View style={styles.headerContainer}>
               <View>
-                <Text
-                  style={{
-                    fontSize: theme.typography.h4.fontSize,
-                    fontWeight: theme.typography.h4.fontWeight,
-                    color: theme.colors.text.primary,
-                    marginBottom: theme.spacing[1],
-                  }}
-                >
-                  Welcome back, Alex!
-                </Text>
-                <Text
-                  style={{
-                    fontSize: theme.typography.body.fontSize,
-                    color: theme.colors.text.secondary,
-                  }}
-                >
+                <Text style={styles.welcomeTitle}>Welcome back, Alex!</Text>
+                <Text style={styles.welcomeSubtitle}>
                   Here's your job search progress
                 </Text>
               </View>
-              <TouchableOpacity
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 24,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  ...theme.shadows.md,
-                }}
-              >
+              <TouchableOpacity style={styles.notificationButton}>
                 <Feather
                   name="bell"
                   size={24}
@@ -230,53 +192,23 @@ const DashboardScreen = () => {
           </Animated.View>
 
           {/* Period Selector */}
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[6],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  borderRadius: theme.borderRadius.xl,
-                  padding: theme.spacing[1],
-                  ...theme.shadows.md,
-                }}
-              >
+          <View style={styles.periodSelectorContainer}>
+            <View style={styles.centeredContainer}>
+              <View style={styles.periodSelector}>
                 {periods.map(period => (
                   <TouchableOpacity
                     key={period}
                     onPress={() => setSelectedPeriod(period)}
-                    style={{
-                      flex: 1,
-                      paddingVertical: theme.spacing[2],
-                      paddingHorizontal: theme.spacing[3],
-                      borderRadius: theme.borderRadius.lg,
-                      backgroundColor:
-                        selectedPeriod === period
-                          ? theme.colors.primary.emerald
-                          : 'transparent',
-                    }}
+                    style={[
+                      styles.periodTab,
+                      selectedPeriod === period && styles.periodTabActive,
+                    ]}
                   >
                     <Text
-                      style={{
-                        textAlign: 'center',
-                        fontSize: theme.typography.buttonSmall.fontSize,
-                        fontWeight: theme.typography.button.fontWeight,
-                        color:
-                          selectedPeriod === period
-                            ? theme.colors.text.white
-                            : theme.colors.text.secondary,
-                      }}
+                      style={[
+                        styles.periodTabText,
+                        selectedPeriod === period && styles.periodTabTextActive,
+                      ]}
                     >
                       {period}
                     </Text>
@@ -287,57 +219,17 @@ const DashboardScreen = () => {
           </View>
 
           {/* Stats Grid */}
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[8],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: theme.spacing[3],
-                  justifyContent: 'space-between',
-                }}
-              >
+          <View style={styles.statsContainer}>
+            <View style={styles.centeredContainer}>
+              <View style={styles.statsGrid}>
                 {stats.map((stat, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={{
-                      width: '47%',
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      borderRadius: theme.borderRadius['2xl'],
-                      padding: theme.spacing[4],
-                      ...theme.shadows.lg,
-                      borderWidth: 1,
-                      borderColor: theme.colors.border.primary,
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: theme.spacing[3],
-                      }}
-                    >
+                  <TouchableOpacity key={index} style={styles.statCard}>
+                    <View style={styles.statHeader}>
                       <View
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 16,
-                          backgroundColor: `${stat.color}20`,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
+                        style={[
+                          styles.statIcon,
+                          { backgroundColor: `${stat.color}20` },
+                        ]}
                       >
                         <Feather
                           name={stat.icon}
@@ -348,39 +240,13 @@ const DashboardScreen = () => {
                       <Badge
                         variant="success"
                         size="sm"
-                        style={{
-                          backgroundColor: `${theme.colors.status.success}20`,
-                        }}
+                        style={styles.statBadge}
                       >
-                        <Text
-                          style={{
-                            fontSize: 10,
-                            color: theme.colors.status.success,
-                            fontWeight: '600',
-                          }}
-                        >
-                          {stat.change}
-                        </Text>
+                        <Text style={styles.statBadgeText}>{stat.change}</Text>
                       </Badge>
                     </View>
-                    <Text
-                      style={{
-                        fontSize: 24,
-                        fontWeight: theme.typography.h3.fontWeight,
-                        color: theme.colors.text.primary,
-                        marginBottom: theme.spacing[1],
-                      }}
-                    >
-                      {stat.value}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: theme.typography.caption.fontSize,
-                        color: theme.colors.text.secondary,
-                      }}
-                    >
-                      {stat.label}
-                    </Text>
+                    <Text style={styles.statValue}>{stat.value}</Text>
+                    <Text style={styles.statLabel}>{stat.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -388,62 +254,15 @@ const DashboardScreen = () => {
           </View>
 
           {/* Quick Actions */}
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[8],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: theme.typography.h5.fontSize,
-                  fontWeight: theme.typography.h5.fontWeight,
-                  color: theme.colors.text.primary,
-                  marginBottom: theme.spacing[4],
-                }}
-              >
-                Quick Actions
-              </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: theme.spacing[3],
-                  justifyContent: 'space-between',
-                }}
-              >
+          <View style={styles.quickActionsContainer}>
+            <View style={styles.centeredContainer}>
+              <Text style={styles.sectionTitle}>Quick Actions</Text>
+              <View style={styles.quickActionsGrid}>
                 {quickActions.map((action, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={{
-                      width: '47%',
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      borderRadius: theme.borderRadius['2xl'],
-                      padding: theme.spacing[4],
-                      alignItems: 'center',
-                      gap: theme.spacing[3],
-                      ...theme.shadows.lg,
-                      borderWidth: 1,
-                      borderColor: theme.colors.border.primary,
-                    }}
-                  >
+                  <TouchableOpacity key={index} style={styles.quickActionCard}>
                     <LinearGradient
                       colors={action.color}
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: theme.borderRadius.xl,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        ...theme.shadows.md,
-                      }}
+                      style={styles.quickActionIcon}
                     >
                       <Feather
                         name={action.icon}
@@ -451,25 +270,11 @@ const DashboardScreen = () => {
                         color={theme.colors.text.white}
                       />
                     </LinearGradient>
-                    <View style={{ alignItems: 'center' }}>
-                      <Text
-                        style={{
-                          fontSize: theme.typography.bodySmall.fontSize,
-                          fontWeight: theme.typography.label.fontWeight,
-                          color: theme.colors.text.primary,
-                          textAlign: 'center',
-                          marginBottom: theme.spacing[1],
-                        }}
-                      >
+                    <View style={styles.quickActionText}>
+                      <Text style={styles.quickActionTitle}>
                         {action.title}
                       </Text>
-                      <Text
-                        style={{
-                          fontSize: theme.typography.labelSmall.fontSize,
-                          color: theme.colors.text.secondary,
-                          textAlign: 'center',
-                        }}
-                      >
+                      <Text style={styles.quickActionSubtitle}>
                         {action.subtitle}
                       </Text>
                     </View>
@@ -480,82 +285,31 @@ const DashboardScreen = () => {
           </View>
 
           {/* Recent Activity */}
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[8],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: theme.spacing[4],
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: theme.typography.h5.fontSize,
-                    fontWeight: theme.typography.h5.fontWeight,
-                    color: theme.colors.text.primary,
-                  }}
-                >
-                  Recent Activity
-                </Text>
+          <View style={styles.recentActivityContainer}>
+            <View style={styles.centeredContainer}>
+              <View style={styles.recentActivityHeader}>
+                <Text style={styles.sectionTitle}>Recent Activity</Text>
                 <TouchableOpacity>
-                  <Text
-                    style={{
-                      fontSize: theme.typography.caption.fontSize,
-                      color: theme.colors.primary.emerald,
-                      fontWeight: '500',
-                    }}
-                  >
-                    View All
-                  </Text>
+                  <Text style={styles.viewAllText}>View All</Text>
                 </TouchableOpacity>
               </View>
 
-              <Card
-                variant="glass"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  ...theme.shadows.lg,
-                }}
-              >
-                <View style={{ gap: theme.spacing[1] }}>
+              <Card style={styles.recentActivityCard}>
+                <View style={styles.activitiesList}>
                   {recentActivity.map((activity, index) => (
                     <TouchableOpacity
                       key={activity.id}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingVertical: theme.spacing[3],
-                        paddingHorizontal: theme.spacing[2],
-                        borderRadius: theme.borderRadius.lg,
-                        ...(index < recentActivity.length - 1 && {
-                          borderBottomWidth: 1,
-                          borderBottomColor: theme.colors.border.primary,
-                        }),
-                      }}
+                      style={[
+                        styles.activityItem,
+                        index < recentActivity.length - 1 &&
+                          styles.activityItemWithBorder,
+                      ]}
                     >
                       <View
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 20,
-                          backgroundColor: activity.avatar,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          marginRight: theme.spacing[3],
-                        }}
+                        style={[
+                          styles.activityAvatar,
+                          { backgroundColor: activity.avatar },
+                        ]}
                       >
                         <Feather
                           name={activity.type}
@@ -563,23 +317,11 @@ const DashboardScreen = () => {
                           color={theme.colors.text.white}
                         />
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <Text
-                          style={{
-                            fontSize: theme.typography.bodySmall.fontSize,
-                            fontWeight: '500',
-                            color: theme.colors.text.primary,
-                            marginBottom: theme.spacing[1],
-                          }}
-                        >
+                      <View style={styles.activityContent}>
+                        <Text style={styles.activityTitle}>
                           {activity.title}
                         </Text>
-                        <Text
-                          style={{
-                            fontSize: theme.typography.caption.fontSize,
-                            color: theme.colors.text.secondary,
-                          }}
-                        >
+                        <Text style={styles.activityCompany}>
                           {activity.company} • {activity.time}
                         </Text>
                       </View>
@@ -594,11 +336,10 @@ const DashboardScreen = () => {
                         }}
                       >
                         <Text
-                          style={{
-                            fontSize: 10,
-                            color: getStatusColor(activity.status),
-                            fontWeight: '500',
-                          }}
+                          style={[
+                            styles.activityBadge,
+                            { color: getStatusColor(activity.status) },
+                          ]}
                         >
                           {getStatusLabel(activity.status)}
                         </Text>
@@ -611,121 +352,35 @@ const DashboardScreen = () => {
           </View>
 
           {/* Daily Goal Progress */}
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[6],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: theme.typography.h5.fontSize,
-                  fontWeight: theme.typography.h5.fontWeight,
-                  color: theme.colors.text.primary,
-                  marginBottom: theme.spacing[4],
-                }}
-              >
-                Daily Goal Progress
-              </Text>
+          <View style={styles.dailyGoalContainer}>
+            <View style={styles.centeredContainer}>
+              <Text style={styles.sectionTitle}>Daily Goal Progress</Text>
 
-              <Card
-                variant="glass"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  ...theme.shadows.lg,
-                }}
-              >
-                <View style={{ gap: theme.spacing[4] }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: theme.typography.body.fontSize,
-                        fontWeight: '500',
-                        color: theme.colors.text.primary,
-                      }}
-                    >
-                      Job Applications
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: theme.typography.bodySmall.fontSize,
-                        color: theme.colors.text.secondary,
-                      }}
-                    >
-                      3/5 completed
-                    </Text>
+              <Card style={styles.dailyGoalCard}>
+                <View style={styles.dailyGoalContent}>
+                  <View style={styles.goalItem}>
+                    <Text style={styles.goalTitle}>Job Applications</Text>
+                    <Text style={styles.goalProgress}>3/5 completed</Text>
                   </View>
-                  <View
-                    style={{
-                      height: 8,
-                      backgroundColor: theme.colors.border.secondary,
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                    }}
-                  >
+                  <View style={styles.progressBar}>
                     <View
-                      style={{
-                        width: '60%',
-                        height: '100%',
-                        backgroundColor: theme.colors.primary.emerald,
-                        borderRadius: 4,
-                      }}
+                      style={[
+                        styles.progressBarFill,
+                        styles.progressBarApplications,
+                      ]}
                     />
                   </View>
 
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: theme.typography.body.fontSize,
-                        fontWeight: '500',
-                        color: theme.colors.text.primary,
-                      }}
-                    >
-                      Profile Updates
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: theme.typography.bodySmall.fontSize,
-                        color: theme.colors.text.secondary,
-                      }}
-                    >
-                      1/2 completed
-                    </Text>
+                  <View style={styles.goalItem}>
+                    <Text style={styles.goalTitle}>Profile Updates</Text>
+                    <Text style={styles.goalProgress}>1/2 completed</Text>
                   </View>
-                  <View
-                    style={{
-                      height: 8,
-                      backgroundColor: theme.colors.border.secondary,
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                    }}
-                  >
+                  <View style={styles.progressBar}>
                     <View
-                      style={{
-                        width: '50%',
-                        height: '100%',
-                        backgroundColor: theme.colors.accent.orange,
-                        borderRadius: 4,
-                      }}
+                      style={[
+                        styles.progressBarFill,
+                        styles.progressBarProfile,
+                      ]}
                     />
                   </View>
                 </View>
@@ -737,5 +392,287 @@ const DashboardScreen = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    paddingBottom: theme.spacing[8],
+  },
+  header: {
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[6],
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    maxWidth: 400,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  welcomeTitle: {
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: theme.typography.h4.fontWeight,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[1],
+  },
+  welcomeSubtitle: {
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text.secondary,
+  },
+  notificationButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...theme.shadows.md,
+  },
+  periodSelectorContainer: {
+    paddingHorizontal: theme.spacing[4],
+    marginBottom: theme.spacing[6],
+  },
+  centeredContainer: {
+    maxWidth: 400,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  periodSelector: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing[1],
+    ...theme.shadows.md,
+  },
+  periodTab: {
+    flex: 1,
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[3],
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'transparent',
+  },
+  periodTabActive: {
+    backgroundColor: theme.colors.primary.emerald,
+  },
+  periodTabText: {
+    textAlign: 'center',
+    fontSize: theme.typography.buttonSmall.fontSize,
+    fontWeight: theme.typography.button.fontWeight,
+    color: theme.colors.text.secondary,
+  },
+  periodTabTextActive: {
+    color: theme.colors.text.white,
+  },
+  statsContainer: {
+    paddingHorizontal: theme.spacing[4],
+    marginBottom: theme.spacing[8],
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing[3],
+    justifyContent: 'space-between',
+  },
+  statCard: {
+    width: '47%',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: theme.borderRadius['2xl'],
+    padding: theme.spacing[4],
+    ...theme.shadows.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+  },
+  statHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing[3],
+  },
+  statIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statBadge: {
+    backgroundColor: `${theme.colors.status.success}20`,
+  },
+  statBadgeText: {
+    fontSize: 10,
+    color: theme.colors.status.success,
+    fontWeight: '600',
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: theme.typography.h3.fontWeight,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[1],
+  },
+  statLabel: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.text.secondary,
+  },
+  quickActionsContainer: {
+    paddingHorizontal: theme.spacing[4],
+    marginBottom: theme.spacing[8],
+  },
+  sectionTitle: {
+    fontSize: theme.typography.h5.fontSize,
+    fontWeight: theme.typography.h5.fontWeight,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[4],
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing[3],
+    justifyContent: 'space-between',
+  },
+  quickActionCard: {
+    width: '47%',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: theme.borderRadius['2xl'],
+    padding: theme.spacing[4],
+    alignItems: 'center',
+    gap: theme.spacing[3],
+    ...theme.shadows.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+  },
+  quickActionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: theme.borderRadius.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...theme.shadows.md,
+  },
+  quickActionText: {
+    alignItems: 'center',
+  },
+  quickActionTitle: {
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: theme.typography.label.fontWeight,
+    color: theme.colors.text.primary,
+    textAlign: 'center',
+    marginBottom: theme.spacing[1],
+  },
+  quickActionSubtitle: {
+    fontSize: theme.typography.labelSmall.fontSize,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+  },
+  recentActivityContainer: {
+    paddingHorizontal: theme.spacing[4],
+    marginBottom: theme.spacing[8],
+  },
+  recentActivityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing[4],
+  },
+  viewAllText: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.primary.emerald,
+    fontWeight: '500',
+  },
+  recentActivityCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    ...theme.shadows.lg,
+  },
+  activitiesList: {
+    gap: theme.spacing[1],
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[2],
+    borderRadius: theme.borderRadius.lg,
+  },
+  activityItemWithBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.primary,
+  },
+  activityAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: theme.spacing[3],
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: '500',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing[1],
+  },
+  activityCompany: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.text.secondary,
+  },
+  activityBadge: {
+    fontSize: 10,
+    fontWeight: '500',
+  },
+  dailyGoalContainer: {
+    paddingHorizontal: theme.spacing[4],
+    marginBottom: theme.spacing[6],
+  },
+  dailyGoalCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    ...theme.shadows.lg,
+  },
+  dailyGoalContent: {
+    gap: theme.spacing[4],
+  },
+  goalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  goalTitle: {
+    fontSize: theme.typography.body.fontSize,
+    fontWeight: '500',
+    color: theme.colors.text.primary,
+  },
+  goalProgress: {
+    fontSize: theme.typography.bodySmall.fontSize,
+    color: theme.colors.text.secondary,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: theme.colors.border.secondary,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressBarApplications: {
+    width: '60%',
+    backgroundColor: theme.colors.primary.emerald,
+  },
+  progressBarProfile: {
+    width: '50%',
+    backgroundColor: theme.colors.accent.orange,
+  },
+});
 
 export default DashboardScreen;

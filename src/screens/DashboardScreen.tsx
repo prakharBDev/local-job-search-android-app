@@ -574,7 +574,7 @@ const DashboardScreen = () => {
                   </View>
                   <View style={{
                     height: 8,
-                    backgroundColor: theme.colors.background.tertiary,
+                    backgroundColor: theme.colors.border.secondary,
                     borderRadius: 4,
                     overflow: 'hidden',
                   }}>
@@ -607,7 +607,7 @@ const DashboardScreen = () => {
                   </View>
                   <View style={{
                     height: 8,
-                    backgroundColor: theme.colors.background.tertiary,
+                    backgroundColor: theme.colors.border.secondary,
                     borderRadius: 4,
                     overflow: 'hidden',
                   }}>

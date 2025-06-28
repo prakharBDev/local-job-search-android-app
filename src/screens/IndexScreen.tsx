@@ -13,7 +13,7 @@ import { Button, Card, Input } from '../components/ui';
 import { theme } from '../theme';
 
 // Mock icons (we'll replace with actual icons later)
-const IconPlaceholder = ({ name, size = 20, color = theme.colors.text.primary }) => (
+const IconPlaceholder = ({ name: _name, size = 20, color = theme.colors.text.primary }) => (
   <View style={{
     width: size,
     height: size,

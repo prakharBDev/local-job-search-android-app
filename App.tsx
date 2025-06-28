@@ -1,9 +1,19 @@
 import React from 'react';
-import IndexScreen from './src/screens/IndexScreen';
-// import DashboardScreen from './src/screens/DashboardScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { AuthProvider } from './src/contexts/AuthContext';
+import { UserProvider } from './src/contexts/UserContext';
+import MainNavigator from './src/navigation/MainNavigator';
 
 const App = () => {
-  return <IndexScreen />;
+  return (
+    <AuthProvider>
+      <UserProvider>
+        <NavigationContainer>
+          <MainNavigator />
+        </NavigationContainer>
+      </UserProvider>
+    </AuthProvider>
+  );
 };
 
 export default App;

@@ -12,15 +12,15 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
 import { Button, Card, Input } from '../components/ui';
 import { theme } from '../theme';
-import type { RootStackNavigationProp } from '../types/navigation';
+import { useAuth } from '../contexts/AuthContext';
+import type { UserProfile } from '../types/navigation';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const IndexScreen = () => {
-  const navigation = useNavigation<RootStackNavigationProp>();
+  const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -83,13 +83,24 @@ const IndexScreen = () => {
     animateFloating();
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setIsLoading(true);
-    // Simple navigation to Dashboard for POC demo
-    setTimeout(() => {
+    try {
+      // Create a demo user profile for POC
+      const demoUser: UserProfile = {
+        id: 'demo-user-' + Date.now(),
+        name: phoneNumber.trim() || 'Demo User',
+        email: email.trim() || 'demo@jobconnect.app',
+        mode: 'seeker', // Default to seeker mode
+      };
+      
+      // Use the AuthContext login method - this will automatically navigate to Main
+      await login(demoUser);
+      
+    } catch (error) {
+      console.error('Login failed:', error);
       setIsLoading(false);
-      navigation.navigate('Main'); // Navigate to the main app which includes Dashboard
-    }, 300); // Short delay for visual feedback
+    }
   };
 
   const features = [

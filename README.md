@@ -9,14 +9,17 @@ Before running this project, ensure you have the following installed:
 ### Required Software
 
 1. **Node.js** (v18 or higher)
+
    - Download from [nodejs.org](https://nodejs.org/)
    - Verify installation: `node --version`
 
 2. **npm** or **Yarn**
+
    - npm comes with Node.js
    - For Yarn: `npm install -g yarn`
 
 3. **React Native CLI**
+
    ```bash
    npm install -g @react-native-community/cli
    ```
@@ -29,7 +32,9 @@ Before running this project, ensure you have the following installed:
 ### Android Development Setup
 
 #### Android Studio Requirements
+
 1. **Android Studio** (latest version)
+
    - Download from [developer.android.com](https://developer.android.com/studio)
    - Install with default settings
 
@@ -40,6 +45,7 @@ Before running this project, ensure you have the following installed:
    - **Android NDK** version 29.0.13599879 (specific version required)
 
 #### SDK Manager Installation Steps:
+
 1. Open Android Studio
 2. Go to `Tools` → `SDK Manager`
 3. In **SDK Platforms** tab:
@@ -51,6 +57,7 @@ Before running this project, ensure you have the following installed:
 5. Click `Apply` and `OK`
 
 #### Environment Variables
+
 Add these to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
 
 ```bash
@@ -73,12 +80,14 @@ export PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools
 ## Project Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd BasicApp
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -86,6 +95,7 @@ export PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools
    ```
 
 3. **iOS Setup** (macOS only)
+
    ```bash
    cd ios
    bundle exec pod install
@@ -102,6 +112,7 @@ export PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools
 ## Running the App
 
 ### Start Metro (JavaScript bundler)
+
 ```bash
 npm start
 # or
@@ -109,6 +120,7 @@ yarn start
 ```
 
 ### Run on Android
+
 ```bash
 # Make sure you have an Android emulator running or device connected
 npm run android
@@ -117,6 +129,7 @@ yarn android
 ```
 
 ### Run on iOS (macOS only)
+
 ```bash
 npm run ios
 # or
@@ -142,6 +155,7 @@ BasicApp/
 ## Key Configurations
 
 ### Android Build Configuration
+
 - **NDK Version**: 29.0.13599879 (required for proper native compilation)
 - **Build Tools**: 35.0.0
 - **Compile SDK**: 35
@@ -149,6 +163,7 @@ BasicApp/
 - **Min SDK**: 24
 
 ### Dependencies
+
 - React Native (latest)
 - React Navigation (for navigation)
 - TypeScript support
@@ -168,6 +183,7 @@ BasicApp/
 2. **Xcode Version**: Ensure you have the latest Xcode version
 
 ### Clean Build
+
 ```bash
 # Clean Metro cache
 npm start -- --reset-cache
@@ -182,6 +198,7 @@ cd ios && xcodebuild clean && cd ..
 ## Development
 
 ### Available Scripts
+
 - `npm start` - Start Metro bundler
 - `npm run android` - Run on Android
 - `npm run ios` - Run on iOS
@@ -189,6 +206,7 @@ cd ios && xcodebuild clean && cd ..
 - `npm run lint` - Run ESLint
 
 ### Hot Reload
+
 The app supports Fast Refresh. Save any file to see changes immediately.
 
 ## Contributing

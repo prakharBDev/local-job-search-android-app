@@ -1,0 +1,43 @@
+# Handle line endings automatically for cross-platform compatibility
+* text=auto
+
+# Specific file types
+*.js text eol=lf
+*.jsx text eol=lf  
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Windows specific files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# Android/iOS specific
+*.gradle text eol=lf
+*.properties text eol=lf
+*.plist text eol=lf
+*.pbxproj text eol=lf
+*.xcscheme text eol=lf
+*.xcworkspacedata text eol=lf
+
+# Gradle wrapper should maintain original line endings
+gradlew text eol=lf
+*.gradle text eol=lf
+
+# Keep local.properties as-is for platform-specific SDK paths
+android/local.properties -text

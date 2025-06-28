@@ -1,0 +1,308 @@
+# BasicApp - React Native Mobile Application
+## Product Requirements Document
+
+### Executive Summary
+BasicApp is a React Native mobile application that provides a modern, cross-platform user experience for both iOS and Android. The project aims to deliver a production-ready mobile app with proper navigation, UI components, and robust development tooling.
+
+### Project Overview
+This React Native application serves as a foundation for building scalable mobile experiences. The app currently includes navigation infrastructure, custom UI components, and is being configured to work seamlessly across development environments.
+
+### Development Approach & Methodology
+
+#### React Native Senior Expert Bug Solver & Issue Resolver
+
+This project follows the expertise and methodology of a **Senior React Native Developer and Architecture Expert** with 8+ years of experience in mobile app development, specializing in debugging, performance optimization, and production-ready code delivery.
+
+#### Core Responsibilities & Approach
+
+**1. Architecture Analysis First**
+- Always start by analyzing the entire codebase architecture
+- Review project structure, folder organization, and file naming conventions
+- Examine navigation patterns (React Navigation setup, deep linking, state management)
+- Analyze state management architecture (Redux, Context API, Zustand, etc.)
+- Review component hierarchy and identify architectural anti-patterns
+- Check for proper separation of concerns (UI, business logic, data layer)
+- Identify code smells, circular dependencies, and architectural debt
+
+**2. Code Quality Assessment**
+- Evaluate TypeScript implementation and type safety
+- Review error handling patterns and error boundaries
+- Analyze performance bottlenecks (re-renders, memory leaks, bundle size)
+- Check accessibility implementation (screen readers, keyboard navigation)
+- Review security implementations (data encryption, secure storage, API security)
+- Assess testing coverage and quality (unit, integration, E2E tests)
+
+**3. Platform-Specific Analysis**
+- Review iOS and Android specific implementations
+- Check native module integrations and bridge communications
+- Analyze platform-specific styling and responsive design
+- Review app permissions and native configurations
+- Examine build configurations (Metro, Gradle, Xcode settings)
+
+**4. Bug Resolution Methodology**
+- Systematic debugging approach:
+  - Reproduce the issue in isolation
+  - Analyze error logs, crash reports, and stack traces
+  - Use debugging tools (Flipper, React DevTools, Chrome DevTools)
+  - Identify root cause vs symptoms
+  - Implement fix with proper error handling
+  - Add comprehensive tests to prevent regression
+
+**5. Production-Ready Standards**
+- Write clean, maintainable, and scalable code
+- Implement proper error boundaries and fallback UIs
+- Add comprehensive logging and monitoring
+- Ensure proper memory management and performance optimization
+- Follow React Native best practices and design patterns
+- Implement proper CI/CD considerations
+
+#### Technical Expertise Areas
+
+**Core Technologies**
+- React Native (latest versions), React 18+, TypeScript
+- Native iOS (Swift/Objective-C) and Android (Java/Kotlin) when needed
+- State Management: Redux Toolkit, Context API, Zustand, Jotai
+- Navigation: React Navigation 6+, deep linking, universal links
+- Styling: StyleSheet, Styled Components, NativeWind, Tamagui
+
+**Performance & Optimization**
+- Bundle optimization and code splitting
+- Image optimization and lazy loading
+- Memory leak detection and prevention
+- FlatList optimization for large datasets
+- Native performance profiling
+- Hermes engine optimization
+
+**Testing & Quality Assurance**
+- Jest, React Native Testing Library, Detox
+- Unit testing, integration testing, E2E testing
+- Performance testing and monitoring
+- Accessibility testing
+- Code coverage analysis
+
+**DevOps & Deployment**
+- Fastlane automation
+- CodePush for OTA updates
+- App Store and Google Play deployment
+- CI/CD pipelines (GitHub Actions, Bitrise, etc.)
+- Crash reporting (Crashlytics, Sentry, Bugsnag)
+
+#### Problem-Solving Process
+
+**Step 1: Initial Assessment**
+1. Analyze the current architecture and identify structural issues
+2. Review package.json dependencies for outdated or conflicting packages
+3. Check React Native version compatibility
+4. Examine native dependencies and linking issues
+5. Review build configurations and environment setup
+
+**Step 2: Code Analysis**
+1. Identify performance bottlenecks and memory leaks
+2. Review component lifecycle and state management patterns
+3. Check for proper error handling and edge cases
+4. Analyze accessibility and user experience issues
+5. Review security implementations and data handling
+
+**Step 3: Bug Diagnosis**
+1. Reproduce the issue consistently
+2. Analyze error logs and crash reports
+3. Use debugging tools to trace the issue
+4. Identify the root cause and affected components
+5. Plan the fix strategy with minimal impact
+
+**Step 4: Solution Implementation**
+1. Implement architectural improvements first
+2. Fix critical bugs with proper error handling
+3. Add comprehensive tests for all changes
+4. Optimize performance where needed
+5. Update documentation and add inline comments
+
+**Step 5: Quality Assurance**
+1. Run comprehensive test suites
+2. Perform manual testing on both platforms
+3. Check performance metrics and memory usage
+4. Verify accessibility compliance
+5. Conduct code review and refactoring
+
+#### Key Principles
+- Always prioritize architecture and code quality over quick fixes
+- Write self-documenting code with clear comments
+- Implement proper error handling and user feedback
+- Consider performance implications of every change
+- Follow platform-specific guidelines and best practices
+- Maintain backward compatibility when possible
+- Provide comprehensive testing strategies
+
+### Current Status
+- React Native 0.74.7 setup
+- Navigation structure with React Navigation
+- Custom UI component library
+- TypeScript configuration
+- ESLint and Prettier setup
+- Android and iOS build configurations
+
+### Technical Requirements
+
+#### Core Functionality
+1. **Navigation System**
+   - React Navigation 6+ implementation
+   - Tab navigation for main sections
+   - Stack navigation for detailed views
+   - Deep linking capability
+   - Universal links support
+
+2. **UI Component Library**
+   - Reusable component system
+   - Consistent design language
+   - Theme support (light/dark mode)
+   - Accessibility compliance
+   - Cross-platform compatibility
+
+3. **Screen Components**
+   - Home screen with dashboard functionality
+   - About screen with app information
+   - Settings screen with user preferences
+   - Test screen for development testing
+   - Hero screen for onboarding/landing
+
+4. **Authentication System**
+   - Login component implementation
+   - Secure token management
+   - Biometric authentication support
+   - Session management
+   - Logout functionality
+
+#### Platform-Specific Requirements
+
+**Android**
+- Minimum SDK version 21
+- Target SDK version 34
+- Gradle build optimization
+- ProGuard configuration
+- Proper permission handling
+- Material Design compliance
+
+**iOS**
+- iOS 13+ support
+- Xcode project configuration
+- App Store guidelines compliance
+- Privacy info configuration
+- Human Interface Guidelines adherence
+
+#### Development Environment
+
+**Code Quality**
+- TypeScript strict mode
+- ESLint configuration with React Native rules
+- Prettier formatting
+- Husky pre-commit hooks
+- Jest testing framework
+
+**Performance**
+- Hermes JavaScript engine
+- Bundle size optimization
+- Memory leak prevention
+- Image optimization
+- Lazy loading implementation
+
+**DevOps**
+- Git version control
+- Branch protection rules
+- Automated testing pipeline
+- Code coverage reporting
+- Continuous integration setup
+
+### Technical Debt & Known Issues
+
+#### Current Issues to Address
+1. **react-native-screens CMake Error**
+   - Windows development environment compatibility
+   - Native library compilation issues
+   - Gradle configuration problems
+
+2. **TypeScript Configuration**
+   - Strict type checking implementation
+   - Component prop type definitions
+   - Navigation type safety
+
+3. **Build Configuration**
+   - Android Gradle optimization
+   - iOS build settings
+   - Metro bundler configuration
+
+4. **Testing Infrastructure**
+   - Unit test setup completion
+   - Integration test implementation
+   - E2E testing framework
+
+### Success Criteria
+
+#### Phase 1: Foundation (Current)
+- ✅ Basic React Native setup
+- ✅ Navigation structure
+- ✅ UI component library
+- 🔄 Build system stability
+- 🔄 Development environment setup
+
+#### Phase 2: Core Features
+- Authentication system implementation
+- Data persistence layer
+- API integration capability
+- Error handling framework
+- Performance monitoring
+
+#### Phase 3: Production Readiness
+- Comprehensive testing suite
+- Security audit and implementation
+- Performance optimization
+- Accessibility compliance
+- App store deployment preparation
+
+#### Phase 4: Advanced Features
+- Offline capability
+- Push notifications
+- Analytics integration
+- Feature flagging system
+- Advanced UI animations
+
+### Risk Assessment
+
+#### High Priority Risks
+1. **Native Dependencies**: Compatibility issues with Windows development environment
+2. **Build Complexity**: Android/iOS build configuration complexity
+3. **Performance**: Potential performance bottlenecks with complex navigation
+
+#### Mitigation Strategies
+1. **Environment Standardization**: Docker or development environment virtualization
+2. **Automated Testing**: Comprehensive test coverage to catch issues early
+3. **Performance Monitoring**: Regular performance audits and optimization
+
+### Timeline & Milestones
+
+#### Sprint 1 (Current): Environment Stabilization
+- Fix react-native-screens issues
+- Complete TypeScript configuration
+- Stabilize build process
+- Implement comprehensive linting
+
+#### Sprint 2: Core Architecture
+- Implement state management
+- Complete authentication system
+- Add error boundaries
+- Implement data layer
+
+#### Sprint 3: Feature Development
+- Complete all screen implementations
+- Add comprehensive testing
+- Implement accessibility features
+- Performance optimization
+
+#### Sprint 4: Production Preparation
+- Security audit and fixes
+- App store preparation
+- Documentation completion
+- Deployment pipeline setup
+
+### Conclusion
+
+BasicApp serves as a comprehensive foundation for React Native development, emphasizing architecture quality, performance, and production readiness. The project follows senior-level development practices to ensure scalability, maintainability, and exceptional user experience across both iOS and Android platforms.

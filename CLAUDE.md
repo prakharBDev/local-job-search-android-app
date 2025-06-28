@@ -1,3 +1,72 @@
+# Claude Code Configuration
+
+## Cross-Platform React Native Development
+
+### Project Overview
+
+- **Platform**: React Native 0.80.0 (Mac) / 0.74.7 (Windows)
+- **Language**: TypeScript (preferred) with JSX components
+- **Development**: Cross-platform Windows/Mac compatibility
+
+### Common Commands
+
+#### Development
+
+```bash
+npm start              # Start Metro bundler
+npm run android        # Run on Android (requires Android SDK)
+npm run ios           # Run on iOS (Mac only)
+npm test              # Run Jest tests
+npm run lint          # Run ESLint
+```
+
+#### Cross-Platform Considerations
+
+- Use forward slashes `/` in paths for cross-platform compatibility
+- Environment variables: Use `$VAR` (Unix) or `%VAR%` (Windows) as needed
+- Line endings: Auto-handled by .gitattributes
+
+### Linting & Code Quality
+
+- **ESLint**: `npm run lint`
+- **Prettier**: Integrated with ESLint
+- **TypeScript**: Use .tsx for React components, .ts for utilities
+
+### Platform-Specific Notes
+
+#### Windows Development
+
+- Android SDK paths configured in `android/local.properties`
+- Use Git Bash or PowerShell for commands
+- WSL compatibility for Unix-style paths
+
+#### Mac Development
+
+- Native iOS development support
+- Xcode required for iOS builds
+- CocoaPods for iOS dependencies
+
+### Branch Management
+
+- **main/master**: Stable production code
+- **feature/landingPage&dashboard**: Mac development (RN 0.80.0)
+- **another-branch**: Windows development (RN 0.74.7)
+
+### Migration Guidelines
+
+1. Maintain TypeScript types when migrating from .jsx to .tsx
+2. Test on both platforms before merging
+3. Use relative imports for cross-platform compatibility
+4. Keep Android/iOS configs platform-neutral where possible
+
+### Troubleshooting
+
+- Clear Metro cache: `npx react-native start --reset-cache`
+- Clean build: `cd android && ./gradlew clean`
+- Reset Node modules: `rm -rf node_modules && npm install`
+
+---
+
 # Task Master AI - Claude Code Integration Guide
 
 ## Essential Commands
@@ -52,10 +121,19 @@ task-master generate                                         # Update task markd
 - `.claude/commands/` - Custom slash commands for repeated workflows
 - `.mcp.json` - MCP server configuration (project-specific)
 
-### Directory Structure
+### React Native Project Structure
 
 ```
 project/
+├── src/
+│   ├── components/ui/        # Reusable UI components (Button, Card, Input, Badge)
+│   ├── contexts/            # React contexts (Auth, User)
+│   ├── navigation/          # Navigation components (MainNavigator)
+│   ├── screens/            # Screen components (Dashboard, IndexScreen, etc.)
+│   ├── theme/              # Theme system (colors, typography, spacing)
+│   └── types/              # TypeScript type definitions
+├── android/                # Android-specific files
+├── ios/                   # iOS-specific files (Mac only)
 ├── .taskmaster/
 │   ├── tasks/              # Task files directory
 │   │   ├── tasks.json      # Main task database
@@ -128,13 +206,17 @@ analyze_project_complexity; // = task-master analyze-complexity
 complexity_report; // = task-master complexity-report
 ```
 
-## Claude Code Workflow Integration
+## React Native Development Workflow
 
 ### Standard Development Workflow
 
-#### 1. Project Initialization
+#### 1. Project Setup
 
 ```bash
+# Initialize React Native development
+npm install                                        # Install dependencies
+cd ios && pod install && cd .. (Mac only)         # Install iOS dependencies
+
 # Initialize Task Master
 task-master init
 
@@ -146,64 +228,76 @@ task-master analyze-complexity --research
 task-master expand --all --research
 ```
 
-If tasks already exist, another PRD can be parsed (with new information only!) using parse-prd with --append flag. This will add the generated tasks to the existing list of tasks..
-
 #### 2. Daily Development Loop
 
 ```bash
-# Start each session
+# Start development environment
+npm start                                  # Start Metro bundler
+npm run android                           # Run on Android
+npm run ios                               # Run on iOS (Mac only)
+
+# Task Master workflow
 task-master next                           # Find next available task
 task-master show <id>                     # Review task details
 
 # During implementation, check in code context into the tasks and subtasks
 task-master update-subtask --id=<id> --prompt="implementation notes..."
 
+# Code quality checks
+npm run lint                              # Check ESLint
+npm run type-check                        # TypeScript check
+
 # Complete tasks
 task-master set-status --id=<id> --status=done
 ```
 
-#### 3. Multi-Claude Workflows
-
-For complex projects, use multiple Claude Code sessions:
+#### 3. React Native Specific Workflows
 
 ```bash
-# Terminal 1: Main implementation
-cd project && claude
+# Development commands
+npm run lint:fix                          # Auto-fix linting issues
+npm run format                            # Prettier formatting
+npm start:reset                           # Start with cache reset
 
-# Terminal 2: Testing and validation
-cd project-test-worktree && claude
+# Platform-specific testing
+npm run android                           # Test Android build
+npm run ios                               # Test iOS build (Mac only)
 
-# Terminal 3: Documentation updates
-cd project-docs-worktree && claude
+# Cleanup commands
+npx react-native start --reset-cache      # Clear Metro cache
+cd android && ./gradlew clean && cd ..    # Clean Android build
+rm -rf node_modules && npm install        # Reset dependencies
 ```
 
-### Custom Slash Commands
+### React Native Custom Slash Commands
 
-Create `.claude/commands/taskmaster-next.md`:
+Create `.claude/commands/rn-dev-start.md`:
 
 ```markdown
-Find the next available Task Master task and show its details.
+Start React Native development environment.
 
 Steps:
 
-1. Run `task-master next` to get the next task
-2. If a task is available, run `task-master show <id>` for full details
-3. Provide a summary of what needs to be implemented
-4. Suggest the first implementation step
+1. Run `npm start` to start Metro bundler
+2. In parallel terminals, run platform-specific commands:
+   - `npm run android` for Android
+   - `npm run ios` for iOS (Mac only)
+3. Check for any build errors
+4. Run `task-master next` to get next task
 ```
 
-Create `.claude/commands/taskmaster-complete.md`:
+Create `.claude/commands/rn-lint-fix.md`:
 
 ```markdown
-Complete a Task Master task: $ARGUMENTS
+Fix React Native linting and formatting issues.
 
 Steps:
 
-1. Review the current task with `task-master show $ARGUMENTS`
-2. Verify all implementation is complete
-3. Run any tests related to this task
-4. Mark as complete: `task-master set-status --id=$ARGUMENTS --status=done`
-5. Show the next available task with `task-master next`
+1. Run `npm run lint` to check current issues
+2. Run `npm run lint:fix` to auto-fix issues
+3. Run `npm run format` for Prettier formatting
+4. Run `npm run type-check` for TypeScript validation
+5. Commit changes if all checks pass
 ```
 
 ## Tool Allowlist Recommendations
@@ -215,9 +309,12 @@ Add to `.claude/settings.json`:
   "allowedTools": [
     "Edit",
     "Bash(task-master *)",
+    "Bash(npm *)",
+    "Bash(npx *)",
     "Bash(git commit:*)",
     "Bash(git add:*)",
-    "Bash(npm run *)",
+    "Bash(cd android && ./gradlew *)",
+    "Bash(cd ios && *)",
     "mcp__task_master_ai__*"
   ]
 }
@@ -237,8 +334,6 @@ At least **one** of these API keys must be configured:
 - `OPENROUTER_API_KEY` (Multiple models)
 - `XAI_API_KEY` (Grok models)
 
-An API key is required for any provider used across any of the 3 roles defined in the `models` command.
-
 ### Model Configuration
 
 ```bash
@@ -251,40 +346,14 @@ task-master models --set-research perplexity-llama-3.1-sonar-large-128k-online
 task-master models --set-fallback gpt-4o-mini
 ```
 
-## Task Structure & IDs
+## React Native Best Practices with Task Master
 
-### Task ID Format
+### Cross-Platform Development
 
-- Main tasks: `1`, `2`, `3`, etc.
-- Subtasks: `1.1`, `1.2`, `2.1`, etc.
-- Sub-subtasks: `1.1.1`, `1.1.2`, etc.
-
-### Task Status Values
-
-- `pending` - Ready to work on
-- `in-progress` - Currently being worked on
-- `done` - Completed and verified
-- `deferred` - Postponed
-- `cancelled` - No longer needed
-- `blocked` - Waiting on external factors
-
-### Task Fields
-
-```json
-{
-  "id": "1.2",
-  "title": "Implement user authentication",
-  "description": "Set up JWT-based auth system",
-  "status": "pending",
-  "priority": "high",
-  "dependencies": ["1.1"],
-  "details": "Use bcrypt for hashing, JWT for tokens...",
-  "testStrategy": "Unit tests for auth functions, integration tests for login flow",
-  "subtasks": []
-}
-```
-
-## Claude Code Best Practices with Task Master
+1. **Platform Testing**: Always test on both Android and iOS (when available)
+2. **Path Handling**: Use forward slashes in all paths for cross-platform compatibility
+3. **TypeScript**: Maintain strict typing, especially for navigation and components
+4. **Linting**: Run `npm run lint` before committing changes
 
 ### Context Management
 
@@ -295,50 +364,47 @@ task-master models --set-fallback gpt-4o-mini
 ### Iterative Implementation
 
 1. `task-master show <subtask-id>` - Understand requirements
-2. Explore codebase and plan implementation
+2. Start development environment (`npm start`, `npm run android/ios`)
 3. `task-master update-subtask --id=<id> --prompt="detailed plan"` - Log plan
 4. `task-master set-status --id=<id> --status=in-progress` - Start work
 5. Implement code following logged plan
-6. `task-master update-subtask --id=<id> --prompt="what worked/didn't work"` - Log progress
-7. `task-master set-status --id=<id> --status=done` - Complete task
-
-### Complex Workflows with Checklists
-
-For large migrations or multi-step processes:
-
-1. Create a markdown PRD file describing the new changes: `touch task-migration-checklist.md` (prds can be .txt or .md)
-2. Use Taskmaster to parse the new prd with `task-master parse-prd --append` (also available in MCP)
-3. Use Taskmaster to expand the newly generated tasks into subtasks. Consdier using `analyze-complexity` with the correct --to and --from IDs (the new ids) to identify the ideal subtask amounts for each task. Then expand them.
-4. Work through items systematically, checking them off as completed
-5. Use `task-master update-subtask` to log progress on each task/subtask and/or updating/researching them before/during implementation if getting stuck
+6. Run `npm run lint` and `npm run type-check`
+7. `task-master update-subtask --id=<id> --prompt="what worked/didn't work"` - Log progress
+8. `task-master set-status --id=<id> --status=done` - Complete task
 
 ### Git Integration
 
-Task Master works well with `gh` CLI:
+Task Master works well with React Native development:
 
 ```bash
-# Create PR for completed task
-gh pr create --title "Complete task 1.2: User authentication" --body "Implements JWT auth system as specified in task 1.2"
+# Create PR for completed React Native task
+gh pr create --title "Complete task 1.2: User authentication UI" --body "Implements authentication screens as specified in task 1.2"
 
 # Reference task in commits
-git commit -m "feat: implement JWT auth (task 1.2)"
-```
-
-### Parallel Development with Git Worktrees
-
-```bash
-# Create worktrees for parallel task development
-git worktree add ../project-auth feature/auth-system
-git worktree add ../project-api feature/api-refactor
-
-# Run Claude Code in each worktree
-cd ../project-auth && claude    # Terminal 1: Auth work
-cd ../project-api && claude     # Terminal 2: API work
+git commit -m "feat(auth): implement login screen (task 1.2)"
+git commit -m "fix(android): resolve build issues (task 1.3)"
 ```
 
 ## Troubleshooting
 
-### AI Commands Failing
+### React Native Specific Issues
+
+```bash
+# Metro bundler issues
+npx react-native start --reset-cache
+
+# Android build issues
+cd android && ./gradlew clean && cd ..
+rm -rf node_modules && npm install
+
+# iOS build issues (Mac only)
+cd ios && rm -rf Pods && pod install && cd ..
+
+# TypeScript issues
+npm run type-check
+```
+
+### Task Master Issues
 
 ```bash
 # Check API keys are configured
@@ -358,32 +424,7 @@ task-master models --set-fallback gpt-4o-mini
 - Use `--mcp-debug` flag when starting Claude Code
 - Use CLI as fallback if MCP unavailable
 
-### Task File Sync Issues
-
-```bash
-# Regenerate task files from tasks.json
-task-master generate
-
-# Fix dependency issues
-task-master fix-dependencies
-```
-
-DO NOT RE-INITIALIZE. That will not do anything beyond re-adding the same Taskmaster core files.
-
 ## Important Notes
-
-### AI-Powered Operations
-
-These commands make AI calls and may take up to a minute:
-
-- `parse_prd` / `task-master parse-prd`
-- `analyze_project_complexity` / `task-master analyze-complexity`
-- `expand_task` / `task-master expand`
-- `expand_all` / `task-master expand --all`
-- `add_task` / `task-master add-task`
-- `update` / `task-master update`
-- `update_task` / `task-master update-task`
-- `update_subtask` / `task-master update-subtask`
 
 ### File Management
 
@@ -392,26 +433,26 @@ These commands make AI calls and may take up to a minute:
 - Task markdown files in `tasks/` are auto-generated
 - Run `task-master generate` after manual changes to tasks.json
 
-### Claude Code Session Management
+### React Native Session Management
 
 - Use `/clear` frequently to maintain focused context
-- Create custom slash commands for repeated Task Master workflows
+- Create custom slash commands for repeated React Native workflows
 - Configure tool allowlist to streamline permissions
-- Use headless mode for automation: `claude -p "task-master next"`
+- Always test on target platforms before marking tasks complete
 
-### Multi-Task Updates
+### Multi-Platform Development
 
-- Use `update --from=<id>` to update multiple future tasks
-- Use `update-task --id=<id>` for single task updates
-- Use `update-subtask --id=<id>` for implementation logging
-
-### Research Mode
-
-- Add `--research` flag for research-based AI enhancement
-- Requires a research model API key like Perplexity (`PERPLEXITY_API_KEY`) in environment
-- Provides more informed task creation and updates
-- Recommended for complex technical tasks
+- Use `npm run android` and `npm run ios` to test both platforms
+- Pay attention to platform-specific styling and behavior
+- Use relative imports for cross-platform compatibility
+- Keep configurations platform-neutral where possible
 
 ---
 
-_This guide ensures Claude Code has immediate access to Task Master's essential functionality for agentic development workflows._
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+_This guide ensures Claude Code has immediate access to both Task Master's essential functionality and React Native development best practices for agentic development workflows._

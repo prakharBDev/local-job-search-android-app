@@ -13,9 +13,10 @@ import type {
 
 // Import screens
 import MainNavigator from './src/navigation/MainNavigator';
-import LoginScreen from './src/screens/LoginScreen';
+import IndexScreen from './src/screens/IndexScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import CreateJobScreen from './src/screens/CreateJobScreen';
+import JobDetailsScreen from './src/screens/JobDetailsScreen';
 
 // Import providers
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -37,7 +38,7 @@ const AuthNavigator: React.FC = () => {
       }}
     >
       <AuthStack.Screen name="Splash" component={SplashScreenContainer} />
-      <AuthStack.Screen name="Login" component={LoginScreenContainer} />
+      <AuthStack.Screen name="Login" component={IndexScreenContainer} />
     </AuthStack.Navigator>
   );
 };
@@ -58,28 +59,10 @@ const SplashScreenContainer: React.FC<{ navigation?: any }> = ({
   return <SplashScreen onFinish={handleSplashFinish} />;
 };
 
-// Login Screen Container with navigation
-const LoginScreenContainer: React.FC = () => {
-  const { login } = useAuth();
-
-  const handleLogin = async () => {
-    // Mock login - in real app, this would be Google Auth
-    const mockUser = {
-      id: '1',
-      name: 'Alex Johnson',
-      email: 'alex.johnson@email.com',
-      mode: 'seeker' as const,
-      education: {
-        tenth: 85,
-        twelfth: 88,
-        graduation: 82,
-      },
-    };
-
-    await login(mockUser);
-  };
-
-  return <LoginScreen onLogin={handleLogin} />;
+// Index Screen Container (beautiful landing page with built-in auth)
+const IndexScreenContainer: React.FC = () => {
+  // IndexScreen has its own authentication logic built-in
+  return <IndexScreen />;
 };
 
 // Main App Navigator
@@ -106,7 +89,14 @@ const AppNavigator: React.FC = () => {
               headerShown: false 
             }} 
           />
-          {/* TODO: Add JobDetails and JobApplications screens when created */}
+          <RootStack.Screen 
+            name="JobDetails" 
+            component={JobDetailsScreen} 
+            options={{ 
+              headerShown: false 
+            }} 
+          />
+          {/* TODO: Add JobApplications screen when created */}
         </>
       )}
     </RootStack.Navigator>

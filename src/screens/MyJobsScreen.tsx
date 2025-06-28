@@ -12,7 +12,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import { Card } from '../components/ui';
 import { theme } from '../theme';
-import { Job, JobStatus } from '../types/navigation';
+import { Job, JobStatus, MyJobsScreenProps } from '../types/navigation';
+import { useNavigation } from '@react-navigation/native';
+import type { RootStackNavigationProp } from '../types/navigation';
 
 // Mock data for development
 const mockJobs: Job[] = [
@@ -65,6 +67,7 @@ const mockJobs: Job[] = [
 ];
 
 const MyJobsScreen: React.FC = () => {
+  const navigation = useNavigation<RootStackNavigationProp>();
   const [jobs, setJobs] = useState<Job[]>(mockJobs);
   const [selectedFilter, setSelectedFilter] = useState<'all' | JobStatus>(
     'all',
@@ -106,7 +109,7 @@ const MyJobsScreen: React.FC = () => {
   ) => {
     switch (action) {
       case 'edit':
-        Alert.alert('Edit Job', `Edit job ${jobId}`);
+        navigation.navigate('JobDetails', { jobId, mode: 'edit' });
         break;
       case 'close':
         setJobs(prev =>
@@ -131,7 +134,7 @@ const MyJobsScreen: React.FC = () => {
         );
         break;
       case 'view-applications':
-        Alert.alert('Applications', `View applications for job ${jobId}`);
+        navigation.navigate('JobDetails', { jobId, mode: 'view' });
         break;
     }
   };
@@ -182,9 +185,7 @@ const MyJobsScreen: React.FC = () => {
                     styles.createJobButton,
                     pressed && styles.createJobButtonPressed,
                   ]}
-                  onPress={() =>
-                    Alert.alert('Create Job', 'Navigate to Create Job screen')
-                  }
+                  onPress={() => navigation.navigate('CreateJob')}
                 >
                   <Feather
                     name="plus"
@@ -269,9 +270,7 @@ const MyJobsScreen: React.FC = () => {
                       styles.createFirstJobButton,
                       pressed && styles.createFirstJobButtonPressed,
                     ]}
-                    onPress={() =>
-                      Alert.alert('Create Job', 'Navigate to Create Job screen')
-                    }
+                    onPress={() => navigation.navigate('CreateJob')}
                   >
                     <Text style={styles.createFirstJobButtonText}>
                       Post Your First Job

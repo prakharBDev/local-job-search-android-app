@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { CombinedNavigationProp } from '../types/navigation';
 
 const DashboardScreen = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigation = useNavigation<CombinedNavigationProp>();
   const [selectedPeriod, setSelectedPeriod] = useState('This Week');
   const [fadeAnim] = useState(new Animated.Value(0));
@@ -149,10 +149,14 @@ const DashboardScreen = () => {
         break;
       case 'applications':
         // Navigate to applied jobs
-        if (user?.mode === 'seeker') {
-          navigation.navigate('AppliedJobs');
-        } else {
-          navigation.navigate('MyJobs');
+        try {
+          if (user?.mode === 'seeker') {
+            (navigation as any).navigate('AppliedJobs');
+          } else {
+            (navigation as any).navigate('MyJobs');
+          }
+        } catch (error) {
+          Alert.alert('Navigation', 'Applications screen coming soon!');
         }
         break;
       case 'skills':
@@ -237,16 +241,30 @@ const DashboardScreen = () => {
               </View>
               <TouchableOpacity
                 style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 24,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  paddingHorizontal: theme.spacing[3],
+                  paddingVertical: theme.spacing[2],
+                  borderRadius: theme.borderRadius.lg,
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
                   alignItems: 'center',
                   justifyContent: 'center',
                   ...theme.shadows.md,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
                 }}
+                onPress={() => logout()}
+                activeOpacity={0.8}
               >
-                <Feather name="bell" size={24} color={theme.colors.text.primary} />
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Feather name="log-out" size={18} color={theme.colors.text.primary} />
+                  <Text style={{
+                    marginLeft: theme.spacing[2],
+                    fontSize: theme.typography.buttonSmall.fontSize,
+                    fontWeight: theme.typography.button.fontWeight,
+                    color: theme.colors.text.primary,
+                  }}>
+                    Logout
+                  </Text>
+                </View>
               </TouchableOpacity>
             </View>
           </Animated.View>

@@ -8,26 +8,15 @@ import {
   Dimensions,
   Animated,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Button, Card, Input } from '../components/ui';
 import { theme } from '../theme';
 import { useAuth } from '../contexts/AuthContext';
 import type { AuthStackParamList, UserProfile } from '../types/navigation';
-
-// Mock icons (we'll replace with actual icons later)
-const IconPlaceholder = ({ name, size = 20, color = theme.colors.text.primary }: {
-  name: string;
-  size?: number;
-  color?: string;
-}) => (
-  <View style={{
-    width: size,
-    height: size,
-    backgroundColor: color,
-    borderRadius: size / 4,
-  }} />
-);
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -156,9 +145,19 @@ const IndexScreen = () => {
   ];
 
   const stats = [
-    { number: '10K+', label: 'Jobs Posted', icon: 'briefcase' },
-    { number: '5K+', label: 'Happy Users', icon: 'heart' },
-    { number: '500+', label: 'Companies', icon: 'star' },
+    {
+      number: '10K+',
+      label: 'Jobs Posted',
+      icon: 'briefcase',
+      type: 'Feather',
+    },
+    {number: '5K+', label: 'Happy Users', icon: 'heart', type: 'FontAwesome'},
+    {
+      number: '500+',
+      label: 'Companies',
+      icon: 'building-o',
+      type: 'FontAwesome',
+    },
   ];
 
   const floatingElements = Array.from({ length: 15 }, (_, i) => ({
@@ -260,7 +259,7 @@ const IndexScreen = () => {
             ],
           }}
         >
-          <IconPlaceholder name={element.icon} size={24} color={theme.colors.text.tertiary} />
+          <Feather name={element.icon} size={24} color={theme.colors.text.tertiary} />
         </Animated.View>
       ))}
     </View>
@@ -303,7 +302,7 @@ const IndexScreen = () => {
                     ...theme.shadows.lg,
                   }}
                 >
-                  <IconPlaceholder name="rocket" size={24} color={theme.colors.text.white} />
+                  <Feather name="rocket" size={24} color={theme.colors.text.white} />
                 </LinearGradient>
                 <View>
                   <Text style={{
@@ -401,7 +400,11 @@ const IndexScreen = () => {
                       borderColor: theme.colors.border.primary,
                     }}
                   >
-                    <IconPlaceholder name={stat.icon} size={24} color={theme.colors.primary.emerald} />
+                    {stat.type === 'Feather' ? (
+                      <Feather name={stat.icon} size={24} color={theme.colors.primary.emerald} />
+                    ) : (
+                      <FontAwesome name={stat.icon} size={24} color={theme.colors.primary.emerald} />
+                    )}
                     <Text style={{
                       fontSize: 24,
                       fontWeight: theme.typography.h3.fontWeight,
@@ -463,7 +466,7 @@ const IndexScreen = () => {
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   variant="glass"
-                  leftIcon={<IconPlaceholder name="phone" size={16} color={theme.colors.text.tertiary} />}
+                  leftIcon={<FontAwesome name="phone" size={16} color={theme.colors.text.tertiary} />}
                 />
 
                 {!isLogin && (
@@ -471,7 +474,7 @@ const IndexScreen = () => {
                     label="Email (Optional)"
                     placeholder="your@email.com"
                     variant="glass"
-                    leftIcon={<IconPlaceholder name="mail" size={16} color={theme.colors.text.tertiary} />}
+                    leftIcon={<Feather name="mail" size={16} color={theme.colors.text.tertiary} />}
                   />
                 )}
 
@@ -486,7 +489,7 @@ const IndexScreen = () => {
                   <Text style={{ color: theme.colors.text.white, marginRight: theme.spacing[2] }}>
                     {isLogin ? 'Enter Dashboard' : 'Begin Journey'}
                   </Text>
-                  <IconPlaceholder name="sparkles" size={20} color={theme.colors.text.white} />
+                  <FontAwesome name="arrow-circle-right" size={20} color={theme.colors.text.white} />
                 </Button>
 
                 <View style={{
@@ -520,7 +523,7 @@ const IndexScreen = () => {
                       borderColor: theme.colors.border.primary,
                     }}
                   >
-                    <IconPlaceholder name="google" size={20} color={theme.colors.text.primary} />
+                    <FontAwesome name="google" size={20} color={theme.colors.text.primary} />
                     <Text style={{ color: theme.colors.text.primary, marginLeft: theme.spacing[2] }}>
                       Continue with Google
                     </Text>
@@ -533,7 +536,7 @@ const IndexScreen = () => {
                       borderColor: theme.colors.border.primary,
                     }}
                   >
-                    <IconPlaceholder name="phone" size={20} color={theme.colors.text.primary} />
+                    <FontAwesome name="phone" size={20} color={theme.colors.text.primary} />
                     <Text style={{ color: theme.colors.text.primary, marginLeft: theme.spacing[2] }}>
                       Connect with WhatsApp
                     </Text>
@@ -606,7 +609,7 @@ const IndexScreen = () => {
                         ...theme.shadows.lg,
                       }}
                     >
-                      <IconPlaceholder name={feature.icon} size={24} color={theme.colors.text.white} />
+                      <Feather name={feature.icon} size={24} color={theme.colors.text.white} />
                     </LinearGradient>
                     <Text style={{
                       fontWeight: theme.typography.label.fontWeight,
@@ -651,7 +654,7 @@ const IndexScreen = () => {
                   borderColor: theme.colors.border.primary,
                 }}
               >
-                <IconPlaceholder name="briefcase" size={20} color={theme.colors.text.primary} />
+                <Feather name="briefcase" size={20} color={theme.colors.text.primary} />
                 <Text style={{ color: theme.colors.text.primary, marginLeft: theme.spacing[2] }}>
                   Post a Job for Employers
                 </Text>

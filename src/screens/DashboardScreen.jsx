@@ -254,12 +254,12 @@ const DashboardScreen = () => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                maxWidth: 400,
-                alignSelf: 'center',
+                paddingHorizontal: theme.spacing[4],
+                paddingTop: theme.spacing[6],
                 width: '100%',
               }}
             >
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text
                   style={{
                     fontSize: theme.typography.h4.fontSize,
@@ -309,6 +309,7 @@ const DashboardScreen = () => {
                 size="medium"
                 showName={true}
                 style={{
+                  marginHorizontal: 8,
                   paddingHorizontal: theme.spacing[2],
                   paddingVertical: theme.spacing[1],
                   borderRadius: theme.borderRadius.lg,
@@ -321,23 +322,20 @@ const DashboardScreen = () => {
               <TouchableOpacity
                 onPress={logout}
                 style={{
-                  marginLeft: theme.spacing[2],
-                  padding: theme.spacing[2],
-                  borderRadius: theme.borderRadius.lg,
-                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                  ...theme.shadows.md,
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                  marginLeft: 8,
+                  padding: 8,
+                  borderRadius: 12,
+                  backgroundColor: '#E53935',
+                  borderWidth: 2,
+                  borderColor: '#B71C1C',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  flexDirection: 'row',
                 }}
                 accessibilityLabel="Logout"
               >
-                <Feather
-                  name="log-out"
-                  size={22}
-                  color={theme.colors.text.secondary}
-                />
+                <Feather name="log-out" size={22} color="#fff" />
+                <Text style={{ color: '#fff', marginLeft: 4, fontWeight: 'bold' }}>Logout</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>

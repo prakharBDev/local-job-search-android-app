@@ -9,6 +9,8 @@ import { Platform, StatusBar } from 'react-native';
 import MainNavigator from './src/navigation/MainNavigator';
 import IndexScreen from './src/screens/IndexScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import AboutScreen from './src/screens/AboutScreen';
 
 // Import providers
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -75,7 +77,30 @@ const AppNavigator = () => {
             component={MainNavigator}
             options={{}}
           />
-          {/* TODO: Add modal screens when created */}
+          <RootStack.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              title: 'Settings',
+              headerShown: true,
+              headerStyle: {
+                backgroundColor: theme.colors.background.primary,
+              },
+              headerTintColor: theme.colors.text.primary,
+            }}
+          />
+          <RootStack.Screen
+            name="About"
+            component={AboutScreen}
+            options={{
+              title: 'About',
+              headerShown: true,
+              headerStyle: {
+                backgroundColor: theme.colors.background.primary,
+              },
+              headerTintColor: theme.colors.text.primary,
+            }}
+          />
         </>
       )}
     </RootStack.Navigator>
@@ -103,6 +128,8 @@ const linking = {
           MyJobs: 'my-jobs',
         },
       },
+      Settings: 'settings',
+      About: 'about',
       // TODO: Add additional routes when screens are created
     },
   },

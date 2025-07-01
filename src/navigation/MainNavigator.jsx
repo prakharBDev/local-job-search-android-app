@@ -4,9 +4,8 @@ import { Platform, Text } from 'react-native';
 
 import AppliedJobsScreen from '../screens/AppliedJobsScreen';
 import DashboardScreen from '../screens/DashboardScreen';
-import HomeScreen from '../screens/HomeScreen';
 import MyJobsScreen from '../screens/MyJobsScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 import { useUser } from '../contexts/UserContext';
 
@@ -67,7 +66,7 @@ const SeekerTabNavigator = () => {
       />
       <SeekerTab.Screen
         name="Profile"
-        component={HomeScreen}
+        component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
         }}
@@ -135,7 +134,7 @@ const PosterTabNavigator = () => {
       />
       <PosterTab.Screen
         name="Profile"
-        component={SettingsScreen}
+        component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
         }}

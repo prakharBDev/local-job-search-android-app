@@ -18,7 +18,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 const mockJob = {
   id: '1',
   title: 'Senior React Native Developer',
-  description: 'We are looking for an experienced React Native developer to join our team and help build amazing mobile applications...',
+  description:
+    'We are looking for an experienced React Native developer to join our team and help build amazing mobile applications...',
   requirements: ['React Native', 'TypeScript', 'Redux', 'REST APIs'],
   skills: ['React Native', 'TypeScript', 'Redux', 'Git'],
   experienceLevel: 'senior',
@@ -44,7 +45,10 @@ const JobDetailsScreen = () => {
   }, [jobId]);
 
   const handleEditJob = () => {
-    Alert.alert('Edit Job', 'Navigate to edit mode or CreateJob screen with pre-filled data');
+    Alert.alert(
+      'Edit Job',
+      'Navigate to edit mode or CreateJob screen with pre-filled data',
+    );
   };
 
   const handleViewApplications = () => {
@@ -63,7 +67,7 @@ const JobDetailsScreen = () => {
           onPress: () => {
             // In real app, call delete API
             Alert.alert('Success', 'Job deleted successfully', [
-              { text: 'OK', onPress: () => navigation.goBack() }
+              { text: 'OK', onPress: () => navigation.goBack() },
             ]);
           },
         },
@@ -175,10 +179,7 @@ const JobDetailsScreen = () => {
                       ]}
                     >
                       <Text
-                        style={[
-                          styles.statusText,
-                          { color: getStatusColor() },
-                        ]}
+                        style={[styles.statusText, { color: getStatusColor() }]}
                       >
                         {job.status.toUpperCase()}
                       </Text>
@@ -201,7 +202,7 @@ const JobDetailsScreen = () => {
                   <Text style={styles.statNumber}>{job.applicationsCount}</Text>
                   <Text style={styles.statLabel}>Applications</Text>
                 </Pressable>
-                
+
                 <View style={styles.statItem}>
                   <Feather
                     name="calendar"
@@ -209,7 +210,10 @@ const JobDetailsScreen = () => {
                     color={theme.colors.text.secondary}
                   />
                   <Text style={styles.statNumber}>
-                    {Math.floor((Date.now() - new Date(job.postedDate).getTime()) / (1000 * 60 * 60 * 24))}
+                    {Math.floor(
+                      (Date.now() - new Date(job.postedDate).getTime()) /
+                        (1000 * 60 * 60 * 24),
+                    )}
                   </Text>
                   <Text style={styles.statLabel}>Days Active</Text>
                 </View>
@@ -222,7 +226,8 @@ const JobDetailsScreen = () => {
                       color={theme.colors.status.success}
                     />
                     <Text style={styles.statNumber}>
-                      ${(job.salaryRange.min / 1000).toFixed(0)}K-${(job.salaryRange.max / 1000).toFixed(0)}K
+                      ${(job.salaryRange.min / 1000).toFixed(0)}K-$
+                      {(job.salaryRange.max / 1000).toFixed(0)}K
                     </Text>
                     <Text style={styles.statLabel}>Salary Range</Text>
                   </View>
@@ -253,7 +258,9 @@ const JobDetailsScreen = () => {
                 <View style={styles.tagsContainer}>
                   {job.skills.map((skill, index) => (
                     <View key={index} style={[styles.tag, styles.skillTag]}>
-                      <Text style={[styles.tagText, styles.skillTagText]}>{skill}</Text>
+                      <Text style={[styles.tagText, styles.skillTagText]}>
+                        {skill}
+                      </Text>
                     </View>
                   ))}
                 </View>
@@ -269,16 +276,26 @@ const JobDetailsScreen = () => {
                 variant="outline"
                 style={styles.actionButton}
               >
-                <Feather name="users" size={16} color={theme.colors.primary.emerald} />
+                <Feather
+                  name="users"
+                  size={16}
+                  color={theme.colors.primary.emerald}
+                />
                 <Text style={styles.actionButtonText}>View Applications</Text>
               </Button>
-              
-              <Button
-                onPress={handleEditJob}
-                style={styles.actionButton}
-              >
-                <Feather name="edit-2" size={16} color={theme.colors.text.white} />
-                <Text style={[styles.actionButtonText, { color: theme.colors.text.white }]}>
+
+              <Button onPress={handleEditJob} style={styles.actionButton}>
+                <Feather
+                  name="edit-2"
+                  size={16}
+                  color={theme.colors.text.white}
+                />
+                <Text
+                  style={[
+                    styles.actionButtonText,
+                    { color: theme.colors.text.white },
+                  ]}
+                >
                   Edit Job
                 </Text>
               </Button>
@@ -294,13 +311,15 @@ const JobDetailsScreen = () => {
                   Close Job
                 </Button>
               )}
-              
+
               <Button
                 onPress={handleDeleteJob}
                 variant="ghost"
                 style={styles.secondaryActionButton}
               >
-                <Text style={{ color: theme.colors.status.error }}>Delete Job</Text>
+                <Text style={{ color: theme.colors.status.error }}>
+                  Delete Job
+                </Text>
               </Button>
             </View>
           </View>

@@ -303,6 +303,23 @@ const DashboardScreen = () => {
                   borderColor: 'rgba(255, 255, 255, 0.5)',
                 }}
               />
+              <TouchableOpacity
+                onPress={logout}
+                style={{
+                  marginLeft: theme.spacing[2],
+                  padding: theme.spacing[2],
+                  borderRadius: theme.borderRadius.lg,
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  ...theme.shadows.md,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                accessibilityLabel="Logout"
+              >
+                <Feather name="log-out" size={22} color={theme.colors.text.secondary} />
+              </TouchableOpacity>
             </View>
           </Animated.View>
 

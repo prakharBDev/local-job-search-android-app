@@ -1,28 +1,8 @@
 import React, { useState } from 'react';
-import {
-  StyleProp,
-  Text,
-  TextInput,
-  TextStyle,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { theme } from '../../theme';
 
-interface InputProps {
-  label?: string;
-  error?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  onRightIconPress?: () => void;
-  variant?: 'default' | 'glass';
-  style?: StyleProp<TextStyle>;
-  containerStyle?: StyleProp<ViewStyle>;
-  [key: string]: any;
-}
-
-const Input: React.FC<InputProps> = ({
+const Input = ({
   label,
   error,
   leftIcon,
@@ -39,8 +19,8 @@ const Input: React.FC<InputProps> = ({
     const baseStyle = {
       borderRadius: theme.borderRadius.xl,
       borderWidth: 1,
-      flexDirection: 'row' as const,
-      alignItems: 'center' as const,
+      flexDirection: 'row',
+      alignItems: 'center',
       paddingHorizontal: theme.spacing[4],
       minHeight: theme.layout.touchTarget.minHeight,
     };
@@ -80,7 +60,7 @@ const Input: React.FC<InputProps> = ({
 
   const getLabelStyle = () => ({
     fontSize: theme.typography.label.fontSize,
-    fontWeight: theme.typography.label.fontWeight as any,
+    fontWeight: theme.typography.label.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[2],
   });

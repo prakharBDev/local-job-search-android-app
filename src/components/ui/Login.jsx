@@ -9,11 +9,7 @@ import {
 } from 'react-native';
 import { theme } from '../../theme';
 
-interface LoginProps {
-  onLogin?: (_email: string, _password: string) => void;
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 

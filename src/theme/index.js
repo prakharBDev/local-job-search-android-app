@@ -25,7 +25,4 @@ export { colors, darkColors };
 export { typography };
 export { spacing };
 
-// Theme type for TypeScript
-export type Theme = typeof theme;
-
 export default theme;

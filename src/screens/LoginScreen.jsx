@@ -5,13 +5,8 @@ import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { theme } from '../theme';
 
-interface LoginScreenProps {
-  onLogin: () => void;
-}
-
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+const LoginScreen = ({ onLogin }) => {
   const handleGoogleLogin = () => {
-    // Mock Google authentication
     setTimeout(() => {
       onLogin();
     }, 1000);
@@ -119,7 +114,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold' as any,
+    fontWeight: 'bold',
     color: theme.colors.text.primary,
     textAlign: 'center',
     marginBottom: theme.spacing[2],
@@ -135,7 +130,7 @@ const styles = StyleSheet.create({
   },
   loginTitle: {
     fontSize: 24,
-    fontWeight: 'bold' as any,
+    fontWeight: 'bold',
     color: theme.colors.text.primary,
     textAlign: 'center',
     marginBottom: theme.spacing[2],
@@ -162,7 +157,7 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     fontSize: 16,
-    fontWeight: '500' as any,
+    fontWeight: '500',
     color: theme.colors.text.primary,
   },
   features: {
@@ -190,7 +185,7 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     color: theme.colors.primary.emerald,
-    fontWeight: '500' as any,
+    fontWeight: '500',
   },
 });
 

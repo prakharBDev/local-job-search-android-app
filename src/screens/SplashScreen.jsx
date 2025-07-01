@@ -2,11 +2,7 @@ import React, { useEffect } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { theme } from '../theme';
 
-interface SplashScreenProps {
-  onFinish: () => void;
-}
-
-const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+const SplashScreen = ({ onFinish }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onFinish();
@@ -51,7 +47,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold' as any,
+    fontWeight: 'bold',
     color: theme.colors.text.white,
     marginBottom: theme.spacing[2],
     textAlign: 'center',

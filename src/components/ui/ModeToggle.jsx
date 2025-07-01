@@ -9,17 +9,7 @@ import {
 import { useUser } from '../../contexts/UserContext';
 import { theme } from '../../theme';
 
-interface ModeToggleProps {
-  style?: any;
-  showLabels?: boolean;
-  size?: 'small' | 'medium' | 'large';
-}
-
-const ModeToggle: React.FC<ModeToggleProps> = ({
-  style,
-  showLabels = true,
-  size = 'medium',
-}) => {
+const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
   const { currentMode, isSeekerMode, isPosterMode, toggleMode, isLoading } =
     useUser();
 
@@ -124,7 +114,6 @@ const ModeToggle: React.FC<ModeToggleProps> = ({
           )}
         </View>
 
-        {/* Mode indicators on toggle track */}
         <View style={styles.trackIcons}>
           <Text
             style={[

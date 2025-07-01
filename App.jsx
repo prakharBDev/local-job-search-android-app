@@ -1,22 +1,14 @@
-// App.tsx
+// App.jsx
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import { Platform, StatusBar } from 'react-native';
 
-// Import navigation types
-import type {
-  AuthStackParamList,
-  RootStackParamList,
-} from './src/types/navigation';
-
 // Import screens
 import MainNavigator from './src/navigation/MainNavigator';
 import IndexScreen from './src/screens/IndexScreen';
 import SplashScreen from './src/screens/SplashScreen';
-import CreateJobScreen from './src/screens/CreateJobScreen';
-import JobDetailsScreen from './src/screens/JobDetailsScreen';
 
 // Import providers
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -27,11 +19,11 @@ import { ProfileProvider } from './src/contexts/ProfileContext';
 import { theme } from './src/theme';
 
 // Create navigators
-const RootStack = createNativeStackNavigator<RootStackParamList>();
-const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const RootStack = createNativeStackNavigator();
+const AuthStack = createNativeStackNavigator();
 
 // Auth Stack Navigator
-const AuthNavigator: React.FC = () => {
+const AuthNavigator = () => {
   return (
     <AuthStack.Navigator
       screenOptions={{
@@ -45,9 +37,7 @@ const AuthNavigator: React.FC = () => {
 };
 
 // Splash Screen Container with navigation
-const SplashScreenContainer: React.FC<{ navigation?: any }> = ({
-  navigation,
-}) => {
+const SplashScreenContainer = ({ navigation }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   const handleSplashFinish = () => {
@@ -61,13 +51,13 @@ const SplashScreenContainer: React.FC<{ navigation?: any }> = ({
 };
 
 // Index Screen Container (beautiful landing page with built-in auth)
-const IndexScreenContainer: React.FC = () => {
+const IndexScreenContainer = () => {
   // IndexScreen has its own authentication logic built-in
   return <IndexScreen />;
 };
 
 // Main App Navigator
-const AppNavigator: React.FC = () => {
+const AppNavigator = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
@@ -80,24 +70,12 @@ const AppNavigator: React.FC = () => {
         <RootStack.Screen name="Auth" component={AuthNavigator} options={{}} />
       ) : (
         <>
-          <RootStack.Screen name="Main" component={MainNavigator} options={{}} />
-          {/* Modal screens */}
-          <RootStack.Screen 
-            name="CreateJob" 
-            component={CreateJobScreen} 
-            options={{ 
-              presentation: 'modal',
-              headerShown: false 
-            }} 
+          <RootStack.Screen
+            name="Main"
+            component={MainNavigator}
+            options={{}}
           />
-          <RootStack.Screen 
-            name="JobDetails" 
-            component={JobDetailsScreen} 
-            options={{ 
-              headerShown: false 
-            }} 
-          />
-          {/* TODO: Add JobApplications screen when created */}
+          {/* TODO: Add modal screens when created */}
         </>
       )}
     </RootStack.Navigator>
@@ -125,25 +103,7 @@ const linking = {
           MyJobs: 'my-jobs',
         },
       },
-      JobDetails: {
-        path: '/job/:jobId',
-        parse: {
-          jobId: (jobId: string) => jobId,
-        },
-      },
-      CreateJob: 'create-job',
-      JobApplications: {
-        path: '/job/:jobId/applications',
-        parse: {
-          jobId: (jobId: string) => jobId,
-        },
-      },
-      ApplicationDetails: {
-        path: '/application/:applicationId',
-        parse: {
-          applicationId: (applicationId: string) => applicationId,
-        },
-      },
+      // TODO: Add additional routes when screens are created
     },
   },
 };
@@ -152,15 +112,12 @@ const linking = {
 const PERSISTENCE_KEY = 'NAVIGATION_STATE_V1';
 
 // Simple loading component that doesn't use any context
-const AppLoadingScreen: React.FC = () => {
+const AppLoadingScreen = () => {
   return <SplashScreen onFinish={() => {}} />;
 };
 
 // Inner App component that uses providers
-const InnerApp: React.FC<{
-  initialState: any;
-  onStateChange: (state: any) => void;
-}> = ({ initialState, onStateChange }) => {
+const InnerApp = ({ initialState, onStateChange }) => {
   return (
     <NavigationContainer
       linking={linking}
@@ -202,9 +159,9 @@ const InnerApp: React.FC<{
 };
 
 // Main App component
-const App: React.FC = () => {
+const App = () => {
   const [isReady, setIsReady] = useState(false);
-  const [initialState, setInitialState] = useState<any>(undefined);
+  const [initialState, setInitialState] = useState(undefined);
 
   useEffect(() => {
     const restoreState = async () => {
@@ -232,7 +189,7 @@ const App: React.FC = () => {
     }
   }, [isReady]);
 
-  const onStateChange = (state: any) => {
+  const onStateChange = state => {
     AsyncStorage.setItem(PERSISTENCE_KEY, JSON.stringify(state));
   };
 

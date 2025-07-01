@@ -1,52 +1,14 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useReducer,
-} from 'react';
+import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { UserProfile } from '../types/navigation';
 
-// Auth state interface
-interface AuthState {
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  user: UserProfile | null;
-  error: string | null;
-}
-
-// Auth actions
-type AuthAction =
-  | { type: 'AUTH_LOADING' }
-  | { type: 'AUTH_SUCCESS'; payload: UserProfile }
-  | { type: 'AUTH_ERROR'; payload: string }
-  | { type: 'AUTH_LOGOUT' }
-  | { type: 'AUTH_RESTORE'; payload: UserProfile | null };
-
-// Auth context interface
-interface AuthContextType {
-  state: AuthState;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  user: UserProfile | null;
-  error: string | null;
-  login: (user: UserProfile) => Promise<void>;
-  logout: () => Promise<void>;
-  checkAuthStatus: () => Promise<void>;
-  clearError: () => void;
-}
-
-// Initial state
-const initialState: AuthState = {
+const initialState = {
   isAuthenticated: false,
   isLoading: true,
   user: null,
   error: null,
 };
 
-// Auth reducer
-const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+const authReducer = (state, action) => {
   switch (action.type) {
     case 'AUTH_LOADING':
       return {
@@ -91,30 +53,21 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   }
 };
 
-// Storage keys
 const AUTH_STORAGE_KEY = 'AUTH_USER_DATA';
 
-// Create context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext(undefined);
 
-// Auth provider props
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-// Auth provider component
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Check auth status on app start
-  const checkAuthStatus = async (): Promise<void> => {
+  const checkAuthStatus = async () => {
     try {
       dispatch({ type: 'AUTH_LOADING' });
 
       const userData = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
 
       if (userData) {
-        const user: UserProfile = JSON.parse(userData);
+        const user = JSON.parse(userData);
         dispatch({ type: 'AUTH_RESTORE', payload: user });
       } else {
         dispatch({ type: 'AUTH_RESTORE', payload: null });
@@ -127,15 +80,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Login function
-  const login = async (user: UserProfile): Promise<void> => {
+  const login = async user => {
     try {
       dispatch({ type: 'AUTH_LOADING' });
 
-      // Store user data
       await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
 
-      // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       dispatch({ type: 'AUTH_SUCCESS', payload: user });
@@ -147,12 +97,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Logout function
-  const logout = async (): Promise<void> => {
+  const logout = async () => {
     try {
       dispatch({ type: 'AUTH_LOADING' });
 
-      // Clear stored data
       await AsyncStorage.multiRemove([
         AUTH_STORAGE_KEY,
         'USER_MODE_PREFERENCE',
@@ -167,20 +115,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Clear error function
-  const clearError = (): void => {
+  const clearError = () => {
     if (state.error) {
       dispatch({ type: 'AUTH_RESTORE', payload: state.user });
     }
   };
 
-  // Auto-check auth status on mount
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
-  // Context value
-  const contextValue: AuthContextType = {
+  const contextValue = {
     state,
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
@@ -197,8 +142,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-// Custom hook to use auth context
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (context === undefined) {
@@ -208,5 +152,4 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-// Export auth context for advanced usage
 export { AuthContext };

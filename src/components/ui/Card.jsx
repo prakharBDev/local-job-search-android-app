@@ -1,21 +1,9 @@
 import React from 'react';
-import { View, ViewStyle } from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient';
+import { View } from 'react-native';
 import { theme } from '../../theme';
 
-interface CardProps {
-  children: React.ReactNode;
-  style?: ViewStyle;
-  padding?: boolean;
-}
-
-const Card: React.FC<CardProps> = ({
-  children,
-  style,
-  padding = true,
-  ...props
-}) => {
-  const cardStyle: ViewStyle = {
+const Card = ({ children, style, padding = true, ...props }) => {
+  const cardStyle = {
     backgroundColor: theme.colors.background.secondary,
     borderRadius: theme.borderRadius.lg,
     ...theme.shadows.sm,

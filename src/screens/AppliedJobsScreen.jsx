@@ -6,18 +6,8 @@ import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { theme } from '../theme';
 
-interface JobApplication {
-  id: string;
-  jobTitle: string;
-  companyName: string;
-  appliedDate: string;
-  status: 'pending' | 'reviewed' | 'interview' | 'rejected' | 'accepted';
-  location: string;
-  jobType: string;
-}
-
-const AppliedJobsScreen: React.FC = () => {
-  const [applications] = useState<JobApplication[]>([
+const AppliedJobsScreen = () => {
+  const [applications] = useState([
     {
       id: '1',
       jobTitle: 'React Native Developer',
@@ -47,9 +37,7 @@ const AppliedJobsScreen: React.FC = () => {
     },
   ]);
 
-  const getStatusColor = (
-    status: string,
-  ): 'default' | 'success' | 'warning' | 'error' => {
+  const getStatusColor = status => {
     switch (status) {
       case 'accepted':
       case 'interview':
@@ -63,7 +51,7 @@ const AppliedJobsScreen: React.FC = () => {
     }
   };
 
-  const getStatusLabel = (status: string): string => {
+  const getStatusLabel = status => {
     switch (status) {
       case 'pending':
         return 'Under Review';
@@ -80,7 +68,7 @@ const AppliedJobsScreen: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = dateString => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', {
       day: 'numeric',
@@ -89,7 +77,7 @@ const AppliedJobsScreen: React.FC = () => {
     });
   };
 
-  const handleViewDetails = (_applicationId: string) => {
+  const handleViewDetails = _applicationId => {
     // Handle view application details logic
   };
 
@@ -229,7 +217,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold' as any,
+    fontWeight: 'bold',
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[1],
   },
@@ -257,7 +245,7 @@ const styles = StyleSheet.create({
   },
   jobTitle: {
     fontSize: 16,
-    fontWeight: '600' as any,
+    fontWeight: '600',
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[1],
   },
@@ -313,7 +301,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: 'bold' as any,
+    fontWeight: 'bold',
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[2],
     textAlign: 'center',
@@ -330,7 +318,7 @@ const styles = StyleSheet.create({
   },
   emptyButtonText: {
     color: theme.colors.text.white,
-    fontWeight: '500' as any,
+    fontWeight: '500',
   },
 });
 

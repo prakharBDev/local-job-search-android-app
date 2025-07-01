@@ -12,12 +12,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import { Card } from '../components/ui';
 import { theme } from '../theme';
-import { Job, JobStatus, MyJobsScreenProps } from '../types/navigation';
 import { useNavigation } from '@react-navigation/native';
-import type { RootStackNavigationProp } from '../types/navigation';
 
 // Mock data for development
-const mockJobs: Job[] = [
+const mockJobs = [
   {
     id: '1',
     title: 'Senior React Native Developer',
@@ -66,18 +64,16 @@ const mockJobs: Job[] = [
   },
 ];
 
-const MyJobsScreen: React.FC = () => {
-  const navigation = useNavigation<RootStackNavigationProp>();
-  const [jobs, setJobs] = useState<Job[]>(mockJobs);
-  const [selectedFilter, setSelectedFilter] = useState<'all' | JobStatus>(
-    'all',
-  );
+const MyJobsScreen = () => {
+  const navigation = useNavigation();
+  const [jobs, setJobs] = useState(mockJobs);
+  const [selectedFilter, setSelectedFilter] = useState('all');
 
   const filteredJobs = jobs.filter(
     job => selectedFilter === 'all' || job.status === selectedFilter,
   );
 
-  const getStatusColor = (status: JobStatus) => {
+  const getStatusColor = status => {
     switch (status) {
       case 'active':
         return theme.colors.status.success;
@@ -90,7 +86,7 @@ const MyJobsScreen: React.FC = () => {
     }
   };
 
-  const getStatusLabel = (status: JobStatus) => {
+  const getStatusLabel = status => {
     switch (status) {
       case 'active':
         return 'Active';
@@ -103,18 +99,15 @@ const MyJobsScreen: React.FC = () => {
     }
   };
 
-  const handleJobAction = (
-    jobId: string,
-    action: 'edit' | 'close' | 'delete' | 'view-applications',
-  ) => {
+  const handleJobAction = (jobId, action) => {
     switch (action) {
       case 'edit':
-        navigation.navigate('JobDetails', { jobId, mode: 'edit' });
+        Alert.alert('Edit Job', 'Job editing feature coming soon!');
         break;
       case 'close':
         setJobs(prev =>
           prev.map(job =>
-            job.id === jobId ? { ...job, status: 'closed' as JobStatus } : job,
+            job.id === jobId ? { ...job, status: 'closed' } : job,
           ),
         );
         break;
@@ -134,12 +127,12 @@ const MyJobsScreen: React.FC = () => {
         );
         break;
       case 'view-applications':
-        navigation.navigate('JobDetails', { jobId, mode: 'view' });
+        Alert.alert('View Applications', 'Applications view coming soon!');
         break;
     }
   };
 
-  const filters: { key: 'all' | JobStatus; label: string; count: number }[] = [
+  const filters = [
     { key: 'all', label: 'All Jobs', count: jobs.length },
     {
       key: 'active',
@@ -157,6 +150,10 @@ const MyJobsScreen: React.FC = () => {
       count: jobs.filter(j => j.status === 'draft').length,
     },
   ];
+
+  const handleCreateJob = () => {
+    Alert.alert('Create Job', 'Job creation feature coming soon!');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -185,7 +182,7 @@ const MyJobsScreen: React.FC = () => {
                     styles.createJobButton,
                     pressed && styles.createJobButtonPressed,
                   ]}
-                  onPress={() => navigation.navigate('CreateJob')}
+                  onPress={handleCreateJob}
                 >
                   <Feather
                     name="plus"
@@ -270,7 +267,7 @@ const MyJobsScreen: React.FC = () => {
                       styles.createFirstJobButton,
                       pressed && styles.createFirstJobButtonPressed,
                     ]}
-                    onPress={() => navigation.navigate('CreateJob')}
+                    onPress={handleCreateJob}
                   >
                     <Text style={styles.createFirstJobButtonText}>
                       Post Your First Job
@@ -352,11 +349,11 @@ const MyJobsScreen: React.FC = () => {
                                     : []),
                                   {
                                     text: 'Delete Job',
-                                    style: 'destructive' as const,
+                                    style: 'destructive',
                                     onPress: () =>
                                       handleJobAction(job.id, 'delete'),
                                   },
-                                  { text: 'Cancel', style: 'cancel' as const },
+                                  { text: 'Cancel', style: 'cancel' },
                                 ])
                               }
                             >
@@ -450,7 +447,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.typography.h4.fontSize,
-    fontWeight: theme.typography.h4.fontWeight as any,
+    fontWeight: theme.typography.h4.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[1],
   },
@@ -474,7 +471,7 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing[1],
     color: theme.colors.text.white,
     fontSize: theme.typography.buttonSmall.fontSize,
-    fontWeight: theme.typography.button.fontWeight as any,
+    fontWeight: theme.typography.button.fontWeight,
   },
   filtersContainer: {
     paddingHorizontal: theme.spacing[4],
@@ -505,7 +502,7 @@ const styles = StyleSheet.create({
   },
   filterTabText: {
     fontSize: theme.typography.buttonSmall.fontSize,
-    fontWeight: theme.typography.button.fontWeight as any,
+    fontWeight: theme.typography.button.fontWeight,
     color: theme.colors.text.secondary,
     marginRight: theme.spacing[1],
   },
@@ -548,7 +545,7 @@ const styles = StyleSheet.create({
   },
   noJobsTitle: {
     fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight as any,
+    fontWeight: theme.typography.h6.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[2],
     textAlign: 'center',
@@ -571,7 +568,7 @@ const styles = StyleSheet.create({
   createFirstJobButtonText: {
     color: theme.colors.text.white,
     fontSize: theme.typography.button.fontSize,
-    fontWeight: theme.typography.button.fontWeight as any,
+    fontWeight: theme.typography.button.fontWeight,
   },
   jobsList: {
     gap: theme.spacing[4],
@@ -594,7 +591,7 @@ const styles = StyleSheet.create({
   },
   jobTitle: {
     fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight as any,
+    fontWeight: theme.typography.h6.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[1],
   },

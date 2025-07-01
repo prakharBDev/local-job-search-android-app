@@ -15,7 +15,6 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Button, Card, Input } from '../components/ui';
 import { theme } from '../theme';
 import { useAuth } from '../contexts/AuthContext';
-import type { UserProfile } from '../types/navigation';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -23,16 +22,14 @@ const IndexScreen = () => {
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
+  const [email] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Animated values for floating elements
   const floatingAnim1 = new Animated.Value(0);
   const floatingAnim2 = new Animated.Value(0);
   const floatingAnim3 = new Animated.Value(0);
 
   useEffect(() => {
-    // Start floating animations
     const animateFloating = () => {
       Animated.loop(
         Animated.sequence([
@@ -46,7 +43,7 @@ const IndexScreen = () => {
             duration: 3000,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start();
 
       Animated.loop(
@@ -61,7 +58,7 @@ const IndexScreen = () => {
             duration: 4000,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start();
 
       Animated.loop(
@@ -76,7 +73,7 @@ const IndexScreen = () => {
             duration: 2500,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start();
     };
 
@@ -86,17 +83,14 @@ const IndexScreen = () => {
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      // Create a demo user profile for POC
-      const demoUser: UserProfile = {
-        id: 'demo-user-' + Date.now(),
+      const demoUser = {
+        id: `demo-user-${Date.now()}`,
         name: phoneNumber.trim() || 'Demo User',
         email: email.trim() || 'demo@jobconnect.app',
-        mode: 'seeker', // Default to seeker mode
+        mode: 'seeker',
       };
-      
-      // Use the AuthContext login method - this will automatically navigate to Main
+
       await login(demoUser);
-      
     } catch (error) {
       console.error('Login failed:', error);
       setIsLoading(false);
@@ -141,7 +135,7 @@ const IndexScreen = () => {
       icon: 'briefcase',
       type: 'Feather',
     },
-    {number: '5K+', label: 'Happy Users', icon: 'heart', type: 'FontAwesome'},
+    { number: '5K+', label: 'Happy Users', icon: 'heart', type: 'FontAwesome' },
     {
       number: '500+',
       label: 'Companies',
@@ -153,23 +147,24 @@ const IndexScreen = () => {
   const floatingElements = Array.from({ length: 15 }, (_, i) => ({
     id: i,
     icon: ['sparkles', 'star', 'target', 'zap', 'heart'][i % 5],
-    left: `${(i * 47) % 90 + 5}%`,
-    top: `${(i * 73) % 80 + 10}%`,
+    left: `${((i * 47) % 90) + 5}%`,
+    top: `${((i * 73) % 80) + 10}%`,
     delay: i * 200,
     duration: 3000 + (i % 3) * 1000,
   }));
 
   const AnimatedBackground = () => (
-    <View style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: screenWidth,
-      height: screenHeight,
-    }}>
-      {/* Large background blobs */}
+    <View
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: screenWidth,
+        height: screenHeight,
+      }}
+    >
       <Animated.View
         style={{
           position: 'absolute',
@@ -178,7 +173,7 @@ const IndexScreen = () => {
           top: '10%',
           left: '10%',
           borderRadius: 192,
-          backgroundColor: 'rgba(156, 39, 176, 0.4)', // Purple with opacity
+          backgroundColor: 'rgba(156, 39, 176, 0.4)',
           transform: [
             {
               translateY: floatingAnim1.interpolate({
@@ -189,7 +184,7 @@ const IndexScreen = () => {
           ],
         }}
       />
-      
+
       <Animated.View
         style={{
           position: 'absolute',
@@ -198,7 +193,7 @@ const IndexScreen = () => {
           bottom: '20%',
           right: '15%',
           borderRadius: 160,
-          backgroundColor: 'rgba(0, 188, 212, 0.4)', // Cyan with opacity
+          backgroundColor: 'rgba(0, 188, 212, 0.4)',
           transform: [
             {
               translateY: floatingAnim2.interpolate({
@@ -209,7 +204,7 @@ const IndexScreen = () => {
           ],
         }}
       />
-      
+
       <Animated.View
         style={{
           position: 'absolute',
@@ -218,7 +213,7 @@ const IndexScreen = () => {
           top: '50%',
           left: '60%',
           borderRadius: 128,
-          backgroundColor: 'rgba(76, 175, 80, 0.4)', // Emerald with opacity
+          backgroundColor: 'rgba(76, 175, 80, 0.4)',
           transform: [
             {
               translateY: floatingAnim3.interpolate({
@@ -230,8 +225,7 @@ const IndexScreen = () => {
         }}
       />
 
-      {/* Floating particles */}
-      {floatingElements.map((element) => (
+      {floatingElements.map(element => (
         <Animated.View
           key={element.id}
           style={{
@@ -247,9 +241,13 @@ const IndexScreen = () => {
                 }),
               },
             ],
-          } as any}
+          }}
         >
-          <Feather name={element.icon as any} size={24} color={theme.colors.text.tertiary} />
+          <Feather
+            name={element.icon}
+            size={24}
+            color={theme.colors.text.tertiary}
+          />
         </Animated.View>
       ))}
     </View>
@@ -258,29 +256,38 @@ const IndexScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={['#E3F2FD', '#F3E5F5', '#FCE4EC']} // Blue to purple to pink gradient
+        colors={['#E3F2FD', '#F3E5F5', '#FCE4EC']}
         style={styles.container}
       >
         <AnimatedBackground />
-        
-        <ScrollView 
+
+        <ScrollView
           style={{ flex: 1, zIndex: 10 }}
           contentContainerStyle={{ paddingBottom: theme.spacing[8] }}
         >
-          {/* Header */}
-          <View style={{
-            paddingHorizontal: theme.spacing[4],
-            paddingVertical: theme.spacing[6],
-          }}>
-            <View style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              maxWidth: 400,
-              alignSelf: 'center',
-              width: '100%',
-            }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing[3] }}>
+          <View
+            style={{
+              paddingHorizontal: theme.spacing[4],
+              paddingVertical: theme.spacing[6],
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                maxWidth: 400,
+                alignSelf: 'center',
+                width: '100%',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing[3],
+                }}
+              >
                 <LinearGradient
                   colors={[theme.colors.primary.emerald, '#00BCD4']}
                   style={{
@@ -292,20 +299,28 @@ const IndexScreen = () => {
                     ...theme.shadows.lg,
                   }}
                 >
-                  <Feather name="rocket" size={24} color={theme.colors.text.white} />
+                  <Feather
+                    name="rocket"
+                    size={24}
+                    color={theme.colors.text.white}
+                  />
                 </LinearGradient>
                 <View>
-                  <Text style={{
-                    fontWeight: theme.typography.h5.fontWeight,
-                    fontSize: 18,
-                    color: theme.colors.text.primary,
-                  }}>
+                  <Text
+                    style={{
+                      fontWeight: theme.typography.h5.fontWeight,
+                      fontSize: 18,
+                      color: theme.colors.text.primary,
+                    }}
+                  >
                     JobConnect
                   </Text>
-                  <Text style={{
-                    fontSize: theme.typography.caption.fontSize,
-                    color: theme.colors.text.secondary,
-                  }}>
+                  <Text
+                    style={{
+                      fontSize: theme.typography.caption.fontSize,
+                      color: theme.colors.text.secondary,
+                    }}
+                  >
                     Your career, reimagined
                   </Text>
                 </View>
@@ -319,18 +334,19 @@ const IndexScreen = () => {
                   backgroundColor: 'rgba(255, 255, 255, 0.2)',
                 }}
               >
-                <Text style={{
-                  color: theme.colors.text.secondary,
-                  fontSize: theme.typography.bodySmall.fontSize,
-                  fontWeight: theme.typography.button.fontWeight,
-                }}>
+                <Text
+                  style={{
+                    color: theme.colors.text.secondary,
+                    fontSize: theme.typography.bodySmall.fontSize,
+                    fontWeight: theme.typography.button.fontWeight,
+                  }}
+                >
                   {isLogin ? 'Sign Up' : 'Login'}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Hero Section */}
           <View style={styles.heroContainer}>
             <View style={styles.heroInner}>
               <View style={{ alignItems: 'center', gap: theme.spacing[4] }}>
@@ -347,14 +363,21 @@ const IndexScreen = () => {
                 </Text>
               </View>
 
-              {/* Interactive Stats */}
               <View style={styles.statsRow}>
                 {stats.map((stat, index) => (
                   <TouchableOpacity key={index} style={styles.statCard}>
                     {stat.type === 'Feather' ? (
-                      <Feather name={stat.icon} size={24} color={theme.colors.primary.emerald} />
+                      <Feather
+                        name={stat.icon}
+                        size={24}
+                        color={theme.colors.primary.emerald}
+                      />
                     ) : (
-                      <FontAwesome name={stat.icon} size={24} color={theme.colors.primary.emerald} />
+                      <FontAwesome
+                        name={stat.icon}
+                        size={24}
+                        color={theme.colors.primary.emerald}
+                      />
                     )}
                     <Text style={styles.statNumber}>{stat.number}</Text>
                     <Text style={styles.statLabel}>{stat.label}</Text>
@@ -364,7 +387,6 @@ const IndexScreen = () => {
             </View>
           </View>
 
-          {/* Auth Card */}
           <View style={styles.authCardContainer}>
             <Card style={styles.authCard}>
               <View style={styles.authCardHeader}>
@@ -377,14 +399,19 @@ const IndexScreen = () => {
               </View>
 
               <View style={styles.authCardBody}>
-                {/* Phone input */}
                 <Input
                   label="Phone Number (Optional for Demo)"
                   placeholder="+91 98765 43210"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   variant="glass"
-                  leftIcon={<FontAwesome name="phone" size={16} color={theme.colors.text.tertiary} />}
+                  leftIcon={
+                    <FontAwesome
+                      name="phone"
+                      size={16}
+                      color={theme.colors.text.tertiary}
+                    />
+                  }
                 />
 
                 {!isLogin && (
@@ -392,7 +419,13 @@ const IndexScreen = () => {
                     label="Email (Optional)"
                     placeholder="your@email.com"
                     variant="glass"
-                    leftIcon={<Feather name="mail" size={16} color={theme.colors.text.tertiary} />}
+                    leftIcon={
+                      <Feather
+                        name="mail"
+                        size={16}
+                        color={theme.colors.text.tertiary}
+                      />
+                    }
                   />
                 )}
 
@@ -407,7 +440,11 @@ const IndexScreen = () => {
                     <Text style={styles.authButtonText}>
                       {isLoading ? 'Loading...' : 'Enter Dashboard'}
                     </Text>
-                    <FontAwesome name="arrow-circle-right" size={20} color={theme.colors.text.white} />
+                    <FontAwesome
+                      name="arrow-circle-right"
+                      size={20}
+                      color={theme.colors.text.white}
+                    />
                   </View>
                 </Button>
 
@@ -416,61 +453,89 @@ const IndexScreen = () => {
                   <Text style={styles.dividerText}>Or continue with</Text>
                 </View>
 
-                {/* Social login options */}
                 <View style={styles.socialButtonsContainer}>
                   <Button variant="outline" style={styles.socialButton}>
                     <View style={styles.socialButtonContent}>
-                      <FontAwesome name="google" size={20} color={theme.colors.text.primary} />
-                      <Text style={styles.socialButtonText}>Continue with Google</Text>
+                      <FontAwesome
+                        name="google"
+                        size={20}
+                        color={theme.colors.text.primary}
+                      />
+                      <Text style={styles.socialButtonText}>
+                        Continue with Google
+                      </Text>
                     </View>
                   </Button>
 
                   <Button variant="outline" style={styles.socialButton}>
                     <View style={styles.socialButtonContent}>
-                      <FontAwesome name="phone" size={20} color={theme.colors.text.primary} />
-                      <Text style={styles.socialButtonText}>Connect with WhatsApp</Text>
+                      <FontAwesome
+                        name="phone"
+                        size={20}
+                        color={theme.colors.text.primary}
+                      />
+                      <Text style={styles.socialButtonText}>
+                        Connect with WhatsApp
+                      </Text>
                     </View>
                   </Button>
                 </View>
 
                 <Text style={styles.agreementText}>
                   By continuing you agree to our{' '}
-                  <Text style={styles.agreementLink}>Terms of Service</Text>
-                  {' '}and{' '}
+                  <Text style={styles.agreementLink}>Terms of Service</Text> and{' '}
                   <Text style={styles.agreementLink}>Privacy Policy</Text>
                 </Text>
               </View>
             </Card>
           </View>
 
-          {/* Features Grid */}
           <View style={styles.featuresContainer}>
             <View style={styles.featuresInner}>
               <Text style={styles.featuresTitle}>Why Choose Our Platform?</Text>
               <View style={styles.featuresGrid}>
                 {features.map((feature, index) => (
                   <TouchableOpacity key={index} style={styles.featureCard}>
-                    <LinearGradient colors={feature.color} style={styles.featureIcon}>
-                      <Feather name={feature.icon} size={24} color={theme.colors.text.white} />
+                    <LinearGradient
+                      colors={feature.color}
+                      style={styles.featureIcon}
+                    >
+                      <Feather
+                        name={feature.icon}
+                        size={24}
+                        color={theme.colors.text.white}
+                      />
                     </LinearGradient>
                     <Text style={styles.featureTitle}>{feature.title}</Text>
-                    <Text style={styles.featureDescription}>{feature.description}</Text>
+                    <Text style={styles.featureDescription}>
+                      {feature.description}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
           </View>
 
-          {/* Bottom CTA */}
           <View style={styles.bottomCtaContainer}>
             <View style={styles.bottomCtaInner}>
               <Text style={styles.bottomCtaText}>
                 Ready to revolutionize your job search?
               </Text>
-              <Button variant="outline" size="lg" fullWidth style={styles.bottomCtaButton}>
+              <Button
+                variant="outline"
+                size="lg"
+                fullWidth
+                style={styles.bottomCtaButton}
+              >
                 <View style={styles.bottomCtaButtonContent}>
-                  <Feather name="briefcase" size={20} color={theme.colors.text.primary} />
-                  <Text style={styles.bottomCtaButtonText}>Post a Job for Employers</Text>
+                  <Feather
+                    name="briefcase"
+                    size={20}
+                    color={theme.colors.text.primary}
+                  />
+                  <Text style={styles.bottomCtaButtonText}>
+                    Post a Job for Employers
+                  </Text>
                 </View>
               </Button>
             </View>
@@ -714,7 +779,6 @@ const styles = StyleSheet.create({
   bottomCtaButtonText: {
     color: theme.colors.text.primary,
   },
-
 });
 
 export default IndexScreen;

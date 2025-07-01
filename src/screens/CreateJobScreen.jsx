@@ -17,25 +17,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import { Button, Card } from '../components/ui';
 import { theme } from '../theme';
-import type { CreateJobScreenProps, Job, JobStatus } from '../types/navigation';
+import { useNavigation } from '@react-navigation/native';
 
-type JobFormData = {
-  title: string;
-  description: string;
-  requirements: string[];
-  skills: string[];
-  experienceLevel: 'entry' | 'mid' | 'senior';
-  location: string;
-  salaryRange: {
-    min: string;
-    max: string;
-  };
-  jobType: 'full-time' | 'part-time' | 'remote' | 'contract';
-  status: JobStatus;
-};
-
-const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
-  const [formData, setFormData] = useState<JobFormData>({
+const CreateJobScreen = () => {
+  const navigation = useNavigation();
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
     requirements: [''],
@@ -47,11 +33,11 @@ const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
     status: 'draft',
   });
 
-  const [errors, setErrors] = useState<Partial<JobFormData>>({});
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<JobFormData> = {};
+  const validateForm = () => {
+    const newErrors = {};
 
     if (!formData.title.trim()) {
       newErrors.title = 'Job title is required';
@@ -95,7 +81,7 @@ const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (isDraft: boolean = false) => {
+  const handleSubmit = async (isDraft = false) => {
     if (!isDraft && !validateForm()) {
       return;
     }
@@ -107,10 +93,7 @@ const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
       const cleanRequirements = formData.requirements.filter(req => req.trim());
       const cleanSkills = formData.skills.filter(skill => skill.trim());
 
-      const jobData: Omit<
-        Job,
-        'id' | 'postedDate' | 'postedBy' | 'applicationsCount'
-      > = {
+      const jobData = {
         title: formData.title,
         description: formData.description,
         requirements: cleanRequirements,
@@ -148,37 +131,27 @@ const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
     }
   };
 
-  const updateArrayField = (
-    field: 'requirements' | 'skills',
-    index: number,
-    value: string,
-  ) => {
+  const updateArrayField = (field, index, value) => {
     const newArray = [...formData[field]];
     newArray[index] = value;
     setFormData(prev => ({ ...prev, [field]: newArray }));
   };
 
-  const addArrayField = (field: 'requirements' | 'skills') => {
+  const addArrayField = field => {
     setFormData(prev => ({
       ...prev,
       [field]: [...prev[field], ''],
     }));
   };
 
-  const removeArrayField = (
-    field: 'requirements' | 'skills',
-    index: number,
-  ) => {
+  const removeArrayField = (field, index) => {
     if (formData[field].length > 1) {
       const newArray = formData[field].filter((_, i) => i !== index);
       setFormData(prev => ({ ...prev, [field]: newArray }));
     }
   };
 
-  const renderArrayField = (
-    field: 'requirements' | 'skills',
-    placeholder: string,
-  ) => {
+  const renderArrayField = (field, placeholder) => {
     return (
       <View style={styles.arrayFieldContainer}>
         {formData[field].map((item, index) => (
@@ -330,7 +303,7 @@ const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
                   <View style={styles.fieldContainer}>
                     <Text style={styles.fieldLabel}>Experience Level</Text>
                     <View style={styles.pickerContainer}>
-                      {(['entry', 'mid', 'senior'] as const).map(level => (
+                      {['entry', 'mid', 'senior'].map(level => (
                         <Pressable
                           key={level}
                           style={[
@@ -363,42 +336,37 @@ const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
                   <View style={styles.fieldContainer}>
                     <Text style={styles.fieldLabel}>Job Type</Text>
                     <View style={styles.pickerContainer}>
-                      {(
-                        [
-                          'full-time',
-                          'part-time',
-                          'remote',
-                          'contract',
-                        ] as const
-                      ).map(type => (
-                        <Pressable
-                          key={type}
-                          style={[
-                            styles.pickerOption,
-                            formData.jobType === type &&
-                              styles.pickerOptionSelected,
-                          ]}
-                          onPress={() =>
-                            setFormData(prev => ({ ...prev, jobType: type }))
-                          }
-                        >
-                          <Text
+                      {['full-time', 'part-time', 'remote', 'contract'].map(
+                        type => (
+                          <Pressable
+                            key={type}
                             style={[
-                              styles.pickerOptionText,
+                              styles.pickerOption,
                               formData.jobType === type &&
-                                styles.pickerOptionTextSelected,
+                                styles.pickerOptionSelected,
                             ]}
+                            onPress={() =>
+                              setFormData(prev => ({ ...prev, jobType: type }))
+                            }
                           >
-                            {type
-                              .split('-')
-                              .map(
-                                word =>
-                                  word.charAt(0).toUpperCase() + word.slice(1),
-                              )
-                              .join(' ')}
-                          </Text>
-                        </Pressable>
-                      ))}
+                            <Text
+                              style={[
+                                styles.pickerOptionText,
+                                formData.jobType === type &&
+                                  styles.pickerOptionTextSelected,
+                              ]}
+                            >
+                              {type
+                                .split('-')
+                                .map(
+                                  word =>
+                                    word.charAt(0).toUpperCase() + word.slice(1),
+                                )
+                                .join(' ')}
+                            </Text>
+                          </Pressable>
+                        ),
+                      )}
                     </View>
                   </View>
 
@@ -550,7 +518,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.typography.h4.fontSize,
-    fontWeight: theme.typography.h4.fontWeight as any,
+    fontWeight: theme.typography.h4.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[1],
   },
@@ -573,7 +541,7 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight as any,
+    fontWeight: theme.typography.h6.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[2],
   },

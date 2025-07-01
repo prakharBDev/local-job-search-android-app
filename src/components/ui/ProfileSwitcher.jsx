@@ -14,23 +14,12 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import { theme } from '../../theme';
-import { useProfile, type SavedProfile } from '../../contexts/ProfileContext';
+import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
-import type { UserProfile } from '../../types/navigation';
 
 const { width, height } = Dimensions.get('window');
 
-interface ProfileSwitcherProps {
-  size?: 'small' | 'medium' | 'large';
-  showName?: boolean;
-  style?: any;
-}
-
-const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
-  size = 'small',
-  showName = false,
-  style,
-}) => {
+const ProfileSwitcher = ({ size = 'small', style }) => {
   const {
     activeProfile,
     profiles,
@@ -53,7 +42,7 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
   const [newProfileName, setNewProfileName] = useState('');
   const [newProfileNickname, setNewProfileNickname] = useState('');
   const [newProfileEmail, setNewProfileEmail] = useState('');
-  const [selectedMode, setSelectedMode] = useState<'seeker' | 'poster'>('seeker');
+  const [selectedMode, setSelectedMode] = useState('seeker');
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.8));
 
@@ -90,7 +79,9 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
 
   useEffect(() => {
     if (error) {
-      Alert.alert('Profile Error', error, [{ text: 'OK', onPress: clearError }]);
+      Alert.alert('Profile Error', error, [
+        { text: 'OK', onPress: clearError },
+      ]);
     }
   }, [error, clearError]);
 
@@ -105,8 +96,8 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
     }
   };
 
-  const getProfileColor = (profile: SavedProfile): string[] => {
-    const colors: string[][] = [
+  const getProfileColor = profile => {
+    const colors = [
       [theme.colors.primary.emerald, theme.colors.primary.forest],
       ['#2196F3', '#1976D2'],
       [theme.colors.accent.orange, '#F44336'],
@@ -114,36 +105,33 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
       ['#4CAF50', '#388E3C'],
       ['#FF5722', '#D84315'],
     ];
-    
-    const index = profile.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+
+    const index =
+      profile.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+      colors.length;
     return colors[index] || ['#2196F3', '#1976D2'];
   };
 
-  const handleSwitchProfile = async (profileId: string) => {
+  const handleSwitchProfile = async profileId => {
     try {
-      // Find the profile being switched to
       const newProfile = profiles.find(p => p.id === profileId);
       if (!newProfile) {
         throw new Error('Profile not found');
       }
 
-      // Switch the profile in ProfileContext
       await switchProfile(profileId);
 
-      // Also update the AuthContext with the new profile data
-      // This ensures DashboardScreen gets the correct user mode (seeker/poster)
-      const userProfile: UserProfile = {
+      const userProfile = {
         id: newProfile.id,
         name: newProfile.name,
         email: newProfile.email,
         mode: newProfile.mode,
       };
-      
+
       await login(userProfile);
 
       hideProfileSwitcher();
     } catch (error) {
-      // Error handled by useEffect
       console.error('Profile switch failed:', error);
     }
   };
@@ -158,7 +146,9 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
       await addProfile({
         nickname: newProfileNickname.trim(),
         name: newProfileName.trim(),
-        email: newProfileEmail.trim() || `${newProfileNickname.toLowerCase()}@example.com`,
+        email:
+          newProfileEmail.trim() ||
+          `${newProfileNickname.toLowerCase()}@example.com`,
         mode: selectedMode,
         description: `${newProfileNickname} profile`,
       });
@@ -168,14 +158,14 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
       setNewProfileNickname('');
       setNewProfileEmail('');
       setSelectedMode('seeker');
-      
+
       Alert.alert('Success', 'Profile created successfully!');
     } catch (error) {
       // Error handled by useEffect
     }
   };
 
-  const handleDeleteProfile = (profileId: string) => {
+  const handleDeleteProfile = profileId => {
     Alert.alert(
       'Delete Profile',
       'Are you sure you want to delete this profile? This action cannot be undone.',
@@ -192,11 +182,11 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
             }
           },
         },
-      ]
+      ],
     );
   };
 
-  const handleDuplicateProfile = (profile: SavedProfile) => {
+  const handleDuplicateProfile = profile => {
     Alert.prompt(
       'Duplicate Profile',
       'Enter a nickname for the duplicated profile:',
@@ -204,7 +194,7 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Create',
-          onPress: async (nickname) => {
+          onPress: async nickname => {
             if (nickname && nickname.trim()) {
               try {
                 await duplicateProfile(profile.id, nickname.trim());
@@ -217,7 +207,7 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
         },
       ],
       'plain-text',
-      `Copy of ${profile.nickname}`
+      `Copy of ${profile.nickname}`,
     );
   };
 
@@ -239,7 +229,9 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <Text style={[styles.profileInitials, { fontSize: sizeStyle.fontSize }]}>
+          <Text
+            style={[styles.profileInitials, { fontSize: sizeStyle.fontSize }]}
+          >
             {getProfileInitials(activeProfile)}
           </Text>
         </LinearGradient>
@@ -247,7 +239,7 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
     );
   };
 
-  const renderProfileItem = (profile: SavedProfile) => {
+  const renderProfileItem = profile => {
     const isActive = profile.id === activeProfile?.id;
     const profileColors = getProfileColor(profile);
 
@@ -276,7 +268,11 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
             </Text>
             {isActive && (
               <View style={styles.activeIndicator}>
-                <Feather name="check" size={12} color={theme.colors.primary.emerald} />
+                <Feather
+                  name="check"
+                  size={12}
+                  color={theme.colors.primary.emerald}
+                />
               </View>
             )}
           </View>
@@ -293,14 +289,22 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
             style={styles.actionButton}
             onPress={() => handleDuplicateProfile(profile)}
           >
-            <Feather name="copy" size={14} color={theme.colors.text.secondary} />
+            <Feather
+              name="copy"
+              size={14}
+              color={theme.colors.text.secondary}
+            />
           </TouchableOpacity>
           {profiles.length > 1 && (
             <TouchableOpacity
               style={styles.actionButton}
               onPress={() => handleDeleteProfile(profile.id)}
             >
-              <Feather name="trash-2" size={14} color={theme.colors.status.error} />
+              <Feather
+                name="trash-2"
+                size={14}
+                color={theme.colors.status.error}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -311,7 +315,7 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
   const renderAddProfileForm = () => (
     <View style={styles.addProfileForm}>
       <Text style={styles.addProfileTitle}>Create New Profile</Text>
-      
+
       <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>Profile Nickname *</Text>
         <TextInput
@@ -357,10 +361,12 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
             ]}
             onPress={() => setSelectedMode('seeker')}
           >
-            <Text style={[
-              styles.modeOptionText,
-              selectedMode === 'seeker' && styles.selectedModeOptionText,
-            ]}>
+            <Text
+              style={[
+                styles.modeOptionText,
+                selectedMode === 'seeker' && styles.selectedModeOptionText,
+              ]}
+            >
               🎯 Job Seeker
             </Text>
           </TouchableOpacity>
@@ -371,10 +377,12 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
             ]}
             onPress={() => setSelectedMode('poster')}
           >
-            <Text style={[
-              styles.modeOptionText,
-              selectedMode === 'poster' && styles.selectedModeOptionText,
-            ]}>
+            <Text
+              style={[
+                styles.modeOptionText,
+                selectedMode === 'poster' && styles.selectedModeOptionText,
+              ]}
+            >
               🏢 Job Poster
             </Text>
           </TouchableOpacity>
@@ -412,7 +420,7 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
   return (
     <>
       {renderProfileButton()}
-      
+
       <Modal
         visible={isModalVisible}
         transparent
@@ -440,7 +448,11 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
                   style={styles.closeButton}
                   onPress={hideProfileSwitcher}
                 >
-                  <Feather name="x" size={20} color={theme.colors.text.secondary} />
+                  <Feather
+                    name="x"
+                    size={20}
+                    color={theme.colors.text.secondary}
+                  />
                 </TouchableOpacity>
               </View>
 
@@ -448,7 +460,10 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
                 renderAddProfileForm()
               ) : (
                 <>
-                  <ScrollView style={styles.profilesList} showsVerticalScrollIndicator={false}>
+                  <ScrollView
+                    style={styles.profilesList}
+                    showsVerticalScrollIndicator={false}
+                  >
                     {profiles.map(renderProfileItem)}
                   </ScrollView>
 
@@ -456,8 +471,14 @@ const ProfileSwitcher: React.FC<ProfileSwitcherProps> = ({
                     style={styles.addProfileButton}
                     onPress={() => setIsAddingProfile(true)}
                   >
-                    <Feather name="plus" size={16} color={theme.colors.primary.emerald} />
-                    <Text style={styles.addProfileButtonText}>Add New Profile</Text>
+                    <Feather
+                      name="plus"
+                      size={16}
+                      color={theme.colors.primary.emerald}
+                    />
+                    <Text style={styles.addProfileButtonText}>
+                      Add New Profile
+                    </Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -490,7 +511,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   circularAvatar: {
-    borderRadius: 50, // Make it perfectly circular
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 3,
@@ -559,7 +580,7 @@ const styles = StyleSheet.create({
   },
   activeProfileItem: {
     borderColor: theme.colors.primary.emerald,
-    backgroundColor: theme.colors.primary.emerald + '10',
+    backgroundColor: `${theme.colors.primary.emerald}10`,
   },
   profileItemAvatar: {
     width: 48,
@@ -588,7 +609,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
   },
   activeIndicator: {
-    backgroundColor: theme.colors.primary.emerald + '20',
+    backgroundColor: `${theme.colors.primary.emerald}20`,
     borderRadius: 12,
     padding: 4,
   },
@@ -672,7 +693,7 @@ const styles = StyleSheet.create({
   },
   selectedModeOption: {
     borderColor: theme.colors.primary.emerald,
-    backgroundColor: theme.colors.primary.emerald + '10',
+    backgroundColor: `${theme.colors.primary.emerald}10`,
   },
   modeOptionText: {
     fontSize: 14,
@@ -716,4 +737,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileSwitcher; 
+export default ProfileSwitcher;

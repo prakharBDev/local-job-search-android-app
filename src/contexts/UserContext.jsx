@@ -1,49 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useReducer,
-} from 'react';
-import type { UserMode } from '../types/navigation';
+import React, { createContext, useContext, useEffect, useReducer } from 'react';
 
-// User state interface
-interface UserState {
-  currentMode: UserMode;
-  isLoading: boolean;
-  error: string | null;
-}
-
-// User actions
-type UserAction =
-  | { type: 'SET_MODE_LOADING' }
-  | { type: 'SET_MODE_SUCCESS'; payload: UserMode }
-  | { type: 'SET_MODE_ERROR'; payload: string }
-  | { type: 'RESTORE_MODE'; payload: UserMode };
-
-// User context interface
-interface UserContextType {
-  state: UserState;
-  currentMode: UserMode;
-  isLoading: boolean;
-  error: string | null;
-  switchMode: (mode: UserMode) => Promise<void>;
-  toggleMode: () => Promise<void>;
-  clearError: () => void;
-  isSeekerMode: boolean;
-  isPosterMode: boolean;
-}
-
-// Initial state
-const initialState: UserState = {
-  currentMode: 'seeker', // Default to seeker mode
+const initialState = {
+  currentMode: 'seeker',
   isLoading: false,
   error: null,
 };
 
-// User reducer
-const userReducer = (state: UserState, action: UserAction): UserState => {
+const userReducer = (state, action) => {
   switch (action.type) {
     case 'SET_MODE_LOADING':
       return {
@@ -76,28 +40,19 @@ const userReducer = (state: UserState, action: UserAction): UserState => {
   }
 };
 
-// Storage key
 const USER_MODE_STORAGE_KEY = 'USER_MODE_PREFERENCE';
 
-// Create context
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext(undefined);
 
-// User provider props
-interface UserProviderProps {
-  children: ReactNode;
-}
-
-// User provider component
-export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
+export const UserProvider = ({ children }) => {
   const [state, dispatch] = useReducer(userReducer, initialState);
 
-  // Load saved mode on mount
   useEffect(() => {
     const loadSavedMode = async () => {
       try {
         const savedMode = await AsyncStorage.getItem(USER_MODE_STORAGE_KEY);
         if (savedMode && (savedMode === 'seeker' || savedMode === 'poster')) {
-          dispatch({ type: 'RESTORE_MODE', payload: savedMode as UserMode });
+          dispatch({ type: 'RESTORE_MODE', payload: savedMode });
         }
       } catch (error) {
         // Continue with default mode
@@ -107,15 +62,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     loadSavedMode();
   }, []);
 
-  // Switch to specific mode
-  const switchMode = async (mode: UserMode): Promise<void> => {
+  const switchMode = async mode => {
     try {
       dispatch({ type: 'SET_MODE_LOADING' });
 
-      // Save mode preference
       await AsyncStorage.setItem(USER_MODE_STORAGE_KEY, mode);
 
-      // Small delay for smooth transition
       await new Promise(resolve => setTimeout(resolve, 200));
 
       dispatch({ type: 'SET_MODE_SUCCESS', payload: mode });
@@ -127,22 +79,18 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
-  // Toggle between modes
-  const toggleMode = async (): Promise<void> => {
-    const newMode: UserMode =
-      state.currentMode === 'seeker' ? 'poster' : 'seeker';
+  const toggleMode = async () => {
+    const newMode = state.currentMode === 'seeker' ? 'poster' : 'seeker';
     await switchMode(newMode);
   };
 
-  // Clear error function
-  const clearError = (): void => {
+  const clearError = () => {
     if (state.error) {
       dispatch({ type: 'RESTORE_MODE', payload: state.currentMode });
     }
   };
 
-  // Context value
-  const contextValue: UserContextType = {
+  const contextValue = {
     state,
     currentMode: state.currentMode,
     isLoading: state.isLoading,
@@ -159,8 +107,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   );
 };
 
-// Custom hook to use user context
-export const useUser = (): UserContextType => {
+export const useUser = () => {
   const context = useContext(UserContext);
 
   if (context === undefined) {
@@ -170,5 +117,4 @@ export const useUser = (): UserContextType => {
   return context;
 };
 
-// Export user context for advanced usage
 export { UserContext };

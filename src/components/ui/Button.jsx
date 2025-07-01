@@ -1,31 +1,8 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  Text,
-  TextStyle,
-  TouchableOpacity,
-  TouchableOpacityProps,
-  View,
-  ViewStyle,
-} from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { theme } from '../../theme';
 
-type ButtonVariant = 'default' | 'outline' | 'ghost' | 'gradient';
-type ButtonSize = 'sm' | 'md' | 'lg';
-
-interface ButtonProps extends TouchableOpacityProps {
-  children: React.ReactNode;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  loading?: boolean;
-  icon?: React.ReactNode;
-  fullWidth?: boolean;
-  disabled?: boolean;
-  style?: ViewStyle;
-}
-
-const Button: React.FC<ButtonProps> = ({
+const Button = ({
   children,
   variant = 'default',
   size = 'md',
@@ -36,8 +13,8 @@ const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const getButtonStyle = (): ViewStyle => {
-    const baseStyle: ViewStyle = {
+  const getButtonStyle = () => {
+    const baseStyle = {
       borderRadius: theme.borderRadius.xl,
       flexDirection: 'row',
       alignItems: 'center',
@@ -45,7 +22,7 @@ const Button: React.FC<ButtonProps> = ({
       ...theme.shadows.md,
     };
 
-    const sizeStyles: Record<ButtonSize, ViewStyle> = {
+    const sizeStyles = {
       sm: {
         paddingHorizontal: theme.spacing[4],
         paddingVertical: theme.spacing[2],
@@ -63,7 +40,7 @@ const Button: React.FC<ButtonProps> = ({
       },
     };
 
-    const variantStyles: Record<ButtonVariant, ViewStyle> = {
+    const variantStyles = {
       default: {
         backgroundColor: theme.colors.primary.emerald,
       },
@@ -91,13 +68,13 @@ const Button: React.FC<ButtonProps> = ({
     };
   };
 
-  const getTextStyle = (): TextStyle => {
-    const baseTextStyle: TextStyle = {
+  const getTextStyle = () => {
+    const baseTextStyle = {
       textAlign: 'center',
-      fontWeight: theme.typography.button.fontWeight as any,
+      fontWeight: theme.typography.button.fontWeight,
     };
 
-    const sizeTextStyles: Record<ButtonSize, TextStyle> = {
+    const sizeTextStyles = {
       sm: {
         fontSize: theme.typography.buttonSmall.fontSize,
         lineHeight: theme.typography.buttonSmall.lineHeight,
@@ -112,7 +89,7 @@ const Button: React.FC<ButtonProps> = ({
       },
     };
 
-    const variantTextStyles: Record<ButtonVariant, TextStyle> = {
+    const variantTextStyles = {
       default: {
         color: theme.colors.text.white,
       },

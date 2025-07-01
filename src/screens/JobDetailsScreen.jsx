@@ -12,10 +12,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import { Button, Card } from '../components/ui';
 import { theme } from '../theme';
-import type { JobDetailsScreenProps, Job } from '../types/navigation';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 // Mock job data - in real app, this would come from props/API
-const mockJob: Job = {
+const mockJob = {
   id: '1',
   title: 'Senior React Native Developer',
   description: 'We are looking for an experienced React Native developer to join our team and help build amazing mobile applications...',
@@ -31,9 +31,11 @@ const mockJob: Job = {
   applicationsCount: 12,
 };
 
-const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, route }) => {
-  const { jobId, mode = 'view' } = route.params;
-  const [job, setJob] = useState<Job>(mockJob);
+const JobDetailsScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { jobId, mode = 'view' } = route.params || {};
+  const [job, setJob] = useState(mockJob);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -46,7 +48,7 @@ const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, route }
   };
 
   const handleViewApplications = () => {
-    navigation.navigate('JobApplications', { jobId });
+    Alert.alert('View Applications', 'Applications view coming soon!');
   };
 
   const handleDeleteJob = () => {
@@ -345,7 +347,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.typography.h4.fontSize,
-    fontWeight: theme.typography.h4.fontWeight as any,
+    fontWeight: theme.typography.h4.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[1],
   },
@@ -376,7 +378,7 @@ const styles = StyleSheet.create({
   },
   jobTitle: {
     fontSize: theme.typography.h5.fontSize,
-    fontWeight: theme.typography.h5.fontWeight as any,
+    fontWeight: theme.typography.h5.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[2],
   },
@@ -418,7 +420,7 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight as any,
+    fontWeight: theme.typography.h6.fontWeight,
     color: theme.colors.text.primary,
   },
   statLabel: {
@@ -430,7 +432,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight as any,
+    fontWeight: theme.typography.h6.fontWeight,
     color: theme.colors.text.primary,
     marginBottom: theme.spacing[3],
   },
@@ -496,4 +498,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default JobDetailsScreen; 
+export default JobDetailsScreen;

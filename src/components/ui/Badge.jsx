@@ -1,38 +1,22 @@
 import React from 'react';
-import { Text, TextStyle, View, ViewStyle } from 'react-native';
+import { Text, View } from 'react-native';
 import { theme } from '../../theme';
 
-type BadgeVariant =
-  | 'default'
-  | 'secondary'
-  | 'outline'
-  | 'success'
-  | 'warning'
-  | 'error';
-type BadgeSize = 'sm' | 'md';
-
-interface BadgeProps {
-  children: React.ReactNode;
-  variant?: BadgeVariant;
-  size?: BadgeSize;
-  style?: ViewStyle;
-}
-
-const Badge: React.FC<BadgeProps> = ({
+const Badge = ({
   children,
   variant = 'default',
   size = 'md',
   style,
   ...props
 }) => {
-  const getBadgeStyle = (): ViewStyle => {
-    const baseStyle: ViewStyle = {
+  const getBadgeStyle = () => {
+    const baseStyle = {
       borderRadius: theme.borderRadius.full,
       alignItems: 'center',
       justifyContent: 'center',
     };
 
-    const sizeStyles: Record<BadgeSize, ViewStyle> = {
+    const sizeStyles = {
       sm: {
         paddingHorizontal: theme.spacing[2],
         paddingVertical: theme.spacing[1],
@@ -43,7 +27,7 @@ const Badge: React.FC<BadgeProps> = ({
       },
     };
 
-    const variantStyles: Record<BadgeVariant, ViewStyle> = {
+    const variantStyles = {
       default: {
         backgroundColor: theme.colors.primary.emerald,
       },
@@ -73,14 +57,14 @@ const Badge: React.FC<BadgeProps> = ({
     };
   };
 
-  const getTextStyle = (): TextStyle => {
-    const baseTextStyle: TextStyle = {
+  const getTextStyle = () => {
+    const baseTextStyle = {
       fontSize: theme.typography.labelSmall.fontSize,
-      fontWeight: theme.typography.labelSmall.fontWeight as any,
+      fontWeight: theme.typography.labelSmall.fontWeight,
       textAlign: 'center',
     };
 
-    const variantTextStyles: Record<BadgeVariant, TextStyle> = {
+    const variantTextStyles = {
       default: {
         color: theme.colors.text.white,
       },

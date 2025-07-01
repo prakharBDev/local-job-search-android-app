@@ -25,6 +25,7 @@ export const colors = {
   background: {
     primary: '#F1F8E9', // hsl(75, 100%, 97%) - Soft white with green tint
     secondary: '#FFFFFF', // Pure white for cards
+    tertiary: '#F5F5F5', // Light gray background
     gradient: {
       purple: ['#E1BEE7', '#CE93D8'], // Purple gradient stops
       cyan: ['#B2EBF2', '#4DD0E1'], // Cyan gradient stops
@@ -86,6 +87,7 @@ export const darkColors = {
   background: {
     primary: '#1A1A1A', // hsl(210, 15%, 8%) - Dark background
     secondary: '#2A2A2A', // Dark cards
+    tertiary: '#333333', // Dark gray background
     gradient: {
       purple: ['#4A148C', '#7B1FA2'],
       cyan: ['#006064', '#00838F'],

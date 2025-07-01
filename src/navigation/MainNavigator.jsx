@@ -1,39 +1,22 @@
-// Using text icons as placeholder - replace with react-native-vector-icons if available
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { Platform, Text } from 'react-native';
 
-// Import navigation types
-import type {
-  PosterTabParamList,
-  SeekerTabParamList,
-} from '../types/navigation';
-
-// Import screens
 import AppliedJobsScreen from '../screens/AppliedJobsScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MyJobsScreen from '../screens/MyJobsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
-// Import contexts
 import { useUser } from '../contexts/UserContext';
 
-// Import theme
 import { theme } from '../theme';
 
-// Create tab navigators
-const SeekerTab = createBottomTabNavigator<SeekerTabParamList>();
-const PosterTab = createBottomTabNavigator<PosterTabParamList>();
+const SeekerTab = createBottomTabNavigator();
+const PosterTab = createBottomTabNavigator();
 
-// Seeker Tab Icon Component
-const SeekerTabIcon: React.FC<{
-  route: { name: string };
-  focused: boolean;
-  color: string;
-  size: number;
-}> = ({ route, focused, color, size }) => {
-  let iconText: string;
+const SeekerTabIcon = ({ route, focused, color, size }) => {
+  let iconText;
 
   switch (route.name) {
     case 'Dashboard':
@@ -52,9 +35,8 @@ const SeekerTabIcon: React.FC<{
   return <Text style={{ fontSize: size - 2, color }}>{iconText}</Text>;
 };
 
-// Seeker screen options
-const getSeekerScreenOptions = ({ route }: { route: any }) => ({
-  tabBarIcon: ({ focused, color, size }: any) => (
+const getSeekerScreenOptions = ({ route }) => ({
+  tabBarIcon: ({ focused, color, size }) => (
     <SeekerTabIcon route={route} focused={focused} color={color} size={size} />
   ),
   tabBarActiveTintColor: theme.colors.primary.emerald,
@@ -73,8 +55,7 @@ const getSeekerScreenOptions = ({ route }: { route: any }) => ({
   headerShown: false,
 });
 
-// Job Seeker Tab Navigator
-const SeekerTabNavigator: React.FC = () => {
+const SeekerTabNavigator = () => {
   return (
     <SeekerTab.Navigator screenOptions={getSeekerScreenOptions}>
       <SeekerTab.Screen
@@ -102,14 +83,8 @@ const SeekerTabNavigator: React.FC = () => {
   );
 };
 
-// Poster Tab Icon Component
-const PosterTabIcon: React.FC<{
-  route: { name: string };
-  focused: boolean;
-  color: string;
-  size: number;
-}> = ({ route, focused, color, size }) => {
-  let iconText: string;
+const PosterTabIcon = ({ route, focused, color, size }) => {
+  let iconText;
 
   switch (route.name) {
     case 'Dashboard':
@@ -128,9 +103,8 @@ const PosterTabIcon: React.FC<{
   return <Text style={{ fontSize: size - 2, color }}>{iconText}</Text>;
 };
 
-// Poster screen options
-const getPosterScreenOptions = ({ route }: { route: any }) => ({
-  tabBarIcon: ({ focused, color, size }: any) => (
+const getPosterScreenOptions = ({ route }) => ({
+  tabBarIcon: ({ focused, color, size }) => (
     <PosterTabIcon route={route} focused={focused} color={color} size={size} />
   ),
   tabBarActiveTintColor: theme.colors.primary.emerald,
@@ -149,8 +123,7 @@ const getPosterScreenOptions = ({ route }: { route: any }) => ({
   headerShown: false,
 });
 
-// Job Poster Tab Navigator
-const PosterTabNavigator: React.FC = () => {
+const PosterTabNavigator = () => {
   return (
     <PosterTab.Navigator screenOptions={getPosterScreenOptions}>
       <PosterTab.Screen
@@ -178,11 +151,9 @@ const PosterTabNavigator: React.FC = () => {
   );
 };
 
-// Main Navigator that switches between seeker and poster tabs
-const MainNavigator: React.FC = () => {
+const MainNavigator = () => {
   const { isSeekerMode } = useUser();
 
-  // Return the appropriate tab navigator based on user mode
   return isSeekerMode ? <SeekerTabNavigator /> : <PosterTabNavigator />;
 };
 

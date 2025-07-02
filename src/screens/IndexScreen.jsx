@@ -399,21 +399,6 @@ const IndexScreen = () => {
               </View>
 
               <View style={styles.authCardBody}>
-                <Input
-                  label="Phone Number (Optional for Demo)"
-                  placeholder="+91 98765 43210"
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  variant="glass"
-                  leftIcon={
-                    <FontAwesome
-                      name="phone"
-                      size={16}
-                      color={theme.colors.text.tertiary}
-                    />
-                  }
-                />
-
                 {!isLogin && (
                   <Input
                     label="Email (Optional)"
@@ -428,6 +413,21 @@ const IndexScreen = () => {
                     }
                   />
                 )}
+
+                <View style={styles.socialButtonsContainer}>
+                  <Button variant="outline" style={styles.socialButton}>
+                    <View style={styles.socialButtonContent}>
+                      <FontAwesome
+                        name="google"
+                        size={20}
+                        color={theme.colors.text.primary}
+                      />
+                      <Text style={styles.socialButtonText}>
+                        Continue with Google
+                      </Text>
+                    </View>
+                  </Button>
+                </View>
 
                 <Button
                   variant="gradient"
@@ -447,39 +447,6 @@ const IndexScreen = () => {
                     />
                   </View>
                 </Button>
-
-                <View style={styles.dividerContainer}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>Or continue with</Text>
-                </View>
-
-                <View style={styles.socialButtonsContainer}>
-                  <Button variant="outline" style={styles.socialButton}>
-                    <View style={styles.socialButtonContent}>
-                      <FontAwesome
-                        name="google"
-                        size={20}
-                        color={theme.colors.text.primary}
-                      />
-                      <Text style={styles.socialButtonText}>
-                        Continue with Google
-                      </Text>
-                    </View>
-                  </Button>
-
-                  <Button variant="outline" style={styles.socialButton}>
-                    <View style={styles.socialButtonContent}>
-                      <FontAwesome
-                        name="phone"
-                        size={20}
-                        color={theme.colors.text.primary}
-                      />
-                      <Text style={styles.socialButtonText}>
-                        Connect with WhatsApp
-                      </Text>
-                    </View>
-                  </Button>
-                </View>
 
                 <Text style={styles.agreementText}>
                   By continuing you agree to our{' '}

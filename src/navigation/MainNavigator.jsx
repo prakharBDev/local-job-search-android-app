@@ -6,6 +6,7 @@ import AppliedJobsScreen from '../screens/AppliedJobsScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import MyJobsScreen from '../screens/MyJobsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import BrowseJobsScreen from '../screens/JobDetailsScreen';
 
 import { useUser } from '../contexts/UserContext';
 
@@ -65,6 +66,13 @@ const SeekerTabNavigator = () => {
         }}
       />
       <SeekerTab.Screen
+        name="Browse Jobs"
+        component={BrowseJobsScreen}
+        options={{
+          tabBarLabel: 'Browse Jobs',
+        }}
+      />
+      <SeekerTab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
@@ -94,6 +102,9 @@ const PosterTabIcon = ({ route, focused, color, size }) => {
       break;
     case 'MyJobs':
       iconText = focused ? '🏢' : '🏢';
+      break;
+    case 'Browse Jobs':
+      iconText = focused ? '🔍' : '🔍';
       break;
     default:
       iconText = '❓';

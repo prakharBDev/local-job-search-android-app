@@ -197,7 +197,7 @@ const JobDetailsScreen = () => {
                   <Feather
                     name="users"
                     size={20}
-                    color={theme.colors.primary.emerald}
+                    color={theme.colors.primary.cyan}
                   />
                   <Text style={styles.statNumber}>{job.applicationsCount}</Text>
                   <Text style={styles.statLabel}>Applications</Text>
@@ -279,7 +279,7 @@ const JobDetailsScreen = () => {
                 <Feather
                   name="users"
                   size={16}
-                  color={theme.colors.primary.emerald}
+                  color={theme.colors.primary.cyan}
                 />
                 <Text style={styles.actionButtonText}>View Applications</Text>
               </Button>
@@ -474,15 +474,15 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border.primary,
   },
   skillTag: {
-    backgroundColor: `${theme.colors.primary.emerald}10`,
-    borderColor: theme.colors.primary.emerald,
+    backgroundColor: `${theme.colors.primary.cyan}10`,
+    borderColor: theme.colors.primary.cyan,
   },
   tagText: {
     fontSize: theme.typography.bodySmall.fontSize,
     color: theme.colors.text.secondary,
   },
   skillTagText: {
-    color: theme.colors.primary.emerald,
+    color: theme.colors.primary.cyan,
     fontWeight: '500',
   },
   actionContainer: {
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing[2],
   },
   actionButtonText: {
-    color: theme.colors.primary.emerald,
+    color: theme.colors.primary.cyan,
   },
   secondaryActions: {
     maxWidth: 400,

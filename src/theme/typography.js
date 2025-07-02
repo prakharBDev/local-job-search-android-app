@@ -1,29 +1,12 @@
-// Typography system matching the Inter font from web app
+// Typography system for Electric Cyber theme - Modern, tech-inspired fonts
 
-import { Platform } from 'react-native';
-
-// Font family with fallbacks (React Native doesn't support web fonts directly)
+// Font family with cyber-aesthetic fonts
 export const fontFamily = {
-  regular: Platform.select({
-    ios: 'System',
-    android: 'Roboto',
-    default: 'System',
-  }),
-  medium: Platform.select({
-    ios: 'System',
-    android: 'Roboto-Medium',
-    default: 'System',
-  }),
-  semibold: Platform.select({
-    ios: 'System',
-    android: 'Roboto-Medium',
-    default: 'System',
-  }),
-  bold: Platform.select({
-    ios: 'System',
-    android: 'Roboto-Bold',
-    default: 'System',
-  }),
+  regular: 'System', // Use system font for better compatibility
+  medium: 'System',
+  semibold: 'System',
+  bold: 'System',
+  system: 'System',
 };
 
 // Font weights matching Inter
@@ -100,24 +83,40 @@ export const typography = {
     fontFamily: fontFamily.medium,
   },
 
-  // Body text
+  // Body text - Use system fonts for better readability
   body: {
     fontSize: fontSize.base,
     fontWeight: fontWeight.regular,
     lineHeight: fontSize.base * lineHeight.normal,
-    fontFamily: fontFamily.regular,
+    fontFamily: fontFamily.system, // System font for readability
   },
   bodyLarge: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.regular,
     lineHeight: fontSize.lg * lineHeight.relaxed,
-    fontFamily: fontFamily.regular,
+    fontFamily: fontFamily.system,
   },
   bodySmall: {
     fontSize: fontSize.sm,
     fontWeight: fontWeight.regular,
     lineHeight: fontSize.sm * lineHeight.normal,
-    fontFamily: fontFamily.regular,
+    fontFamily: fontFamily.system,
+  },
+
+  // Cyber-styled text for special elements
+  cyber: {
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.medium,
+    lineHeight: fontSize.base * lineHeight.normal,
+    fontFamily: fontFamily.regular, // Monospace cyber font
+    letterSpacing: 1,
+  },
+  cyberLarge: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+    lineHeight: fontSize.lg * lineHeight.tight,
+    fontFamily: fontFamily.bold,
+    letterSpacing: 1.5,
   },
 
   // Caption and labels

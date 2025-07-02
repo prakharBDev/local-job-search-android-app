@@ -42,7 +42,7 @@ const Button = ({
 
     const variantStyles = {
       default: {
-        backgroundColor: theme.colors.primary.emerald,
+        backgroundColor: theme.colors.primary.cyan,
       },
       outline: {
         backgroundColor: 'transparent',
@@ -119,7 +119,7 @@ const Button = ({
           color={
             variant === 'default' || variant === 'gradient'
               ? theme.colors.text.white
-              : theme.colors.primary.emerald
+              : theme.colors.primary.cyan
           }
           style={{ marginRight: theme.spacing[2] }}
         />
@@ -136,7 +136,7 @@ const Button = ({
       <TouchableOpacity
         style={[
           getButtonStyle(),
-          { backgroundColor: theme.colors.primary.emerald },
+          { backgroundColor: theme.colors.primary.cyan },
           style,
         ]}
         disabled={disabled || loading}

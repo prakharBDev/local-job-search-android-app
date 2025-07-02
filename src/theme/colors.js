@@ -1,105 +1,162 @@
-// Forest Fresh Theme Colors - Exact HSL to RGB conversion from web app
+// Electric Cyber Theme Colors - Improved for Readability & Contrast
 
 export const colors = {
-  // Primary colors - Forest Fresh green gradient
+  // Primary colors - Electric Cyber neon
   primary: {
-    emerald: '#66BB6A', // hsl(130, 41%, 57%) - Primary emerald
-    forest: '#388E3C', // hsl(130, 56%, 45%) - Deep forest green
-    light: '#81C784', // hsl(130, 44%, 65%) - Lighter emerald
-  },
-
-  // Secondary colors - Light nature tones
-  secondary: {
-    lime: '#9CCC65', // hsl(88, 50%, 60%) - Bright lime
-    mint: '#81C784', // hsl(130, 44%, 65%) - Soft mint
-    light: '#F1F8E9', // hsl(75, 100%, 97%) - Light green background
-  },
-
-  // Accent colors - Warm orange for CTAs
-  accent: {
-    orange: '#FF7043', // hsl(14, 100%, 63%) - Warm Orange
-    light: '#FFE0B2', // Light orange
+    cyan: '#00f5ff', // Electric cyan - Primary brand color
+    dark: '#00b8cc', // Darker cyan for pressed states
+    light: '#4df7ff', // Lighter cyan for highlights
+    pink: '#ff006e', // Electric pink accent
+    purple: '#8338ec', // Deep purple accent
   },
 
   // Background colors
   background: {
-    primary: '#F1F8E9', // hsl(75, 100%, 97%) - Soft white with green tint
-    secondary: '#FFFFFF', // Pure white for cards
-    tertiary: '#F5F5F5', // Light gray background
-    gradient: {
-      purple: ['#E1BEE7', '#CE93D8'], // Purple gradient stops
-      cyan: ['#B2EBF2', '#4DD0E1'], // Cyan gradient stops
-      emerald: ['#C8E6C9', '#81C784'], // Emerald gradient stops
-    },
+    primary: '#0a0a0a', // Very dark background
+    secondary: '#1a1a1a', // Slightly lighter dark
+    tertiary: '#2a2a2a', // Card backgrounds
+    modal: 'rgba(0, 0, 0, 0.9)', // Modal overlay
+    glass: 'rgba(255, 255, 255, 0.05)', // Glass effect
   },
 
-  // Text colors
+  // Text colors - Fixed for better contrast
   text: {
-    primary: '#2C2C2C', // hsl(210, 15%, 20%) - Dark charcoal
-    secondary: '#666666', // Medium gray
-    tertiary: '#999999', // Light gray
-    white: '#FFFFFF',
+    primary: '#ffffff', // White text for dark backgrounds
+    secondary: '#e0e0e0', // Light gray for secondary text
+    tertiary: '#b0b0b0', // Medium gray for less important text
+    inverse: '#1a1a1a', // Dark text for light backgrounds
+    accent: '#00f5ff', // Cyan for accent text
+    pink: '#ff006e', // Pink for special text
+    muted: '#808080', // Muted gray text
+    white: '#ffffff', // Legacy white text reference
   },
 
   // Status colors
   status: {
-    success: '#66BB6A', // Same as primary emerald
-    warning: '#FFB74D', // hsl(38, 92%, 50%)
-    error: '#F44336', // hsl(0, 72%, 51%)
-    info: '#42A5F5',
+    success: '#00ff88', // Bright green
+    error: '#ff3366', // Bright red
+    warning: '#ffaa00', // Bright orange
+    info: '#00f5ff', // Cyan
   },
 
-  // UI element colors
-  border: {
-    primary: '#E0E0E0', // hsl(75, 15%, 85%) - Light green-tinted borders
-    secondary: '#F5F5F5',
-    focus: '#66BB6A', // Emerald focus ring
-  },
-
-  // Shadow colors with opacity
-  shadow: {
-    primary: 'rgba(102, 187, 106, 0.25)', // Emerald shadow
-    secondary: 'rgba(0, 0, 0, 0.1)',
-    card: 'rgba(0, 0, 0, 0.08)',
-  },
-
-  // Glassmorphism colors
-  glass: {
-    white80: 'rgba(255, 255, 255, 0.8)',
-    white90: 'rgba(255, 255, 255, 0.9)',
-    white60: 'rgba(255, 255, 255, 0.6)',
-    backdrop: 'rgba(255, 255, 255, 0.3)',
-  },
-
-  // Brand gradients (for LinearGradient)
-  gradients: {
-    primary: ['#66BB6A', '#388E3C'], // Emerald to forest
-    secondary: ['#9CCC65', '#81C784'], // Lime to mint
-    warm: ['#81C784', '#FF7043'], // Mint to orange
-    background: ['#E3F2FD', '#F3E5F5', '#FCE4EC'], // Blue to purple to pink
-    card: ['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.85)'],
-  },
-};
-
-// Dark mode colors (for future implementation)
-export const darkColors = {
-  ...colors,
-  background: {
-    primary: '#1A1A1A', // hsl(210, 15%, 8%) - Dark background
-    secondary: '#2A2A2A', // Dark cards
-    tertiary: '#333333', // Dark gray background
-    gradient: {
-      purple: ['#4A148C', '#7B1FA2'],
-      cyan: ['#006064', '#00838F'],
-      emerald: ['#1B5E20', '#2E7D32'],
+  // Interactive elements
+  interactive: {
+    button: {
+      primary: '#00f5ff', // Cyan button
+      secondary: '#ff006e', // Pink button
+      tertiary: '#8338ec', // Purple button
+      disabled: '#404040', // Gray for disabled
+      text: '#000000', // Black text on bright buttons
+      textSecondary: '#ffffff', // White text on dark buttons
+    },
+    border: {
+      primary: '#00f5ff',
+      secondary: '#ff006e',
+      inactive: '#404040',
+      focus: '#4df7ff',
     },
   },
-  text: {
-    primary: '#F1F8E9', // hsl(75, 20%, 95%) - Light green-tinted text
-    secondary: '#CCCCCC',
-    tertiary: '#999999',
-    white: '#FFFFFF',
+
+  // Legacy border colors for backward compatibility
+  border: {
+    primary: '#404040', // Default border color
+    secondary: '#00f5ff', // Accent border
+    focus: '#4df7ff', // Focus border
+    inactive: '#2a2a2a', // Inactive border
+  },
+
+  // Legacy accent colors for backward compatibility
+  accent: {
+    orange: '#ffaa00', // Orange accent
+    purple: '#8338ec', // Purple accent
+    blue: '#00f5ff', // Blue accent
+    green: '#00ff88', // Green accent
+  },
+
+  // Card and surface colors
+  surface: {
+    card: '#1a1a1a', // Dark card background
+    elevated: '#2a2a2a', // Elevated surfaces
+    overlay: 'rgba(0, 245, 255, 0.1)', // Cyan overlay
+    glass: 'rgba(255, 255, 255, 0.05)', // Glass effect
+  },
+
+  // Gradients - All with good contrast
+  gradients: {
+    neon: ['#00f5ff', '#ff006e'], // Cyan to pink
+    cyber: ['#8338ec', '#00f5ff'], // Purple to cyan
+    dark: ['#1a1a1a', '#0a0a0a'], // Dark gradient
+    accent: ['#ff006e', '#8338ec'], // Pink to purple
+    glow: ['rgba(0, 245, 255, 0.3)', 'rgba(255, 0, 110, 0.3)'], // Glowing effect
+    card: ['rgba(26, 26, 26, 0.9)', 'rgba(42, 42, 42, 0.9)'], // Card gradient
+    background: ['#0a0a0a', '#1a1a1a', '#2a2a2a'], // Main background gradient (dark)
+  },
+
+  // Semantic colors for specific use cases
+  semantic: {
+    // Job/hiring related
+    jobSeeker: '#00ff88', // Green for job seekers
+    employer: '#ff006e', // Pink for employers
+    
+    // Priority levels
+    high: '#ff3366', // Red
+    medium: '#ffaa00', // Orange
+    low: '#00ff88', // Green
+    
+    // Categories
+    tech: '#00f5ff', // Cyan
+    design: '#ff006e', // Pink
+    business: '#8338ec', // Purple
+    marketing: '#ffaa00', // Orange
+  },
+
+  // Shadow and border colors
+  shadow: {
+    light: 'rgba(0, 245, 255, 0.2)',
+    medium: 'rgba(0, 245, 255, 0.4)',
+    heavy: 'rgba(0, 0, 0, 0.8)',
+    glow: 'rgba(0, 245, 255, 0.6)',
+  },
+
+  // Opacity variants
+  opacity: {
+    10: 'rgba(255, 255, 255, 0.1)',
+    20: 'rgba(255, 255, 255, 0.2)',
+    30: 'rgba(255, 255, 255, 0.3)',
+    50: 'rgba(255, 255, 255, 0.5)',
+    70: 'rgba(255, 255, 255, 0.7)',
+    90: 'rgba(255, 255, 255, 0.9)',
+  },
+
+  // Glass morphism colors (for Input component and others)
+  glass: {
+    white10: 'rgba(255, 255, 255, 0.1)',
+    white20: 'rgba(255, 255, 255, 0.2)',
+    white30: 'rgba(255, 255, 255, 0.3)',
+    white50: 'rgba(255, 255, 255, 0.5)',
+    white90: 'rgba(255, 255, 255, 0.9)',
+    black10: 'rgba(0, 0, 0, 0.1)',
+    black20: 'rgba(0, 0, 0, 0.2)',
+    black30: 'rgba(0, 0, 0, 0.3)',
+    black50: 'rgba(0, 0, 0, 0.5)',
+    black90: 'rgba(0, 0, 0, 0.9)',
+    cyan10: 'rgba(0, 245, 255, 0.1)',
+    cyan20: 'rgba(0, 245, 255, 0.2)',
+    pink10: 'rgba(255, 0, 110, 0.1)',
+    pink20: 'rgba(255, 0, 110, 0.2)',
   },
 };
 
-export default colors;
+// Export default theme
+export const theme = {
+  colors,
+  // Dark mode (current)
+  mode: 'dark',
+  
+  // Quick access to commonly used colors
+  primary: colors.primary.cyan,
+  secondary: colors.primary.pink,
+  background: colors.background.primary,
+  text: colors.text.primary,
+  card: colors.surface.card,
+};

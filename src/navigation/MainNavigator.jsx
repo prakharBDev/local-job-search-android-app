@@ -39,7 +39,7 @@ const getSeekerScreenOptions = ({ route }) => ({
   tabBarIcon: ({ focused, color, size }) => (
     <SeekerTabIcon route={route} focused={focused} color={color} size={size} />
   ),
-  tabBarActiveTintColor: theme.colors.primary.emerald,
+  tabBarActiveTintColor: theme.colors.primary.cyan,
   tabBarInactiveTintColor: theme.colors.text.secondary,
   tabBarStyle: {
     backgroundColor: theme.colors.background.primary,
@@ -117,7 +117,7 @@ const getPosterScreenOptions = ({ route }) => ({
   tabBarIcon: ({ focused, color, size }) => (
     <PosterTabIcon route={route} focused={focused} color={color} size={size} />
   ),
-  tabBarActiveTintColor: theme.colors.primary.emerald,
+  tabBarActiveTintColor: theme.colors.primary.cyan,
   tabBarInactiveTintColor: theme.colors.text.secondary,
   tabBarStyle: {
     backgroundColor: theme.colors.background.primary,

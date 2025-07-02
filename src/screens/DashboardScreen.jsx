@@ -37,7 +37,7 @@ const DashboardScreen = () => {
             value: '12',
             change: '+3',
             trend: 'up',
-            color: theme.colors.primary.emerald,
+            color: theme.colors.primary.cyan,
             icon: 'briefcase',
           },
           {
@@ -71,7 +71,7 @@ const DashboardScreen = () => {
             value: '24',
             change: '+12%',
             trend: 'up',
-            color: theme.colors.primary.emerald,
+            color: theme.colors.primary.cyan,
             icon: 'send',
           },
           {
@@ -144,7 +144,7 @@ const DashboardScreen = () => {
       title: 'Browse Jobs',
       subtitle: 'Discover new opportunities',
       icon: 'search',
-      color: [theme.colors.primary.emerald, theme.colors.primary.forest],
+      color: [theme.colors.primary.cyan, theme.colors.primary.dark],
       action: 'browse',
     },
     {
@@ -335,7 +335,11 @@ const DashboardScreen = () => {
                 accessibilityLabel="Logout"
               >
                 <Feather name="log-out" size={22} color="#fff" />
-                <Text style={{ color: '#fff', marginLeft: 4, fontWeight: 'bold' }}>Logout</Text>
+                <Text
+                  style={{ color: '#fff', marginLeft: 4, fontWeight: 'bold' }}
+                >
+                  Logout
+                </Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -373,7 +377,7 @@ const DashboardScreen = () => {
                       borderRadius: theme.borderRadius.lg,
                       backgroundColor:
                         selectedPeriod === period
-                          ? theme.colors.primary.emerald
+                          ? theme.colors.primary.cyan
                           : 'transparent',
                     }}
                   >
@@ -622,7 +626,7 @@ const DashboardScreen = () => {
                   <Text
                     style={{
                       fontSize: theme.typography.caption.fontSize,
-                      color: theme.colors.primary.emerald,
+                      color: theme.colors.primary.cyan,
                       fontWeight: '500',
                     }}
                   >
@@ -785,7 +789,7 @@ const DashboardScreen = () => {
                       style={{
                         width: '60%',
                         height: '100%',
-                        backgroundColor: theme.colors.primary.emerald,
+                        backgroundColor: theme.colors.primary.cyan,
                         borderRadius: 4,
                       }}
                     />

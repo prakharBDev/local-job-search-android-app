@@ -1,11 +1,5 @@
 import React, { useContext } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  SafeAreaView,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { AuthContext } from '../contexts/AuthContext';
 import { UserContext } from '../contexts/UserContext';
 import { ProfileContext } from '../contexts/ProfileContext';

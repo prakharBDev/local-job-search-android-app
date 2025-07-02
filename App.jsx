@@ -12,10 +12,11 @@ import SplashScreen from './src/screens/SplashScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import AboutScreen from './src/screens/AboutScreen';
 
-// Import providers
+// Import providers and components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { UserProvider } from './src/contexts/UserContext';
 import { ProfileProvider } from './src/contexts/ProfileContext';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 // Import theme
 import { theme } from './src/theme';
@@ -153,7 +154,7 @@ const InnerApp = ({ initialState, onStateChange }) => {
       theme={{
         dark: false,
         colors: {
-          primary: theme.colors.primary.emerald,
+          primary: theme.colors.primary.cyan,
           background: theme.colors.background.primary,
           card: theme.colors.background.secondary,
           text: theme.colors.text.primary,
@@ -227,20 +228,22 @@ const App = () => {
         backgroundColor={theme.colors.background.primary}
         translucent={false}
       />
-      <AuthProvider>
-        <UserProvider>
-          <ProfileProvider>
-            {!isReady ? (
-              <AppLoadingScreen />
-            ) : (
-              <InnerApp
-                initialState={initialState}
-                onStateChange={onStateChange}
-              />
-            )}
-          </ProfileProvider>
-        </UserProvider>
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <UserProvider>
+            <ProfileProvider>
+              {!isReady ? (
+                <AppLoadingScreen />
+              ) : (
+                <InnerApp
+                  initialState={initialState}
+                  onStateChange={onStateChange}
+                />
+              )}
+            </ProfileProvider>
+          </UserProvider>
+        </AuthProvider>
+      </ErrorBoundary>
     </>
   );
 };

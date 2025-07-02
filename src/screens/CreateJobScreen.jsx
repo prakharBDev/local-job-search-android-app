@@ -188,7 +188,7 @@ const CreateJobScreen = () => {
           style={styles.addButton}
           onPress={() => addArrayField(field)}
         >
-          <Feather name="plus" size={16} color={theme.colors.primary.emerald} />
+          <Feather name="plus" size={16} color={theme.colors.primary.cyan} />
           <Text style={styles.addButtonText}>Add {field.slice(0, -1)}</Text>
         </Pressable>
       </View>
@@ -582,8 +582,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.primary,
   },
   pickerOptionSelected: {
-    backgroundColor: theme.colors.primary.emerald,
-    borderColor: theme.colors.primary.emerald,
+    backgroundColor: theme.colors.primary.cyan,
+    borderColor: theme.colors.primary.cyan,
   },
   pickerOptionText: {
     fontSize: theme.typography.body.fontSize,
@@ -635,14 +635,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: theme.spacing[3],
     borderWidth: 1,
-    borderColor: theme.colors.primary.emerald,
+    borderColor: theme.colors.primary.cyan,
     borderRadius: theme.borderRadius.md,
     borderStyle: 'dashed',
     gap: theme.spacing[1],
   },
   addButtonText: {
     fontSize: theme.typography.body.fontSize,
-    color: theme.colors.primary.emerald,
+    color: theme.colors.primary.cyan,
     fontWeight: '500',
   },
   actionContainer: {

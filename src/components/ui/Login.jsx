@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: theme.colors.primary.emerald,
+    backgroundColor: theme.colors.primary.cyan,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',

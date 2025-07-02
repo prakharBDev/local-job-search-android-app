@@ -29,7 +29,7 @@ const Badge = ({
 
     const variantStyles = {
       default: {
-        backgroundColor: theme.colors.primary.emerald,
+        backgroundColor: theme.colors.primary.cyan,
       },
       secondary: {
         backgroundColor: theme.colors.text.secondary,

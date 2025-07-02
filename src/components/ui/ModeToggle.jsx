@@ -48,7 +48,7 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
               styles.label,
               {
                 color: isSeekerMode
-                  ? theme.colors.primary.emerald
+                  ? theme.colors.primary.cyan
                   : theme.colors.text.secondary,
               },
             ]}
@@ -60,7 +60,7 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
               styles.label,
               {
                 color: isPosterMode
-                  ? theme.colors.primary.emerald
+                  ? theme.colors.primary.cyan
                   : theme.colors.text.secondary,
               },
             ]}
@@ -76,7 +76,7 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
           currentSize.container,
           {
             backgroundColor: isPosterMode
-              ? theme.colors.primary.emerald
+              ? theme.colors.primary.cyan
               : theme.colors.background.secondary,
           },
         ]}
@@ -105,7 +105,7 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
           {isLoading ? (
             <ActivityIndicator
               size="small"
-              color={theme.colors.primary.emerald}
+              color={theme.colors.primary.cyan}
             />
           ) : (
             <Text style={[styles.toggleIcon, currentSize.text]}>

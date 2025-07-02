@@ -15,7 +15,7 @@ const SplashScreen = ({ onFinish }) => {
     <View style={styles.container}>
       <View style={styles.content}>
         <Image
-          source={require('../assests/rocket_1323780.png')}
+          source={require('../assets/rocket_1323780.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -30,7 +30,7 @@ const SplashScreen = ({ onFinish }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.primary.emerald,
+    backgroundColor: theme.colors.primary.cyan,
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: theme.spacing[8],

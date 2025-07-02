@@ -52,7 +52,7 @@ const Input = ({
     flex: 1,
     fontSize: theme.typography.body.fontSize,
     lineHeight: theme.typography.body.lineHeight,
-    color: theme.colors.text.primary,
+    color: theme.colors.text.inverse, // Dark text for light input backgrounds
     paddingVertical: theme.spacing[3],
     ...(leftIcon && { marginLeft: theme.spacing[2] }),
     ...(rightIcon && { marginRight: theme.spacing[2] }),
@@ -61,7 +61,7 @@ const Input = ({
   const getLabelStyle = () => ({
     fontSize: theme.typography.label.fontSize,
     fontWeight: theme.typography.label.fontWeight,
-    color: theme.colors.text.primary,
+    color: theme.colors.text.inverse, // Dark text for labels
     marginBottom: theme.spacing[2],
   });
 
@@ -80,7 +80,7 @@ const Input = ({
         )}
         <TextInput
           style={[getInputStyle(), style]}
-          placeholderTextColor={theme.colors.text.tertiary}
+          placeholderTextColor="#999999" // Gray placeholder for light backgrounds
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           {...props}

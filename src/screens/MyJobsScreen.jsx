@@ -380,7 +380,7 @@ const MyJobsScreen = () => {
                             <Feather
                               name="users"
                               size={14}
-                              color={theme.colors.primary.emerald}
+                              color={theme.colors.primary.cyan}
                             />
                             <Text style={styles.jobStatsText}>
                               {job.applicationsCount} applicants
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text.secondary,
   },
   createJobButton: {
-    backgroundColor: theme.colors.primary.emerald,
+    backgroundColor: theme.colors.primary.cyan,
     paddingHorizontal: theme.spacing[4],
     paddingVertical: theme.spacing[2],
     borderRadius: theme.borderRadius.lg,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
     ...theme.shadows.sm,
   },
   filterTabActive: {
-    backgroundColor: theme.colors.primary.emerald,
+    backgroundColor: theme.colors.primary.cyan,
   },
   filterTabPressed: {
     opacity: 0.8,
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing[4],
   },
   createFirstJobButton: {
-    backgroundColor: theme.colors.primary.emerald,
+    backgroundColor: theme.colors.primary.cyan,
     paddingHorizontal: theme.spacing[4],
     paddingVertical: theme.spacing[2],
     borderRadius: theme.borderRadius.lg,

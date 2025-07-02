@@ -57,7 +57,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="search"
                 size={16}
-                color={theme.colors.primary.emerald}
+                color={theme.colors.primary.cyan}
               />
               <Text style={styles.featureText}>Find your dream job</Text>
             </View>
@@ -65,7 +65,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="briefcase"
                 size={16}
-                color={theme.colors.primary.emerald}
+                color={theme.colors.primary.cyan}
               />
               <Text style={styles.featureText}>Post job opportunities</Text>
             </View>
@@ -73,7 +73,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="users"
                 size={16}
-                color={theme.colors.primary.emerald}
+                color={theme.colors.primary.cyan}
               />
               <Text style={styles.featureText}>Connect with professionals</Text>
             </View>
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   footerLink: {
-    color: theme.colors.primary.emerald,
+    color: theme.colors.primary.cyan,
     fontWeight: '500',
   },
 });

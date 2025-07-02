@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Button, Card, Input } from '../components/ui';
 import { theme } from '../theme';
 import { useAuth } from '../contexts/AuthContext';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -24,10 +25,12 @@ const IndexScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [userRole, setUserRole] = useState('getHired'); // 'getHired' or 'hireSomeone'
 
-  const floatingAnim1 = new Animated.Value(0);
-  const floatingAnim2 = new Animated.Value(0);
-  const floatingAnim3 = new Animated.Value(0);
+  // Use useRef to persist animated values across renders
+  const floatingAnim1 = useRef(new Animated.Value(0)).current;
+  const floatingAnim2 = useRef(new Animated.Value(0)).current;
+  const floatingAnim3 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const animateFloating = () => {
@@ -87,12 +90,12 @@ const IndexScreen = () => {
         id: `demo-user-${Date.now()}`,
         name: phoneNumber.trim() || 'Demo User',
         email: email.trim() || 'demo@jobconnect.app',
-        mode: 'seeker',
+        mode: userRole === 'getHired' ? 'seeker' : 'employer',
       };
 
       await login(demoUser);
     } catch (error) {
-      console.error('Login failed:', error);
+      // Handle login error gracefully
       setIsLoading(false);
     }
   };
@@ -102,28 +105,28 @@ const IndexScreen = () => {
       icon: 'target',
       title: 'Smart Matching',
       description: 'AI-powered job recommendations',
-      color: [theme.colors.status.info, '#E91E63'],
+      color: theme.colors.gradients.neon,
       delay: 0,
     },
     {
       icon: 'zap',
       title: 'Instant Apply',
       description: 'One-swipe job applications',
-      color: ['#00BCD4', theme.colors.status.info],
+      color: theme.colors.gradients.cyber,
       delay: 200,
     },
     {
       icon: 'globe',
       title: 'Local Focus',
       description: 'Opportunities in your city',
-      color: [theme.colors.primary.emerald, theme.colors.primary.forest],
+      color: theme.colors.gradients.accent,
       delay: 400,
     },
     {
       icon: 'award',
       title: 'Career Growth',
       description: 'Track your progress',
-      color: [theme.colors.accent.orange, '#F44336'],
+      color: [theme.colors.status.warning, theme.colors.status.error],
       delay: 600,
     },
   ];
@@ -144,85 +147,68 @@ const IndexScreen = () => {
     },
   ];
 
-  const floatingElements = Array.from({ length: 15 }, (_, i) => ({
-    id: i,
-    icon: ['sparkles', 'star', 'target', 'zap', 'heart'][i % 5],
-    left: `${((i * 47) % 90) + 5}%`,
-    top: `${((i * 73) % 80) + 10}%`,
-    delay: i * 200,
-    duration: 3000 + (i % 3) * 1000,
-  }));
+  // Memoize expensive array creation
+  const floatingElements = useMemo(
+    () =>
+      Array.from({ length: 15 }, (_, i) => ({
+        id: i,
+        icon: ['sparkles', 'star', 'target', 'zap', 'heart'][i % 5],
+        left: `${((i * 47) % 90) + 5}%`,
+        top: `${((i * 73) % 80) + 10}%`,
+        delay: i * 200,
+        duration: 3000 + (i % 3) * 1000,
+      })),
+    [],
+  );
 
   const AnimatedBackground = () => (
-    <View
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: screenWidth,
-        height: screenHeight,
-      }}
-    >
+    <View style={styles.backgroundContainer}>
       <Animated.View
-        style={{
-          position: 'absolute',
-          width: 384,
-          height: 384,
-          top: '10%',
-          left: '10%',
-          borderRadius: 192,
-          backgroundColor: 'rgba(156, 39, 176, 0.4)',
-          transform: [
-            {
-              translateY: floatingAnim1.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 20],
-              }),
-            },
-          ],
-        }}
+        style={[
+          styles.floatingShape1,
+          {
+            transform: [
+              {
+                translateY: floatingAnim1.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 20],
+                }),
+              },
+            ],
+          },
+        ]}
       />
 
       <Animated.View
-        style={{
-          position: 'absolute',
-          width: 320,
-          height: 320,
-          bottom: '20%',
-          right: '15%',
-          borderRadius: 160,
-          backgroundColor: 'rgba(0, 188, 212, 0.4)',
-          transform: [
-            {
-              translateY: floatingAnim2.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, -15],
-              }),
-            },
-          ],
-        }}
+        style={[
+          styles.floatingShape2,
+          {
+            transform: [
+              {
+                translateY: floatingAnim2.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, -15],
+                }),
+              },
+            ],
+          },
+        ]}
       />
 
       <Animated.View
-        style={{
-          position: 'absolute',
-          width: 256,
-          height: 256,
-          top: '50%',
-          left: '60%',
-          borderRadius: 128,
-          backgroundColor: 'rgba(76, 175, 80, 0.4)',
-          transform: [
-            {
-              translateY: floatingAnim3.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 10],
-              }),
-            },
-          ],
-        }}
+        style={[
+          styles.floatingShape3,
+          {
+            transform: [
+              {
+                translateY: floatingAnim3.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 10],
+                }),
+              },
+            ],
+          },
+        ]}
       />
 
       {floatingElements.map(element => (
@@ -256,7 +242,7 @@ const IndexScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={['#E3F2FD', '#F3E5F5', '#FCE4EC']}
+        colors={theme.colors.gradients.background}
         style={styles.container}
       >
         <AnimatedBackground />
@@ -289,7 +275,7 @@ const IndexScreen = () => {
                 }}
               >
                 <LinearGradient
-                  colors={[theme.colors.primary.emerald, '#00BCD4']}
+                  colors={[theme.colors.primary.cyan, '#00BCD4']}
                   style={{
                     width: 40,
                     height: 40,
@@ -310,7 +296,7 @@ const IndexScreen = () => {
                     style={{
                       fontWeight: theme.typography.h5.fontWeight,
                       fontSize: 18,
-                      color: theme.colors.text.primary,
+                      color: theme.colors.text.primary, // White text on dark gradient
                     }}
                   >
                     JobConnect
@@ -318,7 +304,7 @@ const IndexScreen = () => {
                   <Text
                     style={{
                       fontSize: theme.typography.caption.fontSize,
-                      color: theme.colors.text.secondary,
+                      color: theme.colors.text.secondary, // Light gray on dark gradient
                     }}
                   >
                     Your career, reimagined
@@ -336,7 +322,7 @@ const IndexScreen = () => {
               >
                 <Text
                   style={{
-                    color: theme.colors.text.secondary,
+                    color: theme.colors.text.primary, // White text for visibility
                     fontSize: theme.typography.bodySmall.fontSize,
                     fontWeight: theme.typography.button.fontWeight,
                   }}
@@ -351,15 +337,15 @@ const IndexScreen = () => {
             <View style={styles.heroInner}>
               <View style={{ alignItems: 'center', gap: theme.spacing[4] }}>
                 <Text style={styles.heroTitle}>
-                  <Text>Swipe Into</Text>
+                  <Text>Find job</Text>
                   {'\n'}
-                  <Text>Your Dream Job</Text>
+                  <Text>the easy way</Text>
                 </Text>
                 <Text style={styles.heroSubtitle}>
                   Discover opportunities with a swipe
                 </Text>
                 <Text style={styles.heroDescription}>
-                  Revolutionary job discovery that feels like magic
+                  Scroll jobs like a pro
                 </Text>
               </View>
 
@@ -370,13 +356,13 @@ const IndexScreen = () => {
                       <Feather
                         name={stat.icon}
                         size={24}
-                        color={theme.colors.primary.emerald}
+                        color={theme.colors.primary.cyan}
                       />
                     ) : (
                       <FontAwesome
                         name={stat.icon}
                         size={24}
-                        color={theme.colors.primary.emerald}
+                        color={theme.colors.primary.cyan}
                       />
                     )}
                     <Text style={styles.statNumber}>{stat.number}</Text>
@@ -414,19 +400,53 @@ const IndexScreen = () => {
                   />
                 )}
 
+                <View style={styles.roleSelectionContainer}>
+                  <Text style={styles.roleSelectionLabel}>
+                    What do you want to do?
+                  </Text>
+                  <View style={styles.roleOptionsRow}>
+                    <TouchableOpacity
+                      style={[
+                        styles.roleOption,
+                        userRole === 'getHired' && styles.roleOptionSelected,
+                      ]}
+                      onPress={() => setUserRole('getHired')}
+                    >
+                      <View style={styles.checkboxCircle}>
+                        {userRole === 'getHired' && (
+                          <View style={styles.checkboxDot} />
+                        )}
+                      </View>
+                      <Text style={styles.roleOptionText}>Find a job</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.roleOption,
+                        userRole === 'hireSomeone' && styles.roleOptionSelected,
+                      ]}
+                      onPress={() => setUserRole('hireSomeone')}
+                    >
+                      <View style={styles.checkboxCircle}>
+                        {userRole === 'hireSomeone' && (
+                          <View style={styles.checkboxDot} />
+                        )}
+                      </View>
+                      <Text style={styles.roleOptionText}>Post a job</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
                 <View style={styles.socialButtonsContainer}>
-                  <Button variant="outline" style={styles.socialButton}>
-                    <View style={styles.socialButtonContent}>
-                      <FontAwesome
-                        name="google"
-                        size={20}
-                        color={theme.colors.text.primary}
-                      />
-                      <Text style={styles.socialButtonText}>
-                        Continue with Google
-                      </Text>
-                    </View>
-                  </Button>
+                  <GoogleSignInButton
+                    onSuccess={result => {
+                      // Handle Google sign-in result
+                      if (result.error) {
+                        // Handle error case
+                        return;
+                      }
+                      // Process successful login
+                    }}
+                  />
                 </View>
 
                 <Button
@@ -514,9 +534,7 @@ const IndexScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  // Performance optimized styles for animations
   backgroundContainer: {
     position: 'absolute',
     top: 0,
@@ -525,6 +543,36 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: screenWidth,
     height: screenHeight,
+  },
+  floatingShape1: {
+    position: 'absolute',
+    width: 384,
+    height: 384,
+    top: '10%',
+    left: '10%',
+    borderRadius: 192,
+    backgroundColor: 'rgba(156, 39, 176, 0.4)',
+  },
+  floatingShape2: {
+    position: 'absolute',
+    width: 320,
+    height: 320,
+    bottom: '20%',
+    right: '15%',
+    borderRadius: 160,
+    backgroundColor: 'rgba(0, 188, 212, 0.4)',
+  },
+  floatingShape3: {
+    position: 'absolute',
+    width: 256,
+    height: 256,
+    top: '50%',
+    left: '60%',
+    borderRadius: 128,
+    backgroundColor: 'rgba(76, 175, 80, 0.4)',
+  },
+  container: {
+    flex: 1,
   },
   heroContainer: {
     alignItems: 'center',
@@ -541,18 +589,18 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.h1.fontSize,
     fontWeight: theme.typography.h1.fontWeight,
     textAlign: 'center',
-    color: theme.colors.text.primary,
+    color: '#ffffff', // White text on gradient background
     marginBottom: theme.spacing[4],
   },
   heroSubtitle: {
     fontSize: theme.typography.bodyLarge.fontSize,
     fontWeight: '500',
-    color: theme.colors.text.primary,
+    color: 'rgba(255, 255, 255, 0.9)', // Slightly transparent white
     textAlign: 'center',
   },
   heroDescription: {
     fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
+    color: 'rgba(255, 255, 255, 0.8)', // More transparent white
     textAlign: 'center',
   },
   statsRow: {
@@ -573,13 +621,13 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: theme.typography.h3.fontWeight,
-    color: theme.colors.text.primary,
+    color: theme.colors.text.inverse, // Dark text for light stat cards
     marginTop: theme.spacing[2],
     marginBottom: theme.spacing[1],
   },
   statLabel: {
     fontSize: theme.typography.caption.fontSize,
-    color: theme.colors.text.secondary,
+    color: '#666666', // Dark gray for better contrast
     textAlign: 'center',
   },
   authCardContainer: {
@@ -601,18 +649,18 @@ const styles = StyleSheet.create({
   authCardHeaderTitle: {
     fontSize: theme.typography.h4.fontSize,
     fontWeight: theme.typography.h4.fontWeight,
-    color: theme.colors.text.primary,
+    color: theme.colors.text.inverse, // Dark text for light auth card
   },
   authCardHeaderSubtitle: {
     fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
+    color: '#666666', // Dark gray for better contrast
     textAlign: 'center',
   },
   authCardBody: {
     gap: theme.spacing[4],
   },
   authCardButton: {
-    backgroundColor: theme.colors.primary.emerald,
+    backgroundColor: theme.colors.primary.cyan,
     ...theme.shadows.lg,
   },
   authButtonContent: {
@@ -645,8 +693,8 @@ const styles = StyleSheet.create({
     gap: theme.spacing[3],
   },
   socialButton: {
-    backgroundColor: '#F5F5F5',
-    borderColor: theme.colors.border.primary,
+    backgroundColor: theme.colors.surface.card,
+    borderColor: theme.colors.interactive.border.primary,
   },
   socialButtonContent: {
     flexDirection: 'row',
@@ -654,7 +702,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing[2],
   },
   socialButtonText: {
-    color: theme.colors.text.primary,
+    color: theme.colors.text.inverse, // Dark text for light social buttons
   },
   agreementText: {
     fontSize: theme.typography.labelSmall.fontSize,
@@ -663,7 +711,7 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing[4],
   },
   agreementLink: {
-    color: theme.colors.primary.emerald,
+    color: theme.colors.primary.cyan,
     fontWeight: '500',
   },
   featuresContainer: {
@@ -680,7 +728,7 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.h4.fontWeight,
     textAlign: 'center',
     marginBottom: theme.spacing[6],
-    color: theme.colors.text.primary,
+    color: '#ffffff', // White text on gradient background
   },
   featuresGrid: {
     flexDirection: 'row',
@@ -690,14 +738,14 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     width: '47%',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: theme.colors.surface.card,
     borderRadius: theme.borderRadius['2xl'],
     padding: theme.spacing[4],
     alignItems: 'center',
     gap: theme.spacing[3],
     ...theme.shadows.lg,
     borderWidth: 1,
-    borderColor: theme.colors.border.primary,
+    borderColor: theme.colors.interactive.border.primary,
   },
   featureIcon: {
     width: 48,
@@ -710,12 +758,12 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontWeight: theme.typography.label.fontWeight,
     fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.primary,
+    color: theme.colors.text.inverse, // Dark text for light backgrounds
     textAlign: 'center',
   },
   featureDescription: {
     fontSize: theme.typography.labelSmall.fontSize,
-    color: theme.colors.text.secondary,
+    color: '#666666', // Dark gray for better contrast on light backgrounds
     textAlign: 'center',
   },
   bottomCtaContainer: {
@@ -745,6 +793,59 @@ const styles = StyleSheet.create({
   },
   bottomCtaButtonText: {
     color: theme.colors.text.primary,
+  },
+  roleSelectionContainer: {
+    marginBottom: theme.spacing[2],
+    gap: theme.spacing[2],
+  },
+  roleSelectionLabel: {
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text.inverse, // Dark text for light background
+    fontWeight: '500',
+    marginBottom: theme.spacing[1],
+    textAlign: 'center',
+  },
+  roleOptionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: theme.spacing[3],
+  },
+  roleOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: theme.spacing[2],
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.interactive.border.inactive,
+    backgroundColor: theme.colors.surface.card,
+    gap: theme.spacing[2],
+  },
+  roleOptionSelected: {
+    borderColor: theme.colors.primary.cyan,
+    backgroundColor: theme.colors.surface.overlay,
+  },
+  checkboxCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: theme.colors.primary.cyan,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: theme.spacing[2],
+    backgroundColor: '#fff',
+  },
+  checkboxDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: theme.colors.primary.cyan,
+  },
+  roleOptionText: {
+    fontSize: theme.typography.bodySmall.fontSize,
+    color: theme.colors.text.inverse, // Dark text for light role options
+    flexShrink: 1,
   },
 });
 

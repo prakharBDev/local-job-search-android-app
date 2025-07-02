@@ -98,7 +98,7 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
 
   const getProfileColor = profile => {
     const colors = [
-      [theme.colors.primary.emerald, theme.colors.primary.forest],
+      [theme.colors.primary.cyan, theme.colors.primary.dark],
       ['#2196F3', '#1976D2'],
       [theme.colors.accent.orange, '#F44336'],
       ['#9C27B0', '#673AB7'],
@@ -132,7 +132,8 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
 
       hideProfileSwitcher();
     } catch (error) {
-      console.error('Profile switch failed:', error);
+      // Handle profile switch error gracefully
+      // Could show error message to user here
     }
   };
 
@@ -212,7 +213,9 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
   };
 
   const renderProfileButton = () => {
-    if (!activeProfile) return null;
+    if (!activeProfile) {
+      return null;
+    }
 
     const sizeStyle = getSizeStyle();
     const profileColors = getProfileColor(activeProfile);
@@ -271,7 +274,7 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
                 <Feather
                   name="check"
                   size={12}
-                  color={theme.colors.primary.emerald}
+                  color={theme.colors.primary.cyan}
                 />
               </View>
             )}
@@ -407,7 +410,7 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
           onPress={handleAddProfile}
         >
           <LinearGradient
-            colors={[theme.colors.primary.emerald, theme.colors.primary.forest]}
+            colors={[theme.colors.primary.cyan, theme.colors.primary.dark]}
             style={styles.createButtonGradient}
           >
             <Text style={styles.createButtonText}>Create Profile</Text>
@@ -474,7 +477,7 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
                     <Feather
                       name="plus"
                       size={16}
-                      color={theme.colors.primary.emerald}
+                      color={theme.colors.primary.cyan}
                     />
                     <Text style={styles.addProfileButtonText}>
                       Add New Profile
@@ -579,8 +582,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   activeProfileItem: {
-    borderColor: theme.colors.primary.emerald,
-    backgroundColor: `${theme.colors.primary.emerald}10`,
+    borderColor: theme.colors.primary.cyan,
+    backgroundColor: `${theme.colors.primary.cyan}10`,
   },
   profileItemAvatar: {
     width: 48,
@@ -609,7 +612,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
   },
   activeIndicator: {
-    backgroundColor: `${theme.colors.primary.emerald}20`,
+    backgroundColor: `${theme.colors.primary.cyan}20`,
     borderRadius: 12,
     padding: 4,
   },
@@ -642,13 +645,13 @@ const styles = StyleSheet.create({
     marginTop: 0,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: theme.colors.primary.emerald,
+    borderColor: theme.colors.primary.cyan,
     borderStyle: 'dashed',
   },
   addProfileButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: theme.colors.primary.emerald,
+    color: theme.colors.primary.cyan,
     marginLeft: 8,
   },
   addProfileForm: {
@@ -692,15 +695,15 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.secondary,
   },
   selectedModeOption: {
-    borderColor: theme.colors.primary.emerald,
-    backgroundColor: `${theme.colors.primary.emerald}10`,
+    borderColor: theme.colors.primary.cyan,
+    backgroundColor: `${theme.colors.primary.cyan}10`,
   },
   modeOptionText: {
     fontSize: 14,
     color: theme.colors.text.secondary,
   },
   selectedModeOptionText: {
-    color: theme.colors.primary.emerald,
+    color: theme.colors.primary.cyan,
     fontWeight: '600',
   },
   formActions: {

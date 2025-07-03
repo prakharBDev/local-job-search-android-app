@@ -11,7 +11,7 @@ export default function GoogleSignInButton({ onSuccess }) {
     GoogleSignin.configure({
       scopes: ['https://www.googleapis.com/auth/drive.readonly'],
       webClientId:
-        '439799985736-k7spglbkkl7ahehqoe7e0juicbm0roeb.apps.googleusercontent.com', // TODO: Replace with your actual client ID
+        process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || process.env.GOOGLE_WEB_CLIENT_ID, // Loaded from .env
     });
   }, []);
 

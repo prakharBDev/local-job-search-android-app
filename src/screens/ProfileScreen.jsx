@@ -4,9 +4,9 @@ import { AuthContext } from '../contexts/AuthContext';
 import { UserContext } from '../contexts/UserContext';
 import { ProfileContext } from '../contexts/ProfileContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
-import { ProfileSwitcher } from '../components/ui';
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import ProfileSwitcher from '../components/ui/ProfileSwitcher';
 
 const getStyles = theme =>
   StyleSheet.create({

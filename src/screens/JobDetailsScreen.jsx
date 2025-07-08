@@ -1,520 +1,428 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Alert,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
   View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Linking,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import Feather from 'react-native-vector-icons/Feather';
-import { Button, Card } from '../components/ui';
-import { theme } from '../theme';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import Icon from '../components/ui/Icon';
+import Button from '../components/ui/Button';
 
-// Mock job data - in real app, this would come from props/API
-const mockJob = {
-  id: '1',
-  title: 'Senior React Native Developer',
-  description:
-    'We are looking for an experienced React Native developer to join our team and help build amazing mobile applications...',
-  requirements: ['React Native', 'TypeScript', 'Redux', 'REST APIs'],
-  skills: ['React Native', 'TypeScript', 'Redux', 'Git'],
-  experienceLevel: 'senior',
-  location: 'Remote',
-  salaryRange: { min: 80000, max: 120000 },
-  jobType: 'full-time',
-  status: 'active',
-  postedDate: '2024-01-15',
-  postedBy: 'current-user',
-  applicationsCount: 12,
-};
+import { useTheme } from '../contexts/ThemeContext';
 
-const JobDetailsScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { jobId, mode = 'view' } = route.params || {};
-  const [job, setJob] = useState(mockJob);
-  const [isLoading, setIsLoading] = useState(false);
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background.primary,
+    },
+    scrollContainer: {
+      paddingBottom: theme.spacing[8],
+    },
+    header: {
+      paddingHorizontal: theme.spacing[4],
+      paddingVertical: theme.spacing[6],
+    },
+    backButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing[4],
+    },
+    backButtonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: theme.spacing[2],
+      marginRight: theme.spacing[3],
+      borderRadius: theme.borderRadius.md,
+    },
+    backButtonText: {
+      marginLeft: theme.spacing[2],
+    },
+    jobTitle: {
+      fontSize: theme.typography.h4.fontSize,
+      fontWeight: theme.typography.h4.fontWeight,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing[1],
+    },
+    companyName: {
+      fontSize: theme.typography.body.fontSize,
+      color: theme.colors.text.secondary,
+    },
+    quickInfo: {
+      padding: theme.spacing[2],
+      borderRadius: theme.borderRadius.md,
+      marginBottom: theme.spacing[4],
+    },
+    content: {
+      paddingHorizontal: theme.spacing[4],
+      marginBottom: theme.spacing[6],
+    },
+    section: {
+      marginBottom: theme.spacing[4],
+    },
+    sectionCard: {
+      padding: theme.spacing[6],
+      borderRadius: theme.borderRadius.lg,
+      marginBottom: theme.spacing[6],
+    },
+    sectionTitle: {
+      fontSize: theme.typography.h5.fontSize,
+      fontWeight: theme.typography.h5.fontWeight,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing[2],
+    },
+    sectionContent: {
+      marginTop: theme.spacing[2],
+    },
+    detailsGrid: {
+      gap: theme.spacing[3],
+    },
+    detailRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: theme.spacing[1],
+    },
+    detailLabel: {
+      fontSize: theme.typography.bodySmall.fontSize,
+      color: theme.colors.text.secondary,
+      flex: 1,
+    },
+    detailValue: {
+      fontSize: theme.typography.bodySmall.fontSize,
+      color: theme.colors.text.primary,
+      flex: 2,
+      textAlign: 'right',
+    },
+    badgeContainer: {
+      paddingHorizontal: theme.spacing[2],
+      paddingVertical: theme.spacing[1],
+      borderRadius: theme.borderRadius.sm,
+      alignSelf: 'flex-start',
+    },
+    description: {
+      lineHeight: 24,
+    },
+    requirementsContainer: {
+      paddingVertical: theme.spacing[4],
+      marginBottom: theme.spacing[6],
+      borderRadius: theme.borderRadius.md,
+      backgroundColor: theme.colors.background.secondary,
+    },
+    requirementsList: {
+      paddingHorizontal: theme.spacing[4],
+      gap: theme.spacing[1],
+    },
+    requirementItem: {
+      fontSize: theme.typography.h6.fontSize,
+      fontWeight: theme.typography.h6.fontWeight,
+      color: theme.colors.text.primary,
+    },
+    requirementText: {
+      fontSize: theme.typography.bodySmall.fontSize,
+      color: theme.colors.text.secondary,
+    },
+    benefitsSection: {
+      marginBottom: theme.spacing[6],
+    },
+    benefitsTitle: {
+      fontSize: theme.typography.h6.fontSize,
+      fontWeight: theme.typography.h6.fontWeight,
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing[3],
+    },
+    benefitsText: {
+      fontSize: theme.typography.body.fontSize,
+      color: theme.colors.text.secondary,
+      lineHeight: 24,
+    },
+    skillsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.spacing[2],
+    },
+    skillBadge: {
+      paddingHorizontal: theme.spacing[3],
+      paddingVertical: theme.spacing[1],
+      backgroundColor: theme.colors.background.secondary,
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border.primary,
+    },
+    skillBadgeRequired: {
+      backgroundColor: `${theme.colors.primary.cyan}10`,
+      borderColor: theme.colors.primary.cyan,
+    },
+    skillText: {
+      fontSize: theme.typography.bodySmall.fontSize,
+      color: theme.colors.text.secondary,
+    },
+    skillTextRequired: {
+      color: theme.colors.primary.cyan,
+    },
+    footer: {
+      paddingHorizontal: theme.spacing[4],
+      paddingBottom: theme.spacing[6],
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      gap: theme.spacing[3],
+      marginBottom: theme.spacing[4],
+    },
+    applyButton: {
+      flex: 2,
+    },
+    shareButton: {
+      flex: 1,
+    },
+    contactInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[2],
+    },
+    contactText: {
+      fontSize: theme.typography.bodySmall.fontSize,
+      color: theme.colors.text.secondary,
+    },
+    contactLink: {
+      color: theme.colors.primary.cyan,
+    },
+  });
 
-  useEffect(() => {
-    // In real app, fetch job details by jobId
-    // For now, using mock data
-  }, [jobId]);
+const JobDetailsScreen = ({ route, navigation }) => {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
 
-  const handleEditJob = () => {
-    Alert.alert(
-      'Edit Job',
-      'Navigate to edit mode or CreateJob screen with pre-filled data',
-    );
-  };
+  const { job } = route.params;
+  const [hasApplied, setHasApplied] = useState(false);
 
-  const handleViewApplications = () => {
-    Alert.alert('View Applications', 'Applications view coming soon!');
-  };
-
-  const handleDeleteJob = () => {
-    Alert.alert(
-      'Delete Job',
-      'Are you sure you want to delete this job posting?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            // In real app, call delete API
-            Alert.alert('Success', 'Job deleted successfully', [
-              { text: 'OK', onPress: () => navigation.goBack() },
-            ]);
-          },
-        },
-      ],
-    );
-  };
-
-  const handleCloseJob = () => {
-    Alert.alert(
-      'Close Job',
-      'This will stop accepting new applications. You can reopen it later.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Close Job',
-          onPress: () => {
-            setJob(prev => ({ ...prev, status: 'closed' }));
-            Alert.alert('Success', 'Job posting has been closed');
-          },
-        },
-      ],
-    );
-  };
-
-  const getStatusColor = () => {
-    switch (job.status) {
+  const getStatusColor = status => {
+    switch (status) {
       case 'active':
         return theme.colors.status.success;
       case 'closed':
         return theme.colors.text.secondary;
-      case 'draft':
+      case 'urgent':
         return theme.colors.status.warning;
       default:
         return theme.colors.text.secondary;
     }
   };
 
+  const handleApply = () => {
+    if (hasApplied) {
+      Alert.alert(
+        'Already Applied',
+        'You have already applied for this position.',
+      );
+      return;
+    }
+
+    Alert.alert(
+      'Apply for Position',
+      `Are you sure you want to apply for ${job.title} at ${job.company}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Apply',
+          onPress: () => {
+            setHasApplied(true);
+            Alert.alert(
+              'Application Sent',
+              'Your application has been submitted successfully!',
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const handleShare = () => {
+    Alert.alert(
+      'Share Job',
+      'Sharing functionality would be implemented here.',
+    );
+  };
+
+  const handleContactEmail = () => {
+    const email = job.contactEmail || 'hr@company.com';
+    Linking.openURL(`mailto:${email}`);
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#E8F5E8', '#F3E5F5', '#E3F2FD']}
-        style={styles.gradient}
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollViewContent}
-        >
-          {/* Header */}
-          <View style={styles.headerContainer}>
-            <View style={styles.headerContent}>
-              <View style={styles.headerRow}>
-                <Pressable
-                  style={styles.backButton}
-                  onPress={() => navigation.goBack()}
-                >
-                  <Feather
-                    name="arrow-left"
-                    size={20}
-                    color={theme.colors.text.primary}
-                  />
-                </Pressable>
-                <View style={styles.headerTitleContainer}>
-                  <Text style={styles.headerTitle}>Job Details</Text>
-                  <Text style={styles.headerSubtitle}>
-                    Manage your job posting
-                  </Text>
-                </View>
-                <Pressable style={styles.moreButton}>
-                  <Feather
-                    name="more-vertical"
-                    size={20}
-                    color={theme.colors.text.primary}
-                  />
-                </Pressable>
-              </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <View style={styles.backButtonContent}>
+              <Icon
+                name="arrow-left"
+                size={20}
+                color={theme.colors.text.primary}
+              />
+              <Text style={styles.backButtonText}>Back</Text>
             </View>
-          </View>
+          </TouchableOpacity>
 
-          {/* Job Details Card */}
-          <View style={styles.contentContainer}>
-            <Card style={styles.jobCard}>
-              {/* Job Header */}
-              <View style={styles.jobHeader}>
-                <View style={styles.jobInfo}>
-                  <Text style={styles.jobTitle}>{job.title}</Text>
-                  <View style={styles.jobMetadata}>
-                    <View style={styles.metadataItem}>
-                      <Feather
-                        name="map-pin"
-                        size={14}
-                        color={theme.colors.text.secondary}
-                      />
-                      <Text style={styles.metadataText}>{job.location}</Text>
-                    </View>
-                    <View style={styles.metadataItem}>
-                      <Feather
-                        name="briefcase"
-                        size={14}
-                        color={theme.colors.text.secondary}
-                      />
-                      <Text style={styles.metadataText}>
-                        {job.jobType.replace('-', ' ').toUpperCase()}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        { backgroundColor: `${getStatusColor()}20` },
-                      ]}
-                    >
-                      <Text
-                        style={[styles.statusText, { color: getStatusColor() }]}
-                      >
-                        {job.status.toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
+          <Text style={styles.jobTitle}>{job.title}</Text>
+          <Text style={styles.companyName}>{job.company}</Text>
+
+          <View style={styles.quickInfo}>
+            <View style={styles.detailsGrid}>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Location:</Text>
+                <Text style={styles.detailValue}>{job.location}</Text>
               </View>
-
-              {/* Job Stats */}
-              <View style={styles.statsContainer}>
-                <Pressable
-                  style={styles.statItem}
-                  onPress={handleViewApplications}
-                >
-                  <Feather
-                    name="users"
-                    size={20}
-                    color={theme.colors.primary.cyan}
-                  />
-                  <Text style={styles.statNumber}>{job.applicationsCount}</Text>
-                  <Text style={styles.statLabel}>Applications</Text>
-                </Pressable>
-
-                <View style={styles.statItem}>
-                  <Feather
-                    name="calendar"
-                    size={20}
-                    color={theme.colors.text.secondary}
-                  />
-                  <Text style={styles.statNumber}>
-                    {Math.floor(
-                      (Date.now() - new Date(job.postedDate).getTime()) /
-                        (1000 * 60 * 60 * 24),
-                    )}
-                  </Text>
-                  <Text style={styles.statLabel}>Days Active</Text>
-                </View>
-
-                {job.salaryRange && (
-                  <View style={styles.statItem}>
-                    <Feather
-                      name="dollar-sign"
-                      size={20}
-                      color={theme.colors.status.success}
-                    />
-                    <Text style={styles.statNumber}>
-                      ${(job.salaryRange.min / 1000).toFixed(0)}K-$
-                      {(job.salaryRange.max / 1000).toFixed(0)}K
-                    </Text>
-                    <Text style={styles.statLabel}>Salary Range</Text>
-                  </View>
-                )}
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Type:</Text>
+                <Text style={styles.detailValue}>{job.type}</Text>
               </View>
-
-              {/* Job Description */}
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Description</Text>
-                <Text style={styles.descriptionText}>{job.description}</Text>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Salary:</Text>
+                <Text style={styles.detailValue}>{job.salary}</Text>
               </View>
-
-              {/* Requirements */}
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Requirements</Text>
-                <View style={styles.tagsContainer}>
-                  {job.requirements.map((requirement, index) => (
-                    <View key={index} style={styles.tag}>
-                      <Text style={styles.tagText}>{requirement}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-
-              {/* Skills */}
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Skills</Text>
-                <View style={styles.tagsContainer}>
-                  {job.skills.map((skill, index) => (
-                    <View key={index} style={[styles.tag, styles.skillTag]}>
-                      <Text style={[styles.tagText, styles.skillTagText]}>
-                        {skill}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            </Card>
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.actionContainer}>
-            <View style={styles.actionContent}>
-              <Button
-                onPress={handleViewApplications}
-                variant="outline"
-                style={styles.actionButton}
-              >
-                <Feather
-                  name="users"
-                  size={16}
-                  color={theme.colors.primary.cyan}
-                />
-                <Text style={styles.actionButtonText}>View Applications</Text>
-              </Button>
-
-              <Button onPress={handleEditJob} style={styles.actionButton}>
-                <Feather
-                  name="edit-2"
-                  size={16}
-                  color={theme.colors.text.white}
-                />
-                <Text
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Status:</Text>
+                <View
                   style={[
-                    styles.actionButtonText,
-                    { color: theme.colors.text.white },
+                    styles.badgeContainer,
+                    { backgroundColor: `${getStatusColor(job.status)}20` },
                   ]}
                 >
-                  Edit Job
-                </Text>
-              </Button>
-            </View>
-
-            <View style={styles.secondaryActions}>
-              {job.status === 'active' && (
-                <Button
-                  onPress={handleCloseJob}
-                  variant="outline"
-                  style={styles.secondaryActionButton}
-                >
-                  Close Job
-                </Button>
-              )}
-
-              <Button
-                onPress={handleDeleteJob}
-                variant="ghost"
-                style={styles.secondaryActionButton}
-              >
-                <Text style={{ color: theme.colors.status.error }}>
-                  Delete Job
-                </Text>
-              </Button>
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      { color: getStatusColor(job.status) },
+                    ]}
+                  >
+                    {job.status}
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
-        </ScrollView>
-      </LinearGradient>
-    </SafeAreaView>
+        </View>
+
+        {/* Content Sections */}
+        <View style={styles.content}>
+          {/* Job Description */}
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionTitle}>Job Description</Text>
+            <Text style={[styles.sectionContent, styles.description]}>
+              {job.description || 'No description available for this position.'}
+            </Text>
+          </View>
+
+          {/* Requirements */}
+          {job.requirements && job.requirements.length > 0 && (
+            <View style={styles.requirementsContainer}>
+              <Text style={styles.sectionTitle}>Requirements</Text>
+              <View style={styles.requirementsList}>
+                {job.requirements.map((requirement, index) => (
+                  <View key={index} style={styles.detailRow}>
+                    <Text style={styles.requirementItem}>• </Text>
+                    <Text style={styles.requirementText}>{requirement}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Benefits */}
+          {job.benefits && (
+            <View style={styles.benefitsSection}>
+              <Text style={styles.benefitsTitle}>Benefits & Perks</Text>
+              <Text style={styles.benefitsText}>{job.benefits}</Text>
+            </View>
+          )}
+
+          {/* Skills */}
+          {job.skills && job.skills.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Required Skills</Text>
+              <View style={styles.skillsContainer}>
+                {job.skills.map((skill, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.skillBadge,
+                      skill.required && styles.skillBadgeRequired,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.skillText,
+                        skill.required && styles.skillTextRequired,
+                      ]}
+                    >
+                      {typeof skill === 'string' ? skill : skill.name}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Footer Actions */}
+      <View style={styles.footer}>
+        <View style={styles.actionButtons}>
+          <Button
+            variant={hasApplied ? 'secondary' : 'default'}
+            onPress={handleApply}
+            style={styles.applyButton}
+            disabled={hasApplied}
+          >
+            {hasApplied ? 'Applied' : 'Apply Now'}
+          </Button>
+          <Button
+            variant="outline"
+            onPress={handleShare}
+            style={styles.shareButton}
+            icon={
+              <Icon name="share" size={16} color={theme.colors.primary.cyan} />
+            }
+          >
+            Share
+          </Button>
+        </View>
+
+        <TouchableOpacity
+          style={styles.contactInfo}
+          onPress={handleContactEmail}
+        >
+          <Icon name="mail" size={16} color={theme.colors.text.secondary} />
+          <Text style={styles.contactText}>
+            Contact:{' '}
+            <Text style={styles.contactLink}>
+              {job.contactEmail || 'hr@company.com'}
+            </Text>
+          </Text>
+        </TouchableOpacity>
+
+        {job.applicationDeadline && (
+          <Text style={[styles.contactText, { marginTop: theme.spacing[2] }]}>
+            Application Deadline: {job.applicationDeadline}
+          </Text>
+        )}
+
+        {job.postedDate && (
+          <Text style={styles.contactText}>Posted: {job.postedDate}</Text>
+        )}
+      </View>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradient: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    paddingBottom: theme.spacing[8],
-  },
-  headerContainer: {
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[6],
-  },
-  headerContent: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    padding: theme.spacing[2],
-    marginRight: theme.spacing[3],
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-  },
-  headerTitleContainer: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: theme.typography.h4.fontSize,
-    fontWeight: theme.typography.h4.fontWeight,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[1],
-  },
-  headerSubtitle: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
-  },
-  moreButton: {
-    padding: theme.spacing[2],
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-  },
-  contentContainer: {
-    paddingHorizontal: theme.spacing[4],
-    marginBottom: theme.spacing[6],
-  },
-  jobCard: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-    padding: theme.spacing[6],
-  },
-  jobHeader: {
-    marginBottom: theme.spacing[6],
-  },
-  jobInfo: {
-    flex: 1,
-  },
-  jobTitle: {
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: theme.typography.h5.fontWeight,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[2],
-  },
-  jobMetadata: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing[3],
-    alignItems: 'center',
-  },
-  metadataItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[1],
-  },
-  metadataText: {
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  },
-  statusBadge: {
-    paddingHorizontal: theme.spacing[2],
-    paddingVertical: 2,
-    borderRadius: theme.borderRadius.sm,
-  },
-  statusText: {
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: theme.spacing[4],
-    marginBottom: theme.spacing[6],
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.background.secondary,
-  },
-  statItem: {
-    alignItems: 'center',
-    gap: theme.spacing[1],
-  },
-  statNumber: {
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight,
-    color: theme.colors.text.primary,
-  },
-  statLabel: {
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  },
-  sectionContainer: {
-    marginBottom: theme.spacing[6],
-  },
-  sectionTitle: {
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[3],
-  },
-  descriptionText: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
-    lineHeight: 22,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing[2],
-  },
-  tag: {
-    paddingHorizontal: theme.spacing[3],
-    paddingVertical: theme.spacing[1],
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border.primary,
-  },
-  skillTag: {
-    backgroundColor: `${theme.colors.primary.cyan}10`,
-    borderColor: theme.colors.primary.cyan,
-  },
-  tagText: {
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  },
-  skillTagText: {
-    color: theme.colors.primary.cyan,
-    fontWeight: '500',
-  },
-  actionContainer: {
-    paddingHorizontal: theme.spacing[4],
-  },
-  actionContent: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-    flexDirection: 'row',
-    gap: theme.spacing[3],
-    marginBottom: theme.spacing[4],
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  actionButtonText: {
-    color: theme.colors.primary.cyan,
-  },
-  secondaryActions: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-    flexDirection: 'row',
-    gap: theme.spacing[3],
-  },
-  secondaryActionButton: {
-    flex: 1,
-  },
-});
 
 export default JobDetailsScreen;

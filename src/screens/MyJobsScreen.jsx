@@ -1,86 +1,222 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  Pressable,
   View,
-  StyleSheet,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
+  Animated,
+  Alert,
+  TextInput,
+  FlatList,
+  Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { Card, Badge, ProfileSwitcher, Icon, Button, Input } from '../components/ui';
+import { useTheme } from '../contexts/ThemeContext';
 import Feather from 'react-native-vector-icons/Feather';
-import { Card } from '../components/ui';
-import { theme } from '../theme';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 
-// Mock data for development
-const mockJobs = [
-  {
-    id: '1',
-    title: 'Senior React Native Developer',
-    description:
-      'We are looking for an experienced React Native developer to join our team...',
-    requirements: ['React Native', 'TypeScript', 'Redux', 'REST APIs'],
-    skills: ['React Native', 'TypeScript', 'Redux', 'Git'],
-    experienceLevel: 'senior',
-    location: 'Remote',
-    salaryRange: { min: 80000, max: 120000 },
-    jobType: 'full-time',
-    status: 'active',
-    postedDate: '2024-01-15',
-    postedBy: 'current-user',
-    applicationsCount: 12,
-  },
-  {
-    id: '2',
-    title: 'UI/UX Designer',
-    description: 'Creative UI/UX designer needed for mobile app projects...',
-    requirements: ['Figma', 'User Research', 'Prototyping', 'Design Systems'],
-    skills: ['Figma', 'Sketch', 'Adobe XD', 'User Research'],
-    experienceLevel: 'mid',
-    location: 'San Francisco, CA',
-    salaryRange: { min: 60000, max: 90000 },
-    jobType: 'full-time',
-    status: 'active',
-    postedDate: '2024-01-10',
-    postedBy: 'current-user',
-    applicationsCount: 8,
-  },
-  {
-    id: '3',
-    title: 'Junior Frontend Developer',
-    description: 'Entry-level position for passionate frontend developer...',
-    requirements: ['HTML', 'CSS', 'JavaScript', 'React'],
-    skills: ['React', 'JavaScript', 'HTML', 'CSS'],
-    experienceLevel: 'entry',
-    location: 'New York, NY',
-    salaryRange: { min: 45000, max: 65000 },
-    jobType: 'full-time',
-    status: 'closed',
-    postedDate: '2024-01-05',
-    postedBy: 'current-user',
-    applicationsCount: 25,
-  },
-];
-
 const MyJobsScreen = () => {
+  const { user, logout } = useAuth();
   const navigation = useNavigation();
-  const [jobs, setJobs] = useState(mockJobs);
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const { theme } = useTheme();
+  // Remove Modal import and profileModalVisible state
 
-  const filteredJobs = jobs.filter(
-    job => selectedFilter === 'all' || job.status === selectedFilter,
-  );
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  const stats =
+    user?.mode === 'poster'
+      ? [
+          {
+            label: 'Jobs Posted',
+            value: '12',
+            change: '+3',
+            trend: 'up',
+            color: theme.colors.primary.cyan,
+            icon: 'briefcase',
+          },
+          {
+            label: 'Applications Received',
+            value: '89',
+            change: '+25%',
+            trend: 'up',
+            color: '#2196F3',
+            icon: 'users',
+          },
+          {
+            label: 'Interviews Conducted',
+            value: '7',
+            change: '+2',
+            trend: 'up',
+            color: theme.colors.accent.orange,
+            icon: 'video',
+          },
+          {
+            label: 'Hired Candidates',
+            value: '3',
+            change: '+1',
+            trend: 'up',
+            color: '#9C27B0',
+            icon: 'user-check',
+          },
+        ]
+      : [
+          {
+            label: 'Applications Sent',
+            value: '24',
+            change: '+12%',
+            trend: 'up',
+            color: theme.colors.primary.cyan,
+            icon: 'send',
+          },
+          {
+            label: 'Profile Views',
+            value: '156',
+            change: '+8%',
+            trend: 'up',
+            color: '#2196F3',
+            icon: 'eye',
+          },
+          {
+            label: 'Interviews Scheduled',
+            value: '3',
+            change: '+2',
+            trend: 'up',
+            color: theme.colors.accent.orange,
+            icon: 'calendar',
+          },
+          {
+            label: 'Job Matches',
+            value: '89',
+            change: '+15%',
+            trend: 'up',
+            color: '#9C27B0',
+            icon: 'target',
+          },
+        ];
+
+  const recentActivity = [
+    {
+      id: 1,
+      type: 'application',
+      title: 'Applied to Senior Developer',
+      company: 'TechCorp Inc.',
+      time: '2 hours ago',
+      status: 'pending',
+      avatar: '#4CAF50',
+    },
+    {
+      id: 2,
+      type: 'interview',
+      title: 'Interview Scheduled',
+      company: 'StartupXYZ',
+      time: '1 day ago',
+      status: 'scheduled',
+      avatar: '#2196F3',
+    },
+    {
+      id: 3,
+      type: 'match',
+      title: 'New Job Match',
+      company: 'DesignStudio',
+      time: '2 days ago',
+      status: 'new',
+      avatar: '#FF9800',
+    },
+    {
+      id: 4,
+      type: 'profile',
+      title: 'Profile Viewed',
+      company: 'BigTech Co.',
+      time: '3 days ago',
+      status: 'viewed',
+      avatar: '#9C27B0',
+    },
+  ];
+
+  const quickActions = [
+    {
+      title: 'Browse Jobs',
+      subtitle: 'Discover new opportunities',
+      icon: 'search',
+      color: [theme.colors.primary.cyan, theme.colors.primary.dark],
+      action: 'browse',
+    },
+    {
+      title: 'Update Profile',
+      subtitle: 'Keep your info current',
+      icon: 'user',
+      color: ['#2196F3', '#1976D2'],
+      action: 'profile',
+    },
+    {
+      title: 'View Applications',
+      subtitle: 'Track your progress',
+      icon: 'clipboard',
+      color: [theme.colors.accent.orange, '#F44336'],
+      action: 'applications',
+    },
+    {
+      title: 'Skills Assessment',
+      subtitle: 'Test your abilities',
+      icon: 'award',
+      color: ['#9C27B0', '#673AB7'],
+      action: 'skills',
+    },
+  ];
+
+  const periods = ['Today', 'This Week', 'This Month'];
+
+  const handleQuickAction = action => {
+    switch (action) {
+      case 'browse':
+        Alert.alert('Browse Jobs', 'Job browsing feature coming soon!');
+        break;
+      case 'profile':
+        Alert.alert('Update Profile', 'Profile editing feature coming soon!');
+        break;
+      case 'applications':
+        try {
+          if (user?.mode === 'seeker') {
+            navigation.navigate('AppliedJobs');
+          } else {
+            navigation.navigate('MyJobs');
+          }
+        } catch (error) {
+          Alert.alert('Navigation', 'Applications screen coming soon!');
+        }
+        break;
+      case 'skills':
+        Alert.alert(
+          'Skills Assessment',
+          'Skills assessment feature coming soon!',
+        );
+        break;
+      default:
+        break;
+    }
+  };
 
   const getStatusColor = status => {
     switch (status) {
-      case 'active':
-        return theme.colors.status.success;
-      case 'closed':
-        return theme.colors.text.secondary;
-      case 'draft':
+      case 'pending':
         return theme.colors.status.warning;
+      case 'scheduled':
+        return theme.colors.status.info;
+      case 'new':
+        return theme.colors.status.success;
+      case 'viewed':
+        return theme.colors.text.secondary;
       default:
         return theme.colors.text.secondary;
     }
@@ -88,585 +224,340 @@ const MyJobsScreen = () => {
 
   const getStatusLabel = status => {
     switch (status) {
-      case 'active':
-        return 'Active';
-      case 'closed':
-        return 'Closed';
-      case 'draft':
-        return 'Draft';
+      case 'pending':
+        return 'Pending';
+      case 'scheduled':
+        return 'Scheduled';
+      case 'new':
+        return 'New';
+      case 'viewed':
+        return 'Viewed';
       default:
         return status;
     }
   };
 
-  const handleJobAction = (jobId, action) => {
-    switch (action) {
-      case 'edit':
-        Alert.alert('Edit Job', 'Job editing feature coming soon!');
-        break;
-      case 'close':
-        setJobs(prev =>
-          prev.map(job =>
-            job.id === jobId ? { ...job, status: 'closed' } : job,
-          ),
-        );
-        break;
-      case 'delete':
-        Alert.alert(
-          'Delete Job',
-          'Are you sure you want to delete this job posting?',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Delete',
-              style: 'destructive',
-              onPress: () =>
-                setJobs(prev => prev.filter(job => job.id !== jobId)),
-            },
-          ],
-        );
-        break;
-      case 'view-applications':
-        Alert.alert('View Applications', 'Applications view coming soon!');
-        break;
-    }
-  };
-
-  const filters = [
-    { key: 'all', label: 'All Jobs', count: jobs.length },
+  // Mock data for popular jobs
+  const popularJobs = [
     {
-      key: 'active',
-      label: 'Active',
-      count: jobs.filter(j => j.status === 'active').length,
+      id: 1,
+      company: 'TechVibe Studios',
+      logo: 'briefcase',
+      title: 'Frontend Developer',
+      salary: '₹12,00,000 – ₹18,00,000/year',
+      type: 'Full Time',
+      time: '2 hours ago',
+      color: ['#3B82F6', '#2563EB'],
+      location: 'Bangalore',
+      bookmarked: false,
     },
     {
-      key: 'closed',
-      label: 'Closed',
-      count: jobs.filter(j => j.status === 'closed').length,
+      id: 2,
+      company: 'GrowthHack Co',
+      logo: 'trending-up',
+      title: 'Growth Marketer',
+      salary: '₹9,00,000 – ₹14,00,000/year',
+      type: 'Full Time',
+      time: '1 hour ago',
+      color: ['#10B981', '#059669'],
+      location: 'Remote',
+      bookmarked: true,
     },
     {
-      key: 'draft',
-      label: 'Draft',
-      count: jobs.filter(j => j.status === 'draft').length,
+      id: 3,
+      company: 'Designify',
+      logo: 'pen-tool',
+      title: 'UI/UX Designer',
+      salary: '₹8,00,000 – ₹12,00,000/year',
+      type: 'Part Time',
+      time: '30 min ago',
+      color: ['#6366F1', '#8B5CF6'],
+      location: 'Delhi',
+      bookmarked: false,
+    },
+    {
+      id: 4,
+      company: 'FinEdge',
+      logo: 'dollar-sign',
+      title: 'Finance Analyst',
+      salary: '₹10,00,000 – ₹16,00,000/year',
+      type: 'Full Time',
+      time: '4 hours ago',
+      color: ['#F59E42', '#FBBF24'],
+      location: 'Mumbai',
+      bookmarked: false,
     },
   ];
 
-  const handleCreateJob = () => {
-    Alert.alert('Create Job', 'Job creation feature coming soon!');
-  };
+  // Mock data for recent jobs
+  const recentJobs = [
+    {
+      id: 5,
+      company: 'TechVibe Studios',
+      logo: 'briefcase',
+      title: 'Backend Developer',
+      salary: '₹13,00,000 – ₹19,00,000/year',
+      type: 'Full Time',
+      time: '2 hours ago',
+      location: 'Bangalore',
+      bookmarked: false,
+    },
+    {
+      id: 6,
+      company: 'GrowthHack Co',
+      logo: 'trending-up',
+      title: 'SEO Specialist',
+      salary: '₹7,00,000 – ₹10,00,000/year',
+      type: 'Part Time',
+      time: '1 hour ago',
+      location: 'Remote',
+      bookmarked: true,
+    },
+    {
+      id: 7,
+      company: 'Designify',
+      logo: 'pen-tool',
+      title: 'Graphic Designer',
+      salary: '₹6,00,000 – ₹9,00,000/year',
+      type: 'Full Time',
+      time: '30 min ago',
+      location: 'Delhi',
+      bookmarked: false,
+    },
+    {
+      id: 8,
+      company: 'FinEdge',
+      logo: 'dollar-sign',
+      title: 'Accountant',
+      salary: '₹8,00,000 – ₹12,00,000/year',
+      type: 'Full Time',
+      time: '4 hours ago',
+      location: 'Mumbai',
+      bookmarked: false,
+    },
+  ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background.primary }}>
       <LinearGradient
-        colors={['#E8F5E8', '#F3E5F5', '#E3F2FD']}
-        style={styles.gradient}
+        colors={[theme.colors.background.primary, '#F3F6FD']}
+        style={{ flex: 1 }}
       >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollViewContent}
+        {/* Header Section */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: theme.spacing[4],
+            paddingTop: theme.spacing[6],
+            marginBottom: theme.spacing[4],
+          }}
         >
-          {/* Header */}
-          <View style={styles.headerContainer}>
-            <View style={styles.headerContent}>
-              <View style={styles.headerRow}>
-                <View>
-                  <Text style={styles.headerTitle}>My Job Postings</Text>
-                  <Text style={styles.headerSubtitle}>
-                    Manage your active job listings
-                  </Text>
-                </View>
+          {/* Back Button */}
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: '#F8FAFC',
+              alignItems: 'center',
+              justifyContent: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.06,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
+            accessibilityLabel="Back"
+          >
+            <Feather name="arrow-left" size={20} color="#64748B" />
+          </TouchableOpacity>
 
-                {/* Create New Job Button */}
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.createJobButton,
-                    pressed && styles.createJobButtonPressed,
-                  ]}
-                  onPress={handleCreateJob}
-                >
-                  <Feather
-                    name="plus"
-                    size={16}
-                    color={theme.colors.text.white}
-                  />
-                  <Text style={styles.createJobButtonText}>Post Job</Text>
-                </Pressable>
-              </View>
-            </View>
+          {/* Center Title & Subtext */}
+          <View style={{ flex: 1, alignItems: 'center', marginLeft: -36 }}>
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: 'bold',
+                color: '#0F172A',
+                marginBottom: 4,
+                fontFamily: theme.typography?.fontFamily || undefined,
+              }}
+            >
+              Search Jobs
+            </Text>
           </View>
 
-          {/* Filter Tabs */}
-          <View style={styles.filtersContainer}>
-            <View style={styles.filtersContent}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.filtersScrollView}
+          {/* Profile Indicator Dot (right) */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', width: 120, justifyContent: 'flex-end' }}>
+            {/* ProfileSwitcher as profile button */}
+            <ProfileSwitcher style={{ marginRight: 8, height: 36 }} />
+            {/* Logout Button */}
+            <TouchableOpacity
+              onPress={logout}
+              style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center' }}
+              accessibilityLabel="Logout"
+            >
+              <Feather name="log-out" size={20} color="#F87171" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Search Bar Section */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginHorizontal: theme.spacing[4],
+            marginBottom: theme.spacing[4],
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#F8FAFC',
+              borderRadius: 28,
+              paddingHorizontal: 16,
+              height: 48,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.04,
+              shadowRadius: 2,
+              elevation: 1,
+            }}>
+              <Feather name="search" size={20} color="#CBD5E1" style={{ marginRight: 8 }} />
+              <TextInput
+                placeholder="Search here…"
+                placeholderTextColor="#CBD5E1"
+                style={{ flex: 1, fontSize: 16, color: '#0F172A', fontWeight: '400', backgroundColor: 'transparent', borderWidth: 0 }}
+                value={search}
+                onChangeText={setSearch}
+              />
+            </View>
+          </View>
+          <TouchableOpacity
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 24,
+              backgroundColor: '#E0F2FE',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: 12,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.04,
+              shadowRadius: 2,
+              elevation: 1,
+            }}
+            accessibilityLabel="Filter"
+          >
+            <Feather name="filter" size={20} color="#3B82F6" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Popular Jobs Section */}
+        <View style={{ marginTop: 8, marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.spacing[4], marginBottom: 12 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}>Popular jobs</Text>
+            <TouchableOpacity>
+              <Text style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingLeft: theme.spacing[4], paddingRight: 12 }}>
+            {popularJobs.map(job => (
+              <Card
+                key={job.id}
+                style={{
+                  width: 220,
+                  marginRight: 16,
+                  borderRadius: 20,
+                  padding: 18,
+                  backgroundColor: job.color[0],
+                  shadowColor: job.color[0],
+                  shadowOpacity: 0.12,
+                  shadowRadius: 8,
+                  elevation: 4,
+                }}
               >
-                {filters.map(filter => (
-                  <Pressable
-                    key={filter.key}
-                    onPress={() => setSelectedFilter(filter.key)}
-                    style={({ pressed }) => [
-                      styles.filterTab,
-                      selectedFilter === filter.key && styles.filterTabActive,
-                      pressed && styles.filterTabPressed,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.filterTabText,
-                        selectedFilter === filter.key &&
-                          styles.filterTabTextActive,
-                      ]}
-                    >
-                      {filter.label}
-                    </Text>
-                    <View
-                      style={[
-                        styles.filterTabBadge,
-                        selectedFilter === filter.key &&
-                          styles.filterTabBadgeActive,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.filterTabBadgeText,
-                          selectedFilter === filter.key &&
-                            styles.filterTabBadgeTextActive,
-                        ]}
-                      >
-                        {filter.count}
-                      </Text>
-                    </View>
-                  </Pressable>
-                ))}
-              </ScrollView>
-            </View>
-          </View>
-
-          {/* Job Listings */}
-          <View style={styles.jobListingsContainer}>
-            <View style={styles.jobListingsContent}>
-              {filteredJobs.length === 0 ? (
-                <Card style={styles.noJobsCard}>
-                  <Feather
-                    name="briefcase"
-                    size={48}
-                    color={theme.colors.text.secondary}
-                    style={styles.noJobsIcon}
-                  />
-                  <Text style={styles.noJobsTitle}>No jobs found</Text>
-                  <Text style={styles.noJobsDescription}>
-                    {selectedFilter === 'all'
-                      ? 'Create your first job posting to get started'
-                      : `No ${selectedFilter} jobs at the moment`}
-                  </Text>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.createFirstJobButton,
-                      pressed && styles.createFirstJobButtonPressed,
-                    ]}
-                    onPress={handleCreateJob}
-                  >
-                    <Text style={styles.createFirstJobButtonText}>
-                      Post Your First Job
-                    </Text>
-                  </Pressable>
-                </Card>
-              ) : (
-                <View style={styles.jobsList}>
-                  {filteredJobs.map(job => (
-                    <Card key={job.id} style={styles.jobCard}>
-                      <View style={styles.jobCardContent}>
-                        {/* Job Header */}
-                        <View style={styles.jobHeader}>
-                          <View style={styles.jobInfo}>
-                            <Text style={styles.jobTitle}>{job.title}</Text>
-                            <View style={styles.jobMetadata}>
-                              <View style={styles.jobLocation}>
-                                <Feather
-                                  name="map-pin"
-                                  size={14}
-                                  color={theme.colors.text.secondary}
-                                />
-                                <Text style={styles.jobLocationText}>
-                                  {job.location}
-                                </Text>
-                              </View>
-                              <View
-                                style={[
-                                  styles.jobStatusBadge,
-                                  {
-                                    backgroundColor: `${getStatusColor(
-                                      job.status,
-                                    )}20`,
-                                  },
-                                ]}
-                              >
-                                <Text
-                                  style={[
-                                    styles.jobStatusText,
-                                    { color: getStatusColor(job.status) },
-                                  ]}
-                                >
-                                  {getStatusLabel(job.status)}
-                                </Text>
-                              </View>
-                            </View>
-                          </View>
-
-                          {/* Actions Menu */}
-                          <View style={styles.jobActions}>
-                            <Pressable
-                              style={({ pressed }) => [
-                                styles.jobActionButton,
-                                pressed && styles.jobActionButtonPressed,
-                              ]}
-                              onPress={() =>
-                                Alert.alert('Job Actions', 'Choose an action', [
-                                  {
-                                    text: 'Edit Job',
-                                    onPress: () =>
-                                      handleJobAction(job.id, 'edit'),
-                                  },
-                                  {
-                                    text: 'View Applications',
-                                    onPress: () =>
-                                      handleJobAction(
-                                        job.id,
-                                        'view-applications',
-                                      ),
-                                  },
-                                  ...(job.status === 'active'
-                                    ? [
-                                        {
-                                          text: 'Close Job',
-                                          onPress: () =>
-                                            handleJobAction(job.id, 'close'),
-                                        },
-                                      ]
-                                    : []),
-                                  {
-                                    text: 'Delete Job',
-                                    style: 'destructive',
-                                    onPress: () =>
-                                      handleJobAction(job.id, 'delete'),
-                                  },
-                                  { text: 'Cancel', style: 'cancel' },
-                                ])
-                              }
-                            >
-                              <Feather
-                                name="more-vertical"
-                                size={16}
-                                color={theme.colors.text.secondary}
-                              />
-                            </Pressable>
-                          </View>
-                        </View>
-
-                        {/* Job Stats */}
-                        <View style={styles.jobStats}>
-                          <Pressable
-                            style={({ pressed }) => [
-                              styles.jobStatsButton,
-                              pressed && styles.jobStatsButtonPressed,
-                            ]}
-                            onPress={() =>
-                              handleJobAction(job.id, 'view-applications')
-                            }
-                          >
-                            <Feather
-                              name="users"
-                              size={14}
-                              color={theme.colors.primary.cyan}
-                            />
-                            <Text style={styles.jobStatsText}>
-                              {job.applicationsCount} applicants
-                            </Text>
-                          </Pressable>
-
-                          <View style={styles.jobDateInfo}>
-                            <Feather
-                              name="calendar"
-                              size={14}
-                              color={theme.colors.text.secondary}
-                            />
-                            <Text style={styles.jobDateText}>
-                              Posted{' '}
-                              {new Date(job.postedDate).toLocaleDateString()}
-                            </Text>
-                          </View>
-                        </View>
-
-                        {/* Job Description Preview */}
-                        <Text numberOfLines={2} style={styles.jobDescription}>
-                          {job.description}
-                        </Text>
-                      </View>
-                    </Card>
-                  ))}
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+                    <Feather name={job.logo} size={20} color={job.color[1]} />
+                  </View>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#fff', flex: 1 }}>{job.company}</Text>
                 </View>
-              )}
-            </View>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', marginBottom: 8 }}>{job.title}</Text>
+                <Text style={{ fontSize: 13, color: '#E0E7EF', marginBottom: 10 }}>{job.salary}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Badge variant="default" size="sm" style={{ backgroundColor: '#fff', marginRight: 8 }}>
+                    <Text style={{ color: job.color[1], fontWeight: '600', fontSize: 12 }}>{job.type}</Text>
+                  </Badge>
+                  <Badge variant="outline" size="sm" style={{ borderColor: '#fff', backgroundColor: '#ffffff22' }}>
+                    <Text style={{ color: '#fff', fontWeight: '500', fontSize: 12 }}>{job.time}</Text>
+                  </Badge>
+                </View>
+              </Card>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Recent Jobs Section */}
+        <View style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.spacing[4], marginBottom: 12 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}>Recent jobs</Text>
+            <TouchableOpacity>
+              <Text style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}>See all</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+          <FlatList
+            data={recentJobs}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => (
+              <Card
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginBottom: 16,
+                  borderRadius: 18,
+                  padding: 16,
+                  backgroundColor: '#fff',
+                  shadowColor: '#000',
+                  shadowOpacity: 0.06,
+                  shadowRadius: 6,
+                  elevation: 2,
+                }}
+              >
+                <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', marginRight: 16 }}>
+                  <Feather name={item.logo} size={22} color={'#3B82F6'} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#0F172A', marginBottom: 2 }}>{item.title}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                    <Badge variant="default" size="sm" style={{ backgroundColor: '#E0F2FE', marginRight: 8 }}>
+                      <Text style={{ color: '#3B82F6', fontWeight: '600', fontSize: 12 }}>{item.type}</Text>
+                    </Badge>
+                    <Text style={{ fontSize: 13, color: '#64748B' }}>{item.company}</Text>
+                  </View>
+                  <Text style={{ fontSize: 13, color: '#94A3B8' }}>{item.location} • {item.salary}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end', justifyContent: 'space-between', height: 48 }}>
+                  <TouchableOpacity>
+                    <Feather name={item.bookmarked ? 'bookmark' : 'bookmark'} size={20} color={item.bookmarked ? '#3B82F6' : '#94A3B8'} />
+                  </TouchableOpacity>
+                  <Text style={{ fontSize: 12, color: '#94A3B8', marginTop: 8 }}>{item.time}</Text>
+                </View>
+              </Card>
+            )}
+            contentContainerStyle={{ paddingHorizontal: theme.spacing[4] }}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
       </LinearGradient>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradient: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    paddingBottom: theme.spacing[8],
-  },
-  headerContainer: {
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[6],
-  },
-  headerContent: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing[4],
-  },
-  headerTitle: {
-    fontSize: theme.typography.h4.fontSize,
-    fontWeight: theme.typography.h4.fontWeight,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[1],
-  },
-  headerSubtitle: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
-  },
-  createJobButton: {
-    backgroundColor: theme.colors.primary.cyan,
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[2],
-    borderRadius: theme.borderRadius.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    ...theme.shadows.md,
-  },
-  createJobButtonPressed: {
-    opacity: 0.8,
-  },
-  createJobButtonText: {
-    marginLeft: theme.spacing[1],
-    color: theme.colors.text.white,
-    fontSize: theme.typography.buttonSmall.fontSize,
-    fontWeight: theme.typography.button.fontWeight,
-  },
-  filtersContainer: {
-    paddingHorizontal: theme.spacing[4],
-    marginBottom: theme.spacing[6],
-  },
-  filtersContent: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  filtersScrollView: {
-    gap: theme.spacing[3],
-  },
-  filterTab: {
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[2],
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    ...theme.shadows.sm,
-  },
-  filterTabActive: {
-    backgroundColor: theme.colors.primary.cyan,
-  },
-  filterTabPressed: {
-    opacity: 0.8,
-  },
-  filterTabText: {
-    fontSize: theme.typography.buttonSmall.fontSize,
-    fontWeight: theme.typography.button.fontWeight,
-    color: theme.colors.text.secondary,
-    marginRight: theme.spacing[1],
-  },
-  filterTabTextActive: {
-    color: theme.colors.text.white,
-  },
-  filterTabBadge: {
-    paddingHorizontal: theme.spacing[1],
-    paddingVertical: 2,
-    borderRadius: theme.borderRadius.sm,
-    minWidth: 20,
-    alignItems: 'center',
-    backgroundColor: theme.colors.background.secondary,
-  },
-  filterTabBadgeActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  filterTabBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.colors.text.secondary,
-  },
-  filterTabBadgeTextActive: {
-    color: theme.colors.text.white,
-  },
-  jobListingsContainer: {
-    paddingHorizontal: theme.spacing[4],
-  },
-  jobListingsContent: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  noJobsCard: {
-    alignItems: 'center',
-    padding: theme.spacing[6],
-  },
-  noJobsIcon: {
-    marginBottom: theme.spacing[3],
-  },
-  noJobsTitle: {
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[2],
-    textAlign: 'center',
-  },
-  noJobsDescription: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: theme.spacing[4],
-  },
-  createFirstJobButton: {
-    backgroundColor: theme.colors.primary.cyan,
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[2],
-    borderRadius: theme.borderRadius.lg,
-  },
-  createFirstJobButtonPressed: {
-    opacity: 0.8,
-  },
-  createFirstJobButtonText: {
-    color: theme.colors.text.white,
-    fontSize: theme.typography.button.fontSize,
-    fontWeight: theme.typography.button.fontWeight,
-  },
-  jobsList: {
-    gap: theme.spacing[4],
-  },
-  jobCard: {
-    padding: 0,
-    overflow: 'hidden',
-  },
-  jobCardContent: {
-    padding: theme.spacing[4],
-  },
-  jobHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing[3],
-  },
-  jobInfo: {
-    flex: 1,
-  },
-  jobTitle: {
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[1],
-  },
-  jobMetadata: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[3],
-    marginBottom: theme.spacing[2],
-  },
-  jobLocation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  jobLocationText: {
-    marginLeft: theme.spacing[1],
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  },
-  jobStatusBadge: {
-    paddingHorizontal: theme.spacing[2],
-    paddingVertical: 2,
-    borderRadius: theme.borderRadius.sm,
-  },
-  jobStatusText: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  jobActions: {
-    marginLeft: theme.spacing[2],
-  },
-  jobActionButton: {
-    padding: theme.spacing[2],
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  jobActionButtonPressed: {
-    opacity: 0.8,
-  },
-  jobStats: {
-    flexDirection: 'row',
-    gap: theme.spacing[4],
-    marginBottom: theme.spacing[3],
-  },
-  jobStatsButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.background.secondary,
-    paddingHorizontal: theme.spacing[3],
-    paddingVertical: theme.spacing[2],
-    borderRadius: theme.borderRadius.md,
-  },
-  jobStatsButtonPressed: {
-    opacity: 0.8,
-  },
-  jobStatsText: {
-    marginLeft: theme.spacing[1],
-    fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: '600',
-    color: theme.colors.text.primary,
-  },
-  jobDateInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  jobDateText: {
-    marginLeft: theme.spacing[1],
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-  },
-  jobDescription: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
-    lineHeight: 20,
-  },
-});
 
 export default MyJobsScreen;

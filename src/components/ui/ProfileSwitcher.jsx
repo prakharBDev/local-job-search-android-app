@@ -1,743 +1,467 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
+  StyleSheet,
   ScrollView,
+  Modal,
   TextInput,
   Alert,
-  Animated,
-  StyleSheet,
   Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Feather from 'react-native-vector-icons/Feather';
-import { theme } from '../../theme';
-import { useProfile } from '../../contexts/ProfileContext';
-import { useAuth } from '../../contexts/AuthContext';
+import Icon from './Icon';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
+
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      alignItems: 'center',
+    },
+    profileButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 25,
+      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
+    },
+    profileImage: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      marginRight: 8,
+    },
+    profileName: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme?.colors?.text?.primary || '#1E293B',
+      maxWidth: 120,
+    },
+    chevron: {
+      marginLeft: 4,
+    },
+    modal: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      width: width * 0.9,
+      maxHeight: '80%',
+      backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+      borderRadius: 20,
+      padding: 20,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+      paddingBottom: 15,
+      borderBottomWidth: 1,
+      borderBottomColor: theme?.colors?.border?.primary || '#E2E8F0',
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: theme?.colors?.text?.primary || '#1E293B',
+    },
+    closeButton: {
+      padding: 8,
+    },
+    profilesList: {
+      maxHeight: 300,
+    },
+    profileItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 15,
+      marginBottom: 10,
+      borderRadius: 12,
+      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
+    },
+    selectedProfile: {
+      borderWidth: 2,
+      borderColor: theme?.colors?.primary?.cyan || '#3C4FE0',
+      backgroundColor: `${theme?.colors?.primary?.cyan || '#3C4FE0'}10`,
+    },
+    profileItemImage: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      marginRight: 15,
+    },
+    profileItemContent: {
+      flex: 1,
+    },
+    profileItemName: {
+      fontSize: 16,
+      fontWeight: '500',
+      color: theme?.colors?.text?.primary || '#1E293B',
+      marginBottom: 2,
+    },
+    profileItemRole: {
+      fontSize: 12,
+      color: theme?.colors?.text?.secondary || '#475569',
+      backgroundColor: `${theme?.colors?.primary?.cyan || '#3C4FE0'}20`,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 10,
+      alignSelf: 'flex-start',
+    },
+    profileItemEmail: {
+      fontSize: 12,
+      color: theme?.colors?.text?.tertiary || '#64748B',
+      marginTop: 2,
+    },
+    addProfileButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 15,
+      marginTop: 10,
+      borderRadius: 12,
+      backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+      borderWidth: 2,
+      borderStyle: 'dashed',
+      borderColor: theme?.colors?.primary?.cyan || '#3C4FE0',
+    },
+    addProfileText: {
+      marginLeft: 8,
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme?.colors?.primary?.cyan || '#3C4FE0',
+    },
+    formContainer: {
+      marginTop: 20,
+    },
+    inputGroup: {
+      marginBottom: 15,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme?.colors?.text?.primary || '#1E293B',
+      marginBottom: 5,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 14,
+      color: theme?.colors?.text?.primary || '#1E293B',
+      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
+    },
+    roleSelector: {
+      flexDirection: 'row',
+      marginBottom: 15,
+    },
+    roleButton: {
+      flex: 1,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.border.primary,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginHorizontal: 5,
+      backgroundColor: theme.colors.background.secondary,
+    },
+    selectedRole: {
+      borderColor: theme.colors.primary.cyan,
+      backgroundColor: `${theme.colors.primary.cyan}10`,
+    },
+    roleText: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+    },
+    selectedRoleText: {
+      color: theme.colors.primary.cyan,
+      fontWeight: '500',
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 20,
+    },
+    actionButton: {
+      flex: 1,
+      padding: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginHorizontal: 5,
+      borderWidth: 1,
+      borderColor: theme.colors.border.primary,
+    },
+    cancelButton: {
+      backgroundColor: theme.colors.background.secondary,
+    },
+    saveButton: {
+      backgroundColor: theme.colors.primary.cyan,
+      borderColor: theme.colors.primary.cyan,
+    },
+    buttonText: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme.colors.text.secondary,
+    },
+    saveButtonText: {
+      color: theme.colors.text.white,
+    },
+  });
+
+const getGradientColors = (role, theme) => {
+  switch (role) {
+    case 'Job Seeker':
+      return [theme.colors.primary.cyan, theme.colors.primary.dark];
+    case 'Employer':
+      return [theme.colors.accent.orange, '#F44336'];
+    default:
+      return [theme.colors.primary.cyan, theme.colors.primary.dark];
+  }
+};
 
 const ProfileSwitcher = ({ size = 'small', style }) => {
-  const {
-    activeProfile,
-    profiles,
-    isModalVisible,
-    showProfileSwitcher,
-    hideProfileSwitcher,
-    switchProfile,
-    addProfile,
-    deleteProfile,
-    duplicateProfile,
-    getProfileInitials,
-    getProfileDisplayName,
-    error,
-    clearError,
-  } = useProfile();
+  const { theme } = useTheme();
+  const styles = getStyles(theme || {});
+  const navigation = useNavigation();
 
-  const { login } = useAuth();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [profiles, setProfiles] = useState([
+    {
+      id: 1,
+      name: 'John Doe',
+      email: 'john@example.com',
+      role: 'Job Seeker',
+      avatar: 'https://via.placeholder.com/40',
+      isActive: true,
+    },
+    {
+      id: 2,
+      name: 'Jane Smith',
+      email: 'jane@company.com',
+      role: 'Employer',
+      avatar: 'https://via.placeholder.com/40',
+      isActive: false,
+    },
+  ]);
 
-  const [isAddingProfile, setIsAddingProfile] = useState(false);
-  const [newProfileName, setNewProfileName] = useState('');
-  const [newProfileNickname, setNewProfileNickname] = useState('');
-  const [newProfileEmail, setNewProfileEmail] = useState('');
-  const [selectedMode, setSelectedMode] = useState('seeker');
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [scaleAnim] = useState(new Animated.Value(0.8));
+  const [newProfile, setNewProfile] = useState({
+    name: '',
+    email: '',
+    role: 'Job Seeker',
+  });
 
-  useEffect(() => {
-    if (isModalVisible) {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 100,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 150,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 0.8,
-          duration: 150,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [isModalVisible, fadeAnim, scaleAnim]);
+  const currentProfile = profiles.find(p => p.isActive) || profiles[0];
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert('Profile Error', error, [
-        { text: 'OK', onPress: clearError },
-      ]);
-    }
-  }, [error, clearError]);
-
-  const getSizeStyle = () => {
-    switch (size) {
-      case 'small':
-        return { width: 32, height: 32, fontSize: 12 };
-      case 'large':
-        return { width: 48, height: 48, fontSize: 16 };
-      default:
-        return { width: 40, height: 40, fontSize: 14 };
-    }
+  const handleProfileSwitch = profileId => {
+    setProfiles(prev =>
+      prev.map(p => ({
+        ...p,
+        isActive: p.id === profileId,
+      })),
+    );
+    setModalVisible(false);
   };
 
-  const getProfileColor = profile => {
-    const colors = [
-      [theme.colors.primary.cyan, theme.colors.primary.dark],
-      ['#2196F3', '#1976D2'],
-      [theme.colors.accent.orange, '#F44336'],
-      ['#9C27B0', '#673AB7'],
-      ['#4CAF50', '#388E3C'],
-      ['#FF5722', '#D84315'],
-    ];
-
-    const index =
-      profile.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) %
-      colors.length;
-    return colors[index] || ['#2196F3', '#1976D2'];
-  };
-
-  const handleSwitchProfile = async profileId => {
-    try {
-      const newProfile = profiles.find(p => p.id === profileId);
-      if (!newProfile) {
-        throw new Error('Profile not found');
-      }
-
-      await switchProfile(profileId);
-
-      const userProfile = {
-        id: newProfile.id,
-        name: newProfile.name,
-        email: newProfile.email,
-        mode: newProfile.mode,
-      };
-
-      await login(userProfile);
-
-      hideProfileSwitcher();
-    } catch (error) {
-      // Handle profile switch error gracefully
-      // Could show error message to user here
-    }
-  };
-
-  const handleAddProfile = async () => {
-    if (!newProfileNickname.trim() || !newProfileName.trim()) {
-      Alert.alert('Error', 'Please fill in all required fields');
+  const handleAddProfile = () => {
+    if (!newProfile.name || !newProfile.email) {
+      Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    try {
-      await addProfile({
-        nickname: newProfileNickname.trim(),
-        name: newProfileName.trim(),
-        email:
-          newProfileEmail.trim() ||
-          `${newProfileNickname.toLowerCase()}@example.com`,
-        mode: selectedMode,
-        description: `${newProfileNickname} profile`,
-      });
+    const newId = Math.max(...profiles.map(p => p.id)) + 1;
+    const profile = {
+      id: newId,
+      ...newProfile,
+      avatar: 'https://via.placeholder.com/40',
+      isActive: false,
+    };
 
-      setIsAddingProfile(false);
-      setNewProfileName('');
-      setNewProfileNickname('');
-      setNewProfileEmail('');
-      setSelectedMode('seeker');
-
-      Alert.alert('Success', 'Profile created successfully!');
-    } catch (error) {
-      // Error handled by useEffect
-    }
+    setProfiles(prev => [...prev, profile]);
+    setNewProfile({ name: '', email: '', role: 'Job Seeker' });
+    setShowAddForm(false);
   };
 
-  const handleDeleteProfile = profileId => {
-    Alert.alert(
-      'Delete Profile',
-      'Are you sure you want to delete this profile? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteProfile(profileId);
-            } catch (error) {
-              // Error handled by useEffect
-            }
-          },
-        },
-      ],
-    );
-  };
+  const renderProfileItem = profile => (
+    <TouchableOpacity
+      key={profile.id}
+      style={[styles.profileItem, profile.isActive && styles.selectedProfile]}
+      onPress={() => handleProfileSwitch(profile.id)}
+    >
+      <LinearGradient
+        colors={getGradientColors(profile.role, theme)}
+        style={styles.profileItemImage}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      <View style={styles.profileItemContent}>
+        <Text style={styles.profileItemName}>{profile.name}</Text>
+        <Text style={styles.profileItemRole}>{profile.role}</Text>
+        <Text style={styles.profileItemEmail}>{profile.email}</Text>
+      </View>
+      {profile.isActive && (
+        <Icon name="check-circle" size={20} color={theme.colors.primary.cyan} />
+      )}
+    </TouchableOpacity>
+  );
 
-  const handleDuplicateProfile = profile => {
-    Alert.prompt(
-      'Duplicate Profile',
-      'Enter a nickname for the duplicated profile:',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Create',
-          onPress: async nickname => {
-            if (nickname && nickname.trim()) {
-              try {
-                await duplicateProfile(profile.id, nickname.trim());
-                Alert.alert('Success', 'Profile duplicated successfully!');
-              } catch (error) {
-                // Error handled by useEffect
-              }
-            }
-          },
-        },
-      ],
-      'plain-text',
-      `Copy of ${profile.nickname}`,
-    );
-  };
-
-  const renderProfileButton = () => {
-    if (!activeProfile) {
-      return null;
-    }
-
-    const sizeStyle = getSizeStyle();
-    const profileColors = getProfileColor(activeProfile);
-
-    return (
-      <TouchableOpacity
-        style={[styles.circularProfileButton, style]}
-        onPress={showProfileSwitcher}
-        activeOpacity={0.7}
-      >
-        <LinearGradient
-          colors={profileColors}
-          style={[styles.circularAvatar, sizeStyle]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <Text
-            style={[styles.profileInitials, { fontSize: sizeStyle.fontSize }]}
-          >
-            {getProfileInitials(activeProfile)}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderProfileItem = profile => {
-    const isActive = profile.id === activeProfile?.id;
-    const profileColors = getProfileColor(profile);
-
-    return (
-      <TouchableOpacity
-        key={profile.id}
-        style={[styles.profileItem, isActive && styles.activeProfileItem]}
-        onPress={() => handleSwitchProfile(profile.id)}
-        activeOpacity={0.7}
-      >
-        <LinearGradient
-          colors={profileColors}
-          style={styles.profileItemAvatar}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <Text style={styles.profileItemInitials}>
-            {getProfileInitials(profile)}
-          </Text>
-        </LinearGradient>
-
-        <View style={styles.profileItemContent}>
-          <View style={styles.profileItemHeader}>
-            <Text style={styles.profileItemNickname}>
-              {getProfileDisplayName(profile)}
-            </Text>
-            {isActive && (
-              <View style={styles.activeIndicator}>
-                <Feather
-                  name="check"
-                  size={12}
-                  color={theme.colors.primary.cyan}
-                />
-              </View>
-            )}
-          </View>
-          <Text style={styles.profileItemName} numberOfLines={1}>
-            {profile.name}
-          </Text>
-          <Text style={styles.profileItemMode}>
-            {profile.mode === 'seeker' ? '🎯 Job Seeker' : '🏢 Job Poster'}
-          </Text>
-        </View>
-
-        <View style={styles.profileItemActions}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleDuplicateProfile(profile)}
-          >
-            <Feather
-              name="copy"
-              size={14}
-              color={theme.colors.text.secondary}
-            />
-          </TouchableOpacity>
-          {profiles.length > 1 && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleDeleteProfile(profile.id)}
-            >
-              <Feather
-                name="trash-2"
-                size={14}
-                color={theme.colors.status.error}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderAddProfileForm = () => (
-    <View style={styles.addProfileForm}>
-      <Text style={styles.addProfileTitle}>Create New Profile</Text>
-
+  const renderAddForm = () => (
+    <View style={styles.formContainer}>
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Profile Nickname *</Text>
+        <Text style={styles.label}>Full Name</Text>
         <TextInput
-          style={styles.textInput}
-          value={newProfileNickname}
-          onChangeText={setNewProfileNickname}
-          placeholder="e.g., Work, Personal, Freelance"
-          placeholderTextColor={theme.colors.text.tertiary}
+          style={styles.input}
+          value={newProfile?.name}
+          onChangeText={text =>
+            setNewProfile(prev => ({ ...prev, name: text }))
+          }
+          placeholder="Enter your name"
+          placeholderTextColor={theme?.colors?.text?.tertiary || '#64748B'}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Full Name *</Text>
+        <Text style={styles.label}>Email</Text>
         <TextInput
-          style={styles.textInput}
-          value={newProfileName}
-          onChangeText={setNewProfileName}
-          placeholder="Your full name"
-          placeholderTextColor={theme.colors.text.tertiary}
-        />
-      </View>
-
-      <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Email</Text>
-        <TextInput
-          style={styles.textInput}
-          value={newProfileEmail}
-          onChangeText={setNewProfileEmail}
-          placeholder="Optional email address"
-          placeholderTextColor={theme.colors.text.tertiary}
+          style={styles.input}
+          value={newProfile?.email}
+          onChangeText={text =>
+            setNewProfile(prev => ({ ...prev, email: text }))
+          }
+          placeholder="Enter your email"
+          placeholderTextColor={theme?.colors?.text?.tertiary || '#64748B'}
           keyboardType="email-address"
-          autoCapitalize="none"
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Profile Type</Text>
-        <View style={styles.modeSelector}>
-          <TouchableOpacity
-            style={[
-              styles.modeOption,
-              selectedMode === 'seeker' && styles.selectedModeOption,
-            ]}
-            onPress={() => setSelectedMode('seeker')}
-          >
-            <Text
+        <Text style={styles.label}>Role</Text>
+        <View style={styles.roleSelector}>
+          {['Job Seeker', 'Employer'].map(role => (
+            <TouchableOpacity
+              key={role}
               style={[
-                styles.modeOptionText,
-                selectedMode === 'seeker' && styles.selectedModeOptionText,
+                styles.roleButton,
+                newProfile.role === role && styles.selectedRole,
               ]}
+              onPress={() => setNewProfile(prev => ({ ...prev, role }))}
             >
-              🎯 Job Seeker
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.modeOption,
-              selectedMode === 'poster' && styles.selectedModeOption,
-            ]}
-            onPress={() => setSelectedMode('poster')}
-          >
-            <Text
-              style={[
-                styles.modeOptionText,
-                selectedMode === 'poster' && styles.selectedModeOptionText,
-              ]}
-            >
-              🏢 Job Poster
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.roleText,
+                  newProfile.role === role && styles.selectedRoleText,
+                ]}
+              >
+                {role}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
-      <View style={styles.formActions}>
+      <View style={styles.actionButtons}>
         <TouchableOpacity
-          style={styles.cancelButton}
+          style={[styles.actionButton, styles.cancelButton]}
           onPress={() => {
-            setIsAddingProfile(false);
-            setNewProfileName('');
-            setNewProfileNickname('');
-            setNewProfileEmail('');
-            setSelectedMode('seeker');
+            setShowAddForm(false);
+            setNewProfile({ name: '', email: '', role: 'Job Seeker' });
           }}
         >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
+          <Text style={styles.buttonText}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.createButton}
+          style={[styles.actionButton, styles.saveButton]}
           onPress={handleAddProfile}
         >
           <LinearGradient
             colors={[theme.colors.primary.cyan, theme.colors.primary.dark]}
-            style={styles.createButtonGradient}
-          >
-            <Text style={styles.createButtonText}>Create Profile</Text>
-          </LinearGradient>
+            style={StyleSheet.absoluteFill}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          />
+          <Text style={[styles.buttonText, styles.saveButtonText]}>
+            Add Profile
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <>
-      {renderProfileButton()}
+    <View style={[styles.container, style]}>
+      <TouchableOpacity
+        style={[styles.profileButton, style]}
+        onPress={() => navigation.navigate('Onboarding')}
+      >
+        {/* Blue dot avatar */}
+        <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: '#2563EB', marginRight: 8 }} />
+        <Icon
+          name="chevron-down"
+          size={16}
+          color={theme.colors.text.secondary}
+          style={styles.chevron}
+        />
+      </TouchableOpacity>
 
       <Modal
-        visible={isModalVisible}
+        visible={modalVisible}
         transparent
-        animationType="none"
-        onRequestClose={hideProfileSwitcher}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
       >
         <TouchableOpacity
-          style={styles.modalOverlay}
+          style={styles.modal}
           activeOpacity={1}
-          onPress={hideProfileSwitcher}
+          onPress={() => setModalVisible(false)}
         >
-          <Animated.View
-            style={[
-              styles.modalContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{ scale: scaleAnim }],
-              },
-            ]}
-          >
-            <TouchableOpacity activeOpacity={1}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Switch Profile</Text>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={hideProfileSwitcher}
+          <TouchableOpacity style={styles.modalContent} activeOpacity={1}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Switch Profile</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Icon name="x" size={20} color={theme.colors.primary.cyan} />
+              </TouchableOpacity>
+            </View>
+
+            {!showAddForm ? (
+              <>
+                <ScrollView
+                  style={styles.profilesList}
+                  showsVerticalScrollIndicator={false}
                 >
-                  <Feather
-                    name="x"
-                    size={20}
-                    color={theme.colors.text.secondary}
+                  {profiles.map(renderProfileItem)}
+                </ScrollView>
+
+                <TouchableOpacity
+                  style={styles.addProfileButton}
+                  onPress={() => setShowAddForm(true)}
+                >
+                  <Icon
+                    name="plus"
+                    size={16}
+                    color={theme.colors.primary.cyan}
                   />
+                  <Text style={styles.addProfileText}>Add New Profile</Text>
                 </TouchableOpacity>
-              </View>
-
-              {isAddingProfile ? (
-                renderAddProfileForm()
-              ) : (
-                <>
-                  <ScrollView
-                    style={styles.profilesList}
-                    showsVerticalScrollIndicator={false}
-                  >
-                    {profiles.map(renderProfileItem)}
-                  </ScrollView>
-
-                  <TouchableOpacity
-                    style={styles.addProfileButton}
-                    onPress={() => setIsAddingProfile(true)}
-                  >
-                    <Feather
-                      name="plus"
-                      size={16}
-                      color={theme.colors.primary.cyan}
-                    />
-                    <Text style={styles.addProfileButtonText}>
-                      Add New Profile
-                    </Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </TouchableOpacity>
-          </Animated.View>
+              </>
+            ) : (
+              renderAddForm()
+            )}
+          </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-    </>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  profileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  profileAvatar: {
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  circularProfileButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  circularAvatar: {
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-  profileInitials: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  profileName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: theme.colors.text.primary,
-    maxWidth: 120,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContainer: {
-    backgroundColor: theme.colors.background.primary,
-    borderRadius: 16,
-    width: Math.min(width - 40, 400),
-    maxHeight: height * 0.8,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.primary,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-  },
-  closeButton: {
-    padding: 4,
-  },
-  profilesList: {
-    maxHeight: 300,
-    padding: 20,
-  },
-  profileItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    backgroundColor: theme.colors.background.secondary,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  activeProfileItem: {
-    borderColor: theme.colors.primary.cyan,
-    backgroundColor: `${theme.colors.primary.cyan}10`,
-  },
-  profileItemAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileItemInitials: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  profileItemContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  profileItemHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  profileItemNickname: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-  },
-  activeIndicator: {
-    backgroundColor: `${theme.colors.primary.cyan}20`,
-    borderRadius: 12,
-    padding: 4,
-  },
-  profileItemName: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    marginTop: 2,
-  },
-  profileItemMode: {
-    fontSize: 12,
-    color: theme.colors.text.tertiary,
-    marginTop: 4,
-  },
-  profileItemActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  actionButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: theme.colors.background.primary,
-  },
-  addProfileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    margin: 20,
-    marginTop: 0,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: theme.colors.primary.cyan,
-    borderStyle: 'dashed',
-  },
-  addProfileButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: theme.colors.primary.cyan,
-    marginLeft: 8,
-  },
-  addProfileForm: {
-    padding: 20,
-  },
-  addProfileTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginBottom: 20,
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: theme.colors.text.primary,
-    marginBottom: 8,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: theme.colors.border.primary,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: theme.colors.text.primary,
-    backgroundColor: theme.colors.background.secondary,
-  },
-  modeSelector: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  modeOption: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: theme.colors.border.primary,
-    alignItems: 'center',
-    backgroundColor: theme.colors.background.secondary,
-  },
-  selectedModeOption: {
-    borderColor: theme.colors.primary.cyan,
-    backgroundColor: `${theme.colors.primary.cyan}10`,
-  },
-  modeOptionText: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-  },
-  selectedModeOptionText: {
-    color: theme.colors.primary.cyan,
-    fontWeight: '600',
-  },
-  formActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  cancelButton: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: theme.colors.border.primary,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    color: theme.colors.text.secondary,
-    fontWeight: '500',
-  },
-  createButton: {
-    flex: 1,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  createButtonGradient: {
-    padding: 14,
-    alignItems: 'center',
-  },
-  createButtonText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-});
 
 export default ProfileSwitcher;

@@ -1,850 +1,361 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  TouchableOpacity,
-  Animated,
-  Alert,
-} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { Card, Badge, ProfileSwitcher } from '../components/ui';
-import { theme } from '../theme';
-import Feather from 'react-native-vector-icons/Feather';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+
+const user = {
+  name: 'John Doe',
+};
 
 const DashboardScreen = () => {
-  const { user, logout } = useAuth();
-  const navigation = useNavigation();
-  const [selectedPeriod, setSelectedPeriod] = useState('This Week');
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const [activeTab, setActiveTab] = useState('This Week');
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
-
-  const stats =
-    user?.mode === 'poster'
-      ? [
-          {
-            label: 'Jobs Posted',
-            value: '12',
-            change: '+3',
-            trend: 'up',
-            color: theme.colors.primary.cyan,
-            icon: 'briefcase',
-          },
-          {
-            label: 'Applications Received',
-            value: '89',
-            change: '+25%',
-            trend: 'up',
-            color: '#2196F3',
-            icon: 'users',
-          },
-          {
-            label: 'Interviews Conducted',
-            value: '7',
-            change: '+2',
-            trend: 'up',
-            color: theme.colors.accent.orange,
-            icon: 'video',
-          },
-          {
-            label: 'Hired Candidates',
-            value: '3',
-            change: '+1',
-            trend: 'up',
-            color: '#9C27B0',
-            icon: 'user-check',
-          },
-        ]
-      : [
-          {
-            label: 'Applications Sent',
-            value: '24',
-            change: '+12%',
-            trend: 'up',
-            color: theme.colors.primary.cyan,
-            icon: 'send',
-          },
-          {
-            label: 'Profile Views',
-            value: '156',
-            change: '+8%',
-            trend: 'up',
-            color: '#2196F3',
-            icon: 'eye',
-          },
-          {
-            label: 'Interviews Scheduled',
-            value: '3',
-            change: '+2',
-            trend: 'up',
-            color: theme.colors.accent.orange,
-            icon: 'calendar',
-          },
-          {
-            label: 'Job Matches',
-            value: '89',
-            change: '+15%',
-            trend: 'up',
-            color: '#9C27B0',
-            icon: 'target',
-          },
-        ];
-
-  const recentActivity = [
-    {
-      id: 1,
-      type: 'application',
-      title: 'Applied to Senior Developer',
-      company: 'TechCorp Inc.',
-      time: '2 hours ago',
-      status: 'pending',
-      avatar: '#4CAF50',
-    },
-    {
-      id: 2,
-      type: 'interview',
-      title: 'Interview Scheduled',
-      company: 'StartupXYZ',
-      time: '1 day ago',
-      status: 'scheduled',
-      avatar: '#2196F3',
-    },
-    {
-      id: 3,
-      type: 'match',
-      title: 'New Job Match',
-      company: 'DesignStudio',
-      time: '2 days ago',
-      status: 'new',
-      avatar: '#FF9800',
-    },
-    {
-      id: 4,
-      type: 'profile',
-      title: 'Profile Viewed',
-      company: 'BigTech Co.',
-      time: '3 days ago',
-      status: 'viewed',
-      avatar: '#9C27B0',
-    },
-  ];
-
-  const quickActions = [
-    {
-      title: 'Browse Jobs',
-      subtitle: 'Discover new opportunities',
-      icon: 'search',
-      color: [theme.colors.primary.cyan, theme.colors.primary.dark],
-      action: 'browse',
-    },
-    {
-      title: 'Update Profile',
-      subtitle: 'Keep your info current',
-      icon: 'user',
-      color: ['#2196F3', '#1976D2'],
-      action: 'profile',
-    },
-    {
-      title: 'View Applications',
-      subtitle: 'Track your progress',
-      icon: 'clipboard',
-      color: [theme.colors.accent.orange, '#F44336'],
-      action: 'applications',
-    },
-    {
-      title: 'Skills Assessment',
-      subtitle: 'Test your abilities',
-      icon: 'award',
-      color: ['#9C27B0', '#673AB7'],
-      action: 'skills',
-    },
-  ];
-
-  const periods = ['Today', 'This Week', 'This Month'];
-
-  const handleQuickAction = action => {
-    switch (action) {
-      case 'browse':
-        Alert.alert('Browse Jobs', 'Job browsing feature coming soon!');
-        break;
-      case 'profile':
-        Alert.alert('Update Profile', 'Profile editing feature coming soon!');
-        break;
-      case 'applications':
-        try {
-          if (user?.mode === 'seeker') {
-            navigation.navigate('AppliedJobs');
-          } else {
-            navigation.navigate('MyJobs');
-          }
-        } catch (error) {
-          Alert.alert('Navigation', 'Applications screen coming soon!');
-        }
-        break;
-      case 'skills':
-        Alert.alert(
-          'Skills Assessment',
-          'Skills assessment feature coming soon!',
-        );
-        break;
-      default:
-        break;
-    }
+  // Handler stubs
+  const handleProfilePress = () => {
+    // TODO: Navigate to profile screen
   };
-
-  const getStatusColor = status => {
-    switch (status) {
-      case 'pending':
-        return theme.colors.status.warning;
-      case 'scheduled':
-        return theme.colors.status.info;
-      case 'new':
-        return theme.colors.status.success;
-      case 'viewed':
-        return theme.colors.text.secondary;
-      default:
-        return theme.colors.text.secondary;
-    }
-  };
-
-  const getStatusLabel = status => {
-    switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'scheduled':
-        return 'Scheduled';
-      case 'new':
-        return 'New';
-      case 'viewed':
-        return 'Viewed';
-      default:
-        return status;
-    }
+  const handleLogout = () => {
+    // TODO: Implement logout logic
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient
-        colors={['#E8F5E8', '#F3E5F5', '#E3F2FD']}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: theme.spacing[8] }}
-        >
-          <Animated.View
-            style={{
-              opacity: fadeAnim,
-              paddingHorizontal: theme.spacing[4],
-              paddingVertical: theme.spacing[6],
-            }}
-          >
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingHorizontal: theme.spacing[4],
-                paddingTop: theme.spacing[6],
-                width: '100%',
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: theme.typography.h4.fontSize,
-                    fontWeight: theme.typography.h4.fontWeight,
-                    color: theme.colors.text.primary,
-                    marginBottom: theme.spacing[1],
-                  }}
-                >
-                  Welcome back, {user?.name || 'User'}!
-                </Text>
-                <Text
-                  style={{
-                    fontSize: theme.typography.body.fontSize,
-                    color: theme.colors.text.secondary,
-                    marginBottom: theme.spacing[2],
-                  }}
-                >
-                  {user?.mode === 'poster'
-                    ? 'Your job posting dashboard'
-                    : "Here's your job search progress"}
-                </Text>
-                <View
-                  style={{
-                    backgroundColor:
-                      user?.mode === 'poster' ? '#4CAF50' : '#2196F3',
-                    paddingHorizontal: theme.spacing[2],
-                    paddingVertical: theme.spacing[1],
-                    borderRadius: theme.borderRadius.md,
-                    alignSelf: 'flex-start',
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: theme.typography.caption.fontSize,
-                      fontWeight: '600',
-                      color: 'white',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {user?.mode === 'poster'
-                      ? '👔 Job Poster Mode'
-                      : '🔍 Job Seeker Mode'}
-                  </Text>
-                </View>
-              </View>
-              <ProfileSwitcher
-                size="medium"
-                showName={true}
-                style={{
-                  marginHorizontal: 8,
-                  paddingHorizontal: theme.spacing[2],
-                  paddingVertical: theme.spacing[1],
-                  borderRadius: theme.borderRadius.lg,
-                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                  ...theme.shadows.md,
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.5)',
-                }}
-              />
-              <TouchableOpacity
-                onPress={logout}
-                style={{
-                  marginLeft: 8,
-                  padding: 8,
-                  borderRadius: 12,
-                  backgroundColor: '#E53935',
-                  borderWidth: 2,
-                  borderColor: '#B71C1C',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'row',
-                }}
-                accessibilityLabel="Logout"
-              >
-                <Feather name="log-out" size={22} color="#fff" />
-                <Text
-                  style={{ color: '#fff', marginLeft: 4, fontWeight: 'bold' }}
-                >
-                  Logout
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Header Row */}
+      <View style={styles.headerRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.welcome}>Welcome back,</Text>
+          <Text style={styles.userName}>{user.name}!</Text>
+          <Text style={styles.subtitle}>Here’s your job search progress</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.profileCard} onPress={handleProfilePress} activeOpacity={0.7}>
+            <Text style={styles.profileName}>{user.name}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.7}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[6],
-            }}
+      {/* Tabs */}
+      <View style={styles.tabsRow}>
+        {['Today', 'This Week', 'This Month'].map(tab => (
+          <TouchableOpacity
+            key={tab}
+            style={[styles.tab, activeTab === tab && styles.activeTab]}
+            onPress={() => setActiveTab(tab)}
+            activeOpacity={0.8}
           >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  borderRadius: theme.borderRadius.xl,
-                  padding: theme.spacing[1],
-                  ...theme.shadows.md,
-                }}
-              >
-                {periods.map(period => (
-                  <TouchableOpacity
-                    key={period}
-                    onPress={() => setSelectedPeriod(period)}
-                    style={{
-                      flex: 1,
-                      paddingVertical: theme.spacing[2],
-                      paddingHorizontal: theme.spacing[3],
-                      borderRadius: theme.borderRadius.lg,
-                      backgroundColor:
-                        selectedPeriod === period
-                          ? theme.colors.primary.cyan
-                          : 'transparent',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        fontSize: theme.typography.buttonSmall.fontSize,
-                        fontWeight: theme.typography.button.fontWeight,
-                        color:
-                          selectedPeriod === period
-                            ? theme.colors.text.white
-                            : theme.colors.text.secondary,
-                      }}
-                    >
-                      {period}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+            <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Recent Activity */}
+      <View style={styles.sectionRow}>
+        <Text style={styles.sectionTitle}>Recent Activity</Text>
+        <TouchableOpacity>
+          <Text style={styles.viewAll}>View All</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.cardsGrid}>
+        <View style={styles.cardBox}>
+          <View style={styles.iconCircle}>
+            <Text style={styles.iconText}>✈️</Text>
           </View>
-
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[8],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: theme.spacing[3],
-                  justifyContent: 'space-between',
-                }}
-              >
-                {stats.map((stat, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={{
-                      width: '47%',
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      borderRadius: theme.borderRadius['2xl'],
-                      padding: theme.spacing[4],
-                      ...theme.shadows.lg,
-                      borderWidth: 1,
-                      borderColor: theme.colors.border.primary,
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: theme.spacing[3],
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 16,
-                          backgroundColor: `${stat.color}20`,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Feather
-                          name={stat.icon}
-                          size={16}
-                          color={stat.color}
-                        />
-                      </View>
-                      <Badge
-                        variant="success"
-                        size="sm"
-                        style={{
-                          backgroundColor: `${theme.colors.status.success}20`,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 10,
-                            color: theme.colors.status.success,
-                            fontWeight: '600',
-                          }}
-                        >
-                          {stat.change}
-                        </Text>
-                      </Badge>
-                    </View>
-                    <Text
-                      style={{
-                        fontSize: 24,
-                        fontWeight: theme.typography.h3.fontWeight,
-                        color: theme.colors.text.primary,
-                        marginBottom: theme.spacing[1],
-                      }}
-                    >
-                      {stat.value}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: theme.typography.caption.fontSize,
-                        color: theme.colors.text.secondary,
-                      }}
-                    >
-                      {stat.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+          <Text style={styles.cardTitle}>Applied to{"\n"}Senior Developer</Text>
+          <Text style={styles.cardCount}>24</Text>
+          <Text style={styles.cardTime}>2 hours ago</Text>
+        </View>
+        <View style={styles.cardBox}>
+          <View style={styles.iconCircleBlue}>
+            <Text style={styles.iconText}>👁️</Text>
           </View>
-
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[8],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: theme.typography.h5.fontSize,
-                  fontWeight: theme.typography.h5.fontWeight,
-                  color: theme.colors.text.primary,
-                  marginBottom: theme.spacing[4],
-                }}
-              >
-                Quick Actions
-              </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: theme.spacing[3],
-                  justifyContent: 'space-between',
-                }}
-              >
-                {quickActions.map((action, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => handleQuickAction(action.action)}
-                    style={{
-                      width: '47%',
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      borderRadius: theme.borderRadius['2xl'],
-                      padding: theme.spacing[4],
-                      alignItems: 'center',
-                      gap: theme.spacing[3],
-                      ...theme.shadows.lg,
-                      borderWidth: 1,
-                      borderColor: theme.colors.border.primary,
-                    }}
-                  >
-                    <LinearGradient
-                      colors={action.color}
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: theme.borderRadius.xl,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        ...theme.shadows.md,
-                      }}
-                    >
-                      <Feather
-                        name={action.icon}
-                        size={24}
-                        color={theme.colors.text.white}
-                      />
-                    </LinearGradient>
-                    <View style={{ alignItems: 'center' }}>
-                      <Text
-                        style={{
-                          fontSize: theme.typography.bodySmall.fontSize,
-                          fontWeight: theme.typography.label.fontWeight,
-                          color: theme.colors.text.primary,
-                          textAlign: 'center',
-                          marginBottom: theme.spacing[1],
-                        }}
-                      >
-                        {action.title}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: theme.typography.labelSmall.fontSize,
-                          color: theme.colors.text.secondary,
-                          textAlign: 'center',
-                        }}
-                      >
-                        {action.subtitle}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+          <Text style={styles.cardTitle}>Profile Views</Text>
+          <Text style={styles.cardCount}>156 <Text style={styles.percentUp}>+12%</Text></Text>
+        </View>
+      </View>
+      <View style={styles.cardsGrid}>
+        <View style={styles.cardBox}>
+          <View style={styles.iconCircleGreen}>
+            <Text style={styles.iconText}>📅</Text>
           </View>
-
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[8],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: theme.spacing[4],
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: theme.typography.h5.fontSize,
-                    fontWeight: theme.typography.h5.fontWeight,
-                    color: theme.colors.text.primary,
-                  }}
-                >
-                  Recent Activity
-                </Text>
-                <TouchableOpacity>
-                  <Text
-                    style={{
-                      fontSize: theme.typography.caption.fontSize,
-                      color: theme.colors.primary.cyan,
-                      fontWeight: '500',
-                    }}
-                  >
-                    View All
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <Card
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  ...theme.shadows.lg,
-                }}
-              >
-                <View style={{ gap: theme.spacing[1] }}>
-                  {recentActivity.map((activity, index) => (
-                    <TouchableOpacity
-                      key={activity.id}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingVertical: theme.spacing[3],
-                        paddingHorizontal: theme.spacing[2],
-                        borderRadius: theme.borderRadius.lg,
-                        ...(index < recentActivity.length - 1 && {
-                          borderBottomWidth: 1,
-                          borderBottomColor: theme.colors.border.primary,
-                        }),
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 20,
-                          backgroundColor: activity.avatar,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          marginRight: theme.spacing[3],
-                        }}
-                      >
-                        <Feather
-                          name={activity.type}
-                          size={20}
-                          color={theme.colors.text.white}
-                        />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text
-                          style={{
-                            fontSize: theme.typography.bodySmall.fontSize,
-                            fontWeight: '500',
-                            color: theme.colors.text.primary,
-                            marginBottom: theme.spacing[1],
-                          }}
-                        >
-                          {activity.title}
-                        </Text>
-                        <Text
-                          style={{
-                            fontSize: theme.typography.caption.fontSize,
-                            color: theme.colors.text.secondary,
-                          }}
-                        >
-                          {activity.company} • {activity.time}
-                        </Text>
-                      </View>
-                      <Badge
-                        variant="outline"
-                        size="sm"
-                        style={{
-                          borderColor: getStatusColor(activity.status),
-                          backgroundColor: `${getStatusColor(
-                            activity.status,
-                          )}10`,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 10,
-                            color: getStatusColor(activity.status),
-                            fontWeight: '500',
-                          }}
-                        >
-                          {getStatusLabel(activity.status)}
-                        </Text>
-                      </Badge>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </Card>
-            </View>
+          <Text style={styles.cardTitle}>Interviews Scheduled</Text>
+          <Text style={styles.cardCount}>3</Text>
+          <Text style={styles.cardTime}>1 day ago</Text>
+        </View>
+        <View style={styles.cardBox}>
+          <View style={styles.iconCirclePurple}>
+            <Text style={styles.iconText}>🎯</Text>
           </View>
+          <Text style={styles.cardTitle}>Job Matches</Text>
+          <Text style={styles.cardCount}>89 <Text style={styles.percentUp}>+2%</Text></Text>
+        </View>
+      </View>
 
-          <View
-            style={{
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: theme.spacing[6],
-            }}
-          >
-            <View
-              style={{
-                maxWidth: 400,
-                alignSelf: 'center',
-                width: '100%',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: theme.typography.h5.fontSize,
-                  fontWeight: theme.typography.h5.fontWeight,
-                  color: theme.colors.text.primary,
-                  marginBottom: theme.spacing[4],
-                }}
-              >
-                Daily Goal Progress
-              </Text>
-
-              <Card
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  ...theme.shadows.lg,
-                }}
-              >
-                <View style={{ gap: theme.spacing[4] }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: theme.typography.body.fontSize,
-                        fontWeight: '500',
-                        color: theme.colors.text.primary,
-                      }}
-                    >
-                      Job Applications
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: theme.typography.bodySmall.fontSize,
-                        color: theme.colors.text.secondary,
-                      }}
-                    >
-                      3/5 completed
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      height: 8,
-                      backgroundColor: theme.colors.background.tertiary,
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: '60%',
-                        height: '100%',
-                        backgroundColor: theme.colors.primary.cyan,
-                        borderRadius: 4,
-                      }}
-                    />
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: theme.typography.body.fontSize,
-                        fontWeight: '500',
-                        color: theme.colors.text.primary,
-                      }}
-                    >
-                      Profile Updates
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: theme.typography.bodySmall.fontSize,
-                        color: theme.colors.text.secondary,
-                      }}
-                    >
-                      1/2 completed
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      height: 8,
-                      backgroundColor: theme.colors.background.tertiary,
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: '50%',
-                        height: '100%',
-                        backgroundColor: theme.colors.accent.orange,
-                        borderRadius: 4,
-                      }}
-                    />
-                  </View>
-                </View>
-              </Card>
-            </View>
-          </View>
-        </ScrollView>
-      </LinearGradient>
-    </SafeAreaView>
+      {/* Daily Goal Progress */}
+      <Text style={styles.sectionTitle}>Daily Goal Progress</Text>
+      <View style={styles.progressCard}>
+        <View style={styles.progressRow}>
+          <Text style={styles.progressLabel}>Job Applications</Text>
+          <Text style={styles.progressValue}>3/5 completed</Text>
+        </View>
+        <View style={styles.progressBarBg}>
+          <View style={[styles.progressBar, { width: '60%' }]} />
+        </View>
+        <View style={[styles.progressRow, { marginTop: 16 }]}> 
+          <Text style={styles.progressLabel}>Profile Updates</Text>
+          <Text style={styles.progressValue}>1/2 completed</Text>
+        </View>
+        <View style={styles.progressBarBg}>
+          <View style={[styles.progressBarOrange, { width: '50%' }]} />
+        </View>
+      </View>
+    </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 0,
+    backgroundColor: '#F7FAFF',
+    flexGrow: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 12,
+    backgroundColor: '#F7FAFF',
+  },
+  welcome: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#181C32',
+    marginBottom: 0,
+  },
+  userName: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#181C32',
+    marginBottom: 8,
+  },
+  subtitle: {
+    color: '#6B7280',
+    fontSize: 16,
+    marginBottom: 0,
+    marginTop: 4,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  profileCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    minWidth: 110,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    marginRight: 8,
+  },
+  profileName: {
+    fontWeight: '600',
+    color: '#181C32',
+    fontSize: 17,
+  },
+  logoutBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
+  },
+  logoutText: {
+    color: '#3B82F6',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  tabsRow: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: '#EEF4FF',
+    borderRadius: 20,
+    padding: 6,
+    marginTop: 8,
+    marginBottom: 24,
+    width: 320,
+    justifyContent: 'center',
+  },
+  tab: {
+    paddingVertical: 10,
+    paddingHorizontal: 28,
+    borderRadius: 16,
+    marginHorizontal: 2,
+  },
+  activeTab: {
+    backgroundColor: '#0076FF',
+  },
+  tabText: {
+    color: '#0076FF',
+    fontWeight: '600',
+    fontSize: 17,
+  },
+  activeTabText: {
+    color: '#fff',
+  },
+  sectionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#222',
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  viewAll: {
+    color: '#3B82F6',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  cardsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  cardBox: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    flex: 1,
+    marginRight: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    alignItems: 'flex-start',
+  },
+  iconCircle: {
+    backgroundColor: '#EAF0FF',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  iconCircleBlue: {
+    backgroundColor: '#DBEAFE',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  iconCircleGreen: {
+    backgroundColor: '#D1FAE5',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  iconCirclePurple: {
+    backgroundColor: '#E9D5FF',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  iconText: {
+    fontSize: 18,
+  },
+  cardTitle: {
+    fontWeight: '600',
+    color: '#222',
+    fontSize: 15,
+    marginBottom: 4,
+  },
+  cardCount: {
+    fontWeight: 'bold',
+    fontSize: 22,
+    color: '#222',
+    marginBottom: 2,
+  },
+  cardTime: {
+    color: '#6B7280',
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  percentUp: {
+    color: '#22C55E',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  progressCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 12,
+    marginBottom: 32,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  progressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  progressLabel: {
+    fontWeight: '600',
+    color: '#222',
+    fontSize: 15,
+  },
+  progressValue: {
+    color: '#6B7280',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  progressBarBg: {
+    backgroundColor: '#E5E7EB',
+    height: 8,
+    borderRadius: 8,
+    marginTop: 6,
+    marginBottom: 2,
+    width: '100%',
+  },
+  progressBar: {
+    backgroundColor: '#3B82F6',
+    height: 8,
+    borderRadius: 8,
+  },
+  progressBarOrange: {
+    backgroundColor: '#F59E42',
+    height: 8,
+    borderRadius: 8,
+  },
+});
 
 export default DashboardScreen;

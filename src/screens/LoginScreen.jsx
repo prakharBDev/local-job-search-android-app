@@ -3,9 +3,110 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
-import { theme } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
+
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: theme?.spacing?.[6] || 24,
+      paddingTop: theme?.spacing?.[8] || 32,
+      justifyContent: 'center',
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: theme?.spacing?.[8] || 32,
+    },
+    logo: {
+      width: 80,
+      height: 80,
+      marginBottom: theme?.spacing?.[4] || 16,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: theme?.colors?.text?.primary || '#1E293B',
+      textAlign: 'center',
+      marginBottom: theme?.spacing?.[2] || 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: theme?.colors?.text?.secondary || '#475569',
+      textAlign: 'center',
+      maxWidth: 280,
+    },
+    loginCard: {
+      padding: theme?.spacing?.[6] || 24,
+    },
+    loginTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: theme?.colors?.text?.primary || '#1E293B',
+      textAlign: 'center',
+      marginBottom: theme?.spacing?.[2] || 8,
+    },
+    loginSubtitle: {
+      fontSize: 14,
+      color: theme?.colors?.text?.secondary || '#475569',
+      textAlign: 'center',
+      marginBottom: theme?.spacing?.[6] || 24,
+      lineHeight: 20,
+    },
+    googleButton: {
+      marginBottom: theme?.spacing?.[6] || 24,
+      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
+      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
+    },
+    buttonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    googleIcon: {
+      marginRight: theme?.spacing?.[3] || 12,
+    },
+    googleButtonText: {
+      fontSize: 16,
+      fontWeight: '500',
+      color: theme?.colors?.text?.primary || '#1E293B',
+    },
+    features: {
+      gap: theme?.spacing?.[3] || 12,
+    },
+    featureItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme?.spacing?.[3] || 12,
+    },
+    featureText: {
+      fontSize: 14,
+      color: theme?.colors?.text?.secondary || '#475569',
+      flex: 1,
+    },
+    footer: {
+      paddingHorizontal: theme?.spacing?.[6] || 24,
+      paddingBottom: theme?.spacing?.[6] || 24,
+    },
+    footerText: {
+      fontSize: 12,
+      color: theme?.colors?.text?.tertiary || '#94A3B8',
+      textAlign: 'center',
+      lineHeight: 16,
+    },
+    footerLink: {
+      color: theme?.colors?.primary?.cyan || '#3C4FE0',
+      fontWeight: '500',
+    },
+  });
 
 const LoginScreen = ({ onLogin }) => {
+  const { theme } = useTheme();
+  const styles = getStyles(theme || {});
+
   const handleGoogleLogin = () => {
     setTimeout(() => {
       onLogin();
@@ -45,7 +146,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="google"
                 size={20}
-                color={theme.colors.text.primary}
+                color={theme?.colors?.text?.primary || '#1E293B'}
                 style={styles.googleIcon}
               />
               <Text style={styles.googleButtonText}>Continue with Google</Text>
@@ -57,7 +158,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="search"
                 size={16}
-                color={theme.colors.primary.cyan}
+                color={theme?.colors?.primary?.cyan || '#3C4FE0'}
               />
               <Text style={styles.featureText}>Find your dream job</Text>
             </View>
@@ -65,7 +166,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="briefcase"
                 size={16}
-                color={theme.colors.primary.cyan}
+                color={theme?.colors?.primary?.cyan || '#3C4FE0'}
               />
               <Text style={styles.featureText}>Post job opportunities</Text>
             </View>
@@ -73,7 +174,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="users"
                 size={16}
-                color={theme.colors.primary.cyan}
+                color={theme?.colors?.primary?.cyan || '#3C4FE0'}
               />
               <Text style={styles.featureText}>Connect with professionals</Text>
             </View>
@@ -91,102 +192,5 @@ const LoginScreen = ({ onLogin }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background.primary,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: theme.spacing[6],
-    paddingTop: theme.spacing[8],
-    justifyContent: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: theme.spacing[8],
-  },
-  logo: {
-    width: 80,
-    height: 80,
-    marginBottom: theme.spacing[4],
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    textAlign: 'center',
-    marginBottom: theme.spacing[2],
-  },
-  subtitle: {
-    fontSize: 16,
-    color: theme.colors.text.secondary,
-    textAlign: 'center',
-    maxWidth: 280,
-  },
-  loginCard: {
-    padding: theme.spacing[6],
-  },
-  loginTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    textAlign: 'center',
-    marginBottom: theme.spacing[2],
-  },
-  loginSubtitle: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: theme.spacing[6],
-    lineHeight: 20,
-  },
-  googleButton: {
-    marginBottom: theme.spacing[6],
-    borderColor: theme.colors.border.primary,
-    backgroundColor: theme.colors.background.secondary,
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  googleIcon: {
-    marginRight: theme.spacing[3],
-  },
-  googleButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: theme.colors.text.primary,
-  },
-  features: {
-    gap: theme.spacing[3],
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[3],
-  },
-  featureText: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    flex: 1,
-  },
-  footer: {
-    paddingHorizontal: theme.spacing[6],
-    paddingBottom: theme.spacing[6],
-  },
-  footerText: {
-    fontSize: 12,
-    color: theme.colors.text.tertiary,
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  footerLink: {
-    color: theme.colors.primary.cyan,
-    fontWeight: '500',
-  },
-});
 
 export default LoginScreen;

@@ -3,15 +3,133 @@ import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { AuthContext } from '../contexts/AuthContext';
 import { UserContext } from '../contexts/UserContext';
 import { ProfileContext } from '../contexts/ProfileContext';
-import { theme } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ProfileSwitcher } from '../components/ui';
+
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background.primary,
+    },
+    scrollView: {
+      flex: 1,
+      paddingHorizontal: theme.spacing.md,
+    },
+    header: {
+      paddingVertical: theme.spacing.lg,
+    },
+    headerContent: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: theme.colors.text.primary,
+    },
+    userCard: {
+      alignItems: 'center',
+      marginBottom: theme.spacing.lg,
+      paddingVertical: theme.spacing.xl,
+    },
+    userName: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.xs,
+    },
+    userEmail: {
+      fontSize: 16,
+      color: theme.colors.text.secondary,
+      marginBottom: theme.spacing.md,
+    },
+    modeContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.xs,
+    },
+    modeLabel: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+    },
+    modeValue: {
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    profileCard: {
+      marginBottom: theme.spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.md,
+    },
+    profileName: {
+      fontSize: 16,
+      fontWeight: '500',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing.xs,
+    },
+    profileType: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+      marginBottom: theme.spacing.xs,
+    },
+    profileDescription: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+      fontStyle: 'italic',
+    },
+    actionCard: {
+      marginBottom: theme.spacing.lg,
+    },
+    buttonGroup: {
+      gap: theme.spacing.md,
+    },
+    actionButton: {
+      marginBottom: theme.spacing.sm,
+    },
+    statsCard: {
+      marginBottom: theme.spacing.lg,
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    statItem: {
+      alignItems: 'center',
+    },
+    statValue: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: theme.colors.primary,
+      marginBottom: theme.spacing.xs,
+    },
+    statLabel: {
+      fontSize: 12,
+      color: theme.colors.text.secondary,
+      textTransform: 'uppercase',
+    },
+    logoutContainer: {
+      paddingVertical: theme.spacing.xl,
+      paddingBottom: theme.spacing.xxl,
+    },
+    logoutButton: {
+      backgroundColor: 'transparent',
+    },
+  });
 
 const ProfileScreen = ({ navigation }) => {
   const { user, logout } = useContext(AuthContext);
   const { userMode, toggleUserMode } = useContext(UserContext);
   const { activeProfile, profiles } = useContext(ProfileContext);
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
 
   const handleLogout = async () => {
     await logout();
@@ -150,120 +268,5 @@ const ProfileScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background.primary,
-  },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: theme.spacing.md,
-  },
-  header: {
-    paddingVertical: theme.spacing.lg,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-  },
-  userCard: {
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-    paddingVertical: theme.spacing.xl,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.xs,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.md,
-  },
-  modeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-  },
-  modeLabel: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-  },
-  modeValue: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  profileCard: {
-    marginBottom: theme.spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.md,
-  },
-  profileName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.xs,
-  },
-  profileType: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.xs,
-  },
-  profileDescription: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    fontStyle: 'italic',
-  },
-  actionCard: {
-    marginBottom: theme.spacing.lg,
-  },
-  buttonGroup: {
-    gap: theme.spacing.md,
-  },
-  actionButton: {
-    marginBottom: theme.spacing.sm,
-  },
-  statsCard: {
-    marginBottom: theme.spacing.lg,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-    marginBottom: theme.spacing.xs,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: theme.colors.text.secondary,
-    textTransform: 'uppercase',
-  },
-  logoutContainer: {
-    paddingVertical: theme.spacing.xl,
-    paddingBottom: theme.spacing.xxl,
-  },
-  logoutButton: {
-    backgroundColor: 'transparent',
-  },
-});
 
 export default ProfileScreen;

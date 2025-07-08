@@ -97,12 +97,12 @@ export const colors = {
     // Job/hiring related
     jobSeeker: '#00ff88', // Green for job seekers
     employer: '#ff006e', // Pink for employers
-    
+
     // Priority levels
     high: '#ff3366', // Red
     medium: '#ffaa00', // Orange
     low: '#00ff88', // Green
-    
+
     // Categories
     tech: '#00f5ff', // Cyan
     design: '#ff006e', // Pink
@@ -152,7 +152,7 @@ export const theme = {
   colors,
   // Dark mode (current)
   mode: 'dark',
-  
+
   // Quick access to commonly used colors
   primary: colors.primary.cyan,
   secondary: colors.primary.pink,

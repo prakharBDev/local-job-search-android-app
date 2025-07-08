@@ -16,10 +16,8 @@ import AboutScreen from './src/screens/AboutScreen';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { UserProvider } from './src/contexts/UserContext';
 import { ProfileProvider } from './src/contexts/ProfileContext';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import ErrorBoundary from './src/components/ErrorBoundary';
-
-// Import theme
-import { theme } from './src/theme';
 
 // Create navigators
 const RootStack = createNativeStackNavigator();
@@ -62,6 +60,7 @@ const IndexScreenContainer = () => {
 // Main App Navigator
 const AppNavigator = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { theme } = useTheme();
 
   return (
     <RootStack.Navigator
@@ -146,6 +145,8 @@ const AppLoadingScreen = () => {
 
 // Inner App component that uses providers
 const InnerApp = ({ initialState, onStateChange }) => {
+  const { theme } = useTheme();
+
   return (
     <NavigationContainer
       linking={linking}
@@ -154,9 +155,9 @@ const InnerApp = ({ initialState, onStateChange }) => {
       theme={{
         dark: false,
         colors: {
-          primary: theme.colors.primary.cyan,
+          primary: theme.colors.primary.main,
           background: theme.colors.background.primary,
-          card: theme.colors.background.secondary,
+          card: theme.colors.surface.card,
           text: theme.colors.text.primary,
           border: theme.colors.border.primary,
           notification: theme.colors.status.error,
@@ -183,6 +184,22 @@ const InnerApp = ({ initialState, onStateChange }) => {
     >
       <AppNavigator />
     </NavigationContainer>
+  );
+};
+
+// Themed App component that uses theme context
+const ThemedApp = ({ initialState, onStateChange }) => {
+  const { theme } = useTheme();
+
+  return (
+    <>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={theme.colors.background.primary}
+        translucent={false}
+      />
+      <InnerApp initialState={initialState} onStateChange={onStateChange} />
+    </>
   );
 };
 
@@ -222,12 +239,7 @@ const App = () => {
   };
 
   return (
-    <>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor={theme.colors.background.primary}
-        translucent={false}
-      />
+    <ThemeProvider>
       <ErrorBoundary>
         <AuthProvider>
           <UserProvider>
@@ -235,7 +247,7 @@ const App = () => {
               {!isReady ? (
                 <AppLoadingScreen />
               ) : (
-                <InnerApp
+                <ThemedApp
                   initialState={initialState}
                   onStateChange={onStateChange}
                 />
@@ -244,7 +256,7 @@ const App = () => {
           </UserProvider>
         </AuthProvider>
       </ErrorBoundary>
-    </>
+    </ThemeProvider>
   );
 };
 

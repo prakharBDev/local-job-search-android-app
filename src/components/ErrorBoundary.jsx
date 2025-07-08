@@ -1,7 +1,46 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { theme } from '../theme';
-import { Button } from './ui';
+import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
+import Button from './ui/Button';
+
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme?.spacing?.[6] || 24,
+    },
+    content: {
+      alignItems: 'center',
+      maxWidth: 300,
+    },
+    title: {
+      fontSize: theme?.typography?.h3?.fontSize || 24,
+      fontWeight: theme?.typography?.h3?.fontWeight || '600',
+      color: theme?.colors?.text?.primary || '#1E293B',
+      textAlign: 'center',
+      marginBottom: theme?.spacing?.[4] || 16,
+    },
+    message: {
+      fontSize: theme?.typography?.body?.fontSize || 16,
+      color: theme?.colors?.text?.secondary || '#475569',
+      textAlign: 'center',
+      marginBottom: theme?.spacing?.[6] || 24,
+      lineHeight: theme?.typography?.body?.lineHeight || 24,
+    },
+    errorDetails: {
+      fontSize: theme?.typography?.caption?.fontSize || 12,
+      color: theme?.colors?.status?.error || '#EF4444',
+      textAlign: 'center',
+      marginBottom: theme?.spacing?.[4] || 16,
+      fontFamily: 'monospace',
+    },
+    retryButton: {
+      minWidth: 120,
+    },
+  });
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -14,12 +53,9 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log error to crash reporting service in production
     if (__DEV__) {
       console.error('Error caught by boundary:', error, errorInfo);
     }
-    // In production, you would send this to a crash reporting service
-    // Crashlytics.recordError(error);
   }
 
   handleRetry = () => {
@@ -27,75 +63,40 @@ class ErrorBoundary extends React.Component {
   };
 
   render() {
-    if (this.state.hasError) {
-      const { fallback: CustomFallback } = this.props;
-
-      if (CustomFallback) {
+    const { fallback: CustomFallback } = this.props;
+    // Use a functional component to access the theme
+    const ThemedContent = () => {
+      const { theme } = useTheme();
+      const styles = getStyles(theme || {});
+      if (this.state.hasError) {
+        if (CustomFallback) {
+          return (
+            <CustomFallback error={this.state.error} retry={this.handleRetry} />
+          );
+        }
         return (
-          <CustomFallback error={this.state.error} retry={this.handleRetry} />
+          <View style={styles.container}>
+            <View style={styles.content}>
+              <Text style={styles.title}>Oops! Something went wrong</Text>
+              <Text style={styles.message}>
+                We encountered an unexpected error. Please try again.
+              </Text>
+              {__DEV__ && this.state.error && (
+                <Text style={styles.errorDetails}>
+                  {this.state.error.toString()}
+                </Text>
+              )}
+              <Button onPress={this.handleRetry} style={styles.retryButton}>
+                Try Again
+              </Button>
+            </View>
+          </View>
         );
       }
-
-      return (
-        <View style={styles.container}>
-          <View style={styles.content}>
-            <Text style={styles.title}>Oops! Something went wrong</Text>
-            <Text style={styles.message}>
-              We encountered an unexpected error. Please try again.
-            </Text>
-            {__DEV__ && this.state.error && (
-              <Text style={styles.errorDetails}>
-                {this.state.error.toString()}
-              </Text>
-            )}
-            <Button onPress={this.handleRetry} style={styles.retryButton}>
-              Try Again
-            </Button>
-          </View>
-        </View>
-      );
-    }
-
-    return this.props.children;
+      return this.props.children;
+    };
+    return <ThemedContent />;
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing[6],
-  },
-  content: {
-    alignItems: 'center',
-    maxWidth: 300,
-  },
-  title: {
-    fontSize: theme.typography.h3.fontSize,
-    fontWeight: theme.typography.h3.fontWeight,
-    color: theme.colors.text.primary,
-    textAlign: 'center',
-    marginBottom: theme.spacing[4],
-  },
-  message: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: theme.spacing[6],
-    lineHeight: theme.typography.body.lineHeight,
-  },
-  errorDetails: {
-    fontSize: theme.typography.caption.fontSize,
-    color: theme.colors.status.error,
-    textAlign: 'center',
-    marginBottom: theme.spacing[4],
-    fontFamily: 'monospace',
-  },
-  retryButton: {
-    minWidth: 120,
-  },
-});
 
 export default ErrorBoundary;

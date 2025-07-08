@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { theme } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Login = ({ onLogin }) => {
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const styles = getStyles(theme || {});
 
   const handleLogin = () => {
     if (!email || !password) {
@@ -54,39 +56,40 @@ const Login = ({ onLogin }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: theme.colors.background.primary,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 30,
-    color: theme.colors.text.primary,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: theme.colors.border.primary,
-    padding: 15,
-    marginBottom: 15,
-    borderRadius: 8,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: theme.colors.primary.cyan,
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: theme.colors.text.white,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      padding: 20,
+      backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginBottom: 30,
+      color: theme?.colors?.text?.primary || '#1E293B',
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
+      padding: 15,
+      marginBottom: 15,
+      borderRadius: 8,
+      fontSize: 16,
+    },
+    button: {
+      backgroundColor: theme?.colors?.primary?.cyan || '#3C4FE0',
+      padding: 15,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: theme?.colors?.text?.white || '#FFFFFF',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+  });
 
 export default Login;

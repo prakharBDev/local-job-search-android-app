@@ -7,11 +7,13 @@ import {
   View,
 } from 'react-native';
 import { useUser } from '../../contexts/UserContext';
-import { theme } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
   const { currentMode, isSeekerMode, isPosterMode, toggleMode, isLoading } =
     useUser();
+  const { theme } = useTheme();
+  const styles = getStyles(theme || {});
 
   const sizes = {
     small: {
@@ -48,8 +50,8 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
               styles.label,
               {
                 color: isSeekerMode
-                  ? theme.colors.primary.cyan
-                  : theme.colors.text.secondary,
+                  ? theme?.colors?.primary?.cyan || '#3C4FE0'
+                  : theme?.colors?.text?.secondary || '#475569',
               },
             ]}
           >
@@ -60,8 +62,8 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
               styles.label,
               {
                 color: isPosterMode
-                  ? theme.colors.primary.cyan
-                  : theme.colors.text.secondary,
+                  ? theme?.colors?.primary?.cyan || '#3C4FE0'
+                  : theme?.colors?.text?.secondary || '#475569',
               },
             ]}
           >
@@ -76,8 +78,8 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
           currentSize.container,
           {
             backgroundColor: isPosterMode
-              ? theme.colors.primary.cyan
-              : theme.colors.background.secondary,
+              ? theme?.colors?.primary?.cyan || '#3C4FE0'
+              : theme?.colors?.background?.secondary || '#F8FAFC',
           },
         ]}
         onPress={handleToggle}
@@ -89,7 +91,7 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
             styles.toggleButton,
             currentSize.toggle,
             {
-              backgroundColor: theme.colors.background.primary,
+              backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
               transform: [
                 {
                   translateX: isSeekerMode
@@ -105,7 +107,7 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
           {isLoading ? (
             <ActivityIndicator
               size="small"
-              color={theme.colors.primary.cyan}
+              color={theme?.colors?.primary?.cyan || '#3C4FE0'}
             />
           ) : (
             <Text style={[styles.toggleIcon, currentSize.text]}>
@@ -143,71 +145,72 @@ const ModeToggle = ({ style, showLabels = true, size = 'medium' }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-  },
-  labelsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 8,
-    paddingHorizontal: 4,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 20,
-    position: 'relative',
-    elevation: 2,
-    shadowColor: theme.colors.shadow.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  toggleButton: {
-    position: 'absolute',
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 3,
-    shadowColor: theme.colors.shadow.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    zIndex: 2,
-  },
-  toggleIcon: {
-    fontWeight: 'bold',
-  },
-  trackIcons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    width: '100%',
-    zIndex: 1,
-  },
-  trackIcon: {
-    fontSize: 16,
-  },
-  trackIconActive: {
-    opacity: 1,
-  },
-  trackIconInactive: {
-    opacity: 0.3,
-  },
-  currentModeText: {
-    marginTop: 8,
-    fontSize: 12,
-    color: theme.colors.text.secondary,
-    fontWeight: '500',
-  },
-});
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      alignItems: 'center',
+    },
+    labelsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+      marginBottom: 8,
+      paddingHorizontal: 4,
+    },
+    label: {
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    toggleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderRadius: 20,
+      position: 'relative',
+      elevation: 2,
+      shadowColor: theme?.colors?.shadow?.primary || '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    toggleButton: {
+      position: 'absolute',
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      elevation: 3,
+      shadowColor: theme?.colors?.shadow?.primary || '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      zIndex: 2,
+    },
+    toggleIcon: {
+      fontWeight: 'bold',
+    },
+    trackIcons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      width: '100%',
+      zIndex: 1,
+    },
+    trackIcon: {
+      fontSize: 16,
+    },
+    trackIconActive: {
+      opacity: 1,
+    },
+    trackIconInactive: {
+      opacity: 0.3,
+    },
+    currentModeText: {
+      marginTop: 8,
+      fontSize: 12,
+      color: theme?.colors?.text?.secondary || '#475569',
+      fontWeight: '500',
+    },
+  });
 
 export default ModeToggle;

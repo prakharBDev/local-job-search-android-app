@@ -4,9 +4,129 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
-import { theme } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
+
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background.primary,
+    },
+    header: {
+      paddingHorizontal: theme.spacing[6],
+      paddingTop: theme.spacing[6],
+      paddingBottom: theme.spacing[4],
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing[1],
+    },
+    subtitle: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+    },
+    scrollView: {
+      flex: 1,
+      paddingHorizontal: theme.spacing[6],
+    },
+    applicationCard: {
+      marginBottom: theme.spacing[4],
+      padding: theme.spacing[4],
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing[3],
+    },
+    jobInfo: {
+      flex: 1,
+      marginRight: theme.spacing[3],
+    },
+    jobTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing[1],
+    },
+    companyName: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+    },
+    cardDetails: {
+      marginBottom: theme.spacing[4],
+      gap: theme.spacing[2],
+    },
+    detailRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[2],
+    },
+    detailText: {
+      fontSize: 13,
+      color: theme.colors.text.secondary,
+    },
+    cardActions: {
+      flexDirection: 'row',
+      gap: theme.spacing[3],
+      justifyContent: 'flex-start',
+    },
+    actionButton: {
+      flex: 0,
+      paddingHorizontal: theme.spacing[3],
+    },
+    buttonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    buttonIcon: {
+      marginRight: theme.spacing[2],
+    },
+    actionButtonText: {
+      fontSize: 13,
+      color: theme.colors.text.primary,
+    },
+    primaryButtonText: {
+      fontSize: 13,
+      color: theme.colors.text.white,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing[6],
+    },
+    emptyIcon: {
+      marginBottom: theme.spacing[4],
+    },
+    emptyTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: theme.colors.text.primary,
+      marginBottom: theme.spacing[2],
+      textAlign: 'center',
+    },
+    emptySubtitle: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+      textAlign: 'center',
+      marginBottom: theme.spacing[6],
+      lineHeight: 20,
+    },
+    emptyButton: {
+      paddingHorizontal: theme.spacing[6],
+    },
+    emptyButtonText: {
+      color: theme.colors.text.white,
+      fontWeight: '500',
+    },
+  });
 
 const AppliedJobsScreen = () => {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
   const [applications] = useState([
     {
       id: '1',
@@ -204,122 +324,5 @@ const AppliedJobsScreen = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background.primary,
-  },
-  header: {
-    paddingHorizontal: theme.spacing[6],
-    paddingTop: theme.spacing[6],
-    paddingBottom: theme.spacing[4],
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[1],
-  },
-  subtitle: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-  },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: theme.spacing[6],
-  },
-  applicationCard: {
-    marginBottom: theme.spacing[4],
-    padding: theme.spacing[4],
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing[3],
-  },
-  jobInfo: {
-    flex: 1,
-    marginRight: theme.spacing[3],
-  },
-  jobTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[1],
-  },
-  companyName: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-  },
-  cardDetails: {
-    marginBottom: theme.spacing[4],
-    gap: theme.spacing[2],
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  detailText: {
-    fontSize: 13,
-    color: theme.colors.text.secondary,
-  },
-  cardActions: {
-    flexDirection: 'row',
-    gap: theme.spacing[3],
-    justifyContent: 'flex-start',
-  },
-  actionButton: {
-    flex: 0,
-    paddingHorizontal: theme.spacing[3],
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  buttonIcon: {
-    marginRight: theme.spacing[2],
-  },
-  actionButtonText: {
-    fontSize: 13,
-    color: theme.colors.text.primary,
-  },
-  primaryButtonText: {
-    fontSize: 13,
-    color: theme.colors.text.white,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing[6],
-  },
-  emptyIcon: {
-    marginBottom: theme.spacing[4],
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[2],
-    textAlign: 'center',
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: theme.spacing[6],
-    lineHeight: 20,
-  },
-  emptyButton: {
-    paddingHorizontal: theme.spacing[6],
-  },
-  emptyButtonText: {
-    color: theme.colors.text.white,
-    fontWeight: '500',
-  },
-});
 
 export default AppliedJobsScreen;

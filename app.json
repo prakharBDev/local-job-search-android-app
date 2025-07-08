@@ -1,4 +1,9 @@
 {
   "name": "BasicApp",
-  "displayName": "BasicApp"
+  "displayName": "BasicApp",
+  "extra": {
+    "eas": {
+      "projectId": "61e934fa-b6f2-4428-89ab-0df8b5503092"
+    }
+  }
 }

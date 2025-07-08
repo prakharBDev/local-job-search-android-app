@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
-import { theme } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Button = ({
   children,
@@ -13,41 +13,43 @@ const Button = ({
   style,
   ...props
 }) => {
-  const getButtonStyle = () => {
+  const { theme } = useTheme();
+
+  const buttonStyle = useMemo(() => {
     const baseStyle = {
-      borderRadius: theme.borderRadius.xl,
+      borderRadius: theme?.borderRadius?.xl || 16,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      ...theme.shadows.md,
+      ...(theme?.shadows?.md || {}),
     };
 
     const sizeStyles = {
       sm: {
-        paddingHorizontal: theme.spacing[4],
-        paddingVertical: theme.spacing[2],
+        paddingHorizontal: theme?.spacing?.[4] || 16,
+        paddingVertical: theme?.spacing?.[2] || 8,
         minHeight: 36,
       },
       md: {
-        paddingHorizontal: theme.spacing[6],
-        paddingVertical: theme.spacing[3],
-        minHeight: theme.layout.touchTarget.minHeight,
+        paddingHorizontal: theme?.spacing?.[6] || 24,
+        paddingVertical: theme?.spacing?.[3] || 12,
+        minHeight: theme?.layout?.touchTarget?.minHeight || 44,
       },
       lg: {
-        paddingHorizontal: theme.spacing[8],
-        paddingVertical: theme.spacing[4],
+        paddingHorizontal: theme?.spacing?.[8] || 32,
+        paddingVertical: theme?.spacing?.[4] || 16,
         minHeight: 56,
       },
     };
 
     const variantStyles = {
       default: {
-        backgroundColor: theme.colors.primary.cyan,
+        backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
       },
       outline: {
         backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: theme.colors.border.primary,
+        borderColor: theme?.colors?.border?.primary || '#E2E8F0',
       },
       ghost: {
         backgroundColor: 'transparent',
@@ -66,41 +68,41 @@ const Button = ({
       ...(fullWidth && { width: '100%' }),
       ...(disabled && { opacity: 0.6 }),
     };
-  };
+  }, [theme, size, variant, fullWidth, disabled]);
 
-  const getTextStyle = () => {
+  const textStyle = useMemo(() => {
     const baseTextStyle = {
       textAlign: 'center',
-      fontWeight: theme.typography.button.fontWeight,
+      fontWeight: '600',
     };
 
     const sizeTextStyles = {
       sm: {
-        fontSize: theme.typography.buttonSmall.fontSize,
-        lineHeight: theme.typography.buttonSmall.lineHeight,
+        fontSize: theme?.typography?.bodySmall?.fontSize || 14,
+        lineHeight: theme?.typography?.bodySmall?.lineHeight || 20,
       },
       md: {
-        fontSize: theme.typography.button.fontSize,
-        lineHeight: theme.typography.button.lineHeight,
+        fontSize: theme?.typography?.body?.fontSize || 16,
+        lineHeight: theme?.typography?.body?.lineHeight || 24,
       },
       lg: {
-        fontSize: theme.typography.buttonLarge.fontSize,
-        lineHeight: theme.typography.buttonLarge.lineHeight,
+        fontSize: theme?.typography?.h6?.fontSize || 16,
+        lineHeight: theme?.typography?.h6?.lineHeight || 22,
       },
     };
 
     const variantTextStyles = {
       default: {
-        color: theme.colors.text.white,
+        color: theme?.colors?.text?.white || '#FFFFFF',
       },
       outline: {
-        color: theme.colors.text.primary,
+        color: theme?.colors?.text?.primary || '#1E293B',
       },
       ghost: {
-        color: theme.colors.text.secondary,
+        color: theme?.colors?.text?.secondary || '#475569',
       },
       gradient: {
-        color: theme.colors.text.white,
+        color: theme?.colors?.text?.white || '#FFFFFF',
       },
     };
 
@@ -109,7 +111,7 @@ const Button = ({
       ...sizeTextStyles[size],
       ...variantTextStyles[variant],
     };
-  };
+  }, [theme, size, variant]);
 
   const renderContent = () => (
     <>
@@ -118,16 +120,16 @@ const Button = ({
           size="small"
           color={
             variant === 'default' || variant === 'gradient'
-              ? theme.colors.text.white
-              : theme.colors.primary.cyan
+              ? theme?.colors?.text?.white || '#FFFFFF'
+              : theme?.colors?.primary?.main || '#3C4FE0'
           }
-          style={{ marginRight: theme.spacing[2] }}
+          style={{ marginRight: theme?.spacing?.[2] || 8 }}
         />
       )}
       {icon && !loading && (
-        <View style={{ marginRight: theme.spacing[2] }}>{icon}</View>
+        <View style={{ marginRight: theme?.spacing?.[2] || 8 }}>{icon}</View>
       )}
-      <Text style={getTextStyle()}>{children}</Text>
+      <Text style={textStyle}>{children}</Text>
     </>
   );
 
@@ -135,8 +137,8 @@ const Button = ({
     return (
       <TouchableOpacity
         style={[
-          getButtonStyle(),
-          { backgroundColor: theme.colors.primary.cyan },
+          buttonStyle,
+          { backgroundColor: theme?.colors?.primary?.main || '#3C4FE0' },
           style,
         ]}
         disabled={disabled || loading}
@@ -149,7 +151,7 @@ const Button = ({
 
   return (
     <TouchableOpacity
-      style={[getButtonStyle(), style]}
+      style={[buttonStyle, style]}
       disabled={disabled || loading}
       {...props}
     >

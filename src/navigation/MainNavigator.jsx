@@ -1,170 +1,227 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
-import { Platform, Text } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Icon from '../components/ui/Icon';
+import { useTheme } from '../contexts/ThemeContext';
 
-import AppliedJobsScreen from '../screens/AppliedJobsScreen';
+// Import screens
 import DashboardScreen from '../screens/DashboardScreen';
+import IndexScreen from '../screens/IndexScreen';
 import MyJobsScreen from '../screens/MyJobsScreen';
+import CreateJobScreen from '../screens/CreateJobScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import BrowseJobsScreen from '../screens/JobDetailsScreen';
+import JobDetailsScreen from '../screens/JobDetailsScreen';
+import AppliedJobsScreen from '../screens/AppliedJobsScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
 
-import { useUser } from '../contexts/UserContext';
+const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-import { theme } from '../theme';
+// Stack navigators for each tab
+const DashboardStack = () => {
+  const { theme } = useTheme();
 
-const SeekerTab = createBottomTabNavigator();
-const PosterTab = createBottomTabNavigator();
-
-const SeekerTabIcon = ({ route, focused, color, size }) => {
-  let iconText;
-
-  switch (route.name) {
-    case 'Dashboard':
-      iconText = focused ? '🏠' : '🏡';
-      break;
-    case 'Profile':
-      iconText = focused ? '👤' : '👤';
-      break;
-    case 'AppliedJobs':
-      iconText = focused ? '💼' : '💼';
-      break;
-    default:
-      iconText = '❓';
-  }
-
-  return <Text style={{ fontSize: size - 2, color }}>{iconText}</Text>;
-};
-
-const getSeekerScreenOptions = ({ route }) => ({
-  tabBarIcon: ({ focused, color, size }) => (
-    <SeekerTabIcon route={route} focused={focused} color={color} size={size} />
-  ),
-  tabBarActiveTintColor: theme.colors.primary.cyan,
-  tabBarInactiveTintColor: theme.colors.text.secondary,
-  tabBarStyle: {
-    backgroundColor: theme.colors.background.primary,
-    borderTopColor: theme.colors.border.primary,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 8,
-    height: Platform.OS === 'ios' ? 85 : 65,
-  },
-  tabBarLabelStyle: {
-    fontSize: 12,
-    fontWeight: '500',
-    marginBottom: Platform.OS === 'ios' ? 0 : 4,
-  },
-  headerShown: false,
-});
-
-const SeekerTabNavigator = () => {
   return (
-    <SeekerTab.Navigator screenOptions={getSeekerScreenOptions}>
-      <SeekerTab.Screen
-        name="Dashboard"
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+        },
+        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="DashboardMain"
         component={DashboardScreen}
-        options={{
-          tabBarLabel: 'Dashboard',
-        }}
+        options={{ headerShown: false }}
       />
-      <SeekerTab.Screen
-        name="Browse Jobs"
-        component={BrowseJobsScreen}
-        options={{
-          tabBarLabel: 'Browse Jobs',
-        }}
-      />
-      <SeekerTab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarLabel: 'Profile',
-        }}
-      />
-      <SeekerTab.Screen
-        name="AppliedJobs"
-        component={AppliedJobsScreen}
-        options={{
-          tabBarLabel: 'Applied Jobs',
-        }}
-      />
-    </SeekerTab.Navigator>
+    </Stack.Navigator>
   );
 };
 
-const PosterTabIcon = ({ route, focused, color, size }) => {
-  let iconText;
+const JobsStack = () => {
+  const { theme } = useTheme();
 
-  switch (route.name) {
-    case 'Dashboard':
-      iconText = focused ? '🏠' : '🏡';
-      break;
-    case 'Profile':
-      iconText = focused ? '👤' : '👤';
-      break;
-    case 'MyJobs':
-      iconText = focused ? '🏢' : '🏢';
-      break;
-    case 'Browse Jobs':
-      iconText = focused ? '🔍' : '🔍';
-      break;
-    default:
-      iconText = '❓';
-  }
-
-  return <Text style={{ fontSize: size - 2, color }}>{iconText}</Text>;
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+        },
+        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="JobsMain"
+        component={IndexScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="JobDetails"
+        component={JobDetailsScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
 };
 
-const getPosterScreenOptions = ({ route }) => ({
-  tabBarIcon: ({ focused, color, size }) => (
-    <PosterTabIcon route={route} focused={focused} color={color} size={size} />
-  ),
-  tabBarActiveTintColor: theme.colors.primary.cyan,
-  tabBarInactiveTintColor: theme.colors.text.secondary,
-  tabBarStyle: {
-    backgroundColor: theme.colors.background.primary,
-    borderTopColor: theme.colors.border.primary,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 8,
-    height: Platform.OS === 'ios' ? 85 : 65,
-  },
-  tabBarLabelStyle: {
-    fontSize: 12,
-    fontWeight: '500',
-    marginBottom: Platform.OS === 'ios' ? 0 : 4,
-  },
-  headerShown: false,
-});
+const MyJobsStack = () => {
+  const { theme } = useTheme();
 
-const PosterTabNavigator = () => {
   return (
-    <PosterTab.Navigator screenOptions={getPosterScreenOptions}>
-      <PosterTab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarLabel: 'Dashboard',
-        }}
-      />
-      <PosterTab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarLabel: 'Profile',
-        }}
-      />
-      <PosterTab.Screen
-        name="MyJobs"
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+        },
+        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="MyJobsMain"
         component={MyJobsScreen}
-        options={{
-          tabBarLabel: 'My Jobs',
-        }}
+        options={{ headerShown: false }}
       />
-    </PosterTab.Navigator>
+      <Stack.Screen
+        name="AppliedJobs"
+        component={AppliedJobsScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const CreateJobStack = () => {
+  const { theme } = useTheme();
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+        },
+        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="CreateJobMain"
+        component={CreateJobScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const ProfileStack = () => {
+  const { theme } = useTheme();
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+        },
+        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="ProfileMain"
+        component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Onboarding"
+        component={OnboardingScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   );
 };
 
 const MainNavigator = () => {
-  const { isSeekerMode } = useUser();
+  const { theme } = useTheme();
 
-  return isSeekerMode ? <SeekerTabNavigator /> : <PosterTabNavigator />;
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Dashboard') {
+            iconName = 'home';
+          } else if (route.name === 'Jobs') {
+            iconName = 'briefcase';
+          } else if (route.name === 'MyJobs') {
+            iconName = 'folder';
+          } else if (route.name === 'CreateJob') {
+            iconName = 'plus-circle';
+          } else if (route.name === 'Profile') {
+            iconName = 'user';
+          }
+
+          return <Icon name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: theme?.colors?.primary?.main || '#3C4FE0',
+        tabBarInactiveTintColor: theme?.colors?.text?.secondary || '#475569',
+        tabBarStyle: {
+          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+          borderTopColor: theme?.colors?.border?.primary || '#E2E8F0',
+        },
+        headerShown: false,
+      })}
+    >
+      <Tab.Screen
+        name="Dashboard"
+        component={DashboardStack}
+        options={{
+          tabBarLabel: 'Dashboard',
+        }}
+      />
+      <Tab.Screen
+        name="Jobs"
+        component={JobsStack}
+        options={{
+          tabBarLabel: 'Jobs',
+        }}
+      />
+      <Tab.Screen
+        name="MyJobs"
+        component={MyJobsStack}
+        options={{
+          tabBarLabel: 'My Jobs',
+        }}
+      />
+      <Tab.Screen
+        name="CreateJob"
+        component={CreateJobStack}
+        options={{
+          tabBarLabel: 'Create',
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileStack}
+        options={{
+          tabBarLabel: 'Profile',
+        }}
+      />
+    </Tab.Navigator>
+  );
 };
 
 export default MainNavigator;

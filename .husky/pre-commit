@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit quality checks..."
+
+# Run lint-staged for staged files
+npm run lint-staged
+
+# Additional quality checks
+echo "📊 Running file size analysis..."
+node scripts/check-file-sizes.js
+
+echo "🔍 Checking for duplicate code..."
+node scripts/check-duplicates.js
+
+echo "📦 Checking for unused dependencies..."
+npx depcheck --ignore-bin-package --skip-missing
+
+echo "🧪 Running tests..."
+npm test -- --bail --findRelatedTests
+
+echo "✅ All pre-commit checks passed!"

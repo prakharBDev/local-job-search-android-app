@@ -1,0 +1,75 @@
+{
+  "timestamp": "2025-07-09T18:15:21.121Z",
+  "totalDocuments": 7,
+  "categories": [
+    "overview",
+    "development",
+    "quality",
+    "architecture",
+    "automation",
+    "setup",
+    "archive"
+  ],
+  "documentStatus": {
+    "README.md": {
+      "exists": true,
+      "size": 10994,
+      "lines": 1,
+      "lastModified": "2025-07-09T18:04:21.630Z",
+      "wordCount": 1
+    },
+    "docs/DEVELOPMENT.md": {
+      "exists": true,
+      "size": 14846,
+      "lines": 1,
+      "lastModified": "2025-07-09T18:05:37.279Z",
+      "wordCount": 1
+    },
+    "docs/CODE_QUALITY.md": {
+      "exists": true,
+      "size": 14097,
+      "lines": 1,
+      "lastModified": "2025-07-09T18:06:52.828Z",
+      "wordCount": 1
+    },
+    "docs/ARCHITECTURE.md": {
+      "exists": true,
+      "size": 15430,
+      "lines": 1,
+      "lastModified": "2025-07-09T18:08:16.979Z",
+      "wordCount": 1
+    },
+    "docs/AUTOMATED_REVIEW.md": {
+      "exists": true,
+      "size": 13474,
+      "lines": 1,
+      "lastModified": "2025-07-09T18:09:39.870Z",
+      "wordCount": 1
+    },
+    "docs/PLATFORM_SETUP.md": {
+      "exists": true,
+      "size": 13938,
+      "lines": 1,
+      "lastModified": "2025-07-09T18:10:58.651Z",
+      "wordCount": 1
+    },
+    "docs/ARCHIVE.md": {
+      "exists": true,
+      "size": 8569,
+      "lines": 1,
+      "lastModified": "2025-07-09T18:12:12.608Z",
+      "wordCount": 1
+    }
+  },
+  "linkValidation": false,
+  "recommendations": [
+    "Fix broken documentation links",
+    "Expand documentation: README.md (1 words)",
+    "Expand documentation: docs/DEVELOPMENT.md (1 words)",
+    "Expand documentation: docs/CODE_QUALITY.md (1 words)",
+    "Expand documentation: docs/ARCHITECTURE.md (1 words)",
+    "Expand documentation: docs/AUTOMATED_REVIEW.md (1 words)",
+    "Expand documentation: docs/PLATFORM_SETUP.md (1 words)",
+    "Expand documentation: docs/ARCHIVE.md (1 words)"
+  ]
+}

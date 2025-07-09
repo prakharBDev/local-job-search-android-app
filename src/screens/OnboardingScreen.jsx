@@ -1,5 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, StatusBar, SafeAreaView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  StatusBar,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
@@ -39,12 +48,14 @@ const OnboardingScreen = () => {
               activeOpacity={0.85}
               onPress={() => navigation.navigate('Jobs')}
             >
-              <View style={[styles.iconCircle, { backgroundColor: '#6c7cfb' }]}> 
+              <View style={[styles.iconCircle, { backgroundColor: '#6c7cfb' }]}>
                 <Feather name="search" size={28} color="#fff" />
               </View>
               <View>
                 <Text style={styles.actionTitle}>Find a job</Text>
-                <Text style={styles.actionSubtitle}>Find your dream job here</Text>
+                <Text style={styles.actionSubtitle}>
+                  Find your dream job here
+                </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -52,7 +63,7 @@ const OnboardingScreen = () => {
               activeOpacity={0.85}
               onPress={() => navigation.navigate('CreateJob')}
             >
-              <View style={[styles.iconCircle, { backgroundColor: '#22c993' }]}> 
+              <View style={[styles.iconCircle, { backgroundColor: '#22c993' }]}>
                 <Feather name="file-text" size={28} color="#fff" />
               </View>
               <View>

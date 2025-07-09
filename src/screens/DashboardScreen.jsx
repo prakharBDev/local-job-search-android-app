@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 
 const user = {
   name: 'John Doe',
@@ -26,10 +32,18 @@ const DashboardScreen = () => {
           <Text style={styles.subtitle}>Here’s your job search progress</Text>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.profileCard} onPress={handleProfilePress} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.profileCard}
+            onPress={handleProfilePress}
+            activeOpacity={0.7}
+          >
             <Text style={styles.profileName}>{user.name}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.logoutBtn}
+            onPress={handleLogout}
+            activeOpacity={0.7}
+          >
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
@@ -44,7 +58,14 @@ const DashboardScreen = () => {
             onPress={() => setActiveTab(tab)}
             activeOpacity={0.8}
           >
-            <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === tab && styles.activeTabText,
+              ]}
+            >
+              {tab}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -61,7 +82,7 @@ const DashboardScreen = () => {
           <View style={styles.iconCircle}>
             <Text style={styles.iconText}>✈️</Text>
           </View>
-          <Text style={styles.cardTitle}>Applied to{"\n"}Senior Developer</Text>
+          <Text style={styles.cardTitle}>Applied to{'\n'}Senior Developer</Text>
           <Text style={styles.cardCount}>24</Text>
           <Text style={styles.cardTime}>2 hours ago</Text>
         </View>
@@ -70,7 +91,9 @@ const DashboardScreen = () => {
             <Text style={styles.iconText}>👁️</Text>
           </View>
           <Text style={styles.cardTitle}>Profile Views</Text>
-          <Text style={styles.cardCount}>156 <Text style={styles.percentUp}>+12%</Text></Text>
+          <Text style={styles.cardCount}>
+            156 <Text style={styles.percentUp}>+12%</Text>
+          </Text>
         </View>
       </View>
       <View style={styles.cardsGrid}>
@@ -87,7 +110,9 @@ const DashboardScreen = () => {
             <Text style={styles.iconText}>🎯</Text>
           </View>
           <Text style={styles.cardTitle}>Job Matches</Text>
-          <Text style={styles.cardCount}>89 <Text style={styles.percentUp}>+2%</Text></Text>
+          <Text style={styles.cardCount}>
+            89 <Text style={styles.percentUp}>+2%</Text>
+          </Text>
         </View>
       </View>
 
@@ -101,7 +126,7 @@ const DashboardScreen = () => {
         <View style={styles.progressBarBg}>
           <View style={[styles.progressBar, { width: '60%' }]} />
         </View>
-        <View style={[styles.progressRow, { marginTop: 16 }]}> 
+        <View style={[styles.progressRow, { marginTop: 16 }]}>
           <Text style={styles.progressLabel}>Profile Updates</Text>
           <Text style={styles.progressValue}>1/2 completed</Text>
         </View>

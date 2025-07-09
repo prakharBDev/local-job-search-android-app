@@ -85,7 +85,14 @@ const getStyles = theme =>
       borderRadius: theme?.borderRadius?.lg || 12,
       backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
     },
-    headerLogoIconCircle: { backgroundColor: '#3C4FE0', width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', },
+    headerLogoIconCircle: {
+      backgroundColor: '#3C4FE0',
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     // Brand row inspired by LandingScreen
     brandRow: {
       flexDirection: 'row',
@@ -151,13 +158,27 @@ const getStyles = theme =>
       textAlign: 'center',
       marginBottom: theme?.spacing?.[6] || 24,
     },
-    heroGradientBg: { width: '100%', borderRadius: 24, overflow: 'hidden', },
-    heroCtaButton: { marginTop: 16, borderRadius: 32, backgroundColor: '#3C4FE0', shadowColor: '#3C4FE0', shadowOpacity: 0.15, shadowRadius: 8, elevation: 4, },
-    heroCtaButtonContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', },
-    heroCtaButtonText: { color: '#fff', fontWeight: '700', fontSize: 16, },
+    heroGradientBg: { width: '100%', borderRadius: 24, overflow: 'hidden' },
+    heroCtaButton: {
+      marginTop: 16,
+      borderRadius: 32,
+      backgroundColor: '#3C4FE0',
+      shadowColor: '#3C4FE0',
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    heroCtaButtonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    heroCtaButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
     // Rocket card inspired by LandingScreen
     rocketCard: {
-      backgroundColor: theme?.colors?.accent?.green ? `${theme.colors.accent.green}20` : '#D1FAE5',
+      backgroundColor: theme?.colors?.accent?.green
+        ? `${theme.colors.accent.green}20`
+        : '#D1FAE5',
       width: 72,
       height: 72,
       borderRadius: 16,
@@ -433,7 +454,9 @@ const getStyles = theme =>
     },
     roleOptionActive: {
       borderColor: theme?.colors?.primary?.main || '#3C4FE0',
-      backgroundColor: theme?.colors?.primary?.main ? `${theme.colors.primary.main}10` : '#EEF2FF',
+      backgroundColor: theme?.colors?.primary?.main
+        ? `${theme.colors.primary.main}10`
+        : '#EEF2FF',
     },
     roleOptionIcon: {
       width: 24,
@@ -477,7 +500,12 @@ const getStyles = theme =>
       color: '#334155',
       marginBottom: 12,
     },
-    headerSignUpButton: { backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 6, },
+    headerSignUpButton: {
+      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 6,
+    },
   });
 
 const IndexScreen = () => {
@@ -705,7 +733,7 @@ const IndexScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <AnimatedBackground />
-      
+
       <ScrollView
         style={{ flex: 1, zIndex: 10 }}
         contentContainerStyle={{ paddingBottom: theme?.spacing?.[8] || 32 }}
@@ -715,7 +743,10 @@ const IndexScreen = () => {
           {/* Sign Up button absolutely positioned */}
           <TouchableOpacity
             onPress={() => setIsLogin(!isLogin)}
-            style={[styles.headerSignUpButton, { position: 'absolute', top: 0, right: 0, zIndex: 10 }]}
+            style={[
+              styles.headerSignUpButton,
+              { position: 'absolute', top: 0, right: 0, zIndex: 10 },
+            ]}
           >
             <Text style={styles.headerSignUp}>Sign Up</Text>
           </TouchableOpacity>
@@ -723,7 +754,11 @@ const IndexScreen = () => {
           {/* Brand row below */}
           <View style={styles.brandRow}>
             <View style={styles.brandIcon}>
-              <Feather name="send" size={20} color={theme?.colors?.text?.white || '#FFFFFF'} />
+              <Feather
+                name="send"
+                size={20}
+                color={theme?.colors?.text?.white || '#FFFFFF'}
+              />
             </View>
             <View>
               <Text style={styles.brandName}>JobConnect</Text>
@@ -735,7 +770,10 @@ const IndexScreen = () => {
         {/* Hero Section with improved typography */}
         <View style={styles.heroContainer}>
           <LinearGradient
-            colors={[theme?.colors?.background?.primary || '#FFFFFF', '#F8FAFC']}
+            colors={[
+              theme?.colors?.background?.primary || '#FFFFFF',
+              '#F8FAFC',
+            ]}
             style={styles.heroGradientBg}
           >
             <View style={styles.heroInner}>
@@ -763,7 +801,12 @@ const IndexScreen = () => {
                 onPress={handleLogin}
               >
                 <View style={styles.heroCtaButtonContent}>
-                  <Feather name="briefcase" size={18} color="#fff" style={{ marginRight: 6 }} />
+                  <Feather
+                    name="briefcase"
+                    size={18}
+                    color="#fff"
+                    style={{ marginRight: 6 }}
+                  />
                   <Text style={styles.heroCtaButtonText}>Find Jobs ✨</Text>
                 </View>
               </Button>
@@ -818,7 +861,13 @@ const IndexScreen = () => {
                   label="Phone Number"
                   placeholder="+91 XXXXX XXXXX"
                   variant="glass"
-                  leftIcon={<Feather name="phone" size={16} color={theme?.colors?.text?.tertiary || '#94A3B8'} />}
+                  leftIcon={
+                    <Feather
+                      name="phone"
+                      size={16}
+                      color={theme?.colors?.text?.tertiary || '#94A3B8'}
+                    />
+                  }
                   keyboardType="phone-pad"
                   style={styles.phoneInput}
                 />
@@ -836,23 +885,28 @@ const IndexScreen = () => {
                     ]}
                     onPress={() => setUserRole('getHired')}
                   >
-                    <View style={[
-                      styles.roleOptionIcon,
-                      userRole === 'getHired' && styles.roleOptionIconActive,
-                    ]}>
+                    <View
+                      style={[
+                        styles.roleOptionIcon,
+                        userRole === 'getHired' && styles.roleOptionIconActive,
+                      ]}
+                    >
                       <Feather
                         name="search"
                         size={12}
-                        color={userRole === 'getHired' 
-                          ? theme?.colors?.text?.white || '#FFFFFF'
-                          : theme?.colors?.text?.secondary || '#64748B'
+                        color={
+                          userRole === 'getHired'
+                            ? theme?.colors?.text?.white || '#FFFFFF'
+                            : theme?.colors?.text?.secondary || '#64748B'
                         }
                       />
                     </View>
-                    <Text style={[
-                      styles.roleOptionText,
-                      userRole === 'getHired' && styles.roleOptionTextActive,
-                    ]}>
+                    <Text
+                      style={[
+                        styles.roleOptionText,
+                        userRole === 'getHired' && styles.roleOptionTextActive,
+                      ]}
+                    >
                       Find a job
                     </Text>
                     {userRole === 'getHired' && (
@@ -868,30 +922,35 @@ const IndexScreen = () => {
                     ]}
                     onPress={() => setUserRole('hireSomeone')}
                   >
-                    <View style={[
-                      styles.roleOptionIcon,
-                      userRole === 'hireSomeone' && styles.roleOptionIconActive,
-                    ]}>
+                    <View
+                      style={[
+                        styles.roleOptionIcon,
+                        userRole === 'hireSomeone' &&
+                          styles.roleOptionIconActive,
+                      ]}
+                    >
                       <Feather
                         name="plus"
                         size={12}
-                        color={userRole === 'hireSomeone' 
-                          ? theme?.colors?.text?.white || '#FFFFFF'
-                          : theme?.colors?.text?.secondary || '#64748B'
+                        color={
+                          userRole === 'hireSomeone'
+                            ? theme?.colors?.text?.white || '#FFFFFF'
+                            : theme?.colors?.text?.secondary || '#64748B'
                         }
                       />
                     </View>
-                    <Text style={[
-                      styles.roleOptionText,
-                      userRole === 'hireSomeone' && styles.roleOptionTextActive,
-                    ]}>
+                    <Text
+                      style={[
+                        styles.roleOptionText,
+                        userRole === 'hireSomeone' &&
+                          styles.roleOptionTextActive,
+                      ]}
+                    >
                       Post a job
                     </Text>
                     {userRole === 'hireSomeone' && (
                       <View style={styles.roleOptionBadge}>
-                        <Text style={styles.roleOptionBadgeText}>
-                          Verified
-                        </Text>
+                        <Text style={styles.roleOptionBadgeText}>Verified</Text>
                       </View>
                     )}
                   </TouchableOpacity>
@@ -903,22 +962,39 @@ const IndexScreen = () => {
                 <Text style={styles.dividerText}>or continue with</Text>
               </View>
 
-              <View style={[styles.socialButtonsContainer, { flexDirection: 'row', gap: 12 }]}> 
+              <View
+                style={[
+                  styles.socialButtonsContainer,
+                  { flexDirection: 'row', gap: 12 },
+                ]}
+              >
                 <TouchableOpacity style={styles.socialButton}>
                   <View style={styles.socialButtonContent}>
                     <FontAwesome name="google" size={20} color="#222" />
-                    <Text style={styles.socialButtonText}>Continue with Google</Text>
+                    <Text style={styles.socialButtonText}>
+                      Continue with Google
+                    </Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.socialButton}>
                   <View style={styles.socialButtonContent}>
                     <Feather name="phone" size={20} color="#10B981" />
-                    <Text style={styles.socialButtonText}>Connect with WhatsApp</Text>
+                    <Text style={styles.socialButtonText}>
+                      Connect with WhatsApp
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity onPress={handleLogin} style={{ borderRadius: 999, overflow: 'hidden', marginTop: 8, marginBottom: 18 }}>
+              <TouchableOpacity
+                onPress={handleLogin}
+                style={{
+                  borderRadius: 999,
+                  overflow: 'hidden',
+                  marginTop: 8,
+                  marginBottom: 18,
+                }}
+              >
                 <LinearGradient
                   colors={['#10B981', '#06B6D4']}
                   start={{ x: 0, y: 0 }}
@@ -932,17 +1008,34 @@ const IndexScreen = () => {
                     flexDirection: 'row',
                   }}
                 >
-                  <Text style={{ color: '#fff', fontWeight: '700', fontSize: 20, letterSpacing: 0.2 }}>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontWeight: '700',
+                      fontSize: 20,
+                      letterSpacing: 0.2,
+                    }}
+                  >
                     Enter Dashboard
                   </Text>
-                  <Feather name="sparkles" size={20} color="#fff" style={{ marginLeft: 8 }} />
+                  <Feather
+                    name="sparkles"
+                    size={20}
+                    color="#fff"
+                    style={{ marginLeft: 8 }}
+                  />
                 </LinearGradient>
               </TouchableOpacity>
 
               <Text style={styles.agreementText}>
                 By continuing you agree to our{' '}
-                <Text style={styles.agreementLink} onPress={() => {}}>Terms of Service</Text> and{' '}
-                <Text style={styles.agreementLink} onPress={() => {}}>Privacy Policy</Text>
+                <Text style={styles.agreementLink} onPress={() => {}}>
+                  Terms of Service
+                </Text>{' '}
+                and{' '}
+                <Text style={styles.agreementLink} onPress={() => {}}>
+                  Privacy Policy
+                </Text>
               </Text>
             </View>
           </Card>

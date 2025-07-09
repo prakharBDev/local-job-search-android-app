@@ -17,7 +17,19 @@
     "start": "react-native start",
     "start:reset": "react-native start --reset-cache",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "quality:check": "node scripts/check-file-sizes.js && node scripts/check-duplicates.js",
+    "quality:report": "node scripts/generate-quality-report.js",
+    "quality:gate": "node scripts/quality-gate.js",
+    "quality:full": "npm run quality:report && npm run quality:gate",
+    "test:coverage": "jest --coverage --watchAll=false",
+    "test:performance": "jest --testNamePattern='performance' --verbose",
+    "security:audit": "npm audit --audit-level=moderate",
+    "build": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle",
+    "lint-staged": "lint-staged",
+    "docs:generate": "node scripts/generate-docs.js",
+    "docs:validate": "node scripts/generate-docs.js --validate-only",
+    "docs:health": "node scripts/generate-docs.js --health-only"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.24.0",

@@ -402,7 +402,15 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
         onPress={() => navigation.navigate('Onboarding')}
       >
         {/* Blue dot avatar */}
-        <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: '#2563EB', marginRight: 8 }} />
+        <View
+          style={{
+            width: 16,
+            height: 16,
+            borderRadius: 8,
+            backgroundColor: '#2563EB',
+            marginRight: 8,
+          }}
+        />
         <Icon
           name="chevron-down"
           size={16}

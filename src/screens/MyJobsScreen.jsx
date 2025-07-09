@@ -12,7 +12,14 @@ import {
   Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { Card, Badge, ProfileSwitcher, Icon, Button, Input } from '../components/ui';
+import {
+  Card,
+  Badge,
+  ProfileSwitcher,
+  Icon,
+  Button,
+  Input,
+} from '../components/ui';
 import { useTheme } from '../contexts/ThemeContext';
 import Feather from 'react-native-vector-icons/Feather';
 import { useAuth } from '../contexts/AuthContext';
@@ -338,7 +345,9 @@ const MyJobsScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background.primary }}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: theme.colors.background.primary }}
+    >
       <LinearGradient
         colors={[theme.colors.background.primary, '#F3F6FD']}
         style={{ flex: 1 }}
@@ -391,13 +400,27 @@ const MyJobsScreen = () => {
           </View>
 
           {/* Profile Indicator Dot (right) */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', width: 120, justifyContent: 'flex-end' }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: 120,
+              justifyContent: 'flex-end',
+            }}
+          >
             {/* ProfileSwitcher as profile button */}
             <ProfileSwitcher style={{ marginRight: 8, height: 36 }} />
             {/* Logout Button */}
             <TouchableOpacity
               onPress={logout}
-              style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center' }}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 18,
+                backgroundColor: '#F8FAFC',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
               accessibilityLabel="Logout"
             >
               <Feather name="log-out" size={20} color="#F87171" />
@@ -415,24 +438,38 @@ const MyJobsScreen = () => {
           }}
         >
           <View style={{ flex: 1 }}>
-            <View style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: '#F8FAFC',
-              borderRadius: 28,
-              paddingHorizontal: 16,
-              height: 48,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.04,
-              shadowRadius: 2,
-              elevation: 1,
-            }}>
-              <Feather name="search" size={20} color="#CBD5E1" style={{ marginRight: 8 }} />
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: '#F8FAFC',
+                borderRadius: 28,
+                paddingHorizontal: 16,
+                height: 48,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.04,
+                shadowRadius: 2,
+                elevation: 1,
+              }}
+            >
+              <Feather
+                name="search"
+                size={20}
+                color="#CBD5E1"
+                style={{ marginRight: 8 }}
+              />
               <TextInput
                 placeholder="Search here…"
                 placeholderTextColor="#CBD5E1"
-                style={{ flex: 1, fontSize: 16, color: '#0F172A', fontWeight: '400', backgroundColor: 'transparent', borderWidth: 0 }}
+                style={{
+                  flex: 1,
+                  fontSize: 16,
+                  color: '#0F172A',
+                  fontWeight: '400',
+                  backgroundColor: 'transparent',
+                  borderWidth: 0,
+                }}
                 value={search}
                 onChangeText={setSearch}
               />
@@ -461,13 +498,36 @@ const MyJobsScreen = () => {
 
         {/* Popular Jobs Section */}
         <View style={{ marginTop: 8, marginBottom: 24 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.spacing[4], marginBottom: 12 }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}>Popular jobs</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: theme.spacing[4],
+              marginBottom: 12,
+            }}
+          >
+            <Text
+              style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}
+            >
+              Popular jobs
+            </Text>
             <TouchableOpacity>
-              <Text style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}>See all</Text>
+              <Text
+                style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}
+              >
+                See all
+              </Text>
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingLeft: theme.spacing[4], paddingRight: 12 }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingLeft: theme.spacing[4],
+              paddingRight: 12,
+            }}
+          >
             {popularJobs.map(job => (
               <Card
                 key={job.id}
@@ -483,20 +543,83 @@ const MyJobsScreen = () => {
                   elevation: 4,
                 }}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 18,
+                      backgroundColor: '#fff',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 10,
+                    }}
+                  >
                     <Feather name={job.logo} size={20} color={job.color[1]} />
                   </View>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#fff', flex: 1 }}>{job.company}</Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: '600',
+                      color: '#fff',
+                      flex: 1,
+                    }}
+                  >
+                    {job.company}
+                  </Text>
                 </View>
-                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', marginBottom: 8 }}>{job.title}</Text>
-                <Text style={{ fontSize: 13, color: '#E0E7EF', marginBottom: 10 }}>{job.salary}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Badge variant="default" size="sm" style={{ backgroundColor: '#fff', marginRight: 8 }}>
-                    <Text style={{ color: job.color[1], fontWeight: '600', fontSize: 12 }}>{job.type}</Text>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    color: '#fff',
+                    marginBottom: 8,
+                  }}
+                >
+                  {job.title}
+                </Text>
+                <Text
+                  style={{ fontSize: 13, color: '#E0E7EF', marginBottom: 10 }}
+                >
+                  {job.salary}
+                </Text>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                >
+                  <Badge
+                    variant="default"
+                    size="sm"
+                    style={{ backgroundColor: '#fff', marginRight: 8 }}
+                  >
+                    <Text
+                      style={{
+                        color: job.color[1],
+                        fontWeight: '600',
+                        fontSize: 12,
+                      }}
+                    >
+                      {job.type}
+                    </Text>
                   </Badge>
-                  <Badge variant="outline" size="sm" style={{ borderColor: '#fff', backgroundColor: '#ffffff22' }}>
-                    <Text style={{ color: '#fff', fontWeight: '500', fontSize: 12 }}>{job.time}</Text>
+                  <Badge
+                    variant="outline"
+                    size="sm"
+                    style={{
+                      borderColor: '#fff',
+                      backgroundColor: '#ffffff22',
+                    }}
+                  >
+                    <Text
+                      style={{ color: '#fff', fontWeight: '500', fontSize: 12 }}
+                    >
+                      {job.time}
+                    </Text>
                   </Badge>
                 </View>
               </Card>
@@ -506,10 +629,26 @@ const MyJobsScreen = () => {
 
         {/* Recent Jobs Section */}
         <View style={{ marginBottom: 24 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.spacing[4], marginBottom: 12 }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}>Recent jobs</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: theme.spacing[4],
+              marginBottom: 12,
+            }}
+          >
+            <Text
+              style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}
+            >
+              Recent jobs
+            </Text>
             <TouchableOpacity>
-              <Text style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}>See all</Text>
+              <Text
+                style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}
+              >
+                See all
+              </Text>
             </TouchableOpacity>
           </View>
           <FlatList
@@ -530,24 +669,79 @@ const MyJobsScreen = () => {
                   elevation: 2,
                 }}
               >
-                <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', marginRight: 16 }}>
+                <View
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 12,
+                    backgroundColor: '#F1F5F9',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: 16,
+                  }}
+                >
                   <Feather name={item.logo} size={22} color={'#3B82F6'} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#0F172A', marginBottom: 2 }}>{item.title}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-                    <Badge variant="default" size="sm" style={{ backgroundColor: '#E0F2FE', marginRight: 8 }}>
-                      <Text style={{ color: '#3B82F6', fontWeight: '600', fontSize: 12 }}>{item.type}</Text>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                      color: '#0F172A',
+                      marginBottom: 2,
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginBottom: 2,
+                    }}
+                  >
+                    <Badge
+                      variant="default"
+                      size="sm"
+                      style={{ backgroundColor: '#E0F2FE', marginRight: 8 }}
+                    >
+                      <Text
+                        style={{
+                          color: '#3B82F6',
+                          fontWeight: '600',
+                          fontSize: 12,
+                        }}
+                      >
+                        {item.type}
+                      </Text>
                     </Badge>
-                    <Text style={{ fontSize: 13, color: '#64748B' }}>{item.company}</Text>
+                    <Text style={{ fontSize: 13, color: '#64748B' }}>
+                      {item.company}
+                    </Text>
                   </View>
-                  <Text style={{ fontSize: 13, color: '#94A3B8' }}>{item.location} • {item.salary}</Text>
+                  <Text style={{ fontSize: 13, color: '#94A3B8' }}>
+                    {item.location} • {item.salary}
+                  </Text>
                 </View>
-                <View style={{ alignItems: 'flex-end', justifyContent: 'space-between', height: 48 }}>
+                <View
+                  style={{
+                    alignItems: 'flex-end',
+                    justifyContent: 'space-between',
+                    height: 48,
+                  }}
+                >
                   <TouchableOpacity>
-                    <Feather name={item.bookmarked ? 'bookmark' : 'bookmark'} size={20} color={item.bookmarked ? '#3B82F6' : '#94A3B8'} />
+                    <Feather
+                      name={item.bookmarked ? 'bookmark' : 'bookmark'}
+                      size={20}
+                      color={item.bookmarked ? '#3B82F6' : '#94A3B8'}
+                    />
                   </TouchableOpacity>
-                  <Text style={{ fontSize: 12, color: '#94A3B8', marginTop: 8 }}>{item.time}</Text>
+                  <Text
+                    style={{ fontSize: 12, color: '#94A3B8', marginTop: 8 }}
+                  >
+                    {item.time}
+                  </Text>
                 </View>
               </Card>
             )}

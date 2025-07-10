@@ -1,29 +1,15 @@
-// Main theme export combining all design tokens
+// Main theme export - BlueWhite theme only
+import { bluewhiteTheme } from './bluewhite-theme.js';
 
-import { colors } from './colors.js';
-import typography from './typography.js';
-import spacing from './spacing.js';
+// Export the main theme
+export const theme = bluewhiteTheme;
 
-// Main theme object
-export const theme = {
-  colors,
-  typography,
-  spacing: spacing.spacing,
-  borderRadius: spacing.borderRadius,
-  shadows: spacing.shadows,
-  layout: spacing.layout,
-  // Additional theme properties
-  primary: colors.primary.cyan,
-  secondary: colors.primary.pink,
-  background: colors.background.primary,
-  text: colors.text.primary,
-  card: colors.surface.card,
-  mode: 'dark',
-};
+// Export individual modules from bluewhite theme
+export const colors = bluewhiteTheme.colors;
+export const typography = bluewhiteTheme.typography;
+export const spacing = bluewhiteTheme.spacing;
+export const shadows = bluewhiteTheme.shadows;
+export const borderRadius = bluewhiteTheme.borderRadius;
 
-// Export individual modules
-export { colors };
-export { typography };
-export { spacing };
-
-export default theme;
+// Export the complete theme as default
+export default bluewhiteTheme;

@@ -7,17 +7,17 @@ import { Platform, StatusBar } from 'react-native';
 
 // Import screens
 import MainNavigator from './src/navigation/MainNavigator';
-import IndexScreen from './src/screens/IndexScreen';
-import SplashScreen from './src/screens/SplashScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
-import AboutScreen from './src/screens/AboutScreen';
+import IndexScreen from './src/landingpage/screens/IndexScreen';
+import SplashScreen from './src/splash/screens/SplashScreen';
+import SettingsScreen from './src/settings/screens/SettingsScreen';
+import AboutScreen from './src/about/screens/AboutScreen';
 
 // Import providers and components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { UserProvider } from './src/contexts/UserContext';
 import { ProfileProvider } from './src/contexts/ProfileContext';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
-import ErrorBoundary from './src/components/ErrorBoundary';
+import ErrorBoundary from './src/shared/components/ErrorBoundary';
 
 // Create navigators
 const RootStack = createNativeStackNavigator();

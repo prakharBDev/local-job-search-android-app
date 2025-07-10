@@ -1,5 +1,5 @@
-export { ThemedButton } from '../ThemedButton';
-export { ThemedCard } from '../ThemedCard';
+export { ThemedButton } from '../../shared/components/ThemedButton';
+export { ThemedCard } from '../../shared/components/ThemedCard';
 export {
   ThemedText,
   Heading1,
@@ -7,8 +7,10 @@ export {
   Heading3,
   BodyText,
   Caption,
-} from '../ThemedText';
+} from '../../shared/components/ThemedText';
 
 // Re-export theme and provider for convenience
 export { bluewhiteTheme } from '../../theme/bluewhite';
 export { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
+
+

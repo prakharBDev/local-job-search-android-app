@@ -1,18 +1,18 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Icon from '../components/ui/Icon';
+import Icon from '../components/elements/Icon';
 import { useTheme } from '../contexts/ThemeContext';
 
 // Import screens
-import DashboardScreen from '../screens/DashboardScreen';
-import IndexScreen from '../screens/IndexScreen';
-import MyJobsScreen from '../screens/MyJobsScreen';
-import CreateJobScreen from '../screens/CreateJobScreen';
-import ProfileScreen from '../screens/ProfileScreen';
-import JobDetailsScreen from '../screens/JobDetailsScreen';
-import AppliedJobsScreen from '../screens/AppliedJobsScreen';
-import OnboardingScreen from '../screens/OnboardingScreen';
+import DashboardScreen from '../dashboard/screens/DashboardScreen';
+import IndexScreen from '../landingpage/screens/IndexScreen';
+import MyJobsScreen from '../jobs/screens/MyJobsScreen';
+import CreateJobScreen from '../jobs/screens/CreateJobScreen';
+import ProfileScreen from '../profile/screens/ProfileScreen';
+import JobDetailsScreen from '../jobs/screens/JobDetailsScreen';
+import AppliedJobsScreen from '../jobs/screens/AppliedJobsScreen';
+import OnboardingScreen from '../onboarding/screens/OnboardingScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();

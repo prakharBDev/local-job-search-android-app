@@ -18,6 +18,9 @@ import Card from '../../components/blocks/Card';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import GoogleSignInButton from '../../shared/components/GoogleSignInButton';
+import AnimatedBackground from '../components/AnimatedBackground';
+import FeatureCards from '../components/FeatureCards';
+import StatsRow from '../components/StatsRow';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -593,145 +596,6 @@ const IndexScreen = () => {
     }
   };
 
-  const features = [
-    {
-      icon: 'target',
-      title: 'Smart Matching',
-      description: 'AI-powered job recommendations',
-      color: ['#3C4FE0', '#6366F1'], // Blue
-      delay: 0,
-    },
-    {
-      icon: 'zap',
-      title: 'Instant Apply',
-      description: 'One-swipe job applications',
-      color: ['#10B981', '#06B6D4'], // Green
-      delay: 200,
-    },
-    {
-      icon: 'globe',
-      title: 'Local Focus',
-      description: 'Opportunities in your city',
-      color: ['#fff', '#F1F5F9'], // White
-      delay: 400,
-    },
-    {
-      icon: 'award',
-      title: 'Career Growth',
-      description: 'Track your progress',
-      color: ['#fff', '#F1F5F9'], // White
-      delay: 600,
-    },
-  ];
-
-  const stats = [
-    {
-      number: '10K+',
-      label: 'Jobs Posted',
-      icon: 'briefcase',
-      type: 'Feather',
-    },
-    { number: '5K+', label: 'Happy Users', icon: 'heart', type: 'Feather' },
-    {
-      number: '500+',
-      label: 'Companies',
-      icon: 'star',
-      type: 'Feather',
-    },
-  ];
-
-  // Memoize expensive array creation
-  const floatingElements = useMemo(
-    () =>
-      Array.from({ length: 8 }, (_, i) => ({
-        id: i,
-        icon: ['sparkles', 'star', 'target', 'zap'][i % 4],
-        left: `${((i * 47) % 85) + 10}%`,
-        top: `${((i * 73) % 70) + 15}%`,
-        delay: i * 300,
-        duration: 4000 + (i % 3) * 1000,
-      })),
-    [],
-  );
-
-  const AnimatedBackground = () => (
-    <View style={styles.backgroundContainer}>
-      <Animated.View
-        style={[
-          styles.floatingShape1,
-          {
-            transform: [
-              {
-                translateY: floatingAnim1.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 15],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-
-      <Animated.View
-        style={[
-          styles.floatingShape2,
-          {
-            transform: [
-              {
-                translateY: floatingAnim2.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, -10],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-
-      <Animated.View
-        style={[
-          styles.floatingShape3,
-          {
-            transform: [
-              {
-                translateY: floatingAnim3.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 8],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-
-      {floatingElements.map(element => (
-        <Animated.View
-          key={element.id}
-          style={{
-            position: 'absolute',
-            left: element.left,
-            top: element.top,
-            opacity: 0.06,
-            transform: [
-              {
-                translateY: floatingAnim1.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, element.id % 2 === 0 ? 8 : -8],
-                }),
-              },
-            ],
-          }}
-        >
-          <Feather
-            name={element.icon}
-            size={20}
-            color={theme?.colors?.text?.tertiary || '#94A3B8'}
-          />
-        </Animated.View>
-      ))}
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <AnimatedBackground />
@@ -817,19 +681,7 @@ const IndexScreen = () => {
         </View>
 
         {/* Stats section with improved design */}
-        <View style={styles.statsRow}>
-          {stats.map((stat, index) => (
-            <TouchableOpacity key={index} style={styles.statCard}>
-              <Feather
-                name={stat.icon}
-                size={20}
-                color={theme?.colors?.primary?.main || '#3C4FE0'}
-              />
-              <Text style={styles.statNumber}>{stat.number}</Text>
-              <Text style={styles.statLabel}>{stat.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <StatsRow />
 
         {/* Auth Card with improved styling */}
         <View style={styles.authCardContainer}>
@@ -1044,31 +896,7 @@ const IndexScreen = () => {
         </View>
 
         {/* Features section with improved design */}
-        <View style={styles.featuresContainer}>
-          <View style={styles.featuresInner}>
-            <Text style={styles.featuresTitle}>Why Choose Our Platform?</Text>
-            <View style={styles.featuresGrid}>
-              {features.map((feature, index) => (
-                <TouchableOpacity key={index} style={styles.featureCard}>
-                  <LinearGradient
-                    colors={feature.color}
-                    style={styles.featureIcon}
-                  >
-                    <Feather
-                      name={feature.icon}
-                      size={20}
-                      color={theme?.colors?.text?.white || '#FFFFFF'}
-                    />
-                  </LinearGradient>
-                  <Text style={styles.featureTitle}>{feature.title}</Text>
-                  <Text style={styles.featureDescription}>
-                    {feature.description}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </View>
+        <FeatureCards />
 
         {/* Bottom CTA with improved styling */}
         <View style={styles.bottomCtaContainer}>

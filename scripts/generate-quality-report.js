@@ -38,9 +38,6 @@ class QualityReporter {
     // Test coverage analysis
     await this.analyzeTestCoverage();
 
-    // TypeScript usage analysis
-    await this.analyzeTypeScriptUsage();
-
     // Performance metrics
     await this.analyzePerformance();
 
@@ -179,39 +176,6 @@ class QualityReporter {
     }
   }
 
-  async analyzeTypeScriptUsage() {
-    console.log('📝 Analyzing TypeScript usage...');
-
-    const jsFiles = this.getAllSourceFiles().filter(
-      f => f.endsWith('.js') || f.endsWith('.jsx'),
-    );
-    const tsFiles = this.getAllSourceFiles().filter(
-      f => f.endsWith('.ts') || f.endsWith('.tsx'),
-    );
-
-    const total = jsFiles.length + tsFiles.length;
-    const tsPercentage = total > 0 ? (tsFiles.length / total) * 100 : 0;
-
-    this.report.metrics.typescript = {
-      jsFiles: jsFiles.length,
-      tsFiles: tsFiles.length,
-      percentage: tsPercentage,
-    };
-
-    this.report.scores.typescript = tsPercentage;
-
-    if (tsPercentage < 80) {
-      this.report.issues.push({
-        type: 'TypeScript Usage',
-        severity: 'medium',
-        count: jsFiles.length,
-        description: `${jsFiles.length} files still use JavaScript instead of TypeScript`,
-        recommendation:
-          'Convert JavaScript files to TypeScript for better type safety',
-      });
-    }
-  }
-
   async analyzePerformance() {
     console.log('⚡ Analyzing performance metrics...');
 
@@ -286,7 +250,6 @@ class QualityReporter {
       fileSize: 0.2,
       duplication: 0.25,
       testCoverage: 0.3,
-      typescript: 0.15,
       performance: 0.1,
     };
 
@@ -312,7 +275,6 @@ class QualityReporter {
     } else if (score < 80) {
       this.report.recommendations.push(
         'Good: Minor improvements needed',
-        'Convert remaining JS files to TypeScript',
         'Add performance optimizations',
       );
     } else {
@@ -359,9 +321,6 @@ ${this.getScoreBadge(scores.overall)}
 | Test Coverage | ${scores.testCoverage}/100 | ${this.getStatus(
       scores.testCoverage,
     )} |
-| TypeScript Usage | ${scores.typescript}/100 | ${this.getStatus(
-      scores.typescript,
-    )} |
 | Performance | ${scores.performance}/100 | ${this.getStatus(
       scores.performance,
     )} |
@@ -391,7 +350,6 @@ ${recommendations.map(rec => `- ${rec}`).join('\n')}
 - **Total Files:** ${metrics.fileSizes?.total || 0}
 - **Oversized Files:** ${metrics.fileSizes?.oversized || 0}
 - **Test Coverage:** ${metrics.testCoverage?.percentage || 0}%
-- **TypeScript Usage:** ${metrics.typescript?.percentage || 0}%
 - **Performance Issues:** ${metrics.performance?.totalIssues || 0}
 
 ---

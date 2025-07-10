@@ -1,46 +1,36 @@
 {
-  "timestamp": "2025-07-10T11:07:58.798Z",
+  "timestamp": "2025-07-10T16:18:09.886Z",
   "scores": {
     "fileSize": 100,
     "duplication": 0,
     "testCoverage": 0,
-    "typescript": 11.76470588235294,
     "performance": 0,
-    "overall": 22
+    "overall": 20
   },
   "metrics": {
     "fileSizes": {
       "total": 68,
       "distribution": {
-        "small": 34,
+        "small": 35,
         "medium": 18,
-        "large": 16,
+        "large": 15,
         "xlarge": 0
       },
       "oversized": 0
     },
     "duplication": {
       "duplicateFunctions": 2,
-      "duplicateLines": 2518,
-      "totalLines": 9421,
-      "percentage": 26.727523617450377
+      "duplicateLines": 2399,
+      "totalLines": 9217,
+      "percentage": 26.02799175436693
     },
     "testCoverage": {
       "percentage": 0,
       "hasTests": false
     },
-    "typescript": {
-      "jsFiles": 60,
-      "tsFiles": 8,
-      "percentage": 11.76470588235294
-    },
     "performance": {
-      "totalIssues": 23,
+      "totalIssues": 22,
       "issues": [
-        {
-          "file": "src/auth/components/Login.jsx",
-          "issue": "Consider using useMemo/useCallback for optimization"
-        },
         {
           "file": "src/components/blocks/ProfileSwitcher.jsx",
           "issue": "Consider using useMemo/useCallback for optimization"
@@ -76,6 +66,10 @@
         {
           "file": "src/jobs/screens/JobDetailsScreen.jsx",
           "issue": "Consider using useMemo/useCallback for optimization"
+        },
+        {
+          "file": "src/jobs/screens/MyJobsScreen/PopularJobCard.jsx",
+          "issue": "Inline styles detected (use StyleSheet.create)"
         }
       ]
     }
@@ -85,7 +79,7 @@
       "type": "Code Duplication",
       "severity": "medium",
       "count": 2,
-      "description": "26.7% code duplication detected",
+      "description": "26.0% code duplication detected",
       "details": [
         {
           "name": "getStyles",
@@ -107,17 +101,10 @@
       ]
     },
     {
-      "type": "TypeScript Usage",
-      "severity": "medium",
-      "count": 60,
-      "description": "60 files still use JavaScript instead of TypeScript",
-      "recommendation": "Convert JavaScript files to TypeScript for better type safety"
-    },
-    {
       "type": "Performance",
       "severity": "medium",
-      "count": 23,
-      "description": "23 potential performance issues detected",
+      "count": 22,
+      "description": "22 potential performance issues detected",
       "recommendation": "Implement React performance optimizations"
     }
   ],

@@ -245,6 +245,10 @@ const MyJobsScreen = () => {
     }
   };
 
+  const handleJobPress = (job) => {
+    navigation.navigate('JobDetails', { job });
+  };
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: theme.colors.background.primary }}
@@ -253,67 +257,24 @@ const MyJobsScreen = () => {
         colors={[theme.colors.background.primary, '#F3F6FD']}
         style={{ flex: 1 }}
       >
-        {/* Header Section */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: theme.spacing[4],
-            paddingTop: theme.spacing[6],
-            marginBottom: theme.spacing[4],
-          }}
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 32 }}
+          showsVerticalScrollIndicator={false}
         >
-          {/* Back Button */}
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              backgroundColor: '#F8FAFC',
-              alignItems: 'center',
-              justifyContent: 'center',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.06,
-              shadowRadius: 4,
-              elevation: 2,
-            }}
-            accessibilityLabel="Back"
-          >
-            <Feather name="arrow-left" size={20} color="#64748B" />
-          </TouchableOpacity>
-
-          {/* Center Title & Subtext */}
-          <View style={{ flex: 1, alignItems: 'center', marginLeft: -36 }}>
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: 'bold',
-                color: '#0F172A',
-                marginBottom: 4,
-                fontFamily: theme.typography?.fontFamily || undefined,
-              }}
-            >
-              Search Jobs
-            </Text>
-          </View>
-
-          {/* Profile Indicator Dot (right) */}
+          {/* Header Section */}
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              width: 120,
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
+              paddingHorizontal: theme.spacing[4],
+              paddingTop: theme.spacing[6],
+              marginBottom: theme.spacing[4],
             }}
           >
-            {/* ProfileSwitcher as profile button */}
-            {/* <ProfileSwitcher style={{ marginRight: 8, height: 36 }} /> */}
-            {/* Logout Button */}
+            {/* Back Button */}
             <TouchableOpacity
-              onPress={logout}
+              onPress={() => navigation.goBack()}
               style={{
                 width: 36,
                 height: 36,
@@ -321,152 +282,196 @@ const MyJobsScreen = () => {
                 backgroundColor: '#F8FAFC',
                 alignItems: 'center',
                 justifyContent: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.06,
+                shadowRadius: 4,
+                elevation: 2,
               }}
-              accessibilityLabel="Logout"
+              accessibilityLabel="Back"
             >
-              <Feather name="log-out" size={20} color="#F87171" />
+              <Feather name="arrow-left" size={20} color="#64748B" />
             </TouchableOpacity>
-          </View>
-        </View>
 
-        {/* Search Bar Section */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginHorizontal: theme.spacing[4],
-            marginBottom: theme.spacing[4],
-          }}
-        >
-          <View style={{ flex: 1 }}>
+            {/* Center Title & Subtext */}
+            <View style={{ flex: 1, alignItems: 'center', marginLeft: -36 }}>
+              <Text
+                style={{
+                  fontSize: 22,
+                  fontWeight: 'bold',
+                  color: '#0F172A',
+                  marginBottom: 4,
+                  fontFamily: theme.typography?.fontFamily || undefined,
+                }}
+              >
+                Search Jobs
+              </Text>
+            </View>
+
+            {/* Profile Indicator Dot (right) */}
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: '#F8FAFC',
-                borderRadius: 28,
-                paddingHorizontal: 16,
+                width: 120,
+                justifyContent: 'flex-end',
+              }}
+            >
+              {/* ProfileSwitcher as profile button */}
+              {/* <ProfileSwitcher style={{ marginRight: 8, height: 36 }} /> */}
+              {/* Logout Button */}
+              <TouchableOpacity
+                onPress={logout}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: '#F8FAFC',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                accessibilityLabel="Logout"
+              >
+                <Feather name="log-out" size={20} color="#F87171" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Search Bar Section */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginHorizontal: theme.spacing[4],
+              marginBottom: theme.spacing[4],
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: '#F8FAFC',
+                  borderRadius: 28,
+                  paddingHorizontal: 16,
+                  height: 48,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.04,
+                  shadowRadius: 2,
+                  elevation: 1,
+                }}
+              >
+                <Feather
+                  name="search"
+                  size={20}
+                  color="#CBD5E1"
+                  style={{ marginRight: 8 }}
+                />
+                <TextInput
+                  placeholder="Search here…"
+                  placeholderTextColor="#CBD5E1"
+                  style={{
+                    flex: 1,
+                    fontSize: 16,
+                    color: '#0F172A',
+                    fontWeight: '400',
+                    backgroundColor: 'transparent',
+                    borderWidth: 0,
+                  }}
+                  value={search}
+                  onChangeText={setSearch}
+                />
+              </View>
+            </View>
+            <TouchableOpacity
+              style={{
+                width: 48,
                 height: 48,
+                borderRadius: 24,
+                backgroundColor: '#E0F2FE',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginLeft: 12,
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: 0.04,
                 shadowRadius: 2,
                 elevation: 1,
               }}
+              accessibilityLabel="Filter"
             >
-              <Feather
-                name="search"
-                size={20}
-                color="#CBD5E1"
-                style={{ marginRight: 8 }}
-              />
-              <TextInput
-                placeholder="Search here…"
-                placeholderTextColor="#CBD5E1"
-                style={{
-                  flex: 1,
-                  fontSize: 16,
-                  color: '#0F172A',
-                  fontWeight: '400',
-                  backgroundColor: 'transparent',
-                  borderWidth: 0,
-                }}
-                value={search}
-                onChangeText={setSearch}
-              />
+              <Feather name="filter" size={20} color="#3B82F6" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Popular Jobs Section */}
+          <View style={{ marginTop: 8, marginBottom: 24 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: theme.spacing[4],
+                marginBottom: 12,
+              }}
+            >
+              <Text
+                style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}
+              >
+                Popular jobs
+              </Text>
+              <TouchableOpacity>
+                <Text
+                  style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}
+                >
+                  See all
+                </Text>
+              </TouchableOpacity>
             </View>
-          </View>
-          <TouchableOpacity
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              backgroundColor: '#E0F2FE',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginLeft: 12,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.04,
-              shadowRadius: 2,
-              elevation: 1,
-            }}
-            accessibilityLabel="Filter"
-          >
-            <Feather name="filter" size={20} color="#3B82F6" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Popular Jobs Section */}
-        <View style={{ marginTop: 8, marginBottom: 24 }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: 12,
-            }}
-          >
-            <Text
-              style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingLeft: theme.spacing[4],
+                paddingRight: 12,
+              }}
             >
-              Popular jobs
-            </Text>
-            <TouchableOpacity>
-              <Text
-                style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}
-              >
-                See all
-              </Text>
-            </TouchableOpacity>
+              {popularJobs.map(job => (
+                <PopularJobCard key={job.id} job={job} />
+              ))}
+            </ScrollView>
           </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingLeft: theme.spacing[4],
-              paddingRight: 12,
-            }}
-          >
-            {popularJobs.map(job => (
-              <PopularJobCard key={job.id} job={job} />
+
+          {/* Recent Jobs Section */}
+          <View style={{ marginBottom: 24 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: theme.spacing[4],
+                marginBottom: 12,
+              }}
+            >
+              <Text
+                style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}
+              >
+                Recent jobs
+              </Text>
+              <TouchableOpacity>
+                <Text
+                  style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}
+                >
+                  See all
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {recentJobs.map(item => (
+              <RecentJobCard key={item.id} item={item} onPress={handleJobPress} />
             ))}
-          </ScrollView>
-        </View>
-
-        {/* Recent Jobs Section */}
-        <View style={{ marginBottom: 24 }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: theme.spacing[4],
-              marginBottom: 12,
-            }}
-          >
-            <Text
-              style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}
-            >
-              Recent jobs
-            </Text>
-            <TouchableOpacity>
-              <Text
-                style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}
-              >
-                See all
-              </Text>
-            </TouchableOpacity>
           </View>
-          <FlatList
-            data={recentJobs}
-            keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => <RecentJobCard item={item} />}
-            contentContainerStyle={{ paddingHorizontal: theme.spacing[4] }}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
+        </ScrollView>
       </LinearGradient>
     </SafeAreaView>
   );

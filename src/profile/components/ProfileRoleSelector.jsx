@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { PROFILE_ROLES } from '../../shared/utils/constants';
+
+const PROFILE_ROLES = ['seeker', 'poster'];
 
 const ProfileRoleSelector = ({ selectedRole, onRoleChange, theme }) => {
   return (

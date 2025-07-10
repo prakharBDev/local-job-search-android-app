@@ -17,6 +17,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { getStyles } from './ProfileSwitcher.styles.js';
+import ProfileRoleSelector from '../../profile/components/ProfileRoleSelector';
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,6 +37,7 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
     getProfileDisplayName,
     error,
     clearError,
+    updateProfile,
   } = useProfile();
 
   const { login } = useAuth();
@@ -141,6 +143,12 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
     Alert.alert('Success', 'Profile duplicated successfully');
   };
 
+  const handleRoleChange = (newRole) => {
+    if (activeProfile && newRole !== activeProfile.mode) {
+      updateProfile(activeProfile.id, { mode: newRole });
+    }
+  };
+
   const getGradientColors = mode => {
     switch (mode) {
       case 'seeker':
@@ -210,7 +218,10 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
     <TouchableOpacity
       key={profile.id}
       style={[getStyles(theme).profileItem, profile.isActive && getStyles(theme).activeProfileItem]}
-      onPress={() => switchProfile(profile.id)}
+      onPress={() => {
+        switchProfile(profile.id);
+        hideProfileSwitcher();
+      }}
       activeOpacity={0.7}
     >
       <LinearGradient
@@ -357,65 +368,74 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
     <View style={getStyles(theme).container}>
       {renderProfileButton()}
 
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="none"
-        statusBarTranslucent={true}
-      >
-        <View style={getStyles(theme).modalOverlay}>
-          <Animated.View
-            style={[
-              getStyles(theme).modalContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{ scale: scaleAnim }],
-              },
-            ]}
-          >
-            <View style={getStyles(theme).modalHeader}>
-              <Text style={getStyles(theme).modalTitle}>Switch Profile</Text>
-              <TouchableOpacity
-                style={getStyles(theme).closeButton}
-                onPress={hideProfileSwitcher}
-              >
-                <Feather
-                  name="x"
-                  size={24}
-                  color={theme?.colors?.text?.primary}
-                />
-              </TouchableOpacity>
-            </View>
-            <ScrollView
-              style={getStyles(theme).modalContent}
-              showsVerticalScrollIndicator={false}
+      {isModalVisible && (
+        <Modal
+          visible={isModalVisible}
+          animationType="fade"
+          transparent
+          onRequestClose={hideProfileSwitcher}
+        >
+          <View style={getStyles(theme).modalOverlay}>
+            <Animated.View
+              style={[
+                getStyles(theme).modalContainer,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ scale: scaleAnim }],
+                },
+              ]}
             >
-              {!isAddingProfile ? (
-                <>
-                  <View style={getStyles(theme).profilesList}>
-                    {profiles.map(renderProfileItem)}
-                  </View>
-                  <TouchableOpacity
-                    style={getStyles(theme).addProfileButton}
-                    onPress={() => setIsAddingProfile(true)}
-                  >
-                    <Feather
-                      name="plus"
-                      size={20}
-                      color={theme?.colors?.primary?.main}
-                    />
-                    <Text style={getStyles(theme).addProfileButtonText}>
-                      Add New Profile
-                    </Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                renderAddProfileForm()
-              )}
-            </ScrollView>
-          </Animated.View>
-        </View>
-      </Modal>
+              <View style={getStyles(theme).modalHeader}>
+                <Text style={getStyles(theme).modalTitle}>Switch Profile</Text>
+                <TouchableOpacity
+                  style={getStyles(theme).closeButton}
+                  onPress={hideProfileSwitcher}
+                >
+                  <Feather
+                    name="x"
+                    size={24}
+                    color={theme?.colors?.text?.primary}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={{ marginVertical: 16 }}>
+                <ProfileRoleSelector
+                  selectedRole={activeProfile?.mode}
+                  onRoleChange={handleRoleChange}
+                  theme={theme}
+                />
+              </View>
+              <ScrollView
+                style={getStyles(theme).modalContent}
+                showsVerticalScrollIndicator={false}
+              >
+                {!isAddingProfile ? (
+                  <>
+                    <View style={getStyles(theme).profilesList}>
+                      {profiles.map(renderProfileItem)}
+                    </View>
+                    <TouchableOpacity
+                      style={getStyles(theme).addProfileButton}
+                      onPress={() => setIsAddingProfile(true)}
+                    >
+                      <Feather
+                        name="plus"
+                        size={20}
+                        color={theme?.colors?.primary?.main}
+                      />
+                      <Text style={getStyles(theme).addProfileButtonText}>
+                        Add New Profile
+                      </Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  renderAddProfileForm()
+                )}
+              </ScrollView>
+            </Animated.View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };

@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import Badge from '../../components/elements/Badge';
-import Card from '../../components/blocks/Card';
-import { useTheme } from '../../contexts/ThemeContext';
+import Badge from '../../../components/elements/Badge';
+import Card from '../../../components/blocks/Card';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 const PopularJobCard = ({ job }) => {
   const { theme } = useTheme();

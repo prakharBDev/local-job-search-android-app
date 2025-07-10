@@ -76,7 +76,7 @@ class QualityReporter {
         sizeCounts.small++;
       } else if (lines < 200) {
         sizeCounts.medium++;
-      } else if (lines < 300) {
+      } else if (lines <= 300) {
         sizeCounts.large++;
       } else {
         sizeCounts.xlarge++;

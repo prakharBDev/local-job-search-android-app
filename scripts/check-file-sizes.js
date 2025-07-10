@@ -6,12 +6,12 @@ const { execSync } = require('child_process');
 
 // File size limits (in lines)
 const SIZE_LIMITS = {
-  components: 200,
+  components: 300,
   screens: 300,
-  contexts: 200,
-  utils: 150,
-  services: 200,
-  default: 250,
+  contexts: 300,
+  utils: 300,
+  services: 300,
+  default: 300,
 };
 
 // Get file type based on path

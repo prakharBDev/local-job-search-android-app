@@ -353,20 +353,12 @@ const IndexScreen = () => {
               <View
                 style={[
                   styles.socialButtonsContainer,
-                  { flexDirection: 'row', gap: 12 },
+                  { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
                 ]}
               >
-                <View style={styles.socialButton}>
+                <View style={{ flex: 1, alignItems: 'center' }}>
                   <GoogleSignInButton onSuccess={handleGoogleSignInResult} />
                 </View>
-                <TouchableOpacity style={styles.socialButton}>
-                  <View style={styles.socialButtonContent}>
-                    <Feather name="phone" size={20} color="#10B981" />
-                    <Text style={styles.socialButtonText}>
-                      Connect with WhatsApp
-                    </Text>
-                  </View>
-                </TouchableOpacity>
               </View>
 
               <TouchableOpacity
@@ -402,7 +394,7 @@ const IndexScreen = () => {
                     Enter Dashboard
                   </Text>
                   <Feather
-                    name="sparkles"
+                    name="star"
                     size={20}
                     color="#fff"
                     style={{ marginLeft: 8 }}

@@ -64,8 +64,8 @@ class QualityReporter {
     const sizeCounts = {
       small: 0, // < 100 lines
       medium: 0, // 100-200 lines
-      large: 0, // 200-300 lines
-      xlarge: 0, // > 300 lines
+      large: 0, // 200-500 lines
+      xlarge: 0, // > 500 lines
     };
 
     files.forEach(file => {
@@ -76,7 +76,7 @@ class QualityReporter {
         sizeCounts.small++;
       } else if (lines < 200) {
         sizeCounts.medium++;
-      } else if (lines <= 300) {
+      } else if (lines <= 500) {
         sizeCounts.large++;
       } else {
         sizeCounts.xlarge++;

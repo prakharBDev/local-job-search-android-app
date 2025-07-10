@@ -21,6 +21,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import Feather from 'react-native-vector-icons/Feather';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
+import { getStyles } from './MyJobsScreen.styles.js';
 
 const MyJobsScreen = () => {
   const { user, logout } = useAuth();

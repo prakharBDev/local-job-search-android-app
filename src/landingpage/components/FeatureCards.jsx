@@ -21,7 +21,7 @@ const features = [
   {
     icon: 'globe',
     title: 'Local Focus',
-    description: 'Opportunities in your city',
+    description: 'Opportunities in your Morena/Gwalior',
     color: ['#fff', '#F1F5F9'],
     delay: 400,
   },
@@ -102,7 +102,7 @@ const FeatureCards = () => {
                 <Feather
                   name={feature.icon}
                   size={24}
-                  color={feature.color[0]}
+                  color="#3C4FE0" // or any dark color you prefer
                 />
               </View>
               <Text style={styles.featureTitle}>{feature.title}</Text>

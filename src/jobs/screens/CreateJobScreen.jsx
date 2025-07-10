@@ -19,6 +19,7 @@ import Button from '../../components/elements/Button';
 import Card from '../../components/blocks/Card';
 import { theme } from '../../theme';
 import { useNavigation } from '@react-navigation/native';
+import { getStyles } from './CreateJobScreen.styles.js';
 
 const CreateJobScreen = () => {
   const navigation = useNavigation();
@@ -154,14 +155,14 @@ const CreateJobScreen = () => {
 
   const renderArrayField = (field, placeholder) => {
     return (
-      <View style={styles.arrayFieldContainer}>
+      <View style={getStyles(theme).arrayFieldContainer}>
         {formData[field].map((item, index) => (
-          <View key={index} style={styles.arrayItem}>
+          <View key={index} style={getStyles(theme).arrayItem}>
             <TextInput
               style={[
-                styles.input,
-                styles.arrayInput,
-                errors[field] && styles.inputError,
+                getStyles(theme).input,
+                getStyles(theme).arrayInput,
+                errors[field] && getStyles(theme).inputError,
               ]}
               value={item}
               onChangeText={value => updateArrayField(field, index, value)}
@@ -169,7 +170,7 @@ const CreateJobScreen = () => {
               placeholderTextColor={theme.colors.text.secondary}
             />
             <Pressable
-              style={styles.arrayItemButton}
+              style={getStyles(theme).arrayItemButton}
               onPress={() => removeArrayField(field, index)}
               disabled={formData[field].length === 1}
             >
@@ -186,38 +187,38 @@ const CreateJobScreen = () => {
           </View>
         ))}
         <Pressable
-          style={styles.addButton}
+          style={getStyles(theme).addButton}
           onPress={() => addArrayField(field)}
         >
           <Feather name="plus" size={16} color={theme.colors.primary.cyan} />
-          <Text style={styles.addButtonText}>Add {field.slice(0, -1)}</Text>
+          <Text style={getStyles(theme).addButtonText}>Add {field.slice(0, -1)}</Text>
         </Pressable>
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={getStyles(theme).container}>
       <LinearGradient
         colors={['#E8F5E8', '#F3E5F5', '#E3F2FD']}
-        style={styles.gradient}
+        style={getStyles(theme).gradient}
       >
         <KeyboardAvoidingView
-          style={styles.keyboardView}
+          style={getStyles(theme).keyboardView}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView
-              style={styles.scrollView}
-              contentContainerStyle={styles.scrollViewContent}
+              style={getStyles(theme).scrollView}
+              contentContainerStyle={getStyles(theme).scrollViewContent}
               showsVerticalScrollIndicator={false}
             >
               {/* Header */}
-              <View style={styles.headerContainer}>
-                <View style={styles.headerContent}>
-                  <View style={styles.headerRow}>
+              <View style={getStyles(theme).headerContainer}>
+                <View style={getStyles(theme).headerContent}>
+                  <View style={getStyles(theme).headerRow}>
                     <Pressable
-                      style={styles.backButton}
+                      style={getStyles(theme).backButton}
                       onPress={() => navigation.goBack()}
                     >
                       <Feather
@@ -226,9 +227,9 @@ const CreateJobScreen = () => {
                         color={theme.colors.text.primary}
                       />
                     </Pressable>
-                    <View style={styles.headerTitleContainer}>
-                      <Text style={styles.headerTitle}>Create Job Posting</Text>
-                      <Text style={styles.headerSubtitle}>
+                    <View style={getStyles(theme).headerTitleContainer}>
+                      <Text style={getStyles(theme).headerTitle}>Create Job Posting</Text>
+                      <Text style={getStyles(theme).headerSubtitle}>
                         Fill in the details for your job posting
                       </Text>
                     </View>
@@ -237,13 +238,13 @@ const CreateJobScreen = () => {
               </View>
 
               {/* Form */}
-              <View style={styles.formContainer}>
-                <Card style={styles.formCard}>
+              <View style={getStyles(theme).formContainer}>
+                <Card style={getStyles(theme).formCard}>
                   {/* Job Title */}
-                  <View style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>Job Title *</Text>
+                  <View style={getStyles(theme).fieldContainer}>
+                    <Text style={getStyles(theme).fieldLabel}>Job Title *</Text>
                     <TextInput
-                      style={[styles.input, errors.title && styles.inputError]}
+                      style={[getStyles(theme).input, errors.title && getStyles(theme).inputError]}
                       value={formData.title}
                       onChangeText={value =>
                         setFormData(prev => ({ ...prev, title: value }))
@@ -252,18 +253,18 @@ const CreateJobScreen = () => {
                       placeholderTextColor={theme.colors.text.secondary}
                     />
                     {errors.title && (
-                      <Text style={styles.errorText}>{errors.title}</Text>
+                      <Text style={getStyles(theme).errorText}>{errors.title}</Text>
                     )}
                   </View>
 
                   {/* Job Description */}
-                  <View style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>Job Description *</Text>
+                  <View style={getStyles(theme).fieldContainer}>
+                    <Text style={getStyles(theme).fieldLabel}>Job Description *</Text>
                     <TextInput
                       style={[
-                        styles.input,
-                        styles.textArea,
-                        errors.description && styles.inputError,
+                        getStyles(theme).input,
+                        getStyles(theme).textArea,
+                        errors.description && getStyles(theme).inputError,
                       ]}
                       value={formData.description}
                       onChangeText={value =>
@@ -276,17 +277,17 @@ const CreateJobScreen = () => {
                       textAlignVertical="top"
                     />
                     {errors.description && (
-                      <Text style={styles.errorText}>{errors.description}</Text>
+                      <Text style={getStyles(theme).errorText}>{errors.description}</Text>
                     )}
                   </View>
 
                   {/* Location */}
-                  <View style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>Location *</Text>
+                  <View style={getStyles(theme).fieldContainer}>
+                    <Text style={getStyles(theme).fieldLabel}>Location *</Text>
                     <TextInput
                       style={[
-                        styles.input,
-                        errors.location && styles.inputError,
+                        getStyles(theme).input,
+                        errors.location && getStyles(theme).inputError,
                       ]}
                       value={formData.location}
                       onChangeText={value =>
@@ -296,21 +297,21 @@ const CreateJobScreen = () => {
                       placeholderTextColor={theme.colors.text.secondary}
                     />
                     {errors.location && (
-                      <Text style={styles.errorText}>{errors.location}</Text>
+                      <Text style={getStyles(theme).errorText}>{errors.location}</Text>
                     )}
                   </View>
 
                   {/* Experience Level */}
-                  <View style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>Experience Level</Text>
-                    <View style={styles.pickerContainer}>
+                  <View style={getStyles(theme).fieldContainer}>
+                    <Text style={getStyles(theme).fieldLabel}>Experience Level</Text>
+                    <View style={getStyles(theme).pickerContainer}>
                       {['entry', 'mid', 'senior'].map(level => (
                         <Pressable
                           key={level}
                           style={[
-                            styles.pickerOption,
+                            getStyles(theme).pickerOption,
                             formData.experienceLevel === level &&
-                              styles.pickerOptionSelected,
+                              getStyles(theme).pickerOptionSelected,
                           ]}
                           onPress={() =>
                             setFormData(prev => ({
@@ -321,9 +322,9 @@ const CreateJobScreen = () => {
                         >
                           <Text
                             style={[
-                              styles.pickerOptionText,
+                              getStyles(theme).pickerOptionText,
                               formData.experienceLevel === level &&
-                                styles.pickerOptionTextSelected,
+                                getStyles(theme).pickerOptionTextSelected,
                             ]}
                           >
                             {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -334,17 +335,17 @@ const CreateJobScreen = () => {
                   </View>
 
                   {/* Job Type */}
-                  <View style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>Job Type</Text>
-                    <View style={styles.pickerContainer}>
+                  <View style={getStyles(theme).fieldContainer}>
+                    <Text style={getStyles(theme).fieldLabel}>Job Type</Text>
+                    <View style={getStyles(theme).pickerContainer}>
                       {['full-time', 'part-time', 'remote', 'contract'].map(
                         type => (
                           <Pressable
                             key={type}
                             style={[
-                              styles.pickerOption,
+                              getStyles(theme).pickerOption,
                               formData.jobType === type &&
-                                styles.pickerOptionSelected,
+                                getStyles(theme).pickerOptionSelected,
                             ]}
                             onPress={() =>
                               setFormData(prev => ({ ...prev, jobType: type }))
@@ -352,9 +353,9 @@ const CreateJobScreen = () => {
                           >
                             <Text
                               style={[
-                                styles.pickerOptionText,
+                                getStyles(theme).pickerOptionText,
                                 formData.jobType === type &&
-                                  styles.pickerOptionTextSelected,
+                                  getStyles(theme).pickerOptionTextSelected,
                               ]}
                             >
                               {type
@@ -373,18 +374,18 @@ const CreateJobScreen = () => {
                   </View>
 
                   {/* Salary Range */}
-                  <View style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>
+                  <View style={getStyles(theme).fieldContainer}>
+                    <Text style={getStyles(theme).fieldLabel}>
                       Salary Range (Optional)
                     </Text>
-                    <View style={styles.salaryContainer}>
-                      <View style={styles.salaryField}>
-                        <Text style={styles.salaryLabel}>Min</Text>
+                    <View style={getStyles(theme).salaryContainer}>
+                      <View style={getStyles(theme).salaryField}>
+                        <Text style={getStyles(theme).salaryLabel}>Min</Text>
                         <TextInput
                           style={[
-                            styles.input,
-                            styles.salaryInput,
-                            errors.salaryRange?.min && styles.inputError,
+                            getStyles(theme).input,
+                            getStyles(theme).salaryInput,
+                            errors.salaryRange?.min && getStyles(theme).inputError,
                           ]}
                           value={formData.salaryRange.min}
                           onChangeText={value =>
@@ -398,14 +399,14 @@ const CreateJobScreen = () => {
                           keyboardType="numeric"
                         />
                       </View>
-                      <Text style={styles.salaryDivider}>to</Text>
-                      <View style={styles.salaryField}>
-                        <Text style={styles.salaryLabel}>Max</Text>
+                      <Text style={getStyles(theme).salaryDivider}>to</Text>
+                      <View style={getStyles(theme).salaryField}>
+                        <Text style={getStyles(theme).salaryLabel}>Max</Text>
                         <TextInput
                           style={[
-                            styles.input,
-                            styles.salaryInput,
-                            errors.salaryRange?.max && styles.inputError,
+                            getStyles(theme).input,
+                            getStyles(theme).salaryInput,
+                            errors.salaryRange?.max && getStyles(theme).inputError,
                           ]}
                           value={formData.salaryRange.max}
                           onChangeText={value =>
@@ -421,51 +422,51 @@ const CreateJobScreen = () => {
                       </View>
                     </View>
                     {errors.salaryRange?.min && (
-                      <Text style={styles.errorText}>
+                      <Text style={getStyles(theme).errorText}>
                         {errors.salaryRange.min}
                       </Text>
                     )}
                   </View>
 
                   {/* Requirements */}
-                  <View style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>Requirements *</Text>
+                  <View style={getStyles(theme).fieldContainer}>
+                    <Text style={getStyles(theme).fieldLabel}>Requirements *</Text>
                     {renderArrayField(
                       'requirements',
                       'e.g. 3+ years React Native',
                     )}
                     {errors.requirements && (
-                      <Text style={styles.errorText}>
+                      <Text style={getStyles(theme).errorText}>
                         {errors.requirements[0]}
                       </Text>
                     )}
                   </View>
 
                   {/* Skills */}
-                  <View style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>Skills *</Text>
+                  <View style={getStyles(theme).fieldContainer}>
+                    <Text style={getStyles(theme).fieldLabel}>Skills *</Text>
                     {renderArrayField('skills', 'e.g. React Native')}
                     {errors.skills && (
-                      <Text style={styles.errorText}>{errors.skills[0]}</Text>
+                      <Text style={getStyles(theme).errorText}>{errors.skills[0]}</Text>
                     )}
                   </View>
                 </Card>
               </View>
 
               {/* Action Buttons */}
-              <View style={styles.actionContainer}>
-                <View style={styles.actionContent}>
+              <View style={getStyles(theme).actionContainer}>
+                <View style={getStyles(theme).actionContent}>
                   <Button
                     onPress={() => handleSubmit(true)}
                     variant="outline"
-                    style={styles.actionButton}
+                    style={getStyles(theme).actionButton}
                     disabled={isLoading}
                   >
                     Save as Draft
                   </Button>
                   <Button
                     onPress={() => handleSubmit(false)}
-                    style={styles.actionButton}
+                    style={getStyles(theme).actionButton}
                     disabled={isLoading}
                   >
                     {isLoading ? 'Publishing...' : 'Publish Job'}
@@ -479,186 +480,5 @@ const CreateJobScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradient: {
-    flex: 1,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    paddingBottom: theme.spacing[8],
-  },
-  headerContainer: {
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[6],
-  },
-  headerContent: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    padding: theme.spacing[2],
-    marginRight: theme.spacing[3],
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-  },
-  headerTitleContainer: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: theme.typography.h4.fontSize,
-    fontWeight: theme.typography.h4.fontWeight,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[1],
-  },
-  headerSubtitle: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
-  },
-  formContainer: {
-    paddingHorizontal: theme.spacing[4],
-    marginBottom: theme.spacing[6],
-  },
-  formCard: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-    padding: theme.spacing[6],
-  },
-  fieldContainer: {
-    marginBottom: theme.spacing[6],
-  },
-  fieldLabel: {
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.h6.fontWeight,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing[2],
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: theme.colors.border.primary,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[3],
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.primary,
-    backgroundColor: theme.colors.background.primary,
-  },
-  inputError: {
-    borderColor: theme.colors.status.error,
-  },
-  textArea: {
-    minHeight: 100,
-    paddingTop: theme.spacing[3],
-  },
-  errorText: {
-    color: theme.colors.status.error,
-    fontSize: theme.typography.bodySmall.fontSize,
-    marginTop: theme.spacing[1],
-  },
-  pickerContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing[2],
-  },
-  pickerOption: {
-    paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[2],
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border.primary,
-    backgroundColor: theme.colors.background.primary,
-  },
-  pickerOptionSelected: {
-    backgroundColor: theme.colors.primary.cyan,
-    borderColor: theme.colors.primary.cyan,
-  },
-  pickerOptionText: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.primary,
-  },
-  pickerOptionTextSelected: {
-    color: theme.colors.text.white,
-  },
-  salaryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[3],
-  },
-  salaryField: {
-    flex: 1,
-  },
-  salaryLabel: {
-    fontSize: theme.typography.bodySmall.fontSize,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing[1],
-  },
-  salaryInput: {
-    textAlign: 'center',
-  },
-  salaryDivider: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.text.secondary,
-    paddingTop: 20,
-  },
-  arrayFieldContainer: {
-    gap: theme.spacing[2],
-  },
-  arrayItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  arrayInput: {
-    flex: 1,
-  },
-  arrayItemButton: {
-    padding: theme.spacing[2],
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.background.secondary,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: theme.spacing[3],
-    borderWidth: 1,
-    borderColor: theme.colors.primary.cyan,
-    borderRadius: theme.borderRadius.md,
-    borderStyle: 'dashed',
-    gap: theme.spacing[1],
-  },
-  addButtonText: {
-    fontSize: theme.typography.body.fontSize,
-    color: theme.colors.primary.cyan,
-    fontWeight: '500',
-  },
-  actionContainer: {
-    paddingHorizontal: theme.spacing[4],
-  },
-  actionContent: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-    flexDirection: 'row',
-    gap: theme.spacing[3],
-  },
-  actionButton: {
-    flex: 1,
-  },
-});
 
 export default CreateJobScreen;

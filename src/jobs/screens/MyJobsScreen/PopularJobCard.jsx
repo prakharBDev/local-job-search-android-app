@@ -62,9 +62,7 @@ const PopularJobCard = ({ job }) => {
       >
         {job.title}
       </Text>
-      <Text
-        style={{ fontSize: 13, color: '#E0E7EF', marginBottom: 10 }}
-      >
+      <Text style={{ fontSize: 13, color: '#E0E7EF', marginBottom: 10 }}>
         {job.salary}
       </Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -100,4 +98,4 @@ const PopularJobCard = ({ job }) => {
   );
 };
 
-export default PopularJobCard; 
+export default PopularJobCard;

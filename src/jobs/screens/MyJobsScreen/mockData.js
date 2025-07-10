@@ -94,4 +94,4 @@ export const recentJobs = [
     location: 'Mumbai',
     bookmarked: false,
   },
-]; 
+];

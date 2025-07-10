@@ -89,7 +89,7 @@ const AuthContext = createContext(undefined);
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  const hasCompleteProfile = async (userId) => {
+  const hasCompleteProfile = async userId => {
     try {
       const { data: seekerProfile } = await supabase
         .from('seeker_profiles')
@@ -113,8 +113,11 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: 'AUTH_LOADING' });
 
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
       if (sessionError) {
         throw sessionError;
       }
@@ -133,17 +136,18 @@ export const AuthProvider = ({ children }) => {
 
         // Determine user state
         const needsCitySelection = !userRecord?.city;
-        const needsProfileSetup = userRecord?.city && !await hasCompleteProfile(session.user.id);
+        const needsProfileSetup =
+          userRecord?.city && !(await hasCompleteProfile(session.user.id));
 
-        dispatch({ 
-          type: 'AUTH_RESTORE', 
+        dispatch({
+          type: 'AUTH_RESTORE',
           payload: {
             session,
             user: session.user,
             userRecord,
             needsCitySelection,
-            needsProfileSetup
-          }
+            needsProfileSetup,
+          },
         });
       } else {
         dispatch({ type: 'AUTH_RESTORE', payload: null });
@@ -157,29 +161,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (authData) => {
+  const login = async authData => {
     try {
       dispatch({ type: 'AUTH_LOADING' });
 
       const { session, user, userRecord, isNewUser } = authData;
-      
+
       if (!session || !user) {
         throw new Error('Invalid authentication data');
       }
 
       // Determine user state
       const needsCitySelection = !userRecord?.city;
-      const needsProfileSetup = userRecord?.city && !isNewUser && !await hasCompleteProfile(user.id);
+      const needsProfileSetup =
+        userRecord?.city && !isNewUser && !(await hasCompleteProfile(user.id));
 
-      dispatch({ 
-        type: 'AUTH_SUCCESS', 
+      dispatch({
+        type: 'AUTH_SUCCESS',
         payload: {
           session,
           user,
           userRecord,
           needsCitySelection,
-          needsProfileSetup
-        }
+          needsProfileSetup,
+        },
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -195,7 +200,7 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'AUTH_LOADING' });
 
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         throw error;
       }
@@ -215,7 +220,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateUserRecord = async (updates) => {
+  const updateUserRecord = async updates => {
     try {
       if (!state.userRecord?.id) {
         throw new Error('No user record to update');
@@ -225,7 +230,7 @@ export const AuthProvider = ({ children }) => {
         .from('users')
         .update({
           ...updates,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', state.userRecord.id)
         .select()
@@ -237,15 +242,16 @@ export const AuthProvider = ({ children }) => {
 
       // Check if user still needs city selection or profile setup
       const needsCitySelection = !updatedUser?.city;
-      const needsProfileSetup = updatedUser?.city && !await hasCompleteProfile(updatedUser.id);
+      const needsProfileSetup =
+        updatedUser?.city && !(await hasCompleteProfile(updatedUser.id));
 
-      dispatch({ 
-        type: 'UPDATE_USER_RECORD', 
+      dispatch({
+        type: 'UPDATE_USER_RECORD',
         payload: {
           userRecord: updatedUser,
           needsCitySelection,
-          needsProfileSetup
-        }
+          needsProfileSetup,
+        },
       });
 
       return updatedUser;
@@ -266,7 +272,7 @@ export const AuthProvider = ({ children }) => {
         user: state.user,
         userRecord: state.userRecord,
         needsCitySelection: state.needsCitySelection,
-        needsProfileSetup: state.needsProfileSetup
+        needsProfileSetup: state.needsProfileSetup,
       });
     }
   };
@@ -275,16 +281,16 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
 
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_OUT') {
-          dispatch({ type: 'AUTH_LOGOUT' });
-        } else if (event === 'SIGNED_IN' && session) {
-          // This will be handled by the GoogleSignInButton callback
-          // to avoid duplicate user creation
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        dispatch({ type: 'AUTH_LOGOUT' });
+      } else if (event === 'SIGNED_IN' && session) {
+        // This will be handled by the GoogleSignInButton callback
+        // to avoid duplicate user creation
       }
-    );
+    });
 
     return () => subscription.unsubscribe();
   }, []);

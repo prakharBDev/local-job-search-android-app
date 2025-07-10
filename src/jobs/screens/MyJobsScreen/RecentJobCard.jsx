@@ -8,7 +8,10 @@ import { useTheme } from '../../../contexts/ThemeContext';
 const RecentJobCard = ({ item, onPress }) => {
   const { theme } = useTheme();
   return (
-    <TouchableOpacity onPress={() => onPress && onPress(item)} activeOpacity={0.85}>
+    <TouchableOpacity
+      onPress={() => onPress && onPress(item)}
+      activeOpacity={0.85}
+    >
       <Card
         style={{
           flexDirection: 'row',
@@ -69,7 +72,9 @@ const RecentJobCard = ({ item, onPress }) => {
                 {item.type}
               </Text>
             </Badge>
-            <Text style={{ fontSize: 13, color: '#64748B' }}>{item.company}</Text>
+            <Text style={{ fontSize: 13, color: '#64748B' }}>
+              {item.company}
+            </Text>
           </View>
           <Text style={{ fontSize: 13, color: '#94A3B8' }}>
             {item.location} • {item.salary}
@@ -98,4 +103,4 @@ const RecentJobCard = ({ item, onPress }) => {
   );
 };
 
-export default RecentJobCard; 
+export default RecentJobCard;

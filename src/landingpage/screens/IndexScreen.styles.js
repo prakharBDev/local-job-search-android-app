@@ -403,4 +403,4 @@ export const getStyles = theme =>
       fontWeight: '700',
       fontSize: 16,
     },
-  }); 
+  });

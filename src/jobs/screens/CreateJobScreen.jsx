@@ -191,7 +191,9 @@ const CreateJobScreen = () => {
           onPress={() => addArrayField(field)}
         >
           <Feather name="plus" size={16} color={theme.colors.primary.cyan} />
-          <Text style={getStyles(theme).addButtonText}>Add {field.slice(0, -1)}</Text>
+          <Text style={getStyles(theme).addButtonText}>
+            Add {field.slice(0, -1)}
+          </Text>
         </Pressable>
       </View>
     );
@@ -228,7 +230,9 @@ const CreateJobScreen = () => {
                       />
                     </Pressable>
                     <View style={getStyles(theme).headerTitleContainer}>
-                      <Text style={getStyles(theme).headerTitle}>Create Job Posting</Text>
+                      <Text style={getStyles(theme).headerTitle}>
+                        Create Job Posting
+                      </Text>
                       <Text style={getStyles(theme).headerSubtitle}>
                         Fill in the details for your job posting
                       </Text>
@@ -244,7 +248,10 @@ const CreateJobScreen = () => {
                   <View style={getStyles(theme).fieldContainer}>
                     <Text style={getStyles(theme).fieldLabel}>Job Title *</Text>
                     <TextInput
-                      style={[getStyles(theme).input, errors.title && getStyles(theme).inputError]}
+                      style={[
+                        getStyles(theme).input,
+                        errors.title && getStyles(theme).inputError,
+                      ]}
                       value={formData.title}
                       onChangeText={value =>
                         setFormData(prev => ({ ...prev, title: value }))
@@ -253,13 +260,17 @@ const CreateJobScreen = () => {
                       placeholderTextColor={theme.colors.text.secondary}
                     />
                     {errors.title && (
-                      <Text style={getStyles(theme).errorText}>{errors.title}</Text>
+                      <Text style={getStyles(theme).errorText}>
+                        {errors.title}
+                      </Text>
                     )}
                   </View>
 
                   {/* Job Description */}
                   <View style={getStyles(theme).fieldContainer}>
-                    <Text style={getStyles(theme).fieldLabel}>Job Description *</Text>
+                    <Text style={getStyles(theme).fieldLabel}>
+                      Job Description *
+                    </Text>
                     <TextInput
                       style={[
                         getStyles(theme).input,
@@ -277,7 +288,9 @@ const CreateJobScreen = () => {
                       textAlignVertical="top"
                     />
                     {errors.description && (
-                      <Text style={getStyles(theme).errorText}>{errors.description}</Text>
+                      <Text style={getStyles(theme).errorText}>
+                        {errors.description}
+                      </Text>
                     )}
                   </View>
 
@@ -297,13 +310,17 @@ const CreateJobScreen = () => {
                       placeholderTextColor={theme.colors.text.secondary}
                     />
                     {errors.location && (
-                      <Text style={getStyles(theme).errorText}>{errors.location}</Text>
+                      <Text style={getStyles(theme).errorText}>
+                        {errors.location}
+                      </Text>
                     )}
                   </View>
 
                   {/* Experience Level */}
                   <View style={getStyles(theme).fieldContainer}>
-                    <Text style={getStyles(theme).fieldLabel}>Experience Level</Text>
+                    <Text style={getStyles(theme).fieldLabel}>
+                      Experience Level
+                    </Text>
                     <View style={getStyles(theme).pickerContainer}>
                       {['entry', 'mid', 'senior'].map(level => (
                         <Pressable
@@ -385,7 +402,8 @@ const CreateJobScreen = () => {
                           style={[
                             getStyles(theme).input,
                             getStyles(theme).salaryInput,
-                            errors.salaryRange?.min && getStyles(theme).inputError,
+                            errors.salaryRange?.min &&
+                              getStyles(theme).inputError,
                           ]}
                           value={formData.salaryRange.min}
                           onChangeText={value =>
@@ -406,7 +424,8 @@ const CreateJobScreen = () => {
                           style={[
                             getStyles(theme).input,
                             getStyles(theme).salaryInput,
-                            errors.salaryRange?.max && getStyles(theme).inputError,
+                            errors.salaryRange?.max &&
+                              getStyles(theme).inputError,
                           ]}
                           value={formData.salaryRange.max}
                           onChangeText={value =>
@@ -430,7 +449,9 @@ const CreateJobScreen = () => {
 
                   {/* Requirements */}
                   <View style={getStyles(theme).fieldContainer}>
-                    <Text style={getStyles(theme).fieldLabel}>Requirements *</Text>
+                    <Text style={getStyles(theme).fieldLabel}>
+                      Requirements *
+                    </Text>
                     {renderArrayField(
                       'requirements',
                       'e.g. 3+ years React Native',
@@ -447,7 +468,9 @@ const CreateJobScreen = () => {
                     <Text style={getStyles(theme).fieldLabel}>Skills *</Text>
                     {renderArrayField('skills', 'e.g. React Native')}
                     {errors.skills && (
-                      <Text style={getStyles(theme).errorText}>{errors.skills[0]}</Text>
+                      <Text style={getStyles(theme).errorText}>
+                        {errors.skills[0]}
+                      </Text>
                     )}
                   </View>
                 </Card>

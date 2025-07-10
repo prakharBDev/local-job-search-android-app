@@ -91,7 +91,7 @@ const IndexScreen = () => {
     animateFloating();
   }, []);
 
-  const handleGoogleSignInResult = async (result) => {
+  const handleGoogleSignInResult = async result => {
     setIsLoading(true);
     try {
       if (result.error) {
@@ -103,7 +103,7 @@ const IndexScreen = () => {
           session: result.data.session,
           user: result.data.user,
           userRecord: result.userRecord,
-          isNewUser: result.isNewUser
+          isNewUser: result.isNewUser,
         });
       }
     } catch (error) {

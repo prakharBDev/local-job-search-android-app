@@ -143,7 +143,7 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
     Alert.alert('Success', 'Profile duplicated successfully');
   };
 
-  const handleRoleChange = (newRole) => {
+  const handleRoleChange = newRole => {
     if (activeProfile && newRole !== activeProfile.mode) {
       updateProfile(activeProfile.id, { mode: newRole });
     }
@@ -217,7 +217,10 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
   const renderProfileItem = profile => (
     <TouchableOpacity
       key={profile.id}
-      style={[getStyles(theme).profileItem, profile.isActive && getStyles(theme).activeProfileItem]}
+      style={[
+        getStyles(theme).profileItem,
+        profile.isActive && getStyles(theme).activeProfileItem,
+      ]}
       onPress={() => {
         switchProfile(profile.id);
         hideProfileSwitcher();
@@ -338,7 +341,8 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
               <Text
                 style={[
                   getStyles(theme).modeButtonText,
-                  selectedMode === mode && getStyles(theme).selectedModeButtonText,
+                  selectedMode === mode &&
+                    getStyles(theme).selectedModeButtonText,
                   selectedMode === mode && { color: getModeColor(mode) },
                 ]}
               >
@@ -357,7 +361,10 @@ const ProfileSwitcher = ({ size = 'small', style }) => {
           <Text style={getStyles(theme).cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={getStyles(theme).addButton} onPress={handleAddProfile}>
+        <TouchableOpacity
+          style={getStyles(theme).addButton}
+          onPress={handleAddProfile}
+        >
           <Text style={getStyles(theme).addButtonText}>Add Profile</Text>
         </TouchableOpacity>
       </View>

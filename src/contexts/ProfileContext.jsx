@@ -208,7 +208,7 @@ export const ProfileProvider = ({ children }) => {
     try {
       // Create the updated profiles array
       const updatedProfiles = state.profiles.map(p =>
-        p.id === profileId ? { ...p, ...updates } : p
+        p.id === profileId ? { ...p, ...updates } : p,
       );
       dispatch({ type: 'UPDATE_PROFILE', payload: { id: profileId, updates } });
       await saveProfiles(updatedProfiles);

@@ -245,7 +245,7 @@ const MyJobsScreen = () => {
     }
   };
 
-  const handleJobPress = (job) => {
+  const handleJobPress = job => {
     navigation.navigate('JobDetails', { job });
   };
 
@@ -468,7 +468,11 @@ const MyJobsScreen = () => {
               </TouchableOpacity>
             </View>
             {recentJobs.map(item => (
-              <RecentJobCard key={item.id} item={item} onPress={handleJobPress} />
+              <RecentJobCard
+                key={item.id}
+                item={item}
+                onPress={handleJobPress}
+              />
             ))}
           </View>
         </ScrollView>

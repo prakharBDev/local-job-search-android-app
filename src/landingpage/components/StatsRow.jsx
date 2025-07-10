@@ -58,7 +58,11 @@ const StatsRow = () => {
     <View style={styles.statsRow}>
       {stats.map(stat => (
         <View key={stat.label} style={styles.statCard}>
-          <Feather name={stat.icon} size={24} color={theme?.colors?.primary?.main || '#3C4FE0'} />
+          <Feather
+            name={stat.icon}
+            size={24}
+            color={theme?.colors?.primary?.main || '#3C4FE0'}
+          />
           <Text style={styles.statNumber}>{stat.number}</Text>
           <Text style={styles.statLabel}>{stat.label}</Text>
         </View>
@@ -67,4 +71,4 @@ const StatsRow = () => {
   );
 };
 
-export default StatsRow; 
+export default StatsRow;

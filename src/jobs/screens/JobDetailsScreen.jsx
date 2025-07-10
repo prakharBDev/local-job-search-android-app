@@ -41,11 +41,7 @@ const fallbackRequirements = [
   'Knowledge of cloud platforms',
   'Strong problem-solving skills',
 ];
-const fallbackSkills = [
-  'JavaScript',
-  'React Native',
-  'Teamwork',
-];
+const fallbackSkills = ['JavaScript', 'React Native', 'Teamwork'];
 const fallbackStatus = 'Active';
 const fallbackJobType = 'Full Time';
 const fallbackSalaryRange = '₹10,00,000 – ₹15,00,000/year';
@@ -199,7 +195,9 @@ const JobDetailsScreen = () => {
                         color={theme.colors.text.secondary}
                       />
                       <Text style={styles.metadataText}>
-                        {(job.type ?? fallbackJobType).replace('-', ' ').toUpperCase()}
+                        {(job.type ?? fallbackJobType)
+                          .replace('-', ' ')
+                          .toUpperCase()}
                       </Text>
                     </View>
                     <View
@@ -273,11 +271,13 @@ const JobDetailsScreen = () => {
               <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Requirements</Text>
                 <View style={styles.tagsContainer}>
-                  {(job.requirements ?? fallbackRequirements).map((requirement, index) => (
-                    <View key={index} style={styles.tag}>
-                      <Text style={styles.tagText}>{requirement}</Text>
-                    </View>
-                  ))}
+                  {(job.requirements ?? fallbackRequirements).map(
+                    (requirement, index) => (
+                      <View key={index} style={styles.tag}>
+                        <Text style={styles.tagText}>{requirement}</Text>
+                      </View>
+                    ),
+                  )}
                 </View>
               </View>
 
@@ -312,7 +312,9 @@ const JobDetailsScreen = () => {
                       size={16}
                       color={theme.colors.primary.cyan}
                     />
-                    <Text style={styles.actionButtonText}>View Applications</Text>
+                    <Text style={styles.actionButtonText}>
+                      View Applications
+                    </Text>
                   </Button>
                   <Button onPress={handleEditJob} style={styles.actionButton}>
                     <Feather
@@ -353,10 +355,18 @@ const JobDetailsScreen = () => {
               </View>
             ) : (
               <Button
-                onPress={() => {/* handle apply logic here */}}
-                style={{ backgroundColor: '#22c55e', borderRadius: 12, marginTop: 16 }}
+                onPress={() => {
+                  /* handle apply logic here */
+                }}
+                style={{
+                  backgroundColor: '#22c55e',
+                  borderRadius: 12,
+                  marginTop: 16,
+                }}
               >
-                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
+                <Text
+                  style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}
+                >
                   Apply Now
                 </Text>
               </Button>

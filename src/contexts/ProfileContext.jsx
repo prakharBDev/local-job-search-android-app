@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearErrorHelper } from '../utils/clearError.js';
 
 const initialState = {
   profiles: [],
@@ -255,7 +256,7 @@ export const ProfileProvider = ({ children }) => {
   };
 
   const clearError = () => {
-    dispatch({ type: 'CLEAR_ERROR' });
+    clearErrorHelper(dispatch, 'CLEAR_ERROR');
   };
 
   const getProfileInitials = profile => {

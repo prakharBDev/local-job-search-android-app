@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearErrorHelper } from '../utils/clearError.js';
 
 const initialState = {
   isAuthenticated: false,
@@ -117,7 +118,7 @@ export const AuthProvider = ({ children }) => {
 
   const clearError = () => {
     if (state.error) {
-      dispatch({ type: 'AUTH_RESTORE', payload: state.user });
+      clearErrorHelper(dispatch, 'AUTH_RESTORE', state.user);
     }
   };
 

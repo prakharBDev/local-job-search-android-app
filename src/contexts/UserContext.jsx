@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import { clearErrorHelper } from '../utils/clearError.js';
 
 const initialState = {
   currentMode: 'seeker',
@@ -86,7 +87,7 @@ export const UserProvider = ({ children }) => {
 
   const clearError = () => {
     if (state.error) {
-      dispatch({ type: 'RESTORE_MODE', payload: state.currentMode });
+      clearErrorHelper(dispatch, 'RESTORE_MODE', state.currentMode);
     }
   };
 

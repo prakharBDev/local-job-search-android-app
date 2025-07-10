@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Alert,
   Keyboard,
@@ -20,23 +20,59 @@ import Card from '../../components/blocks/Card';
 import { theme } from '../../theme';
 import { useNavigation } from '@react-navigation/native';
 import { getStyles } from './CreateJobScreen.styles.js';
+import { useAuth } from '../../contexts/AuthContext';
+import { jobService, categoriesService, skillsService, companyService } from '../../utils/database';
+import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 
 const CreateJobScreen = () => {
   const navigation = useNavigation();
+  const { state } = useAuth();
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    requirements: [''],
-    skills: [''],
-    experienceLevel: 'mid',
-    location: '',
-    salaryRange: { min: '', max: '' },
-    jobType: 'full-time',
-    status: 'draft',
+    salary: '',
+    category_id: '',
+    city: state.userRecord?.city || 'morena',
   });
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [companyProfile, setCompanyProfile] = useState(null);
+
+  // Load initial data
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    try {
+      // Check if seeding is needed and seed if necessary
+      const seedingStatus = await checkSeedingStatus();
+      if (seedingStatus.needsCategories || seedingStatus.needsSkills) {
+        console.log('Seeding database with initial data...');
+        await seedDatabase();
+      }
+
+      // Load categories
+      const { data: categoriesData, error: categoriesError } = await categoriesService.getAllCategories();
+      if (categoriesError) throw categoriesError;
+      setCategories(categoriesData || []);
+
+      // Load company profile
+      if (state.user?.id) {
+        const { data: company, error: companyError } = await companyService.getCompanyProfile(state.user.id);
+        if (companyError && companyError.code !== 'PGRST116') {
+          throw companyError;
+        }
+        setCompanyProfile(company);
+      }
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+      Alert.alert('Error', 'Failed to load initial data. Please try again.');
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -49,76 +85,39 @@ const CreateJobScreen = () => {
       newErrors.description = 'Job description is required';
     }
 
-    if (!formData.location.trim()) {
-      newErrors.location = 'Location is required';
-    }
-
-    const validRequirements = formData.requirements.filter(req => req.trim());
-    if (validRequirements.length === 0) {
-      newErrors.requirements = ['At least one requirement is needed'];
-    }
-
-    const validSkills = formData.skills.filter(skill => skill.trim());
-    if (validSkills.length === 0) {
-      newErrors.skills = ['At least one skill is needed'];
-    }
-
-    if (formData.salaryRange.min && formData.salaryRange.max) {
-      const minSalary = parseInt(formData.salaryRange.min);
-      const maxSalary = parseInt(formData.salaryRange.max);
-      if (isNaN(minSalary) || isNaN(maxSalary)) {
-        newErrors.salaryRange = {
-          min: 'Invalid salary',
-          max: 'Invalid salary',
-        };
-      } else if (minSalary >= maxSalary) {
-        newErrors.salaryRange = {
-          min: 'Min salary must be less than max',
-          max: '',
-        };
-      }
+    if (!companyProfile) {
+      newErrors.company = 'Company profile is required to post jobs';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (isDraft = false) => {
-    if (!isDraft && !validateForm()) {
+  const handleSubmit = async () => {
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Clean up arrays
-      const cleanRequirements = formData.requirements.filter(req => req.trim());
-      const cleanSkills = formData.skills.filter(skill => skill.trim());
-
       const jobData = {
-        title: formData.title,
-        description: formData.description,
-        requirements: cleanRequirements,
-        skills: cleanSkills,
-        experienceLevel: formData.experienceLevel,
-        location: formData.location,
-        salaryRange:
-          formData.salaryRange.min && formData.salaryRange.max
-            ? {
-                min: parseInt(formData.salaryRange.min),
-                max: parseInt(formData.salaryRange.max),
-              }
-            : undefined,
-        jobType: formData.jobType,
-        status: isDraft ? 'draft' : 'active',
+        company_id: companyProfile.id,
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        salary: formData.salary.trim() || null,
+        category_id: formData.category_id || null,
+        city: formData.city,
+        is_active: true,
       };
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data, error } = await jobService.createJob(jobData);
+
+      if (error) throw error;
 
       Alert.alert(
         'Success',
-        `Job ${isDraft ? 'saved as draft' : 'posted'} successfully!`,
+        'Job posted successfully!',
         [
           {
             text: 'OK',
@@ -127,77 +126,14 @@ const CreateJobScreen = () => {
         ],
       );
     } catch (error) {
-      Alert.alert('Error', 'Failed to save job. Please try again.');
+      console.error('Error creating job:', error);
+      Alert.alert('Error', 'Failed to create job. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateArrayField = (field, index, value) => {
-    const newArray = [...formData[field]];
-    newArray[index] = value;
-    setFormData(prev => ({ ...prev, [field]: newArray }));
-  };
 
-  const addArrayField = field => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: [...prev[field], ''],
-    }));
-  };
-
-  const removeArrayField = (field, index) => {
-    if (formData[field].length > 1) {
-      const newArray = formData[field].filter((_, i) => i !== index);
-      setFormData(prev => ({ ...prev, [field]: newArray }));
-    }
-  };
-
-  const renderArrayField = (field, placeholder) => {
-    return (
-      <View style={getStyles(theme).arrayFieldContainer}>
-        {formData[field].map((item, index) => (
-          <View key={index} style={getStyles(theme).arrayItem}>
-            <TextInput
-              style={[
-                getStyles(theme).input,
-                getStyles(theme).arrayInput,
-                errors[field] && getStyles(theme).inputError,
-              ]}
-              value={item}
-              onChangeText={value => updateArrayField(field, index, value)}
-              placeholder={placeholder}
-              placeholderTextColor={theme.colors.text.secondary}
-            />
-            <Pressable
-              style={getStyles(theme).arrayItemButton}
-              onPress={() => removeArrayField(field, index)}
-              disabled={formData[field].length === 1}
-            >
-              <Feather
-                name="x"
-                size={16}
-                color={
-                  formData[field].length === 1
-                    ? theme.colors.text.tertiary
-                    : theme.colors.text.secondary
-                }
-              />
-            </Pressable>
-          </View>
-        ))}
-        <Pressable
-          style={getStyles(theme).addButton}
-          onPress={() => addArrayField(field)}
-        >
-          <Feather name="plus" size={16} color={theme.colors.primary.cyan} />
-          <Text style={getStyles(theme).addButtonText}>
-            Add {field.slice(0, -1)}
-          </Text>
-        </Pressable>
-      </View>
-    );
-  };
 
   return (
     <SafeAreaView style={getStyles(theme).container}>
@@ -294,203 +230,127 @@ const CreateJobScreen = () => {
                     )}
                   </View>
 
-                  {/* Location */}
+                  {/* City */}
                   <View style={getStyles(theme).fieldContainer}>
-                    <Text style={getStyles(theme).fieldLabel}>Location *</Text>
-                    <TextInput
-                      style={[
-                        getStyles(theme).input,
-                        errors.location && getStyles(theme).inputError,
-                      ]}
-                      value={formData.location}
-                      onChangeText={value =>
-                        setFormData(prev => ({ ...prev, location: value }))
-                      }
-                      placeholder="e.g. San Francisco, CA or Remote"
-                      placeholderTextColor={theme.colors.text.secondary}
-                    />
-                    {errors.location && (
-                      <Text style={getStyles(theme).errorText}>
-                        {errors.location}
-                      </Text>
-                    )}
-                  </View>
-
-                  {/* Experience Level */}
-                  <View style={getStyles(theme).fieldContainer}>
-                    <Text style={getStyles(theme).fieldLabel}>
-                      Experience Level
-                    </Text>
+                    <Text style={getStyles(theme).fieldLabel}>City</Text>
                     <View style={getStyles(theme).pickerContainer}>
-                      {['entry', 'mid', 'senior'].map(level => (
+                      {['morena', 'gwalior'].map(city => (
                         <Pressable
-                          key={level}
+                          key={city}
                           style={[
                             getStyles(theme).pickerOption,
-                            formData.experienceLevel === level &&
+                            formData.city === city &&
                               getStyles(theme).pickerOptionSelected,
                           ]}
                           onPress={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              experienceLevel: level,
-                            }))
+                            setFormData(prev => ({ ...prev, city }))
                           }
                         >
                           <Text
                             style={[
                               getStyles(theme).pickerOptionText,
-                              formData.experienceLevel === level &&
+                              formData.city === city &&
                                 getStyles(theme).pickerOptionTextSelected,
                             ]}
                           >
-                            {level.charAt(0).toUpperCase() + level.slice(1)}
+                            {city.charAt(0).toUpperCase() + city.slice(1)}
                           </Text>
                         </Pressable>
                       ))}
                     </View>
                   </View>
 
-                  {/* Job Type */}
+                  {/* Category */}
                   <View style={getStyles(theme).fieldContainer}>
-                    <Text style={getStyles(theme).fieldLabel}>Job Type</Text>
+                    <Text style={getStyles(theme).fieldLabel}>
+                      Job Category (Optional)
+                    </Text>
                     <View style={getStyles(theme).pickerContainer}>
-                      {['full-time', 'part-time', 'remote', 'contract'].map(
-                        type => (
-                          <Pressable
-                            key={type}
+                      <Pressable
+                        style={[
+                          getStyles(theme).pickerOption,
+                          !formData.category_id &&
+                            getStyles(theme).pickerOptionSelected,
+                        ]}
+                        onPress={() =>
+                          setFormData(prev => ({ ...prev, category_id: '' }))
+                        }
+                      >
+                        <Text
+                          style={[
+                            getStyles(theme).pickerOptionText,
+                            !formData.category_id &&
+                              getStyles(theme).pickerOptionTextSelected,
+                          ]}
+                        >
+                          No Category
+                        </Text>
+                      </Pressable>
+                      {categories.map(category => (
+                        <Pressable
+                          key={category.id}
+                          style={[
+                            getStyles(theme).pickerOption,
+                            formData.category_id === category.id &&
+                              getStyles(theme).pickerOptionSelected,
+                          ]}
+                          onPress={() =>
+                            setFormData(prev => ({ ...prev, category_id: category.id }))
+                          }
+                        >
+                          <Text
                             style={[
-                              getStyles(theme).pickerOption,
-                              formData.jobType === type &&
-                                getStyles(theme).pickerOptionSelected,
+                              getStyles(theme).pickerOptionText,
+                              formData.category_id === category.id &&
+                                getStyles(theme).pickerOptionTextSelected,
                             ]}
-                            onPress={() =>
-                              setFormData(prev => ({ ...prev, jobType: type }))
-                            }
                           >
-                            <Text
-                              style={[
-                                getStyles(theme).pickerOptionText,
-                                formData.jobType === type &&
-                                  getStyles(theme).pickerOptionTextSelected,
-                              ]}
-                            >
-                              {type
-                                .split('-')
-                                .map(
-                                  word =>
-                                    word.charAt(0).toUpperCase() +
-                                    word.slice(1),
-                                )
-                                .join(' ')}
-                            </Text>
-                          </Pressable>
-                        ),
-                      )}
+                            {category.name}
+                          </Text>
+                        </Pressable>
+                      ))}
                     </View>
                   </View>
 
-                  {/* Salary Range */}
+                  {/* Salary */}
                   <View style={getStyles(theme).fieldContainer}>
                     <Text style={getStyles(theme).fieldLabel}>
-                      Salary Range (Optional)
+                      Salary (Optional)
                     </Text>
-                    <View style={getStyles(theme).salaryContainer}>
-                      <View style={getStyles(theme).salaryField}>
-                        <Text style={getStyles(theme).salaryLabel}>Min</Text>
-                        <TextInput
-                          style={[
-                            getStyles(theme).input,
-                            getStyles(theme).salaryInput,
-                            errors.salaryRange?.min &&
-                              getStyles(theme).inputError,
-                          ]}
-                          value={formData.salaryRange.min}
-                          onChangeText={value =>
-                            setFormData(prev => ({
-                              ...prev,
-                              salaryRange: { ...prev.salaryRange, min: value },
-                            }))
-                          }
-                          placeholder="60000"
-                          placeholderTextColor={theme.colors.text.secondary}
-                          keyboardType="numeric"
-                        />
-                      </View>
-                      <Text style={getStyles(theme).salaryDivider}>to</Text>
-                      <View style={getStyles(theme).salaryField}>
-                        <Text style={getStyles(theme).salaryLabel}>Max</Text>
-                        <TextInput
-                          style={[
-                            getStyles(theme).input,
-                            getStyles(theme).salaryInput,
-                            errors.salaryRange?.max &&
-                              getStyles(theme).inputError,
-                          ]}
-                          value={formData.salaryRange.max}
-                          onChangeText={value =>
-                            setFormData(prev => ({
-                              ...prev,
-                              salaryRange: { ...prev.salaryRange, max: value },
-                            }))
-                          }
-                          placeholder="90000"
-                          placeholderTextColor={theme.colors.text.secondary}
-                          keyboardType="numeric"
-                        />
-                      </View>
-                    </View>
-                    {errors.salaryRange?.min && (
-                      <Text style={getStyles(theme).errorText}>
-                        {errors.salaryRange.min}
-                      </Text>
-                    )}
-                  </View>
-
-                  {/* Requirements */}
-                  <View style={getStyles(theme).fieldContainer}>
-                    <Text style={getStyles(theme).fieldLabel}>
-                      Requirements *
-                    </Text>
-                    {renderArrayField(
-                      'requirements',
-                      'e.g. 3+ years React Native',
-                    )}
-                    {errors.requirements && (
-                      <Text style={getStyles(theme).errorText}>
-                        {errors.requirements[0]}
-                      </Text>
-                    )}
-                  </View>
-
-                  {/* Skills */}
-                  <View style={getStyles(theme).fieldContainer}>
-                    <Text style={getStyles(theme).fieldLabel}>Skills *</Text>
-                    {renderArrayField('skills', 'e.g. React Native')}
-                    {errors.skills && (
-                      <Text style={getStyles(theme).errorText}>
-                        {errors.skills[0]}
-                      </Text>
-                    )}
+                    <TextInput
+                      style={getStyles(theme).input}
+                      value={formData.salary}
+                      onChangeText={value =>
+                        setFormData(prev => ({ ...prev, salary: value }))
+                      }
+                      placeholder="e.g. ₹20,000-30,000 per month"
+                      placeholderTextColor={theme.colors.text.secondary}
+                    />
                   </View>
                 </Card>
               </View>
+
+              {/* Company Profile Check */}
+              {errors.company && (
+                <View style={getStyles(theme).actionContainer}>
+                  <Card style={getStyles(theme).errorCard}>
+                    <Text style={getStyles(theme).errorText}>
+                      {errors.company}
+                    </Text>
+                    <Text style={getStyles(theme).errorSubText}>
+                      Please complete your company profile first to post jobs.
+                    </Text>
+                  </Card>
+                </View>
+              )}
 
               {/* Action Buttons */}
               <View style={getStyles(theme).actionContainer}>
                 <View style={getStyles(theme).actionContent}>
                   <Button
-                    onPress={() => handleSubmit(true)}
-                    variant="outline"
+                    onPress={handleSubmit}
                     style={getStyles(theme).actionButton}
-                    disabled={isLoading}
-                  >
-                    Save as Draft
-                  </Button>
-                  <Button
-                    onPress={() => handleSubmit(false)}
-                    style={getStyles(theme).actionButton}
-                    disabled={isLoading}
+                    disabled={isLoading || !companyProfile}
                   >
                     {isLoading ? 'Publishing...' : 'Publish Job'}
                   </Button>

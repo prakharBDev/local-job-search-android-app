@@ -74,4 +74,23 @@ export const getStyles = theme =>
       padding: theme.spacing[4],
       ...cardShadow(theme),
     },
+    errorCard: {
+      backgroundColor: theme.colors.surface.card,
+      borderRadius: 12,
+      padding: theme.spacing[4],
+      borderLeftWidth: 4,
+      borderLeftColor: theme.colors.status.error,
+      ...cardShadow(theme),
+    },
+    errorText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.colors.status.error,
+      marginBottom: theme.spacing[1],
+    },
+    errorSubText: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+      lineHeight: 20,
+    },
   });

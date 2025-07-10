@@ -24,15 +24,27 @@ import { useNavigation } from '@react-navigation/native';
 import { getStyles } from './MyJobsScreen.styles.js';
 import PopularJobCard from './MyJobsScreen/PopularJobCard';
 import RecentJobCard from './MyJobsScreen/RecentJobCard';
-import { popularJobs, recentJobs } from './MyJobsScreen/mockData.js';
+import { jobService, applicationService, companyService } from '../../utils/database';
+import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 
 const MyJobsScreen = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, state } = useAuth();
   const navigation = useNavigation();
   const [search, setSearch] = useState('');
   const [fadeAnim] = useState(new Animated.Value(0));
   const { theme } = useTheme();
-  // Remove Modal import and profileModalVisible state
+  
+  // Real data state
+  const [jobs, setJobs] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [userStats, setUserStats] = useState({
+    jobsPosted: 0,
+    applicationsReceived: 0,
+    applicationsSent: 0,
+    profileViews: 0,
+  });
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -40,76 +52,161 @@ const MyJobsScreen = () => {
       duration: 800,
       useNativeDriver: true,
     }).start();
-  }, [fadeAnim]);
+    
+    // Load initial data
+    loadInitialData();
+  }, [fadeAnim, state.user]);
+
+  const loadInitialData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Check if seeding is needed
+      const seedingStatus = await checkSeedingStatus();
+      if (seedingStatus.needsCategories || seedingStatus.needsSkills) {
+        await seedDatabase();
+      }
+      
+      await Promise.all([
+        loadJobs(),
+        loadUserStats(),
+      ]);
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadJobs = async () => {
+    try {
+      if (!state.userRecord?.city) return;
+      
+      const { data, error } = await jobService.getJobsByCity(state.userRecord.city);
+      if (error) throw error;
+      
+      setJobs(data || []);
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+    }
+  };
+
+  const loadUserStats = async () => {
+    try {
+      if (!state.user?.id) return;
+      
+      if (user?.mode === 'poster') {
+        // Load poster stats
+        const { data: companyProfile } = await companyService.getCompanyProfile(state.user.id);
+        if (companyProfile) {
+          const { data: postedJobs } = await jobService.getJobsByCompany(companyProfile.id);
+          setUserStats(prev => ({
+            ...prev,
+            jobsPosted: postedJobs?.length || 0,
+          }));
+        }
+      } else {
+        // Load seeker stats
+        const { data: seekerApplications } = await applicationService.getApplicationsBySeeker(state.user.id);
+        setUserStats(prev => ({
+          ...prev,
+          applicationsSent: seekerApplications?.length || 0,
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading user stats:', error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadInitialData();
+    setRefreshing(false);
+  };
+
+  // Filter jobs based on search
+  const filteredJobs = jobs.filter(job => 
+    job.title.toLowerCase().includes(search.toLowerCase()) ||
+    job.description.toLowerCase().includes(search.toLowerCase()) ||
+    job.company_profiles?.company_name?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Split jobs into popular (recent with more engagement) and recent
+  const popularJobs = filteredJobs.slice(0, 4);
+  const recentJobs = filteredJobs.slice(0, 6);
 
   const stats =
     user?.mode === 'poster'
       ? [
           {
             label: 'Jobs Posted',
-            value: '12',
-            change: '+3',
+            value: userStats.jobsPosted.toString(),
+            change: userStats.jobsPosted > 0 ? `+${userStats.jobsPosted}` : '0',
             trend: 'up',
             color: theme.colors.primary.cyan,
             icon: 'briefcase',
           },
           {
             label: 'Applications Received',
-            value: '89',
-            change: '+25%',
+            value: userStats.applicationsReceived.toString(),
+            change: userStats.applicationsReceived > 0 ? `+${userStats.applicationsReceived}` : '0',
             trend: 'up',
             color: '#2196F3',
             icon: 'users',
           },
           {
-            label: 'Interviews Conducted',
-            value: '7',
-            change: '+2',
+            label: 'Active Jobs',
+            value: jobs.filter(job => job.is_active).length.toString(),
+            change: jobs.length > 0 ? `${jobs.length} total` : '0',
             trend: 'up',
             color: theme.colors.accent.orange,
-            icon: 'video',
+            icon: 'activity',
           },
           {
-            label: 'Hired Candidates',
-            value: '3',
-            change: '+1',
+            label: 'City Jobs',
+            value: jobs.length.toString(),
+            change: `in ${state.userRecord?.city || 'your city'}`,
             trend: 'up',
             color: '#9C27B0',
-            icon: 'user-check',
+            icon: 'map-pin',
           },
         ]
       : [
           {
             label: 'Applications Sent',
-            value: '24',
-            change: '+12%',
+            value: userStats.applicationsSent.toString(),
+            change: userStats.applicationsSent > 0 ? `+${userStats.applicationsSent}` : '0',
             trend: 'up',
             color: theme.colors.primary.cyan,
             icon: 'send',
           },
           {
-            label: 'Profile Views',
-            value: '156',
-            change: '+8%',
+            label: 'Available Jobs',
+            value: jobs.length.toString(),
+            change: `in ${state.userRecord?.city || 'your city'}`,
             trend: 'up',
             color: '#2196F3',
-            icon: 'eye',
+            icon: 'briefcase',
           },
           {
-            label: 'Interviews Scheduled',
-            value: '3',
-            change: '+2',
+            label: 'New Jobs Today',
+            value: jobs.filter(job => {
+              const today = new Date();
+              const jobDate = new Date(job.created_at);
+              return jobDate.toDateString() === today.toDateString();
+            }).length.toString(),
+            change: 'today',
             trend: 'up',
             color: theme.colors.accent.orange,
             icon: 'calendar',
           },
           {
-            label: 'Job Matches',
-            value: '89',
-            change: '+15%',
+            label: 'Job Categories',
+            value: [...new Set(jobs.map(job => job.job_categories?.name).filter(Boolean))].length.toString(),
+            change: 'available',
             trend: 'up',
             color: '#9C27B0',
-            icon: 'target',
+            icon: 'grid',
           },
         ];
 
@@ -246,7 +343,7 @@ const MyJobsScreen = () => {
   };
 
   const handleJobPress = job => {
-    navigation.navigate('JobDetails', { job });
+    navigation.navigate('JobDetails', { jobId: job.id, job });
   };
 
   return (
@@ -419,28 +516,71 @@ const MyJobsScreen = () => {
               <Text
                 style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}
               >
-                Popular jobs
+                {isLoading ? 'Loading Jobs...' : `Jobs in ${state.userRecord?.city || 'your city'}`}
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleRefresh}>
                 <Text
                   style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}
                 >
-                  See all
+                  {isLoading ? '...' : 'Refresh'}
                 </Text>
               </TouchableOpacity>
             </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingLeft: theme.spacing[4],
-                paddingRight: 12,
-              }}
-            >
-              {popularJobs.map(job => (
-                <PopularJobCard key={job.id} job={job} />
-              ))}
-            </ScrollView>
+            {isLoading ? (
+              <View style={{ 
+                height: 120, 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                marginHorizontal: theme.spacing[4]
+              }}>
+                <Text style={{ color: '#94A3B8', fontSize: 16 }}>
+                  Loading jobs...
+                </Text>
+              </View>
+            ) : popularJobs.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingLeft: theme.spacing[4],
+                  paddingRight: 12,
+                }}
+              >
+                {popularJobs.map(job => (
+                  <PopularJobCard 
+                    key={job.id} 
+                    job={{
+                      ...job,
+                      company: job.company_profiles?.company_name || 'Unknown Company',
+                      salary: job.salary || 'Salary not specified',
+                      location: job.city,
+                      type: 'Full Time', // Default for now
+                      time: new Date(job.created_at).toLocaleDateString(),
+                      color: ['#3B82F6', '#2563EB'], // Default color
+                      logo: 'briefcase', // Default icon
+                      bookmarked: false, // TODO: Implement bookmarking
+                    }} 
+                    onPress={() => handleJobPress(job)}
+                  />
+                ))}
+              </ScrollView>
+            ) : (
+              <View style={{ 
+                height: 120, 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                marginHorizontal: theme.spacing[4]
+              }}>
+                <Text style={{ color: '#94A3B8', fontSize: 16 }}>
+                  No jobs available in {state.userRecord?.city || 'your city'}
+                </Text>
+                <TouchableOpacity onPress={handleRefresh} style={{ marginTop: 8 }}>
+                  <Text style={{ color: theme.colors.primary.cyan, fontSize: 14 }}>
+                    Tap to refresh
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
 
           {/* Recent Jobs Section */}
@@ -457,23 +597,45 @@ const MyJobsScreen = () => {
               <Text
                 style={{ fontSize: 18, fontWeight: 'bold', color: '#0F172A' }}
               >
-                Recent jobs
+                All Jobs
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('CreateJob')}>
                 <Text
-                  style={{ fontSize: 14, color: '#94A3B8', fontWeight: '500' }}
+                  style={{ fontSize: 14, color: theme.colors.primary.cyan, fontWeight: '500' }}
                 >
-                  See all
+                  {user?.mode === 'poster' ? 'Post Job' : 'View All'}
                 </Text>
               </TouchableOpacity>
             </View>
-            {recentJobs.map(item => (
-              <RecentJobCard
-                key={item.id}
-                item={item}
-                onPress={handleJobPress}
-              />
-            ))}
+            {!isLoading && recentJobs.length > 0 ? (
+              recentJobs.map(job => (
+                <RecentJobCard
+                  key={job.id}
+                  item={{
+                    ...job,
+                    company: job.company_profiles?.company_name || 'Unknown Company',
+                    salary: job.salary || 'Salary not specified',
+                    location: job.city,
+                    type: 'Full Time', // Default for now
+                    time: new Date(job.created_at).toLocaleDateString(),
+                    logo: 'briefcase', // Default icon
+                    bookmarked: false, // TODO: Implement bookmarking
+                  }}
+                  onPress={handleJobPress}
+                />
+              ))
+            ) : !isLoading ? (
+              <View style={{ 
+                height: 80, 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                marginHorizontal: theme.spacing[4]
+              }}>
+                <Text style={{ color: '#94A3B8', fontSize: 14 }}>
+                  No jobs to display
+                </Text>
+              </View>
+            ) : null}
           </View>
         </ScrollView>
       </LinearGradient>

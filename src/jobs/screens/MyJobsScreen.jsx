@@ -6,22 +6,13 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Animated,
-  Alert,
   TextInput,
-  FlatList,
-  Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Card from '../../components/blocks/Card';
-import Badge from '../../components/elements/Badge';
-import Icon from '../../components/elements/Icon';
-import Button from '../../components/elements/Button';
-import Input from '../../components/elements/Input';
 import { useTheme } from '../../contexts/ThemeContext';
 import Feather from 'react-native-vector-icons/Feather';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
-import { getStyles } from './MyJobsScreen.styles.js';
 import PopularJobCard from './MyJobsScreen/PopularJobCard';
 import RecentJobCard from './MyJobsScreen/RecentJobCard';
 import { jobService, applicationService, companyService } from '../../utils/database';
@@ -36,9 +27,7 @@ const MyJobsScreen = () => {
   
   // Real data state
   const [jobs, setJobs] = useState([]);
-  const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [userStats, setUserStats] = useState({
     jobsPosted: 0,
     applicationsReceived: 0,
@@ -55,7 +44,7 @@ const MyJobsScreen = () => {
     
     // Load initial data
     loadInitialData();
-  }, [fadeAnim, state.user]);
+  }, [fadeAnim, state.user, loadInitialData]);
 
   const loadInitialData = async () => {
     try {
@@ -119,9 +108,7 @@ const MyJobsScreen = () => {
   };
 
   const handleRefresh = async () => {
-    setRefreshing(true);
     await loadInitialData();
-    setRefreshing(false);
   };
 
   // Filter jobs based on search
@@ -135,212 +122,7 @@ const MyJobsScreen = () => {
   const popularJobs = filteredJobs.slice(0, 4);
   const recentJobs = filteredJobs.slice(0, 6);
 
-  const stats =
-    user?.mode === 'poster'
-      ? [
-          {
-            label: 'Jobs Posted',
-            value: userStats.jobsPosted.toString(),
-            change: userStats.jobsPosted > 0 ? `+${userStats.jobsPosted}` : '0',
-            trend: 'up',
-            color: theme.colors.primary.cyan,
-            icon: 'briefcase',
-          },
-          {
-            label: 'Applications Received',
-            value: userStats.applicationsReceived.toString(),
-            change: userStats.applicationsReceived > 0 ? `+${userStats.applicationsReceived}` : '0',
-            trend: 'up',
-            color: '#2196F3',
-            icon: 'users',
-          },
-          {
-            label: 'Active Jobs',
-            value: jobs.filter(job => job.is_active).length.toString(),
-            change: jobs.length > 0 ? `${jobs.length} total` : '0',
-            trend: 'up',
-            color: theme.colors.accent.orange,
-            icon: 'activity',
-          },
-          {
-            label: 'City Jobs',
-            value: jobs.length.toString(),
-            change: `in ${state.userRecord?.city || 'your city'}`,
-            trend: 'up',
-            color: '#9C27B0',
-            icon: 'map-pin',
-          },
-        ]
-      : [
-          {
-            label: 'Applications Sent',
-            value: userStats.applicationsSent.toString(),
-            change: userStats.applicationsSent > 0 ? `+${userStats.applicationsSent}` : '0',
-            trend: 'up',
-            color: theme.colors.primary.cyan,
-            icon: 'send',
-          },
-          {
-            label: 'Available Jobs',
-            value: jobs.length.toString(),
-            change: `in ${state.userRecord?.city || 'your city'}`,
-            trend: 'up',
-            color: '#2196F3',
-            icon: 'briefcase',
-          },
-          {
-            label: 'New Jobs Today',
-            value: jobs.filter(job => {
-              const today = new Date();
-              const jobDate = new Date(job.created_at);
-              return jobDate.toDateString() === today.toDateString();
-            }).length.toString(),
-            change: 'today',
-            trend: 'up',
-            color: theme.colors.accent.orange,
-            icon: 'calendar',
-          },
-          {
-            label: 'Job Categories',
-            value: [...new Set(jobs.map(job => job.job_categories?.name).filter(Boolean))].length.toString(),
-            change: 'available',
-            trend: 'up',
-            color: '#9C27B0',
-            icon: 'grid',
-          },
-        ];
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: 'application',
-      title: 'Applied to Senior Developer',
-      company: 'TechCorp Inc.',
-      time: '2 hours ago',
-      status: 'pending',
-      avatar: '#4CAF50',
-    },
-    {
-      id: 2,
-      type: 'interview',
-      title: 'Interview Scheduled',
-      company: 'StartupXYZ',
-      time: '1 day ago',
-      status: 'scheduled',
-      avatar: '#2196F3',
-    },
-    {
-      id: 3,
-      type: 'match',
-      title: 'New Job Match',
-      company: 'DesignStudio',
-      time: '2 days ago',
-      status: 'new',
-      avatar: '#FF9800',
-    },
-    {
-      id: 4,
-      type: 'profile',
-      title: 'Profile Viewed',
-      company: 'BigTech Co.',
-      time: '3 days ago',
-      status: 'viewed',
-      avatar: '#9C27B0',
-    },
-  ];
-
-  const quickActions = [
-    {
-      title: 'Browse Jobs',
-      subtitle: 'Discover new opportunities',
-      icon: 'search',
-      color: [theme.colors.primary.cyan, theme.colors.primary.dark],
-      action: 'browse',
-    },
-    {
-      title: 'Update Profile',
-      subtitle: 'Keep your info current',
-      icon: 'user',
-      color: ['#2196F3', '#1976D2'],
-      action: 'profile',
-    },
-    {
-      title: 'View Applications',
-      subtitle: 'Track your progress',
-      icon: 'clipboard',
-      color: [theme.colors.accent.orange, '#F44336'],
-      action: 'applications',
-    },
-    {
-      title: 'Skills Assessment',
-      subtitle: 'Test your abilities',
-      icon: 'award',
-      color: ['#9C27B0', '#673AB7'],
-      action: 'skills',
-    },
-  ];
-
-  const periods = ['Today', 'This Week', 'This Month'];
-
-  const handleQuickAction = action => {
-    switch (action) {
-      case 'browse':
-        Alert.alert('Browse Jobs', 'Job browsing feature coming soon!');
-        break;
-      case 'profile':
-        Alert.alert('Update Profile', 'Profile editing feature coming soon!');
-        break;
-      case 'applications':
-        try {
-          if (user?.mode === 'seeker') {
-            navigation.navigate('AppliedJobs');
-          } else {
-            navigation.navigate('MyJobs');
-          }
-        } catch (error) {
-          Alert.alert('Navigation', 'Applications screen coming soon!');
-        }
-        break;
-      case 'skills':
-        Alert.alert(
-          'Skills Assessment',
-          'Skills assessment feature coming soon!',
-        );
-        break;
-      default:
-        break;
-    }
-  };
-
-  const getStatusColor = status => {
-    switch (status) {
-      case 'pending':
-        return theme.colors.status.warning;
-      case 'scheduled':
-        return theme.colors.status.info;
-      case 'new':
-        return theme.colors.status.success;
-      case 'viewed':
-        return theme.colors.text.secondary;
-      default:
-        return theme.colors.text.secondary;
-    }
-  };
-
-  const getStatusLabel = status => {
-    switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'scheduled':
-        return 'Scheduled';
-      case 'new':
-        return 'New';
-      case 'viewed':
-        return 'Viewed';
-      default:
-        return status;
-    }
-  };
 
   const handleJobPress = job => {
     navigation.navigate('JobDetails', { jobId: job.id, job });

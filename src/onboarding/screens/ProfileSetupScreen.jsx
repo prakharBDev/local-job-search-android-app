@@ -45,14 +45,14 @@ const ProfileSetupScreen = ({ navigation }) => {
       friction: 8,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [scaleAnim]);
 
   const roles = [
     {
       id: 'seeker',
       name: 'Job Seeker',
       description: 'Looking for job opportunities',
-      icon: 'user',
+      // icon: 'user',
       color: ['#3B82F6', '#2563EB'],
     },
     {

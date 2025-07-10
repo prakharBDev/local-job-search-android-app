@@ -7,7 +7,6 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableWithoutFeedback,
@@ -21,7 +20,7 @@ import { theme } from '../../theme';
 import { useNavigation } from '@react-navigation/native';
 import { getStyles } from './CreateJobScreen.styles.js';
 import { useAuth } from '../../contexts/AuthContext';
-import { jobService, categoriesService, skillsService, companyService } from '../../utils/database';
+import { jobService, categoriesService, companyService } from '../../utils/database';
 import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 
 const CreateJobScreen = () => {
@@ -44,7 +43,7 @@ const CreateJobScreen = () => {
   // Load initial data
   useEffect(() => {
     loadInitialData();
-  }, []);
+  }, [loadInitialData]);
 
   const loadInitialData = async () => {
     try {
@@ -111,7 +110,7 @@ const CreateJobScreen = () => {
         is_active: true,
       };
 
-      const { data, error } = await jobService.createJob(jobData);
+      const { error } = await jobService.createJob(jobData);
 
       if (error) throw error;
 

@@ -17,7 +17,7 @@ import Card from '../../components/blocks/Card';
 
 const CitySelectionScreen = ({ navigation }) => {
   const { theme } = useTheme();
-  const { updateUserRecord, state } = useAuth();
+  const { updateUserRecord } = useAuth();
   const [selectedCity, setSelectedCity] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(0.95));
@@ -29,7 +29,7 @@ const CitySelectionScreen = ({ navigation }) => {
       friction: 8,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [scaleAnim]);
 
   const cities = [
     {

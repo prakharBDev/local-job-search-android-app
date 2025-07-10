@@ -11,6 +11,7 @@ import IndexScreen from './src/landingpage/screens/IndexScreen';
 import SplashScreen from './src/splash/screens/SplashScreen';
 import SettingsScreen from './src/settings/screens/SettingsScreen';
 import AboutScreen from './src/about/screens/AboutScreen';
+import CitySelectionScreen from './src/onboarding/screens/CitySelectionScreen';
 
 // Import providers and components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';

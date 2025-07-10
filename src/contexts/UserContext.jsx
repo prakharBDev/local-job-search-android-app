@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { clearErrorHelper } from '../utils/clearError.js';
+import { useAuth } from './AuthContext';
 
 const initialState = {
   currentMode: 'seeker',
@@ -47,6 +48,7 @@ const UserContext = createContext(undefined);
 
 export const UserProvider = ({ children }) => {
   const [state, dispatch] = useReducer(userReducer, initialState);
+  const { userRecord } = useAuth();
 
   useEffect(() => {
     const loadSavedMode = async () => {
@@ -62,6 +64,14 @@ export const UserProvider = ({ children }) => {
 
     loadSavedMode();
   }, []);
+
+  useEffect(() => {
+    // Update user mode based on auth context
+    if (userRecord) {
+      // This would be determined by checking profile tables
+      // For now, we'll use the existing logic
+    }
+  }, [userRecord]);
 
   const switchMode = async mode => {
     try {

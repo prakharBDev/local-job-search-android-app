@@ -91,6 +91,28 @@ const IndexScreen = () => {
     animateFloating();
   }, []);
 
+  const handleGoogleSignInResult = async (result) => {
+    setIsLoading(true);
+    try {
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      if (result.data && result.userRecord !== undefined) {
+        await login({
+          session: result.data.session,
+          user: result.data.user,
+          userRecord: result.userRecord,
+          isNewUser: result.isNewUser
+        });
+      }
+    } catch (error) {
+      console.error('Sign-in error:', error);
+      // Handle login error gracefully
+      setIsLoading(false);
+    }
+  };
+
   const handleLogin = async () => {
     setIsLoading(true);
     try {
@@ -334,14 +356,9 @@ const IndexScreen = () => {
                   { flexDirection: 'row', gap: 12 },
                 ]}
               >
-                <TouchableOpacity style={styles.socialButton}>
-                  <View style={styles.socialButtonContent}>
-                    <FontAwesome name="google" size={20} color="#222" />
-                    <Text style={styles.socialButtonText}>
-                      Continue with Google
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                <View style={styles.socialButton}>
+                  <GoogleSignInButton onSuccess={handleGoogleSignInResult} />
+                </View>
                 <TouchableOpacity style={styles.socialButton}>
                   <View style={styles.socialButtonContent}>
                     <Feather name="phone" size={20} color="#10B981" />

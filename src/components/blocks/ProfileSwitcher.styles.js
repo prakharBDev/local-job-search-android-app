@@ -1,0 +1,256 @@
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+
+export const getStyles = (theme = {}) => StyleSheet.create({
+  container: {
+    alignItems: 'center',
+  },
+  profileButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 25,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  profileImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  profileInitials: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1E293B',
+    maxWidth: 120,
+  },
+  profileRole: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  chevron: {
+    marginLeft: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: width * 0.9,
+    maxHeight: height * 0.8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  closeButton: {
+    padding: 4,
+  },
+  modalContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  profilesList: {
+    marginBottom: 20,
+  },
+  profileItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+  },
+  activeProfileItem: {
+    backgroundColor: '#3C4FE010',
+    borderWidth: 2,
+    borderColor: '#3C4FE0',
+  },
+  profileItemImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  profileItemInitials: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  profileItemInfo: {
+    flex: 1,
+  },
+  profileItemName: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1E293B',
+    marginBottom: 2,
+  },
+  profileItemEmail: {
+    fontSize: 12,
+    color: '#64748B',
+    marginBottom: 4,
+  },
+  profileItemMode: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  profileItemModeText: {
+    fontSize: 10,
+    fontWeight: '500',
+  },
+  profileItemActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    padding: 8,
+    marginLeft: 4,
+  },
+  addProfileButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#3C4FE0',
+  },
+  addProfileButtonText: {
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#3C4FE0',
+  },
+  addProfileForm: {
+    paddingBottom: 20,
+  },
+  formTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1E293B',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1E293B',
+    marginBottom: 6,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#1E293B',
+    backgroundColor: '#F8FAFC',
+  },
+  modeSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modeButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 4,
+    backgroundColor: '#F8FAFC',
+  },
+  selectedModeButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+  },
+  modeButtonText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#64748B',
+  },
+  selectedModeButtonText: {
+    fontWeight: '600',
+  },
+  formActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+    marginRight: 8,
+  },
+  cancelButtonText: {
+    color: '#64748B',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  addButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: '#3C4FE0',
+    marginLeft: 8,
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+}); 

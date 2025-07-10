@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   Alert,
   StyleSheet,
@@ -13,9 +13,9 @@ const Login = ({ onLogin }) => {
   const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const styles = getStyles(theme || {});
+  const styles = useMemo(() => getStyles(theme || {}), [theme]);
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -26,7 +26,7 @@ const Login = ({ onLogin }) => {
     } else {
       Alert.alert('Login', `Email: ${email}\nPassword: ${password}`);
     }
-  };
+  }, [email, password, onLogin]);
 
   return (
     <View style={styles.container}>

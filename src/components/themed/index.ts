@@ -12,5 +12,3 @@ export {
 // Re-export theme and provider for convenience
 export { bluewhiteTheme } from '../../theme/bluewhite';
 export { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
-
-

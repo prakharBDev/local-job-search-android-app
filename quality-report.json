@@ -1,109 +1,101 @@
 {
-  "timestamp": "2025-07-09T18:16:35.213Z",
+  "timestamp": "2025-07-10T11:07:58.798Z",
   "scores": {
-    "fileSize": 10,
+    "fileSize": 100,
     "duplication": 0,
     "testCoverage": 0,
-    "typescript": 20.454545454545457,
+    "typescript": 11.76470588235294,
     "performance": 0,
-    "overall": 5
+    "overall": 22
   },
   "metrics": {
     "fileSizes": {
-      "total": 44,
+      "total": 68,
       "distribution": {
-        "small": 15,
-        "medium": 14,
-        "large": 6,
-        "xlarge": 9
+        "small": 34,
+        "medium": 18,
+        "large": 16,
+        "xlarge": 0
       },
-      "oversized": 9
+      "oversized": 0
     },
     "duplication": {
-      "duplicateFunctions": 1,
-      "duplicateLines": 2172,
-      "totalLines": 8768,
-      "percentage": 24.77189781021898
+      "duplicateFunctions": 2,
+      "duplicateLines": 2518,
+      "totalLines": 9421,
+      "percentage": 26.727523617450377
     },
     "testCoverage": {
       "percentage": 0,
       "hasTests": false
     },
     "typescript": {
-      "jsFiles": 35,
-      "tsFiles": 9,
-      "percentage": 20.454545454545457
+      "jsFiles": 60,
+      "tsFiles": 8,
+      "percentage": 11.76470588235294
     },
     "performance": {
-      "totalIssues": 22,
+      "totalIssues": 23,
       "issues": [
         {
-          "file": "src/components/ErrorBoundary.jsx",
-          "issue": "Missing React.memo optimization"
-        },
-        {
-          "file": "src/components/ThemedBadge.tsx",
-          "issue": "Missing React.memo optimization"
-        },
-        {
-          "file": "src/components/ThemedButton.tsx",
-          "issue": "Missing React.memo optimization"
-        },
-        {
-          "file": "src/components/ThemedCard.tsx",
-          "issue": "Missing React.memo optimization"
-        },
-        {
-          "file": "src/components/ThemedInput.tsx",
-          "issue": "Missing React.memo optimization"
-        },
-        {
-          "file": "src/components/ThemedInput.tsx",
+          "file": "src/auth/components/Login.jsx",
           "issue": "Consider using useMemo/useCallback for optimization"
         },
         {
-          "file": "src/components/ThemedText.tsx",
-          "issue": "Missing React.memo optimization"
-        },
-        {
-          "file": "src/components/ui/Button.jsx",
-          "issue": "Inline styles detected (use StyleSheet.create)"
-        },
-        {
-          "file": "src/components/ui/Login.jsx",
+          "file": "src/components/blocks/ProfileSwitcher.jsx",
           "issue": "Consider using useMemo/useCallback for optimization"
         },
         {
-          "file": "src/components/ui/ProfileSwitcher.jsx",
+          "file": "src/components/elements/Button.jsx",
           "issue": "Inline styles detected (use StyleSheet.create)"
+        },
+        {
+          "file": "src/dashboard/screens/DashboardScreen.jsx",
+          "issue": "Inline styles detected (use StyleSheet.create)"
+        },
+        {
+          "file": "src/dashboard/screens/DashboardScreen.jsx",
+          "issue": "Consider using useMemo/useCallback for optimization"
+        },
+        {
+          "file": "src/home/components/HomeCard.jsx",
+          "issue": "Inline styles detected (use StyleSheet.create)"
+        },
+        {
+          "file": "src/jobs/screens/AppliedJobsScreen.jsx",
+          "issue": "Consider using useMemo/useCallback for optimization"
+        },
+        {
+          "file": "src/jobs/screens/CreateJobScreen.jsx",
+          "issue": "Consider using useMemo/useCallback for optimization"
+        },
+        {
+          "file": "src/jobs/screens/JobDetailsScreen.jsx",
+          "issue": "Inline styles detected (use StyleSheet.create)"
+        },
+        {
+          "file": "src/jobs/screens/JobDetailsScreen.jsx",
+          "issue": "Consider using useMemo/useCallback for optimization"
         }
       ]
     }
   },
   "issues": [
     {
-      "type": "File Size",
-      "severity": "high",
-      "count": 9,
-      "description": "9 files exceed recommended size limits",
-      "files": [
-        "src/components/ui/ProfileSwitcher.jsx",
-        "src/contexts/ProfileContext.jsx",
-        "src/screens/AppliedJobsScreen.jsx",
-        "src/screens/CreateJobScreen.jsx",
-        "src/screens/DashboardScreen.jsx",
-        "src/screens/IndexScreen.jsx",
-        "src/screens/JobDetailsScreen.jsx",
-        "src/screens/MyJobsScreen.jsx",
-        "src/theme/bluewhite.ts"
-      ]
-    },
-    {
       "type": "Code Duplication",
       "severity": "medium",
-      "count": 1,
-      "description": "24.8% code duplication detected",
+      "count": 2,
+      "description": "26.7% code duplication detected",
       "details": [
+        {
+          "name": "getStyles",
+          "files": [
+            "src/components/blocks/ProfileSwitcher.styles.js",
+            "src/jobs/screens/CreateJobScreen.styles.js",
+            "src/jobs/screens/JobDetailsScreen.styles.js",
+            "src/jobs/screens/MyJobsScreen.styles.js"
+          ]
+        },
         {
           "name": "clearError",
           "files": [
@@ -117,15 +109,15 @@
     {
       "type": "TypeScript Usage",
       "severity": "medium",
-      "count": 35,
-      "description": "35 files still use JavaScript instead of TypeScript",
+      "count": 60,
+      "description": "60 files still use JavaScript instead of TypeScript",
       "recommendation": "Convert JavaScript files to TypeScript for better type safety"
     },
     {
       "type": "Performance",
       "severity": "medium",
-      "count": 22,
-      "description": "22 potential performance issues detected",
+      "count": 23,
+      "description": "23 potential performance issues detected",
       "recommendation": "Implement React performance optimizations"
     }
   ],

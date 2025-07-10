@@ -4,7 +4,10 @@ import Feather from 'react-native-vector-icons/Feather';
 
 const ActionCard = ({ title, subtitle, iconName, iconColor, onPress }) => (
   <TouchableOpacity
-    style={[styles.actionCard, { backgroundColor: iconName === 'search' ? '#eef0fd' : '#eaf7f0' }]}
+    style={[
+      styles.actionCard,
+      { backgroundColor: iconName === 'search' ? '#eef0fd' : '#eaf7f0' },
+    ]}
     activeOpacity={0.85}
     onPress={onPress}
   >
@@ -54,4 +57,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ActionCard; 
+export default ActionCard;

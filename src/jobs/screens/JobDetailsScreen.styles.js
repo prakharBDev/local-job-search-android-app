@@ -1,8 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { centeredContainer, cardShadow } from '../../theme/commonStyles';
 
 export const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
+    ...centeredContainer,
   },
   gradient: {
     flex: 1,
@@ -29,8 +31,9 @@ export const getStyles = (theme) => StyleSheet.create({
   backButton: {
     padding: theme.spacing[2],
     marginRight: theme.spacing[3],
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 8,
+    backgroundColor: theme.colors.surface.card,
+    ...cardShadow(theme),
   },
   headerTitleContainer: {
     flex: 1,
@@ -59,6 +62,7 @@ export const getStyles = (theme) => StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     padding: theme.spacing[6],
+    ...cardShadow(theme),
   },
   jobHeader: {
     marginBottom: theme.spacing[6],

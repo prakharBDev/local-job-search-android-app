@@ -1,10 +1,12 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import { centeredContainer, primaryButton } from '../../theme/commonStyles';
 
 const { width, height } = Dimensions.get('window');
 
 export const getStyles = (theme = {}) => StyleSheet.create({
   container: {
     alignItems: 'center',
+    ...centeredContainer,
   },
   profileButton: {
     flexDirection: 'row',
@@ -21,6 +23,7 @@ export const getStyles = (theme = {}) => StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    ...primaryButton(theme),
   },
   profileImage: {
     width: 32,
@@ -28,229 +31,105 @@ export const getStyles = (theme = {}) => StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
-  },
-  profileInitials: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  profileInfo: {
-    flex: 1,
   },
   profileName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1E293B',
-    maxWidth: 120,
-  },
-  profileRole: {
-    fontSize: 12,
-    color: '#64748B',
-    marginTop: 1,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+    color: theme?.colors?.text?.primary,
   },
   chevron: {
-    marginLeft: 4,
+    marginLeft: 8,
   },
-  modalOverlay: {
+  modal: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'flex-end',
   },
-  modalContainer: {
-    width: width * 0.9,
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    minHeight: height * 0.5,
     maxHeight: height * 0.8,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    overflow: 'hidden',
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    marginBottom: 16,
   },
   modalTitle: {
+    flex: 1,
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1E293B',
+    fontWeight: 'bold',
+    color: theme?.colors?.text?.primary,
   },
   closeButton: {
-    padding: 4,
+    padding: 8,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
   },
-  modalContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+  addButton: {
+    marginTop: 16,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: theme?.colors?.primary?.cyan || '#3C4FE0',
+    alignItems: 'center',
+    ...primaryButton(theme),
   },
-  profilesList: {
-    marginBottom: 20,
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  profileList: {
+    marginTop: 8,
   },
   profileItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    borderRadius: 12,
-    backgroundColor: '#F8FAFC',
-  },
-  activeProfileItem: {
-    backgroundColor: '#3C4FE010',
-    borderWidth: 2,
-    borderColor: '#3C4FE0',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
   profileItemImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     marginRight: 12,
-  },
-  profileItemInitials: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  profileItemInfo: {
-    flex: 1,
   },
   profileItemName: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#1E293B',
-    marginBottom: 2,
+    color: theme?.colors?.text?.primary,
   },
-  profileItemEmail: {
-    fontSize: 12,
-    color: '#64748B',
-    marginBottom: 4,
-  },
-  profileItemMode: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  profileItemModeText: {
-    fontSize: 10,
-    fontWeight: '500',
-  },
-  profileItemActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  actionButton: {
-    padding: 8,
-    marginLeft: 4,
-  },
-  addProfileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: '#3C4FE0',
-  },
-  addProfileButtonText: {
-    marginLeft: 8,
+  profileItemRole: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#3C4FE0',
+    color: theme?.colors?.text?.secondary,
+    marginLeft: 8,
   },
   addProfileForm: {
-    paddingBottom: 20,
-  },
-  formTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1E293B',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1E293B',
-    marginBottom: 6,
+    marginTop: 16,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#E5E7EB',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: '#1E293B',
-    backgroundColor: '#F8FAFC',
+    padding: 10,
+    marginBottom: 12,
+    fontSize: 16,
+    color: theme?.colors?.text?.primary,
   },
-  modeSelector: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  modeButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderWidth: 1,
+  saveButton: {
+    padding: 12,
     borderRadius: 8,
+    backgroundColor: theme?.colors?.primary?.cyan || '#3C4FE0',
     alignItems: 'center',
-    marginHorizontal: 4,
-    backgroundColor: '#F8FAFC',
+    ...primaryButton(theme),
   },
-  selectedModeButton: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-  },
-  modeButtonText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#64748B',
-  },
-  selectedModeButtonText: {
-    fontWeight: '600',
-  },
-  formActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-    marginRight: 8,
-  },
-  cancelButtonText: {
-    color: '#64748B',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  addButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: '#3C4FE0',
-    marginLeft: 8,
-  },
-  addButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 }); 

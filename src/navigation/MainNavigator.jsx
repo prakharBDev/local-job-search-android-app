@@ -10,6 +10,8 @@ import IndexScreen from '../landingpage/screens/IndexScreen';
 import MyJobsScreen from '../jobs/screens/MyJobsScreen';
 import CreateJobScreen from '../jobs/screens/CreateJobScreen';
 import ProfileScreen from '../profile/screens/ProfileScreen';
+import ProfileSetupScreen from '../profile/screens/ProfileSetupScreen';
+import EditProfileScreen from '../profile/screens/EditProfileScreen';
 import JobDetailsScreen from '../jobs/screens/JobDetailsScreen';
 import AppliedJobsScreen from '../jobs/screens/AppliedJobsScreen';
 import OnboardingScreen from '../onboarding/screens/OnboardingScreen';
@@ -96,6 +98,11 @@ const MyJobsStack = () => {
         component={AppliedJobsScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="JobDetails"
+        component={JobDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -142,6 +149,16 @@ const ProfileStack = () => {
       <Stack.Screen
         name="ProfileMain"
         component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileSetup"
+        component={ProfileSetupScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

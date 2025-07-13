@@ -1,99 +1,145 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import Badge from '../../components/elements/Badge';
-import Card from '../../components/blocks/Card';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 
 const RecentJobCard = ({ item }) => {
-  const { theme } = useTheme();
+  const navigation = useNavigation();
+
+  // Function to get company logo initials
+  const getCompanyInitials = companyName => {
+    return companyName
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Get company logo colors based on company name
+  const getCompanyLogoColor = companyName => {
+    const colors = [
+      '#FF5722', // Orange for TechVibe Studios (TS)
+      '#2196F3', // Blue for GrowthHack Co (GC)
+      '#4CAF50', // Green for Designify (D)
+      '#9C27B0', // Purple for FinEdge (F)
+    ];
+    const index = companyName.length % colors.length;
+    return colors[index];
+  };
+
+  const handlePress = () => {
+    navigation.navigate('JobDetails', { jobData: item });
+  };
+
   return (
-    <Card
+    <TouchableOpacity
+      onPress={handlePress}
+      activeOpacity={0.7}
       style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-        borderRadius: 18,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
         padding: 16,
-        backgroundColor: '#fff',
+        marginBottom: 12,
         shadowColor: '#000',
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
       }}
     >
+      {/* Main Content Row */}
       <View
         style={{
-          width: 48,
-          height: 48,
-          borderRadius: 12,
-          backgroundColor: '#F1F5F9',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: 16,
+          flexDirection: 'row',
+          alignItems: 'flex-start',
         }}
       >
-        <Feather name={item.logo} size={22} color={'#3B82F6'} />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text
-          style={{
-            fontSize: 15,
-            fontWeight: 'bold',
-            color: '#0F172A',
-            marginBottom: 2,
-          }}
-        >
-          {item.title}
-        </Text>
+        {/* Company Logo */}
         <View
           style={{
-            flexDirection: 'row',
+            width: 44,
+            height: 44,
+            borderRadius: 8,
+            backgroundColor: getCompanyLogoColor(item.company),
             alignItems: 'center',
-            marginBottom: 2,
+            justifyContent: 'center',
+            marginRight: 12,
           }}
         >
-          <Badge
-            variant="default"
-            size="sm"
-            style={{ backgroundColor: '#E0F2FE', marginRight: 8 }}
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: '700',
+              color: '#FFFFFF',
+            }}
           >
-            <Text
-              style={{
-                color: '#3B82F6',
-                fontWeight: '600',
-                fontSize: 12,
-              }}
-            >
-              {item.type}
-            </Text>
-          </Badge>
-          <Text style={{ fontSize: 13, color: '#64748B' }}>{item.company}</Text>
+            {getCompanyInitials(item.company)}
+          </Text>
         </View>
-        <Text style={{ fontSize: 13, color: '#94A3B8' }}>
-          {item.location} • {item.salary}
-        </Text>
+
+        {/* Job Details */}
+        <View style={{ flex: 1, paddingRight: 8 }}>
+          {/* Job Title */}
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: '600',
+              color: '#1A1A1A',
+              marginBottom: 4,
+              lineHeight: 22,
+            }}
+          >
+            {item.title}
+          </Text>
+
+          {/* Company and Salary */}
+          <Text
+            style={{
+              fontSize: 14,
+              color: '#666666',
+              fontWeight: '400',
+              marginBottom: 8,
+              lineHeight: 20,
+            }}
+          >
+            {item.company} | {item.salary}
+          </Text>
+
+          {/* Experience and Job Type */}
+          <Text
+            style={{
+              fontSize: 13,
+              color: '#999999',
+              fontWeight: '400',
+              lineHeight: 18,
+            }}
+          >
+            Experience: 2-4 years {item.type}
+          </Text>
+        </View>
+
+        {/* Time Posted */}
+        <View
+          style={{
+            alignItems: 'flex-end',
+            paddingTop: 2,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 12,
+              color: '#3B82F6',
+              fontWeight: '500',
+            }}
+          >
+            {item.time}
+          </Text>
+        </View>
       </View>
-      <View
-        style={{
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          height: 48,
-        }}
-      >
-        <TouchableOpacity>
-          <Feather
-            name={item.bookmarked ? 'bookmark' : 'bookmark'}
-            size={20}
-            color={item.bookmarked ? '#3B82F6' : '#94A3B8'}
-          />
-        </TouchableOpacity>
-        <Text style={{ fontSize: 12, color: '#94A3B8', marginTop: 8 }}>
-          {item.time}
-        </Text>
-      </View>
-    </Card>
+    </TouchableOpacity>
   );
 };
 
-export default RecentJobCard; 
+export default RecentJobCard;

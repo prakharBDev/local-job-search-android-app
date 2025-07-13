@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  SafeAreaView,
+  StatusBar,
 } from 'react-native';
 
 const user = {
@@ -23,353 +25,515 @@ const DashboardScreen = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Header Row */}
-      <View style={styles.headerRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.welcome}>Welcome back,</Text>
-          <Text style={styles.userName}>{user.name}!</Text>
-          <Text style={styles.subtitle}>Here’s your job search progress</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View style={styles.headerContainer}>
+          <View style={styles.headerContent}>
+            <View style={styles.welcomeSection}>
+              <Text style={styles.welcomeText}>Welcome back,</Text>
+              <Text style={styles.userName}>{user.name}!</Text>
+              <Text style={styles.subtitle}>
+                Here's your job search progress
+              </Text>
+            </View>
+            <View style={styles.headerActions}>
+              <TouchableOpacity
+                style={styles.profileCard}
+                onPress={handleProfilePress}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.profileName}>{user.name}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.logoutBtn}
+                onPress={handleLogout}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.logoutText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity
-            style={styles.profileCard}
-            onPress={handleProfilePress}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.profileName}>{user.name}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.logoutBtn}
-            onPress={handleLogout}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
 
-      {/* Tabs */}
-      <View style={styles.tabsRow}>
-        {['Today', 'This Week', 'This Month'].map(tab => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab)}
-            activeOpacity={0.8}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === tab && styles.activeTabText,
-              ]}
-            >
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+        {/* Tabs Section */}
+        <View style={styles.tabsContainer}>
+          <View style={styles.tabsWrapper}>
+            {['Today', 'This Week', 'This Month'].map(tab => (
+              <TouchableOpacity
+                key={tab}
+                style={[styles.tab, activeTab === tab && styles.activeTab]}
+                onPress={() => setActiveTab(tab)}
+                activeOpacity={0.8}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === tab && styles.activeTabText,
+                  ]}
+                >
+                  {tab}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-      {/* Recent Activity */}
-      <View style={styles.sectionRow}>
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
-        <TouchableOpacity>
-          <Text style={styles.viewAll}>View All</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.cardsGrid}>
-        <View style={styles.cardBox}>
-          <View style={styles.iconCircle}>
-            <Text style={styles.iconText}>✈️</Text>
+        {/* Content Section */}
+        <View style={styles.contentContainer}>
+          {/* Recent Activity Section */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Activity</Text>
+            <TouchableOpacity activeOpacity={0.8}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.cardTitle}>Applied to{'\n'}Senior Developer</Text>
-          <Text style={styles.cardCount}>24</Text>
-          <Text style={styles.cardTime}>2 hours ago</Text>
-        </View>
-        <View style={styles.cardBox}>
-          <View style={styles.iconCircleBlue}>
-            <Text style={styles.iconText}>👁️</Text>
-          </View>
-          <Text style={styles.cardTitle}>Profile Views</Text>
-          <Text style={styles.cardCount}>
-            156 <Text style={styles.percentUp}>+12%</Text>
-          </Text>
-        </View>
-      </View>
-      <View style={styles.cardsGrid}>
-        <View style={styles.cardBox}>
-          <View style={styles.iconCircleGreen}>
-            <Text style={styles.iconText}>📅</Text>
-          </View>
-          <Text style={styles.cardTitle}>Interviews Scheduled</Text>
-          <Text style={styles.cardCount}>3</Text>
-          <Text style={styles.cardTime}>1 day ago</Text>
-        </View>
-        <View style={styles.cardBox}>
-          <View style={styles.iconCirclePurple}>
-            <Text style={styles.iconText}>🎯</Text>
-          </View>
-          <Text style={styles.cardTitle}>Job Matches</Text>
-          <Text style={styles.cardCount}>
-            89 <Text style={styles.percentUp}>+2%</Text>
-          </Text>
-        </View>
-      </View>
 
-      {/* Daily Goal Progress */}
-      <Text style={styles.sectionTitle}>Daily Goal Progress</Text>
-      <View style={styles.progressCard}>
-        <View style={styles.progressRow}>
-          <Text style={styles.progressLabel}>Job Applications</Text>
-          <Text style={styles.progressValue}>3/5 completed</Text>
+          {/* Activity Cards Grid */}
+          <View style={styles.cardsContainer}>
+            <View style={styles.cardRow}>
+              <View style={[styles.activityCard, styles.cardLeft]}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.iconCircle}>
+                    <Text style={styles.iconText}>✈️</Text>
+                  </View>
+                  <Text style={styles.cardTitle}>
+                    Applied to{'\n'}Senior Developer
+                  </Text>
+                </View>
+                <View style={styles.cardMainContent}>
+                  <Text style={styles.cardCount}>24</Text>
+                </View>
+                <View style={styles.cardBottomInfo}>
+                  <Text style={styles.cardTime}>2 hours ago</Text>
+                </View>
+              </View>
+              <View style={[styles.activityCard, styles.cardRight]}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.iconCircleBlue}>
+                    <Text style={styles.iconText}>👁️</Text>
+                  </View>
+                  <Text style={styles.cardTitle}>Profile Views</Text>
+                </View>
+                <View style={styles.cardMainContent}>
+                  <Text style={styles.cardCount}>
+                    156 <Text style={styles.percentUp}>+12%</Text>
+                  </Text>
+                </View>
+                <View style={styles.cardBottomInfo}>
+                  <Text style={styles.cardSubtext}>This week</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.cardRow}>
+              <View style={[styles.activityCard, styles.cardLeft]}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.iconCircleGreen}>
+                    <Text style={styles.iconText}>📅</Text>
+                  </View>
+                  <Text style={styles.cardTitle}>Interviews Scheduled</Text>
+                </View>
+                <View style={styles.cardMainContent}>
+                  <Text style={styles.cardCount}>3</Text>
+                </View>
+                <View style={styles.cardBottomInfo}>
+                  <Text style={styles.cardTime}>1 day ago</Text>
+                </View>
+              </View>
+              <View style={[styles.activityCard, styles.cardRight]}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.iconCirclePurple}>
+                    <Text style={styles.iconText}>🎯</Text>
+                  </View>
+                  <Text style={styles.cardTitle}>Job Matches</Text>
+                </View>
+                <View style={styles.cardMainContent}>
+                  <Text style={styles.cardCount}>
+                    89 <Text style={styles.percentUp}>+2%</Text>
+                  </Text>
+                </View>
+                <View style={styles.cardBottomInfo}>
+                  <Text style={styles.cardSubtext}>New matches</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Daily Goal Progress Section */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Daily Goal Progress</Text>
+          </View>
+
+          <View style={styles.progressCard}>
+            <View style={styles.progressItem}>
+              <View style={styles.progressHeader}>
+                <Text style={styles.progressLabel}>Job Applications</Text>
+                <Text style={styles.progressValue}>3/5 completed</Text>
+              </View>
+              <View style={styles.progressBarContainer}>
+                <View style={[styles.progressBar, { width: '60%' }]} />
+              </View>
+            </View>
+
+            <View style={styles.progressItem}>
+              <View style={styles.progressHeader}>
+                <Text style={styles.progressLabel}>Profile Updates</Text>
+                <Text style={styles.progressValue}>1/2 completed</Text>
+              </View>
+              <View style={styles.progressBarContainer}>
+                <View style={[styles.progressBarOrange, { width: '50%' }]} />
+              </View>
+            </View>
+          </View>
         </View>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBar, { width: '60%' }]} />
-        </View>
-        <View style={[styles.progressRow, { marginTop: 16 }]}>
-          <Text style={styles.progressLabel}>Profile Updates</Text>
-          <Text style={styles.progressValue}>1/2 completed</Text>
-        </View>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarOrange, { width: '50%' }]} />
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 0,
-    backgroundColor: '#F7FAFF',
-    flexGrow: 1,
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F7F9FC',
   },
-  headerRow: {
+  container: {
+    flexGrow: 1,
+    paddingBottom: 32,
+  },
+
+  // Header Styles - More attractive and refined
+  headerContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 28,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+    marginBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 12,
-    backgroundColor: '#F7FAFF',
   },
-  welcome: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#181C32',
-    marginBottom: 0,
+  welcomeSection: {
+    flex: 1,
+    paddingRight: 20,
+  },
+  welcomeText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#64748B',
+    marginBottom: 4,
+    fontFamily: 'System',
+    letterSpacing: -0.2,
   },
   userName: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#181C32',
-    marginBottom: 8,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 12,
+    fontFamily: 'System',
+    letterSpacing: -0.8,
   },
   subtitle: {
-    color: '#6B7280',
+    color: '#64748B',
     fontSize: 16,
-    marginBottom: 0,
-    marginTop: 4,
+    fontWeight: '500',
+    lineHeight: 24,
+    fontFamily: 'System',
+    letterSpacing: -0.1,
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  headerActions: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 12,
   },
   profileCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingVertical: 14,
+    backgroundColor: '#3B82F6',
+    borderRadius: 20,
+    paddingVertical: 16,
     paddingHorizontal: 24,
-    minWidth: 110,
+    minWidth: 120,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-    marginRight: 8,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: '#2563EB',
   },
   profileName: {
     fontWeight: '600',
-    color: '#181C32',
-    fontSize: 17,
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'System',
+    letterSpacing: -0.3,
   },
   logoutBtn: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    shadowColor: '#CBD5E1',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   logoutText: {
-    color: '#3B82F6',
-    fontWeight: 'bold',
-    fontSize: 16,
+    color: '#64748B',
+    fontWeight: '600',
+    fontSize: 14,
+    fontFamily: 'System',
+    letterSpacing: -0.1,
   },
-  tabsRow: {
+
+  // Tabs Styles - Enhanced with better spacing
+  tabsContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  tabsWrapper: {
     flexDirection: 'row',
-    alignSelf: 'center',
-    backgroundColor: '#EEF4FF',
+    backgroundColor: '#EFF6FF',
     borderRadius: 20,
     padding: 6,
-    marginTop: 8,
-    marginBottom: 24,
-    width: 320,
-    justifyContent: 'center',
-  },
-  tab: {
-    paddingVertical: 10,
-    paddingHorizontal: 28,
-    borderRadius: 16,
-    marginHorizontal: 2,
-  },
-  activeTab: {
-    backgroundColor: '#0076FF',
-  },
-  tabText: {
-    color: '#0076FF',
-    fontWeight: '600',
-    fontSize: 17,
-  },
-  activeTabText: {
-    color: '#fff',
-  },
-  sectionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: '#222',
-    marginTop: 24,
-    marginBottom: 8,
-  },
-  viewAll: {
-    color: '#3B82F6',
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  cardsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  cardBox: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    flex: 1,
-    marginRight: 12,
-    shadowColor: '#000',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
     elevation: 2,
-    alignItems: 'flex-start',
+  },
+  tab: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    minWidth: 90,
+    alignItems: 'center',
+  },
+  activeTab: {
+    backgroundColor: '#3B82F6',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  tabText: {
+    color: '#3B82F6',
+    fontWeight: '500',
+    fontSize: 15,
+    fontFamily: 'System',
+    letterSpacing: -0.2,
+  },
+  activeTabText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+
+  // Content Styles - Better organization
+  contentContainer: {
+    paddingHorizontal: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontWeight: '600',
+    fontSize: 20,
+    color: '#1E293B',
+    fontFamily: 'System',
+    letterSpacing: -0.3,
+  },
+  viewAllText: {
+    color: '#3B82F6',
+    fontWeight: '500',
+    fontSize: 15,
+    fontFamily: 'System',
+    letterSpacing: -0.1,
+  },
+
+  // Cards Styles - Fixed alignment issues
+  cardsContainer: {
+    marginBottom: 32,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    gap: 16,
+  },
+  activityCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    flex: 1,
+    minHeight: 160,
+    shadowColor: '#8B9DC3',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    justifyContent: 'space-between',
+  },
+  cardLeft: {
+    marginRight: 8,
+  },
+  cardRight: {
+    marginLeft: 8,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  cardHeader: {
+    marginBottom: 16,
   },
   iconCircle: {
-    backgroundColor: '#EAF0FF',
+    backgroundColor: '#EFF6FF',
     borderRadius: 16,
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   iconCircleBlue: {
     backgroundColor: '#DBEAFE',
     borderRadius: 16,
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   iconCircleGreen: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: '#DCFCE7',
     borderRadius: 16,
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   iconCirclePurple: {
-    backgroundColor: '#E9D5FF',
+    backgroundColor: '#F3E8FF',
     borderRadius: 16,
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   iconText: {
-    fontSize: 18,
+    fontSize: 20,
   },
   cardTitle: {
-    fontWeight: '600',
-    color: '#222',
+    fontWeight: '500',
+    color: '#1E293B',
     fontSize: 15,
-    marginBottom: 4,
+    marginBottom: 12,
+    lineHeight: 20,
+    fontFamily: 'System',
+    letterSpacing: -0.2,
+    minHeight: 40,
+  },
+  cardMainContent: {
+    marginBottom: 8,
   },
   cardCount: {
-    fontWeight: 'bold',
-    fontSize: 22,
-    color: '#222',
-    marginBottom: 2,
+    fontWeight: '600',
+    fontSize: 24,
+    color: '#1E293B',
+    marginBottom: 4,
+    fontFamily: 'System',
+    letterSpacing: -0.4,
+  },
+  cardBottomInfo: {
+    marginTop: 'auto',
   },
   cardTime: {
-    color: '#6B7280',
+    color: '#64748B',
     fontSize: 13,
-    marginBottom: 2,
+    fontWeight: '500',
+    fontFamily: 'System',
+  },
+  cardSubtext: {
+    color: '#64748B',
+    fontSize: 13,
+    fontWeight: '500',
+    fontFamily: 'System',
+    marginTop: 4,
   },
   percentUp: {
     color: '#22C55E',
     fontWeight: '600',
-    fontSize: 15,
+    fontSize: 16,
+    fontFamily: 'System',
   },
+
+  // Progress Styles - Enhanced with better visual hierarchy
   progressCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 12,
-    marginBottom: 32,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#8B9DC3',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
-  progressRow: {
+  progressItem: {
+    marginBottom: 20,
+  },
+  progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10,
   },
   progressLabel: {
-    fontWeight: '600',
-    color: '#222',
-    fontSize: 15,
+    fontWeight: '500',
+    color: '#1E293B',
+    fontSize: 16,
+    fontFamily: 'System',
+    letterSpacing: -0.2,
   },
   progressValue: {
-    color: '#6B7280',
+    color: '#64748B',
     fontSize: 14,
     fontWeight: '500',
+    fontFamily: 'System',
   },
-  progressBarBg: {
-    backgroundColor: '#E5E7EB',
+  progressBarContainer: {
+    backgroundColor: '#F1F5F9',
     height: 8,
     borderRadius: 8,
-    marginTop: 6,
-    marginBottom: 2,
-    width: '100%',
+    overflow: 'hidden',
   },
   progressBar: {
     backgroundColor: '#3B82F6',
@@ -377,7 +541,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   progressBarOrange: {
-    backgroundColor: '#F59E42',
+    backgroundColor: '#F59E0B',
     height: 8,
     borderRadius: 8,
   },

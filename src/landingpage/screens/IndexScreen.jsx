@@ -1,15 +1,18 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
-  Dimensions,
   Animated,
-  StyleSheet,
+  StatusBar,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Button from '../../components/elements/Button';
@@ -17,425 +20,837 @@ import Input from '../../components/elements/Input';
 import Card from '../../components/blocks/Card';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import GoogleSignInButton from '../../shared/components/GoogleSignInButton';
-import AnimatedBackground from '../components/AnimatedBackground';
-import FeatureCards from '../components/FeatureCards';
-import StatsRow from '../components/StatsRow';
 import { getStyles } from './IndexScreen.styles.js';
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 const IndexScreen = () => {
   const { theme } = useTheme();
   const styles = getStyles(theme || {});
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [phoneNumber] = useState('');
-  const [email] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [userRole, setUserRole] = useState('getHired'); // 'getHired' or 'hireSomeone'
+  const [userRole, setUserRole] = useState('seeker');
+  const [emailError, setEmailError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  // Use useRef to persist animated values across renders
-  const floatingAnim1 = useRef(new Animated.Value(0)).current;
-  const floatingAnim2 = useRef(new Animated.Value(0)).current;
-  const floatingAnim3 = useRef(new Animated.Value(0)).current;
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
+  const socialButtonScales = useRef([
+    new Animated.Value(1),
+    new Animated.Value(1),
+  ]).current;
+
+  // Animated background elements
+  const backgroundAnimations = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
+
+  const backgroundRotations = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
+
+  const backgroundScales = useRef([
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+  ]).current;
+
+  // Animated Background Component
+  const AnimatedBackground = () => {
+    const elements = [
+      { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
+      {
+        type: 'small',
+        color: '#10B981',
+        size: 40,
+        style: 'floatingElementSmall',
+      },
+      {
+        type: 'tiny',
+        color: '#F59E0B',
+        size: 20,
+        style: 'floatingElementTiny',
+      },
+      {
+        type: 'square',
+        color: '#EC4899',
+        size: 60,
+        style: 'floatingElementSquare',
+      },
+      { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
+      {
+        type: 'small',
+        color: '#10B981',
+        size: 40,
+        style: 'floatingElementSmall',
+      },
+      {
+        type: 'tiny',
+        color: '#F59E0B',
+        size: 20,
+        style: 'floatingElementTiny',
+      },
+      {
+        type: 'square',
+        color: '#EC4899',
+        size: 60,
+        style: 'floatingElementSquare',
+      },
+      { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
+      {
+        type: 'small',
+        color: '#10B981',
+        size: 40,
+        style: 'floatingElementSmall',
+      },
+    ];
+
+    const positions = [
+      { left: screenWidth * 0.1, top: 150 },
+      { left: screenWidth * 0.8, top: 250 },
+      { left: screenWidth * 0.2, top: 400 },
+      { left: screenWidth * 0.9, top: 500 },
+      { left: screenWidth * 0.05, top: 650 },
+      { left: screenWidth * 0.7, top: 750 },
+      { left: screenWidth * 0.3, top: 850 },
+      { left: screenWidth * 0.85, top: 950 },
+      { left: screenWidth * 0.15, top: 1050 },
+      { left: screenWidth * 0.6, top: 1150 },
+    ];
+
+    return (
+      <View style={styles.animatedBackground}>
+        {/* Floating elements */}
+        {backgroundAnimations.map((anim, index) => (
+          <Animated.View
+            key={index}
+            style={[
+              styles[elements[index].style],
+              {
+                transform: [
+                  {
+                    translateY: anim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, -50 - index * 10],
+                    }),
+                  },
+                  {
+                    translateX: anim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, (index % 2 === 0 ? 1 : -1) * 20],
+                    }),
+                  },
+                  {
+                    rotate: backgroundRotations[index].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [
+                        '0deg',
+                        elements[index].type === 'square' ? '405deg' : '360deg',
+                      ],
+                    }),
+                  },
+                  {
+                    scale: backgroundScales[index].interpolate({
+                      inputRange: [0, 0.5, 1],
+                      outputRange: [1, 1.2, 1],
+                    }),
+                  },
+                ],
+                opacity: anim.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: [0.3, 0.8, 0.3],
+                }),
+                left: positions[index].left,
+                top: positions[index].top,
+              },
+            ]}
+          />
+        ))}
+
+        {/* Gradient overlays */}
+        <View style={styles.gradientOverlay} />
+        <View style={styles.gradientOverlayTop} />
+        <View style={styles.gradientOverlayBottom} />
+      </View>
+    );
+  };
 
   useEffect(() => {
-    const animateFloating = () => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(floatingAnim1, {
-            toValue: 1,
-            duration: 4000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(floatingAnim1, {
-            toValue: 0,
-            duration: 4000,
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
+    // Start background animations
+    const startBackgroundAnimations = () => {
+      backgroundAnimations.forEach((anim, index) => {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 4000 + index * 800,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 0,
+              duration: 4000 + index * 800,
+              useNativeDriver: true,
+            }),
+          ]),
+        ).start();
+      });
 
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(floatingAnim2, {
+      backgroundRotations.forEach((rotation, index) => {
+        Animated.loop(
+          Animated.timing(rotation, {
             toValue: 1,
-            duration: 5000,
+            duration: 10000 + index * 1500,
             useNativeDriver: true,
           }),
-          Animated.timing(floatingAnim2, {
-            toValue: 0,
-            duration: 5000,
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
+        ).start();
+      });
 
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(floatingAnim3, {
-            toValue: 1,
-            duration: 3500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(floatingAnim3, {
-            toValue: 0,
-            duration: 3500,
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
+      backgroundScales.forEach((scale, index) => {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(scale, {
+              toValue: 1,
+              duration: 2000 + index * 300,
+              useNativeDriver: true,
+            }),
+            Animated.timing(scale, {
+              toValue: 0,
+              duration: 2000 + index * 300,
+              useNativeDriver: true,
+            }),
+          ]),
+        ).start();
+      });
     };
 
-    animateFloating();
+    startBackgroundAnimations();
+
+    // Entrance animation with staggered effect
+    Animated.stagger(200, [
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+
+    // Keyboard listeners
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => setIsKeyboardVisible(true),
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => setIsKeyboardVisible(false),
+    );
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
   }, []);
 
+  // Email validation
+  const validateEmail = email => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim()) {
+      return 'Email is required';
+    }
+    if (!emailRegex.test(email)) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  };
+
+  // Phone validation
+  const validatePhone = phone => {
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    if (!phone.trim()) {
+      return 'Phone number is required';
+    }
+    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+      return 'Please enter a valid phone number';
+    }
+    return '';
+  };
+
+  // Handle input changes with validation
+  const handleEmailChange = text => {
+    setEmail(text);
+    if (emailError) {
+      setEmailError(validateEmail(text));
+    }
+  };
+
+  const handlePhoneChange = text => {
+    setPhone(text);
+    if (phoneError) {
+      setPhoneError(validatePhone(text));
+    }
+  };
+
+  // Button press animation
+  const animateButton = scale => {
+    Animated.sequence([
+      Animated.timing(scale, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   const handleLogin = async () => {
+    if (isLoading) {
+      return;
+    }
+
+    // Validate inputs
+    const emailErr = validateEmail(email);
+    const phoneErr = isLogin ? validatePhone(phone) : '';
+
+    setEmailError(emailErr);
+    setPhoneError(phoneErr);
+
+    if (emailErr || phoneErr) {
+      Alert.alert('Invalid Input', 'Please check your email and phone number', [
+        { text: 'OK', style: 'default' },
+      ]);
+      return;
+    }
+
+    animateButton(buttonScale);
     setIsLoading(true);
+
     try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
       const demoUser = {
         id: `demo-user-${Date.now()}`,
-        name: phoneNumber.trim() || 'Demo User',
-        email: email.trim() || 'demo@jobconnect.app',
-        mode: userRole === 'getHired' ? 'seeker' : 'employer',
+        name: 'Demo User',
+        email: email.trim(),
+        phone: phone.trim() || '+91 9876543210',
+        mode: userRole,
       };
 
       await login(demoUser);
+
+      // Success feedback
+      Alert.alert(
+        'Welcome!',
+        `Successfully ${
+          isLogin ? 'logged in' : 'created account'
+        } as ${userRole}`,
+        [{ text: 'Continue', style: 'default' }],
+      );
     } catch (error) {
-      // Handle login error gracefully
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Something went wrong. Please try again.', [
+        { text: 'OK', style: 'default' },
+      ]);
+    } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSocialLogin = (provider, index) => {
+    animateButton(socialButtonScales[index]);
+
+    // Provide user feedback
+    Alert.alert('Coming Soon', `${provider} login will be available soon!`, [
+      { text: 'OK', style: 'default' },
+    ]);
+  };
+
+  const handleRoleChange = role => {
+    setUserRole(role);
+    // Haptic feedback could be added here
+  };
+
+  const toggleAuthMode = () => {
+    setIsLogin(!isLogin);
+    // Clear validation errors when switching modes
+    setEmailError('');
+    setPhoneError('');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <AnimatedBackground />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <ScrollView
-        style={{ flex: 1, zIndex: 10 }}
-        contentContainerStyle={{ paddingBottom: theme?.spacing?.[8] || 32 }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoid}
       >
-        {/* Subheading: green icon + JobConnect + tagline */}
-        <View style={{ position: 'relative' }}>
-          {/* Sign Up button absolutely positioned */}
-          <TouchableOpacity
-            onPress={() => setIsLogin(!isLogin)}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            isKeyboardVisible && styles.scrollContentKeyboard,
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header */}
+          <Animated.View
             style={[
-              styles.headerSignUpButton,
-              { position: 'absolute', top: 0, right: 0, zIndex: 10 },
+              styles.header,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
             ]}
           >
-            <Text style={styles.headerSignUp}>Sign Up</Text>
-          </TouchableOpacity>
-
-          {/* Brand row below */}
-          <View style={styles.brandRow}>
-            <View style={styles.brandIcon}>
-              <Feather
-                name="send"
-                size={20}
-                color={theme?.colors?.text?.white || '#FFFFFF'}
-              />
-            </View>
-            <View>
-              <Text style={styles.brandName}>JobConnect</Text>
-              <Text style={styles.brandTagline}>Your career, reimagined</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Hero Section with improved typography */}
-        <View style={styles.heroContainer}>
-          <LinearGradient
-            colors={[
-              theme?.colors?.background?.primary || '#FFFFFF',
-              '#F8FAFC',
-            ]}
-            style={styles.heroGradientBg}
-          >
-            <View style={styles.heroInner}>
-              <Text style={styles.heroTitle}>Swipe Into</Text>
-              <Text style={styles.heroSubtitle}>Your Dream Job</Text>
-              <Text style={styles.heroDescription}>
-                Discover opportunities with a swipe
-              </Text>
-              <Text style={styles.heroSmallText}>
-                Revolutionary job discovery that feels like magic
-              </Text>
-              {/* Rocket card inspired by LandingScreen */}
-              <View style={styles.rocketCard}>
-                <Feather
-                  name="rocket"
-                  size={36}
-                  color={theme?.colors?.primary?.main || '#3C4FE0'}
-                />
+            <View style={styles.brandContainer}>
+              <View style={styles.brandIcon}>
+                <Feather name="briefcase" size={20} color="#FFFFFF" />
               </View>
-              {/* 3. Add prominent CTA button below hero section */}
+              <View style={styles.brandText}>
+                <Text style={styles.brandName}>JobConnect</Text>
+                <Text style={styles.brandTagline}>Find your perfect match</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={toggleAuthMode}
+              activeOpacity={0.7}
+              accessibilityLabel={`Switch to ${
+                isLogin ? 'Sign Up' : 'Sign In'
+              }`}
+              accessibilityHint="Tap to switch between login and signup"
+            >
+              <Text style={styles.headerButtonText}>
+                {isLogin ? 'Sign Up' : 'Sign In'}
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* Hero Section - Hide when keyboard is visible */}
+          {!isKeyboardVisible && (
+            <Animated.View
+              style={[
+                styles.heroSection,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}
+            >
+              <View style={styles.heroContent}>
+                <Text style={styles.heroTitle}>
+                  Discover Your{'\n'}Dream Career
+                </Text>
+                <Text style={styles.heroSubtitle}>
+                  Connect with opportunities that match your skills and
+                  aspirations
+                </Text>
+
+                <View style={styles.heroStats}>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>10K+</Text>
+                    <Text style={styles.statLabel}>Active Jobs</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>5K+</Text>
+                    <Text style={styles.statLabel}>Companies</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>50K+</Text>
+                    <Text style={styles.statLabel}>Success Stories</Text>
+                  </View>
+                </View>
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Auth Card */}
+          <Animated.View
+            style={[
+              styles.authContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <Card style={styles.authCard}>
+              <View style={styles.authHeader}>
+                <Text style={styles.authTitle}>
+                  {isLogin ? 'Welcome Back!' : 'Get Started'}
+                </Text>
+                <Text style={styles.authSubtitle}>
+                  {isLogin
+                    ? 'Sign in to continue your job search journey'
+                    : 'Join thousands of professionals finding their perfect job match'}
+                </Text>
+              </View>
+
+              <View style={styles.authForm}>
+                {/* Role Selection */}
+                <View style={styles.roleSelection}>
+                  <Text style={styles.roleLabel}>I want to:</Text>
+                  <View style={styles.roleOptions}>
+                    <TouchableOpacity
+                      style={[
+                        styles.roleOption,
+                        userRole === 'seeker' && styles.roleOptionActive,
+                      ]}
+                      onPress={() => handleRoleChange('seeker')}
+                      activeOpacity={0.8}
+                      accessibilityLabel="Find a job"
+                      accessibilityState={{ selected: userRole === 'seeker' }}
+                    >
+                      <View
+                        style={[
+                          styles.roleIcon,
+                          userRole === 'seeker' && styles.roleIconActive,
+                        ]}
+                      >
+                        <Feather
+                          name="search"
+                          size={16}
+                          color={userRole === 'seeker' ? '#FFFFFF' : '#64748B'}
+                        />
+                      </View>
+                      <Text
+                        style={[
+                          styles.roleText,
+                          userRole === 'seeker' && styles.roleTextActive,
+                        ]}
+                      >
+                        Find a Job
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.roleOption,
+                        userRole === 'employer' && styles.roleOptionActive,
+                      ]}
+                      onPress={() => handleRoleChange('employer')}
+                      activeOpacity={0.8}
+                      accessibilityLabel="Hire talent"
+                      accessibilityState={{ selected: userRole === 'employer' }}
+                    >
+                      <View
+                        style={[
+                          styles.roleIcon,
+                          userRole === 'employer' && styles.roleIconActive,
+                        ]}
+                      >
+                        <Feather
+                          name="plus"
+                          size={16}
+                          color={
+                            userRole === 'employer' ? '#FFFFFF' : '#64748B'
+                          }
+                        />
+                      </View>
+                      <Text
+                        style={[
+                          styles.roleText,
+                          userRole === 'employer' && styles.roleTextActive,
+                        ]}
+                      >
+                        Hire Talent
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Form Fields */}
+                <View style={styles.formFields}>
+                  <View style={styles.inputContainer}>
+                    <Input
+                      label="Email Address"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChangeText={handleEmailChange}
+                      onBlur={() => setEmailError(validateEmail(email))}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      leftIcon={
+                        <Feather name="mail" size={20} color="#94A3B8" />
+                      }
+                      error={emailError}
+                      accessibilityLabel="Email address"
+                    />
+                    {emailError ? (
+                      <Text style={styles.errorText}>{emailError}</Text>
+                    ) : null}
+                  </View>
+
+                  {isLogin && (
+                    <View style={styles.inputContainer}>
+                      <Input
+                        label="Phone Number"
+                        placeholder="+91 XXXXX XXXXX"
+                        value={phone}
+                        onChangeText={handlePhoneChange}
+                        onBlur={() => setPhoneError(validatePhone(phone))}
+                        keyboardType="phone-pad"
+                        leftIcon={
+                          <Feather name="phone" size={20} color="#94A3B8" />
+                        }
+                        error={phoneError}
+                        accessibilityLabel="Phone number"
+                      />
+                      {phoneError ? (
+                        <Text style={styles.errorText}>{phoneError}</Text>
+                      ) : null}
+                    </View>
+                  )}
+                </View>
+
+                {/* Primary CTA */}
+                <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onPress={handleLogin}
+                    disabled={isLoading}
+                    style={[
+                      styles.primaryButton,
+                      isLoading && styles.primaryButtonDisabled,
+                    ]}
+                    accessibilityLabel={isLogin ? 'Sign in' : 'Create account'}
+                    accessibilityState={{ disabled: isLoading }}
+                  >
+                    <View style={styles.buttonContent}>
+                      {isLoading ? (
+                        <>
+                          <Feather name="loader" size={20} color="#FFFFFF" />
+                          <Text style={styles.buttonText}>Please wait...</Text>
+                        </>
+                      ) : (
+                        <>
+                          <Feather
+                            name="arrow-right"
+                            size={20}
+                            color="#FFFFFF"
+                          />
+                          <Text style={styles.buttonText}>
+                            {isLogin ? 'Sign In' : 'Create Account'}
+                          </Text>
+                        </>
+                      )}
+                    </View>
+                  </Button>
+                </Animated.View>
+
+                {/* Divider */}
+                <View style={styles.divider}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>or continue with</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+
+                {/* Social Login */}
+                <View style={styles.socialButtons}>
+                  <Animated.View
+                    style={{ transform: [{ scale: socialButtonScales[0] }] }}
+                  >
+                    <TouchableOpacity
+                      style={styles.socialButton}
+                      onPress={() => handleSocialLogin('Google', 0)}
+                      activeOpacity={0.8}
+                      accessibilityLabel="Continue with Google"
+                    >
+                      <FontAwesome name="google" size={20} color="#4285F4" />
+                      <Text style={styles.socialButtonText}>Google</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+
+                  {/* <Animated.View
+                    style={{ transform: [{ scale: socialButtonScales[1] }] }}
+                  >
+                    <TouchableOpacity
+                      style={styles.socialButton}
+                      onPress={() => handleSocialLogin('LinkedIn', 1)}
+                      activeOpacity={0.8}
+                      accessibilityLabel="Continue with LinkedIn"
+                    >
+                      <FontAwesome name="linkedin" size={20} color="#0077B5" />
+                      <Text style={styles.socialButtonText}>LinkedIn</Text>
+                    </TouchableOpacity>
+                  </Animated.View> */}
+                </View>
+
+                {/* Terms */}
+                <Text style={styles.termsText}>
+                  By continuing, you agree to our{' '}
+                  <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
+                  <Text style={styles.termsLink}>Privacy Policy</Text>
+                </Text>
+              </View>
+            </Card>
+          </Animated.View>
+
+          {/* Features Section - Hide when keyboard is visible */}
+          {!isKeyboardVisible && (
+            <Animated.View
+              style={[
+                styles.featuresSection,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}
+            >
+              <Text style={styles.featuresTitle}>Why Choose JobConnect?</Text>
+
+              <View style={styles.featuresGrid}>
+                <TouchableOpacity
+                  style={styles.featureCard}
+                  activeOpacity={0.8}
+                  accessibilityLabel="Smart Matching feature"
+                >
+                  <View
+                    style={[styles.featureIcon, { backgroundColor: '#EFF6FF' }]}
+                  >
+                    <Feather name="zap" size={24} color="#3B82F6" />
+                  </View>
+                  <Text style={styles.featureTitle}>Smart Matching</Text>
+                  <Text style={styles.featureDescription}>
+                    AI-powered job recommendations based on your skills and
+                    preferences
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.featureCard}
+                  activeOpacity={0.8}
+                  accessibilityLabel="Verified Companies feature"
+                >
+                  <View
+                    style={[styles.featureIcon, { backgroundColor: '#F0FDF4' }]}
+                  >
+                    <Feather name="shield" size={24} color="#22C55E" />
+                  </View>
+                  <Text style={styles.featureTitle}>Verified Companies</Text>
+                  <Text style={styles.featureDescription}>
+                    All companies are verified to ensure legitimate
+                    opportunities
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.featureCard}
+                  activeOpacity={0.8}
+                  accessibilityLabel="Career Growth feature"
+                >
+                  <View
+                    style={[styles.featureIcon, { backgroundColor: '#FEF3C7' }]}
+                  >
+                    <Feather name="trending-up" size={24} color="#F59E0B" />
+                  </View>
+                  <Text style={styles.featureTitle}>Career Growth</Text>
+                  <Text style={styles.featureDescription}>
+                    Track your progress and get insights for career advancement
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.featureCard}
+                  activeOpacity={0.8}
+                  accessibilityLabel="Community feature"
+                >
+                  <View
+                    style={[styles.featureIcon, { backgroundColor: '#FDF2F8' }]}
+                  >
+                    <Feather name="users" size={24} color="#EC4899" />
+                  </View>
+                  <Text style={styles.featureTitle}>Community</Text>
+                  <Text style={styles.featureDescription}>
+                    Connect with professionals and expand your network
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Footer CTA - Hide when keyboard is visible */}
+          {!isKeyboardVisible && (
+            <Animated.View
+              style={[
+                styles.footerCta,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}
+            >
+              <Text style={styles.footerCtaText}>
+                Ready to take the next step in your career?
+              </Text>
+
               <Button
-                variant="primary"
+                variant="outline"
                 size="lg"
-                style={styles.heroCtaButton}
                 onPress={handleLogin}
+                style={styles.footerButton}
+                accessibilityLabel="Explore job opportunities"
               >
-                <View style={styles.heroCtaButtonContent}>
-                  <Feather
-                    name="briefcase"
-                    size={18}
-                    color="#fff"
-                    style={{ marginRight: 6 }}
-                  />
-                  <Text style={styles.heroCtaButtonText}>Find Jobs ✨</Text>
+                <View style={styles.buttonContent}>
+                  <Feather name="briefcase" size={20} color="#1E88E5" />
+                  <Text style={styles.footerButtonText}>
+                    Explore Opportunities
+                  </Text>
                 </View>
               </Button>
-            </View>
-          </LinearGradient>
-        </View>
-
-        {/* Stats section with improved design */}
-        <StatsRow />
-
-        {/* Auth Card with improved styling */}
-        <View style={styles.authCardContainer}>
-          <Card style={styles.authCard}>
-            <View style={styles.authCardHeader}>
-              <Text style={styles.authCardHeaderTitle}>
-                Welcome to JobConnect
-              </Text>
-              <Text style={styles.authCardHeaderSubtitle}>
-                Explore the amazing features and interface
-              </Text>
-            </View>
-
-            <View style={styles.authCardBody}>
-              {!isLogin && (
-                <Input
-                  label="Email (Optional)"
-                  placeholder="your@email.com"
-                  variant="glass"
-                  leftIcon={
-                    <Feather
-                      name="mail"
-                      size={16}
-                      color={theme?.colors?.text?.tertiary || '#94A3B8'}
-                    />
-                  }
-                />
-              )}
-              {isLogin && (
-                <Input
-                  label="Phone Number"
-                  placeholder="+91 XXXXX XXXXX"
-                  variant="glass"
-                  leftIcon={
-                    <Feather
-                      name="phone"
-                      size={16}
-                      color={theme?.colors?.text?.tertiary || '#94A3B8'}
-                    />
-                  }
-                  keyboardType="phone-pad"
-                  style={styles.phoneInput}
-                />
-              )}
-
-              <View style={styles.roleSelectionContainer}>
-                <Text style={styles.roleSelectionLabel}>
-                  What do you want to do?
-                </Text>
-                <View style={styles.roleOptionsRow}>
-                  <TouchableOpacity
-                    style={[
-                      styles.roleOption,
-                      userRole === 'getHired' && styles.roleOptionActive,
-                    ]}
-                    onPress={() => setUserRole('getHired')}
-                  >
-                    <View
-                      style={[
-                        styles.roleOptionIcon,
-                        userRole === 'getHired' && styles.roleOptionIconActive,
-                      ]}
-                    >
-                      <Feather
-                        name="search"
-                        size={12}
-                        color={
-                          userRole === 'getHired'
-                            ? theme?.colors?.text?.white || '#FFFFFF'
-                            : theme?.colors?.text?.secondary || '#64748B'
-                        }
-                      />
-                    </View>
-                    <Text
-                      style={[
-                        styles.roleOptionText,
-                        userRole === 'getHired' && styles.roleOptionTextActive,
-                      ]}
-                    >
-                      Find a job
-                    </Text>
-                    {userRole === 'getHired' && (
-                      <View style={styles.roleOptionBadge}>
-                        <Text style={styles.roleOptionBadgeText}>Popular</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.roleOption,
-                      userRole === 'hireSomeone' && styles.roleOptionActive,
-                    ]}
-                    onPress={() => setUserRole('hireSomeone')}
-                  >
-                    <View
-                      style={[
-                        styles.roleOptionIcon,
-                        userRole === 'hireSomeone' &&
-                          styles.roleOptionIconActive,
-                      ]}
-                    >
-                      <Feather
-                        name="plus"
-                        size={12}
-                        color={
-                          userRole === 'hireSomeone'
-                            ? theme?.colors?.text?.white || '#FFFFFF'
-                            : theme?.colors?.text?.secondary || '#64748B'
-                        }
-                      />
-                    </View>
-                    <Text
-                      style={[
-                        styles.roleOptionText,
-                        userRole === 'hireSomeone' &&
-                          styles.roleOptionTextActive,
-                      ]}
-                    >
-                      Post a job
-                    </Text>
-                    {userRole === 'hireSomeone' && (
-                      <View style={styles.roleOptionBadge}>
-                        <Text style={styles.roleOptionBadgeText}>Verified</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.dividerContainer}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or continue with</Text>
-              </View>
-
-              <View
-                style={[
-                  styles.socialButtonsContainer,
-                  { flexDirection: 'row', gap: 12 },
-                ]}
-              >
-                <TouchableOpacity style={styles.socialButton}>
-                  <View style={styles.socialButtonContent}>
-                    <FontAwesome name="google" size={20} color="#222" />
-                    <Text style={styles.socialButtonText}>
-                      Continue with Google
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
-                  <View style={styles.socialButtonContent}>
-                    <Feather name="phone" size={20} color="#10B981" />
-                    <Text style={styles.socialButtonText}>
-                      Connect with WhatsApp
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-
-              <TouchableOpacity
-                onPress={handleLogin}
-                style={{
-                  borderRadius: 999,
-                  overflow: 'hidden',
-                  marginTop: 8,
-                  marginBottom: 18,
-                }}
-              >
-                <LinearGradient
-                  colors={['#10B981', '#06B6D4']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{
-                    width: '100%',
-                    height: 54,
-                    borderRadius: 999,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontWeight: '700',
-                      fontSize: 20,
-                      letterSpacing: 0.2,
-                    }}
-                  >
-                    Enter Dashboard
-                  </Text>
-                  <Feather
-                    name="sparkles"
-                    size={20}
-                    color="#fff"
-                    style={{ marginLeft: 8 }}
-                  />
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <Text style={styles.agreementText}>
-                By continuing you agree to our{' '}
-                <Text style={styles.agreementLink} onPress={() => {}}>
-                  Terms of Service
-                </Text>{' '}
-                and{' '}
-                <Text style={styles.agreementLink} onPress={() => {}}>
-                  Privacy Policy
-                </Text>
-              </Text>
-            </View>
-          </Card>
-        </View>
-
-        {/* Features section with improved design */}
-        <FeatureCards />
-
-        {/* Bottom CTA with improved styling */}
-        <View style={styles.bottomCtaContainer}>
-          <View style={styles.bottomCtaInner}>
-            <Text style={styles.bottomCtaText}>
-              Ready to revolutionize your job search?
-            </Text>
-            <Button
-              variant="outline"
-              size="lg"
-              fullWidth
-              style={styles.bottomCtaButton}
-            >
-              <View style={styles.bottomCtaButtonContent}>
-                <Feather
-                  name="briefcase"
-                  size={20}
-                  color={theme?.colors?.text?.primary || '#1E293B'}
-                />
-                <Text style={styles.bottomCtaButtonText}>
-                  Post a Job for Employers
-                </Text>
-              </View>
-            </Button>
-          </View>
-        </View>
-      </ScrollView>
+            </Animated.View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+      <AnimatedBackground />
     </SafeAreaView>
   );
 };

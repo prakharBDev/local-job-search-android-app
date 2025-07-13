@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import Badge from '../../components/elements/Badge';
-import Card from '../../components/blocks/Card';
-import { useTheme } from '../../contexts/ThemeContext';
+import Badge from '../../../components/elements/Badge.jsx';
+import Card from '../../../components/blocks/Card.jsx';
+import { useTheme } from '../../../contexts/ThemeContext.jsx';
 
 const RecentJobCard = ({ item }) => {
   const { theme } = useTheme();

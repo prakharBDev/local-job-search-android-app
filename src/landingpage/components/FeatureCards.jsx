@@ -21,7 +21,7 @@ const features = [
   {
     icon: 'globe',
     title: 'Local Focus',
-    description: 'Opportunities in your city',
+    description: 'Opportunities in your Morena/Gwalior',
     color: ['#fff', '#F1F5F9'],
     delay: 400,
   },
@@ -99,10 +99,16 @@ const FeatureCards = () => {
           {features.map((feature, idx) => (
             <View key={feature.title} style={styles.featureCard}>
               <View style={styles.featureIcon}>
-                <Feather name={feature.icon} size={24} color={feature.color[0]} />
+                <Feather
+                  name={feature.icon}
+                  size={24}
+                  color="#3C4FE0" // or any dark color you prefer
+                />
               </View>
               <Text style={styles.featureTitle}>{feature.title}</Text>
-              <Text style={styles.featureDescription}>{feature.description}</Text>
+              <Text style={styles.featureDescription}>
+                {feature.description}
+              </Text>
             </View>
           ))}
         </View>
@@ -111,4 +117,4 @@ const FeatureCards = () => {
   );
 };
 
-export default FeatureCards; 
+export default FeatureCards;

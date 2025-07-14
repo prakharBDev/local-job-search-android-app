@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import Badge from '../../../components/elements/Badge.jsx';
-import Card from '../../../components/blocks/Card.jsx';
-import { useTheme } from '../../../contexts/ThemeContext.jsx';
+import Badge from '../../../components/elements/Badge';
+import Card from '../../../components/blocks/Card';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 const PopularJobCard = ({ job }) => {
   const { theme } = useTheme();
@@ -62,9 +62,7 @@ const PopularJobCard = ({ job }) => {
       >
         {job.title}
       </Text>
-      <Text
-        style={{ fontSize: 13, color: '#E0E7EF', marginBottom: 10 }}
-      >
+      <Text style={{ fontSize: 13, color: '#E0E7EF', marginBottom: 10 }}>
         {job.salary}
       </Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -100,4 +98,4 @@ const PopularJobCard = ({ job }) => {
   );
 };
 
-export default PopularJobCard; 
+export default PopularJobCard;

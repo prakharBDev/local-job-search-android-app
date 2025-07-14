@@ -96,6 +96,11 @@ const MyJobsStack = () => {
         component={AppliedJobsScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="JobDetails"
+        component={JobDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };

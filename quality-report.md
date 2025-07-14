@@ -1,34 +1,30 @@
 # 📊 Code Quality Report
 
-## Overall Score: 22/100
+## Overall Score: 20/100
 
 🔴 Critical
 
 ## Detailed Scores
 
-| Metric           | Score                 | Status      |
-| ---------------- | --------------------- | ----------- |
-| File Size        | 100/100               | ✅ Good     |
-| Code Duplication | 0/100                 | ❌ Critical |
-| Test Coverage    | 0/100                 | ❌ Critical |
-| TypeScript Usage | 11.76470588235294/100 | ❌ Critical |
-| Performance      | 0/100                 | ❌ Critical |
+| Metric | Score | Status |
+|--------|-------|--------|
+| File Size | 100/100 | ✅ Good |
+| Code Duplication | 0/100 | ❌ Critical |
+| Test Coverage | 0/100 | ❌ Critical |
+| Performance | 0/100 | ❌ Critical |
 
 ## Issues Found
 
+
 ### Code Duplication (medium)
+26.0% code duplication detected
 
-26.7% code duplication detected
 
-### TypeScript Usage (medium)
-
-60 files still use JavaScript instead of TypeScript
-**Recommendation:** Convert JavaScript files to TypeScript for better type safety
 
 ### Performance (medium)
-
-23 potential performance issues detected
+22 potential performance issues detected
 **Recommendation:** Implement React performance optimizations
+
 
 ## Recommendations
 
@@ -41,9 +37,7 @@
 - **Total Files:** 68
 - **Oversized Files:** 0
 - **Test Coverage:** 0%
-- **TypeScript Usage:** 11.76470588235294%
-- **Performance Issues:** 23
+- **Performance Issues:** 22
 
 ---
-
-_Generated on 7/10/2025, 4:37:59 PM_
+*Generated on 7/10/2025, 9:48:10 PM*

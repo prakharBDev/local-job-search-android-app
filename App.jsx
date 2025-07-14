@@ -11,6 +11,8 @@ import IndexScreen from './src/landingpage/screens/IndexScreen';
 import SplashScreen from './src/splash/screens/SplashScreen';
 import SettingsScreen from './src/settings/screens/SettingsScreen';
 import AboutScreen from './src/about/screens/AboutScreen';
+import CitySelectionScreen from './src/onboarding/screens/CitySelectionScreen';
+import ProfileSetupNavigator from './src/onboarding/navigation/ProfileSetupNavigator';
 
 // Import providers and components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -59,7 +61,8 @@ const IndexScreenContainer = () => {
 
 // Main App Navigator
 const AppNavigator = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, needsCitySelection, needsProfileSetup } =
+    useAuth();
   const { theme } = useTheme();
 
   return (
@@ -70,6 +73,18 @@ const AppNavigator = () => {
     >
       {isLoading || !isAuthenticated ? (
         <RootStack.Screen name="Auth" component={AuthNavigator} options={{}} />
+      ) : needsCitySelection ? (
+        <RootStack.Screen
+          name="CitySelection"
+          component={CitySelectionScreen}
+          options={{}}
+        />
+      ) : needsProfileSetup ? (
+        <RootStack.Screen
+          name="ProfileSetup"
+          component={ProfileSetupNavigator}
+          options={{}}
+        />
       ) : (
         <>
           <RootStack.Screen

@@ -91,6 +91,28 @@ const IndexScreen = () => {
     animateFloating();
   }, []);
 
+  const handleGoogleSignInResult = async result => {
+    setIsLoading(true);
+    try {
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      if (result.data && result.userRecord !== undefined) {
+        await login({
+          session: result.data.session,
+          user: result.data.user,
+          userRecord: result.userRecord,
+          isNewUser: result.isNewUser,
+        });
+      }
+    } catch (error) {
+      console.error('Sign-in error:', error);
+      // Handle login error gracefully
+      setIsLoading(false);
+    }
+  };
+
   const handleLogin = async () => {
     setIsLoading(true);
     try {
@@ -331,25 +353,17 @@ const IndexScreen = () => {
               <View
                 style={[
                   styles.socialButtonsContainer,
-                  { flexDirection: 'row', gap: 12 },
+                  {
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: 16,
+                  },
                 ]}
               >
-                <TouchableOpacity style={styles.socialButton}>
-                  <View style={styles.socialButtonContent}>
-                    <FontAwesome name="google" size={20} color="#222" />
-                    <Text style={styles.socialButtonText}>
-                      Continue with Google
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
-                  <View style={styles.socialButtonContent}>
-                    <Feather name="phone" size={20} color="#10B981" />
-                    <Text style={styles.socialButtonText}>
-                      Connect with WhatsApp
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                <View style={{ flex: 1, alignItems: 'center' }}>
+                  <GoogleSignInButton onSuccess={handleGoogleSignInResult} />
+                </View>
               </View>
 
               <TouchableOpacity
@@ -385,7 +399,7 @@ const IndexScreen = () => {
                     Enter Dashboard
                   </Text>
                   <Feather
-                    name="sparkles"
+                    name="star"
                     size={20}
                     color="#fff"
                     style={{ marginLeft: 8 }}

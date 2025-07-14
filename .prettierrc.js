@@ -11,12 +11,6 @@ module.exports = {
   endOfLine: 'lf', // Cross-platform compatibility
   overrides: [
     {
-      files: '*.{ts,tsx}',
-      options: {
-        parser: 'typescript',
-      },
-    },
-    {
       files: '*.{js,jsx}',
       options: {
         parser: 'babel',

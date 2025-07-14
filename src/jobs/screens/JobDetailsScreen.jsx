@@ -15,6 +15,7 @@ import Card from '../../components/blocks/Card';
 import { theme } from '../../theme';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getStyles } from './JobDetailsScreen.styles.js';
+import { useProfile } from '../../contexts/ProfileContext';
 
 // Mock job data - in real app, this would come from props/API
 const mockJob = {
@@ -34,17 +35,33 @@ const mockJob = {
   applicationsCount: 12,
 };
 
+// Helper fallback data
+const fallbackRequirements = [
+  'Experience with REST APIs',
+  'Knowledge of cloud platforms',
+  'Strong problem-solving skills',
+];
+const fallbackSkills = ['JavaScript', 'React Native', 'Teamwork'];
+const fallbackStatus = 'Active';
+const fallbackJobType = 'Full Time';
+const fallbackSalaryRange = '₹10,00,000 – ₹15,00,000/year';
+const fallbackApplicationsCount = 42;
+
 const JobDetailsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { jobId, mode = 'view' } = route.params || {};
-  const [job, setJob] = useState(mockJob);
+  const { job: routeJob, mode = 'view' } = route.params || {};
+  const [job, setJob] = useState(routeJob || mockJob);
   const [isLoading, setIsLoading] = useState(false);
+  const { activeProfile } = useProfile();
+  const isPoster = activeProfile?.mode === 'poster';
 
   useEffect(() => {
-    // In real app, fetch job details by jobId
-    // For now, using mock data
-  }, [jobId]);
+    if (routeJob) {
+      setJob(routeJob);
+    }
+    // If you want to fetch by jobId, add fetch logic here
+  }, [routeJob]);
 
   const handleEditJob = () => {
     Alert.alert(
@@ -108,6 +125,11 @@ const JobDetailsScreen = () => {
   };
 
   const styles = getStyles(theme);
+
+  // Mock current user for demonstration
+  const currentUser = { id: 'current-user', name: 'Demo User' };
+  // Use job.postedBy if present, otherwise assume current user is poster for mock data
+  // const isPoster = job.postedBy ? job.postedBy === currentUser.id : true;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -173,7 +195,9 @@ const JobDetailsScreen = () => {
                         color={theme.colors.text.secondary}
                       />
                       <Text style={styles.metadataText}>
-                        {job.jobType.replace('-', ' ').toUpperCase()}
+                        {(job.type ?? fallbackJobType)
+                          .replace('-', ' ')
+                          .toUpperCase()}
                       </Text>
                     </View>
                     <View
@@ -185,7 +209,7 @@ const JobDetailsScreen = () => {
                       <Text
                         style={[styles.statusText, { color: getStatusColor() }]}
                       >
-                        {job.status.toUpperCase()}
+                        {(job.status ?? fallbackStatus).toUpperCase()}
                       </Text>
                     </View>
                   </View>
@@ -203,7 +227,9 @@ const JobDetailsScreen = () => {
                     size={20}
                     color={theme.colors.primary.cyan}
                   />
-                  <Text style={styles.statNumber}>{job.applicationsCount}</Text>
+                  <Text style={styles.statNumber}>
+                    {job.applicationsCount ?? fallbackApplicationsCount}
+                  </Text>
                   <Text style={styles.statLabel}>Applications</Text>
                 </Pressable>
 
@@ -222,20 +248,17 @@ const JobDetailsScreen = () => {
                   <Text style={styles.statLabel}>Days Active</Text>
                 </View>
 
-                {job.salaryRange && (
-                  <View style={styles.statItem}>
-                    <Feather
-                      name="dollar-sign"
-                      size={20}
-                      color={theme.colors.status.success}
-                    />
-                    <Text style={styles.statNumber}>
-                      ${(job.salaryRange.min / 1000).toFixed(0)}K-$
-                      {(job.salaryRange.max / 1000).toFixed(0)}K
-                    </Text>
-                    <Text style={styles.statLabel}>Salary Range</Text>
-                  </View>
-                )}
+                <View style={styles.statItem}>
+                  <Feather
+                    name="dollar-sign"
+                    size={20}
+                    color={theme.colors.status.success}
+                  />
+                  <Text style={styles.statNumber}>
+                    {job.salary ?? fallbackSalaryRange}
+                  </Text>
+                  <Text style={styles.statLabel}>Salary Range</Text>
+                </View>
               </View>
 
               {/* Job Description */}
@@ -248,11 +271,13 @@ const JobDetailsScreen = () => {
               <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Requirements</Text>
                 <View style={styles.tagsContainer}>
-                  {job.requirements.map((requirement, index) => (
-                    <View key={index} style={styles.tag}>
-                      <Text style={styles.tagText}>{requirement}</Text>
-                    </View>
-                  ))}
+                  {(job.requirements ?? fallbackRequirements).map(
+                    (requirement, index) => (
+                      <View key={index} style={styles.tag}>
+                        <Text style={styles.tagText}>{requirement}</Text>
+                      </View>
+                    ),
+                  )}
                 </View>
               </View>
 
@@ -260,7 +285,7 @@ const JobDetailsScreen = () => {
               <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Skills</Text>
                 <View style={styles.tagsContainer}>
-                  {job.skills.map((skill, index) => (
+                  {(job.skills ?? fallbackSkills).map((skill, index) => (
                     <View key={index} style={[styles.tag, styles.skillTag]}>
                       <Text style={[styles.tagText, styles.skillTagText]}>
                         {skill}
@@ -274,58 +299,78 @@ const JobDetailsScreen = () => {
 
           {/* Action Buttons */}
           <View style={styles.actionContainer}>
-            <View style={styles.actionContent}>
+            {isPoster ? (
+              <View>
+                <View style={styles.actionContent}>
+                  <Button
+                    onPress={handleViewApplications}
+                    variant="outline"
+                    style={styles.actionButton}
+                  >
+                    <Feather
+                      name="users"
+                      size={16}
+                      color={theme.colors.primary.cyan}
+                    />
+                    <Text style={styles.actionButtonText}>
+                      View Applications
+                    </Text>
+                  </Button>
+                  <Button onPress={handleEditJob} style={styles.actionButton}>
+                    <Feather
+                      name="edit-2"
+                      size={16}
+                      color={theme.colors.text.white}
+                    />
+                    <Text
+                      style={[
+                        styles.actionButtonText,
+                        { color: theme.colors.text.white },
+                      ]}
+                    >
+                      Edit Job
+                    </Text>
+                  </Button>
+                </View>
+                <View style={styles.secondaryActions}>
+                  {job.status === 'active' && (
+                    <Button
+                      onPress={handleCloseJob}
+                      variant="outline"
+                      style={styles.secondaryActionButton}
+                    >
+                      Close Job
+                    </Button>
+                  )}
+                  <Button
+                    onPress={handleDeleteJob}
+                    variant="ghost"
+                    style={styles.secondaryActionButton}
+                  >
+                    <Text style={{ color: theme.colors.status.error }}>
+                      Delete Job
+                    </Text>
+                  </Button>
+                </View>
+              </View>
+            ) : (
               <Button
-                onPress={handleViewApplications}
-                variant="outline"
-                style={styles.actionButton}
+                onPress={() => {
+                  /* handle apply logic here */
+                }}
+                style={{
+                  backgroundColor: '#22c55e',
+                  borderRadius: 12,
+                  marginTop: 16,
+                }}
               >
-                <Feather
-                  name="users"
-                  size={16}
-                  color={theme.colors.primary.cyan}
-                />
-                <Text style={styles.actionButtonText}>View Applications</Text>
-              </Button>
-
-              <Button onPress={handleEditJob} style={styles.actionButton}>
-                <Feather
-                  name="edit-2"
-                  size={16}
-                  color={theme.colors.text.white}
-                />
                 <Text
-                  style={[
-                    styles.actionButtonText,
-                    { color: theme.colors.text.white },
-                  ]}
+                  style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}
                 >
-                  Edit Job
+                  Apply Now
                 </Text>
               </Button>
-            </View>
-
-            <View style={styles.secondaryActions}>
-              {job.status === 'active' && (
-                <Button
-                  onPress={handleCloseJob}
-                  variant="outline"
-                  style={styles.secondaryActionButton}
-                >
-                  Close Job
-                </Button>
-              )}
-
-              <Button
-                onPress={handleDeleteJob}
-                variant="ghost"
-                style={styles.secondaryActionButton}
-              >
-                <Text style={{ color: theme.colors.status.error }}>
-                  Delete Job
-                </Text>
-              </Button>
-            </View>
+            )}
           </View>
         </ScrollView>
       </LinearGradient>

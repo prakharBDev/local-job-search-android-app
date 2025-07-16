@@ -122,8 +122,27 @@ const Input = ({
           {label}
         </Text>
       )}
-      <View style={[styles.inputContainer, inputStyle]}>
-        {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
+      <View
+        style={[
+          styles.inputContainer,
+          inputStyle,
+          multiline
+            ? styles.inputContainerMultiline
+            : styles.inputContainerSingle,
+        ]}
+      >
+        {leftIcon && (
+          <View
+            style={[
+              styles.leftIconContainer,
+              multiline
+                ? styles.leftIconContainerMultiline
+                : styles.leftIconContainerSingle,
+            ]}
+          >
+            {leftIcon}
+          </View>
+        )}
         <TextInput
           style={[
             styles.input,
@@ -131,6 +150,7 @@ const Input = ({
               color: safeTheme.colors.text.primary || '#1E293B',
               flex: 1,
               textAlignVertical: multiline ? 'top' : 'center',
+              paddingLeft: leftIcon ? 8 : 0,
             },
             style,
           ]}
@@ -174,17 +194,35 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     minHeight: 48,
   },
+  inputContainerSingle: {
+    alignItems: 'center',
+  },
+  inputContainerMultiline: {
+    alignItems: 'flex-start',
+  },
   input: {
     fontSize: 16,
     fontWeight: '400',
     flex: 1,
+  },
+  leftIconContainer: {
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  leftIconContainerSingle: {
+    // Icon will be centered by parent alignItems: 'center'
+  },
+  leftIconContainerMultiline: {
+    alignSelf: 'flex-start',
+    marginTop: 9,
+    paddingTop: 2,
   },
   iconContainer: {
     marginLeft: 8,

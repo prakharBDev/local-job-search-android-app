@@ -1,379 +1,967 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Alert,
-  Pressable,
+  View,
+  Text,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
-  Text,
-  View,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
-import Button from '../../components/elements/Button';
-import Card from '../../components/blocks/Card';
-import { theme } from '../../theme';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getStyles } from './JobDetailsScreen.styles.js';
-import { useProfile } from '../../contexts/ProfileContext';
-
-// Mock job data - in real app, this would come from props/API
-const mockJob = {
-  id: '1',
-  title: 'Senior React Native Developer',
-  description:
-    'We are looking for an experienced React Native developer to join our team and help build amazing mobile applications...',
-  requirements: ['React Native', 'TypeScript', 'Redux', 'REST APIs'],
-  skills: ['React Native', 'TypeScript', 'Redux', 'Git'],
-  experienceLevel: 'senior',
-  location: 'Remote',
-  salaryRange: { min: 80000, max: 120000 },
-  jobType: 'full-time',
-  status: 'active',
-  postedDate: '2024-01-15',
-  postedBy: 'current-user',
-  applicationsCount: 12,
-};
-
-// Helper fallback data
-const fallbackRequirements = [
-  'Experience with REST APIs',
-  'Knowledge of cloud platforms',
-  'Strong problem-solving skills',
-];
-const fallbackSkills = ['JavaScript', 'React Native', 'Teamwork'];
-const fallbackStatus = 'Active';
-const fallbackJobType = 'Full Time';
-const fallbackSalaryRange = '₹10,00,000 – ₹15,00,000/year';
-const fallbackApplicationsCount = 42;
 
 const JobDetailsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { job: routeJob, mode = 'view' } = route.params || {};
-  const [job, setJob] = useState(routeJob || mockJob);
-  const [isLoading, setIsLoading] = useState(false);
-  const { activeProfile } = useProfile();
-  const isPoster = activeProfile?.mode === 'poster';
+  const { jobData } = route.params || {};
 
-  useEffect(() => {
-    if (routeJob) {
-      setJob(routeJob);
-    }
-    // If you want to fetch by jobId, add fetch logic here
-  }, [routeJob]);
+  const [activeTab, setActiveTab] = useState('Description');
 
-  const handleEditJob = () => {
-    Alert.alert(
-      'Edit Job',
-      'Navigate to edit mode or CreateJob screen with pre-filled data',
-    );
-  };
+  // Mock job data based on the image with proper fallbacks
+  const job = jobData || {
+    id: 1,
+    company: 'Google',
+    title: 'Senior UI/UX Designer',
+    location: 'California',
+    type: 'Full Time',
+    salary: '$240-$280K/year',
+    applicationsCount: '20K',
+    daysLeft: '6 Days Left',
+    description: `We are looking for a Senior UI/UX Designer to join our dynamic team at Google. In this role, you will be responsible for creating intuitive and engaging user experiences across our product suite. You will work closely with product managers, engineers, and other designers to deliver world-class digital experiences.
 
-  const handleViewApplications = () => {
-    Alert.alert('View Applications', 'Applications view coming soon!');
-  };
+Key Responsibilities:
+• Design and prototype user interfaces for web and mobile applications
+• Conduct user research and usability testing to inform design decisions
+• Collaborate with cross-functional teams to define product requirements
+• Create wireframes, mockups, and interactive prototypes
+• Maintain and evolve our design system and style guides
+• Present design concepts and rationale to stakeholders
 
-  const handleDeleteJob = () => {
-    Alert.alert(
-      'Delete Job',
-      'Are you sure you want to delete this job posting?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            // In real app, call delete API
-            Alert.alert('Success', 'Job deleted successfully', [
-              { text: 'OK', onPress: () => navigation.goBack() },
-            ]);
-          },
-        },
+We're looking for someone who is passionate about user-centered design and has experience working in fast-paced, collaborative environments. You should be comfortable with ambiguity and able to iterate quickly based on feedback.`,
+    requirements: [
+      "Bachelor's degree in Design, HCI, or related field, or equivalent practical experience",
+      '5+ years of experience in UI/UX design for web and mobile applications',
+      'Proficiency in design tools such as Figma, Sketch, Adobe Creative Suite',
+      'Strong understanding of user-centered design principles and methodologies',
+      'Experience with user research methods including usability testing, interviews, and surveys',
+      'Knowledge of front-end development technologies (HTML, CSS, JavaScript) is a plus',
+      'Excellent communication and presentation skills',
+      'Portfolio demonstrating strong design process and problem-solving abilities',
+    ],
+    companyLogo:
+      'https://logos-world.net/wp-content/uploads/2020/09/Google-Logo.png',
+    peopleApplied: [
+      {
+        id: 1,
+        name: 'Sarah Johnson',
+        avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+        position: 'Senior Designer',
+      },
+      {
+        id: 2,
+        name: 'Michael Chen',
+        avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+        position: 'Product Designer',
+      },
+      {
+        id: 3,
+        name: 'Emily Rodriguez',
+        avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
+        position: 'UX Designer',
+      },
+      {
+        id: 4,
+        name: 'David Kim',
+        avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
+        position: 'UI Designer',
+      },
+      {
+        id: 5,
+        name: 'Jessica Taylor',
+        avatar: 'https://randomuser.me/api/portraits/women/5.jpg',
+        position: 'Design Lead',
+      },
+    ],
+    companyInfo: {
+      name: 'Google',
+      founded: '1998',
+      employees: '100,000+',
+      headquarters: 'Mountain View, CA',
+      industry: 'Technology',
+      description:
+        "Google is a multinational technology company that specializes in Internet-related services and products. We organize the world's information and make it universally accessible and useful. Our mission is to make the world's information universally accessible and useful, and we're committed to building products that help people, businesses, and communities thrive.",
+      benefits: [
+        'Comprehensive health, dental, and vision insurance',
+        'Flexible work arrangements and remote work options',
+        'Professional development and learning opportunities',
+        'Competitive salary and equity compensation',
+        'On-site facilities including gyms, cafeterias, and wellness centers',
+        'Generous parental leave and family support programs',
+        '401(k) matching and retirement planning assistance',
+        'Free meals and snacks throughout the day',
       ],
-    );
+    },
+    reviews: [
+      {
+        id: 1,
+        author: 'Current UX Designer',
+        rating: 4.5,
+        title: 'Amazing culture and growth opportunities',
+        content:
+          "Working at Google has been an incredible experience. The company culture is truly collaborative, and there are endless opportunities for professional growth. The design team is world-class, and I've learned so much from my colleagues. The work-life balance is excellent, and the benefits are unmatched.",
+        date: '2 weeks ago',
+      },
+      {
+        id: 2,
+        author: 'Former Product Designer',
+        rating: 4.2,
+        title: 'Great place to learn and innovate',
+        content:
+          'My time at Google was transformative for my career. The resources available for learning and experimentation are incredible. You get to work on products that impact billions of users. The only downside is that the pace can be intense, but the support from management and peers makes it manageable.',
+        date: '1 month ago',
+      },
+      {
+        id: 3,
+        author: 'Senior Design Manager',
+        rating: 4.7,
+        title: "Best company I've ever worked for",
+        content:
+          'Google sets the standard for how tech companies should operate. The focus on user experience and design excellence is evident in everything we do. The compensation is competitive, and the company genuinely cares about employee wellbeing. Highly recommend to any designer looking to make a real impact.',
+        date: '3 weeks ago',
+      },
+    ],
   };
 
-  const handleCloseJob = () => {
-    Alert.alert(
-      'Close Job',
-      'This will stop accepting new applications. You can reopen it later.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Close Job',
-          onPress: () => {
-            setJob(prev => ({ ...prev, status: 'closed' }));
-            Alert.alert('Success', 'Job posting has been closed');
-          },
-        },
-      ],
-    );
+  // Ensure required properties exist with fallbacks
+  const safeJob = {
+    ...job,
+    company: job.company || 'Unknown Company',
+    title: job.title || 'Job Title',
+    location: job.location || 'Location',
+    type: job.type || 'Full Time',
+    salary: job.salary || 'Salary not specified',
+    applicationsCount: job.applicationsCount || '0',
+    daysLeft: job.daysLeft || 'N/A',
+    description: job.description || 'No description available.',
+    requirements: job.requirements || ['No specific requirements listed'],
+    companyLogo:
+      job.companyLogo ||
+      'https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png',
+    peopleApplied: job.peopleApplied || [
+      {
+        id: 1,
+        name: 'User 1',
+        avatar: 'https://randomuser.me/api/portraits/women/10.jpg',
+        position: 'Designer',
+      },
+      {
+        id: 2,
+        name: 'User 2',
+        avatar: 'https://randomuser.me/api/portraits/men/10.jpg',
+        position: 'Designer',
+      },
+      {
+        id: 3,
+        name: 'User 3',
+        avatar: 'https://randomuser.me/api/portraits/women/11.jpg',
+        position: 'Designer',
+      },
+      {
+        id: 4,
+        name: 'User 4',
+        avatar: 'https://randomuser.me/api/portraits/men/11.jpg',
+        position: 'Designer',
+      },
+    ],
+    companyInfo: job.companyInfo || {
+      name: job.company || 'Unknown Company',
+      founded: 'N/A',
+      employees: 'N/A',
+      headquarters: 'N/A',
+      industry: 'N/A',
+      description: 'Company information not available.',
+      benefits: ['Information not available'],
+    },
+    reviews: job.reviews || [
+      {
+        id: 1,
+        author: 'Anonymous',
+        rating: 4.0,
+        title: 'No reviews available',
+        content: 'Be the first to review this company!',
+        date: 'N/A',
+      },
+    ],
   };
 
-  const getStatusColor = () => {
-    switch (job.status) {
-      case 'active':
-        return theme.colors.status.success;
-      case 'closed':
-        return theme.colors.text.secondary;
-      case 'draft':
-        return theme.colors.status.warning;
-      default:
-        return theme.colors.text.secondary;
-    }
-  };
+  const tabs = ['Description', 'Company', 'Review'];
 
-  const styles = getStyles(theme);
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'Description':
+        return (
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '600',
+                color: '#1E293B',
+                marginBottom: 16,
+                fontFamily: 'System',
+                letterSpacing: -0.3,
+              }}
+            >
+              Job Description
+            </Text>
 
-  // Mock current user for demonstration
-  const currentUser = { id: 'current-user', name: 'Demo User' };
-  // Use job.postedBy if present, otherwise assume current user is poster for mock data
-  // const isPoster = job.postedBy ? job.postedBy === currentUser.id : true;
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: '500',
+                color: '#64748B',
+                lineHeight: 22,
+                marginBottom: 24,
+                fontFamily: 'System',
+                letterSpacing: -0.1,
+              }}
+            >
+              {safeJob.description}
+            </Text>
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#E8F5E8', '#F3E5F5', '#E3F2FD']}
-        style={styles.gradient}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollViewContent}
-        >
-          {/* Header */}
-          <View style={styles.headerContainer}>
-            <View style={styles.headerContent}>
-              <View style={styles.headerRow}>
-                <Pressable
-                  style={styles.backButton}
-                  onPress={() => navigation.goBack()}
-                >
-                  <Feather
-                    name="arrow-left"
-                    size={20}
-                    color={theme.colors.text.primary}
-                  />
-                </Pressable>
-                <View style={styles.headerTitleContainer}>
-                  <Text style={styles.headerTitle}>Job Details</Text>
-                  <Text style={styles.headerSubtitle}>
-                    Manage your job posting
-                  </Text>
-                </View>
-                <Pressable style={styles.moreButton}>
-                  <Feather
-                    name="more-vertical"
-                    size={20}
-                    color={theme.colors.text.primary}
-                  />
-                </Pressable>
-              </View>
-            </View>
-          </View>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '600',
+                color: '#1E293B',
+                marginBottom: 16,
+                fontFamily: 'System',
+                letterSpacing: -0.3,
+              }}
+            >
+              Minimum Qualification
+            </Text>
 
-          {/* Job Details Card */}
-          <View style={styles.contentContainer}>
-            <Card style={styles.jobCard}>
-              {/* Job Header */}
-              <View style={styles.jobHeader}>
-                <View style={styles.jobInfo}>
-                  <Text style={styles.jobTitle}>{job.title}</Text>
-                  <View style={styles.jobMetadata}>
-                    <View style={styles.metadataItem}>
-                      <Feather
-                        name="map-pin"
-                        size={14}
-                        color={theme.colors.text.secondary}
-                      />
-                      <Text style={styles.metadataText}>{job.location}</Text>
-                    </View>
-                    <View style={styles.metadataItem}>
-                      <Feather
-                        name="briefcase"
-                        size={14}
-                        color={theme.colors.text.secondary}
-                      />
-                      <Text style={styles.metadataText}>
-                        {(job.type ?? fallbackJobType)
-                          .replace('-', ' ')
-                          .toUpperCase()}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        { backgroundColor: `${getStatusColor()}20` },
-                      ]}
-                    >
-                      <Text
-                        style={[styles.statusText, { color: getStatusColor() }]}
-                      >
-                        {(job.status ?? fallbackStatus).toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-
-              {/* Job Stats */}
-              <View style={styles.statsContainer}>
-                <Pressable
-                  style={styles.statItem}
-                  onPress={handleViewApplications}
-                >
-                  <Feather
-                    name="users"
-                    size={20}
-                    color={theme.colors.primary.cyan}
-                  />
-                  <Text style={styles.statNumber}>
-                    {job.applicationsCount ?? fallbackApplicationsCount}
-                  </Text>
-                  <Text style={styles.statLabel}>Applications</Text>
-                </Pressable>
-
-                <View style={styles.statItem}>
-                  <Feather
-                    name="calendar"
-                    size={20}
-                    color={theme.colors.text.secondary}
-                  />
-                  <Text style={styles.statNumber}>
-                    {Math.floor(
-                      (Date.now() - new Date(job.postedDate).getTime()) /
-                        (1000 * 60 * 60 * 24),
-                    )}
-                  </Text>
-                  <Text style={styles.statLabel}>Days Active</Text>
-                </View>
-
-                <View style={styles.statItem}>
-                  <Feather
-                    name="dollar-sign"
-                    size={20}
-                    color={theme.colors.status.success}
-                  />
-                  <Text style={styles.statNumber}>
-                    {job.salary ?? fallbackSalaryRange}
-                  </Text>
-                  <Text style={styles.statLabel}>Salary Range</Text>
-                </View>
-              </View>
-
-              {/* Job Description */}
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Description</Text>
-                <Text style={styles.descriptionText}>{job.description}</Text>
-              </View>
-
-              {/* Requirements */}
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Requirements</Text>
-                <View style={styles.tagsContainer}>
-                  {(job.requirements ?? fallbackRequirements).map(
-                    (requirement, index) => (
-                      <View key={index} style={styles.tag}>
-                        <Text style={styles.tagText}>{requirement}</Text>
-                      </View>
-                    ),
-                  )}
-                </View>
-              </View>
-
-              {/* Skills */}
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Skills</Text>
-                <View style={styles.tagsContainer}>
-                  {(job.skills ?? fallbackSkills).map((skill, index) => (
-                    <View key={index} style={[styles.tag, styles.skillTag]}>
-                      <Text style={[styles.tagText, styles.skillTagText]}>
-                        {skill}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            </Card>
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.actionContainer}>
-            {isPoster ? (
-              <View>
-                <View style={styles.actionContent}>
-                  <Button
-                    onPress={handleViewApplications}
-                    variant="outline"
-                    style={styles.actionButton}
-                  >
-                    <Feather
-                      name="users"
-                      size={16}
-                      color={theme.colors.primary.cyan}
-                    />
-                    <Text style={styles.actionButtonText}>
-                      View Applications
-                    </Text>
-                  </Button>
-                  <Button onPress={handleEditJob} style={styles.actionButton}>
-                    <Feather
-                      name="edit-2"
-                      size={16}
-                      color={theme.colors.text.white}
-                    />
-                    <Text
-                      style={[
-                        styles.actionButtonText,
-                        { color: theme.colors.text.white },
-                      ]}
-                    >
-                      Edit Job
-                    </Text>
-                  </Button>
-                </View>
-                <View style={styles.secondaryActions}>
-                  {job.status === 'active' && (
-                    <Button
-                      onPress={handleCloseJob}
-                      variant="outline"
-                      style={styles.secondaryActionButton}
-                    >
-                      Close Job
-                    </Button>
-                  )}
-                  <Button
-                    onPress={handleDeleteJob}
-                    variant="ghost"
-                    style={styles.secondaryActionButton}
-                  >
-                    <Text style={{ color: theme.colors.status.error }}>
-                      Delete Job
-                    </Text>
-                  </Button>
-                </View>
-              </View>
-            ) : (
-              <Button
-                onPress={() => {
-                  /* handle apply logic here */
-                }}
+            {safeJob.requirements.map((requirement, index) => (
+              <View
+                key={index}
                 style={{
-                  backgroundColor: '#22c55e',
-                  borderRadius: 12,
-                  marginTop: 16,
+                  flexDirection: 'row',
+                  alignItems: 'flex-start',
+                  marginBottom: 12,
                 }}
               >
+                <View
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
+                    backgroundColor: '#3B82F6',
+                    marginTop: 8,
+                    marginRight: 12,
+                  }}
+                />
                 <Text
-                  style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '500',
+                    color: '#64748B',
+                    lineHeight: 22,
+                    flex: 1,
+                    fontFamily: 'System',
+                    letterSpacing: -0.1,
+                  }}
                 >
-                  Apply Now
+                  {requirement}
                 </Text>
-              </Button>
-            )}
+              </View>
+            ))}
           </View>
-        </ScrollView>
-      </LinearGradient>
+        );
+      case 'Company':
+        return (
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '600',
+                color: '#1E293B',
+                marginBottom: 16,
+                fontFamily: 'System',
+                letterSpacing: -0.3,
+              }}
+            >
+              About {safeJob.companyInfo.name}
+            </Text>
+
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: '500',
+                color: '#64748B',
+                lineHeight: 22,
+                marginBottom: 20,
+                fontFamily: 'System',
+                letterSpacing: -0.1,
+              }}
+            >
+              {safeJob.companyInfo.description}
+            </Text>
+
+            <View style={{ marginBottom: 20 }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '600',
+                  color: '#1E293B',
+                  marginBottom: 12,
+                  fontFamily: 'System',
+                  letterSpacing: -0.2,
+                }}
+              >
+                Company Details
+              </Text>
+
+              <View style={{ gap: 8 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#64748B',
+                      fontWeight: '500',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    Founded
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#1E293B',
+                      fontWeight: '500',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    {safeJob.companyInfo.founded}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#64748B',
+                      fontWeight: '500',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    Employees
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#1E293B',
+                      fontWeight: '500',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    {safeJob.companyInfo.employees}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#64748B',
+                      fontWeight: '500',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    Headquarters
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#1E293B',
+                      fontWeight: '500',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    {safeJob.companyInfo.headquarters}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#64748B',
+                      fontWeight: '500',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    Industry
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#1E293B',
+                      fontWeight: '500',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    {safeJob.companyInfo.industry}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '600',
+                  color: '#1E293B',
+                  marginBottom: 12,
+                  fontFamily: 'System',
+                  letterSpacing: -0.2,
+                }}
+              >
+                Benefits & Perks
+              </Text>
+
+              {safeJob.companyInfo.benefits.map((benefit, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    marginBottom: 8,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: '#4ADE80',
+                      marginTop: 8,
+                      marginRight: 12,
+                    }}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#666666',
+                      lineHeight: 22,
+                      flex: 1,
+                    }}
+                  >
+                    {benefit}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        );
+      case 'Review':
+        return (
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '600',
+                color: '#1E293B',
+                marginBottom: 16,
+                fontFamily: 'System',
+                letterSpacing: -0.3,
+              }}
+            >
+              Employee Reviews
+            </Text>
+
+            {safeJob.reviews.map((review, index) => (
+              <View
+                key={review.id}
+                style={{
+                  backgroundColor: '#F8F9FA',
+                  borderRadius: 12,
+                  padding: 16,
+                  marginBottom: 16,
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 8,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: '500',
+                      color: '#1E293B',
+                      fontFamily: 'System',
+                      letterSpacing: -0.1,
+                    }}
+                  >
+                    {review.author}
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Feather name="star" size={14} color="#FFD700" />
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: '#1E293B',
+                        fontWeight: '500',
+                        marginLeft: 4,
+                        fontFamily: 'System',
+                        letterSpacing: -0.1,
+                      }}
+                    >
+                      {review.rating}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: '#1E293B',
+                    marginBottom: 8,
+                    fontFamily: 'System',
+                    letterSpacing: -0.2,
+                  }}
+                >
+                  {review.title}
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '500',
+                    color: '#64748B',
+                    lineHeight: 20,
+                    marginBottom: 8,
+                    fontFamily: 'System',
+                    letterSpacing: -0.1,
+                  }}
+                >
+                  {review.content}
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: '500',
+                    color: '#94A3B8',
+                    fontFamily: 'System',
+                  }}
+                >
+                  {review.date}
+                </Text>
+              </View>
+            ))}
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+          backgroundColor: '#F8F9FA',
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: '#FFFFFF',
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        >
+          <Feather name="arrow-left" size={20} color="#1E293B" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: '#FFFFFF',
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        >
+          <Feather name="bookmark" size={20} color="#1E293B" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+        {/* Job Header */}
+        <View
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: 24,
+            marginHorizontal: 20,
+            marginBottom: 20,
+            paddingTop: 40,
+            paddingBottom: 30,
+            paddingHorizontal: 20,
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 5,
+          }}
+        >
+          {/* Company Logo */}
+          <View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 40,
+              backgroundColor: '#FFFFFF',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 20,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 3,
+            }}
+          >
+            <Image
+              source={{ uri: safeJob.companyLogo }}
+              style={{ width: '100%', height: '100%', borderRadius: 40 }}
+            />
+          </View>
+
+          {/* Job Title */}
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: '700',
+              color: '#1E293B',
+              textAlign: 'center',
+              marginBottom: 8,
+              fontFamily: 'System',
+              letterSpacing: -0.3,
+            }}
+          >
+            {safeJob.title}
+          </Text>
+
+          {/* Location */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 24,
+            }}
+          >
+            <Feather name="map-pin" size={16} color="#666666" />
+            <Text
+              style={{
+                fontSize: 16,
+                color: '#666666',
+                marginLeft: 6,
+                fontFamily: 'System',
+                letterSpacing: -0.1,
+              }}
+            >
+              {safeJob.location}
+            </Text>
+          </View>
+
+          {/* Job Details Row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+              marginBottom: 24,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 16,
+                color: '#1E293B',
+                fontWeight: '500',
+                fontFamily: 'System',
+                letterSpacing: -0.1,
+              }}
+            >
+              {safeJob.type}
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                color: '#1E293B',
+                fontWeight: '600',
+                fontFamily: 'System',
+                letterSpacing: -0.1,
+              }}
+            >
+              {safeJob.salary}
+            </Text>
+          </View>
+
+          {/* People Applied Section */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            <View>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: '#1E293B',
+                  fontWeight: '600',
+                  marginBottom: 8,
+                  fontFamily: 'System',
+                  letterSpacing: -0.1,
+                }}
+              >
+                People Applied
+              </Text>
+
+              {/* Avatars */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                {safeJob.peopleApplied.slice(0, 4).map((person, index) => (
+                  <View
+                    key={person.id}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 16,
+                      marginLeft: index > 0 ? -8 : 0,
+                      borderWidth: 2,
+                      borderColor: '#FFFFFF',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Image
+                      source={{ uri: person.avatar }}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                      }}
+                    />
+                  </View>
+                ))}
+                <View
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: '#E5E7EB',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginLeft: -8,
+                    borderWidth: 2,
+                    borderColor: '#FFFFFF',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: '#3B82F6',
+                      fontWeight: '600',
+                    }}
+                  >
+                    {safeJob.applicationsCount}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <Text
+              style={{
+                fontSize: 16,
+                color: '#1E293B',
+                fontWeight: '600',
+                fontFamily: 'System',
+                letterSpacing: -0.1,
+              }}
+            >
+              {safeJob.daysLeft}
+            </Text>
+          </View>
+        </View>
+
+        {/* Tabs */}
+        <View
+          style={{
+            flexDirection: 'row',
+            backgroundColor: '#FFFFFF',
+            marginHorizontal: 20,
+            borderRadius: 16,
+            padding: 4,
+            marginBottom: 20,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.05,
+            shadowRadius: 4,
+            elevation: 2,
+          }}
+        >
+          {tabs.map(tab => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => setActiveTab(tab)}
+              style={{
+                flex: 1,
+                paddingVertical: 12,
+                borderRadius: 12,
+                backgroundColor: activeTab === tab ? '#3B82F6' : 'transparent',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: '500',
+                  color: activeTab === tab ? '#FFFFFF' : '#64748B',
+                  fontFamily: 'System',
+                  letterSpacing: -0.1,
+                }}
+              >
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Tab Content */}
+        <View
+          style={{
+            backgroundColor: '#FFFFFF',
+            marginHorizontal: 20,
+            borderRadius: 16,
+            paddingVertical: 24,
+            marginBottom: 100,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.05,
+            shadowRadius: 4,
+            elevation: 2,
+          }}
+        >
+          {renderTabContent()}
+        </View>
+      </ScrollView>
+
+      {/* Apply Button */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: '#FFFFFF',
+          paddingHorizontal: 20,
+          paddingVertical: 20,
+          paddingBottom: 34,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 10,
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#1E88E5',
+            paddingVertical: 16,
+            borderRadius: 16,
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#1E88E5',
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.25,
+            shadowRadius: 12,
+            elevation: 6,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: '600',
+              color: '#FFFFFF',
+              fontFamily: 'System',
+              letterSpacing: -0.2,
+            }}
+          >
+            Apply Now
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };

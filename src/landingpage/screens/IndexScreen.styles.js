@@ -1,487 +1,565 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export const getStyles = theme =>
   StyleSheet.create({
-    // Performance optimized styles for animations
-    backgroundContainer: {
+    container: {
+      flex: 1,
+      backgroundColor: '#FFFFFF',
+    },
+    keyboardAvoid: {
+      flex: 1,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 32,
+    },
+    scrollContentKeyboard: {
+      paddingBottom: 16,
+    },
+
+    // Animated Background Styles
+    animatedBackground: {
       position: 'absolute',
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      width: screenWidth,
-      height: screenHeight,
+      zIndex: -1,
+      overflow: 'hidden',
     },
-    floatingShape1: {
+    floatingElement: {
       position: 'absolute',
-      width: 200,
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: '#3B82F6',
+      opacity: 0.08,
+      shadowColor: '#3B82F6',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 6,
+    },
+    floatingElementSmall: {
+      position: 'absolute',
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: '#10B981',
+      opacity: 0.12,
+      shadowColor: '#10B981',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    floatingElementTiny: {
+      position: 'absolute',
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: '#F59E0B',
+      opacity: 0.15,
+      shadowColor: '#F59E0B',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    floatingElementSquare: {
+      position: 'absolute',
+      width: 60,
+      height: 60,
+      borderRadius: 12,
+      backgroundColor: '#EC4899',
+      opacity: 0.1,
+      shadowColor: '#EC4899',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 4,
+      transform: [{ rotate: '45deg' }],
+    },
+    gradientOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(59, 130, 246, 0.01)',
+    },
+    gradientOverlayTop: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
       height: 200,
-      top: '15%',
-      left: '70%',
-      borderRadius: 100,
-      backgroundColor: 'rgba(60, 79, 224, 0.08)',
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
     },
-    floatingShape2: {
+    gradientOverlayBottom: {
       position: 'absolute',
-      width: 150,
+      bottom: 0,
+      left: 0,
+      right: 0,
       height: 150,
-      bottom: '30%',
-      right: '80%',
-      borderRadius: 75,
-      backgroundColor: 'rgba(16, 185, 129, 0.08)',
+      backgroundColor: 'rgba(255, 255, 255, 0.6)',
     },
-    floatingShape3: {
-      position: 'absolute',
-      width: 120,
-      height: 120,
-      top: '60%',
-      left: '80%',
-      borderRadius: 60,
-      backgroundColor: 'rgba(245, 158, 11, 0.08)',
-    },
-    container: {
-      flex: 1,
-      backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
-    },
-    // Header styles inspired by LandingScreen
+
+    // Header styles - Softer fonts and blue color
     header: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingHorizontal: theme?.spacing?.[4] || 16,
-      paddingTop: theme?.spacing?.[4] || 16,
-      paddingBottom: theme?.spacing?.[2] || 8,
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 16,
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      backdropFilter: 'blur(10px)',
     },
-    headerLogo: {
-      fontSize: 20,
-      fontWeight: '700',
-      color: theme?.colors?.text?.primary || '#1E293B',
-    },
-    headerSignUp: {
-      fontSize: 14,
-      fontWeight: '500',
-      color: theme?.colors?.text?.primary || '#1E293B',
-      paddingHorizontal: theme?.spacing?.[3] || 12,
-      paddingVertical: theme?.spacing?.[2] || 8,
-      borderRadius: theme?.borderRadius?.lg || 12,
-      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
-    },
-    headerLogoIconCircle: {
-      backgroundColor: '#3C4FE0',
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    // Brand row inspired by LandingScreen
-    brandRow: {
+    brandContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: theme?.spacing?.[4] || 16,
-      paddingVertical: theme?.spacing?.[3] || 12,
     },
     brandIcon: {
-      backgroundColor: theme?.colors?.accent?.green || '#10B981',
       width: 40,
       height: 40,
-      borderRadius: 20,
-      justifyContent: 'center',
+      borderRadius: 12,
+      backgroundColor: '#3B82F6',
       alignItems: 'center',
-      marginRight: theme?.spacing?.[3] || 12,
-      ...(theme?.shadows?.sm || {}),
+      justifyContent: 'center',
+      marginRight: 12,
+      shadowColor: '#3B82F6',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    brandText: {
+      justifyContent: 'center',
     },
     brandName: {
-      fontWeight: '700',
-      fontSize: 16,
-      color: theme?.colors?.text?.primary || '#1E293B',
+      fontSize: 18,
+      fontWeight: '600', // Reduced from 700
+      color: '#1E293B',
+      lineHeight: 22,
+      fontFamily: 'System',
+      letterSpacing: -0.3,
     },
     brandTagline: {
-      fontSize: 12,
-      color: theme?.colors?.text?.secondary || '#64748B',
+      fontSize: 13,
+      color: '#64748B',
+      lineHeight: 16,
+      fontFamily: 'System',
+      fontWeight: '500',
     },
-    // Hero section with improved typography
-    heroContainer: {
+    headerButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      backgroundColor: '#F8FAFC',
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    headerButtonText: {
+      fontSize: 14,
+      fontWeight: '500', // Reduced from 600
+      color: '#475569',
+      fontFamily: 'System',
+    },
+
+    // Hero section - Softer fonts
+    heroSection: {
+      paddingHorizontal: 20,
+      paddingVertical: 40,
       alignItems: 'center',
-      paddingHorizontal: theme?.spacing?.[4] || 16,
-      paddingTop: theme?.spacing?.[8] || 32,
-      paddingBottom: theme?.spacing?.[6] || 24,
     },
-    heroInner: {
+    heroContent: {
+      alignItems: 'center',
       maxWidth: 400,
-      alignSelf: 'center',
-      width: '100%',
-      alignItems: 'center',
     },
     heroTitle: {
-      fontSize: 32,
-      fontWeight: '800',
+      fontSize: 36,
+      fontWeight: '600', // Reduced from 800
+      color: '#1E293B',
       textAlign: 'center',
-      color: theme?.colors?.accent?.green || '#22C55E',
-      marginBottom: theme?.spacing?.[2] || 8,
+      lineHeight: 44,
+      marginBottom: 16,
+      fontFamily: 'System',
+      letterSpacing: -0.5,
     },
     heroSubtitle: {
-      fontSize: 32,
-      fontWeight: '800',
+      fontSize: 18,
+      color: '#64748B',
       textAlign: 'center',
-      color: theme?.colors?.accent?.green || '#22C55E',
-      marginBottom: theme?.spacing?.[3] || 12,
+      lineHeight: 26,
+      marginBottom: 32,
+      maxWidth: 320,
+      fontFamily: 'System',
+      fontWeight: '500',
     },
-    heroDescription: {
-      fontSize: 16,
-      color: theme?.colors?.text?.primary || '#1E293B',
-      textAlign: 'center',
-      marginBottom: theme?.spacing?.[2] || 8,
-    },
-    heroSmallText: {
-      fontSize: 14,
-      color: theme?.colors?.text?.secondary || '#64748B',
-      textAlign: 'center',
-      marginBottom: theme?.spacing?.[6] || 24,
-    },
-    heroGradientBg: { width: '100%', borderRadius: 24, overflow: 'hidden' },
-    heroCtaButton: {
-      marginTop: 16,
-      borderRadius: 32,
-      backgroundColor: '#3C4FE0',
-      shadowColor: '#3C4FE0',
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    heroCtaButtonContent: {
+    heroStats: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
-    },
-    heroCtaButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-    // Rocket card inspired by LandingScreen
-    rocketCard: {
-      backgroundColor: theme?.colors?.accent?.green
-        ? `${theme.colors.accent.green}20`
-        : '#D1FAE5',
-      width: 72,
-      height: 72,
+      backgroundColor: '#F8FAFC',
+      paddingHorizontal: 24,
+      paddingVertical: 16,
       borderRadius: 16,
-      justifyContent: 'center',
-      alignItems: 'center',
-      alignSelf: 'center',
-      marginBottom: theme?.spacing?.[6] || 24,
-      ...(theme?.shadows?.sm || {}),
-    },
-    // Stats section with improved design
-    statsRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingHorizontal: theme?.spacing?.[4] || 16,
-      paddingVertical: theme?.spacing?.[4] || 16,
-      gap: theme?.spacing?.[2] || 8,
-    },
-    statCard: {
-      flex: 1,
-      backgroundColor: theme?.colors?.surface?.card || '#FFFFFF',
-      borderRadius: 16,
-      padding: theme?.spacing?.[3] || 12,
-      alignItems: 'center',
-      marginHorizontal: theme?.spacing?.[1] || 4,
-      ...(theme?.shadows?.sm || {}),
       borderWidth: 1,
-      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
+      borderColor: '#E2E8F0',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.04,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    statItem: {
+      alignItems: 'center',
+      paddingHorizontal: 12,
     },
     statNumber: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: theme?.colors?.text?.primary || '#1E293B',
-      marginTop: theme?.spacing?.[1] || 4,
-      marginBottom: theme?.spacing?.[1] || 4,
+      fontSize: 20,
+      fontWeight: '600', // Reduced from 700
+      color: '#3B82F6', // Changed to blue-500
+      lineHeight: 24,
+      fontFamily: 'System',
+      letterSpacing: -0.3,
     },
     statLabel: {
       fontSize: 12,
-      color: theme?.colors?.text?.secondary || '#64748B',
-      textAlign: 'center',
+      color: '#64748B',
+      marginTop: 2,
+      fontFamily: 'System',
+      fontWeight: '500',
     },
-    // Auth card with improved styling
-    authCardContainer: {
-      paddingHorizontal: theme?.spacing?.[4] || 16,
-      paddingVertical: theme?.spacing?.[6] || 24,
+    statDivider: {
+      width: 1,
+      height: 32,
+      backgroundColor: '#E2E8F0',
+    },
+
+    // Auth section - Softer fonts
+    authContainer: {
+      paddingHorizontal: 20,
+      paddingVertical: 20,
     },
     authCard: {
-      maxWidth: 420,
-      alignSelf: 'center',
-      width: '100%',
-      backgroundColor: '#fff',
-      borderRadius: 24,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 20,
       padding: 28,
       shadowColor: '#000',
-      shadowOpacity: 0.08,
-      shadowRadius: 16,
-      elevation: 8,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 24,
+      elevation: 12,
       borderWidth: 1,
-      borderColor: '#E5E7EB',
+      borderColor: '#F1F5F9',
     },
-    authCardHeader: {
+    authHeader: {
       alignItems: 'center',
-      marginBottom: 20,
+      marginBottom: 24,
     },
-    authCardHeaderTitle: {
+    authTitle: {
       fontSize: 24,
-      fontWeight: '700',
-      color: '#0F172A',
+      fontWeight: '600', // Reduced from 700
+      color: '#1E293B',
+      marginBottom: 8,
       textAlign: 'center',
+      fontFamily: 'System',
+      letterSpacing: -0.4,
     },
-    authCardHeaderSubtitle: {
+    authSubtitle: {
       fontSize: 16,
       color: '#64748B',
       textAlign: 'center',
-      marginTop: 6,
-    },
-    authCardBody: {
-      gap: theme?.spacing?.[4] || 16,
-    },
-    authCardButton: {
-      borderRadius: 999,
-      overflow: 'hidden',
-      marginTop: 8,
-      marginBottom: 18,
-      height: 54,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 0,
-      shadowColor: '#10B981',
-      shadowOpacity: 0.12,
-      shadowRadius: 12,
-      elevation: 4,
-    },
-    authButtonContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    authButtonText: {
-      color: '#fff',
-      fontWeight: '700',
-      fontSize: 20,
-      letterSpacing: 0.2,
-    },
-    dividerContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginVertical: 18,
-    },
-    dividerLine: {
-      flex: 1,
-      height: 1,
-      backgroundColor: '#E5E7EB',
-    },
-    dividerText: {
-      marginHorizontal: 12,
-      fontSize: 12,
-      color: '#94A3B8',
-      textTransform: 'uppercase',
-      fontWeight: '600',
-      letterSpacing: 1,
-    },
-    socialButtonsContainer: {
-      gap: 14,
-      marginBottom: 10,
-    },
-    socialButton: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#fff',
-      borderColor: '#E5E7EB',
-      borderWidth: 1,
-      borderRadius: 16,
-      paddingVertical: 14,
-      paddingHorizontal: 18,
-      marginBottom: 0,
-      marginTop: 0,
-      marginRight: 0,
-      marginLeft: 0,
-      marginVertical: 0,
-    },
-    socialButtonContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    socialButtonText: {
-      color: '#0F172A',
-      fontWeight: '600',
-      fontSize: 16,
-      marginLeft: 10,
-    },
-    agreementText: {
-      fontSize: 12,
-      textAlign: 'center',
-      color: '#94A3B8',
-      marginTop: 18,
-    },
-    agreementLink: {
-      color: '#10B981',
-      fontWeight: '600',
-      textDecorationLine: 'underline',
-    },
-    // Features section with improved design
-    featuresContainer: {
-      paddingHorizontal: theme?.spacing?.[4] || 16,
-      paddingVertical: theme?.spacing?.[6] || 24,
-    },
-    featuresInner: {
-      maxWidth: 400,
-      alignSelf: 'center',
-      width: '100%',
-    },
-    featuresTitle: {
-      fontSize: 20,
-      fontWeight: '600',
-      textAlign: 'center',
-      marginBottom: theme?.spacing?.[6] || 24,
-      color: theme?.colors?.text?.primary || '#1E293B',
-    },
-    featuresGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: theme?.spacing?.[3] || 12,
-      justifyContent: 'space-between',
-    },
-    featureCard: {
-      width: '47%',
-      backgroundColor: theme?.colors?.surface?.card || '#FFFFFF',
-      borderRadius: 16,
-      padding: theme?.spacing?.[4] || 16,
-      alignItems: 'center',
-      gap: theme?.spacing?.[3] || 12,
-      ...(theme?.shadows?.sm || {}),
-      borderWidth: 1,
-      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
-    },
-    featureIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      ...(theme?.shadows?.sm || {}),
-    },
-    featureTitle: {
-      fontWeight: '600',
-      fontSize: 14,
-      color: theme?.colors?.text?.primary || '#1E293B',
-      textAlign: 'center',
-    },
-    featureDescription: {
-      fontSize: 12,
-      color: theme?.colors?.text?.secondary || '#64748B',
-      textAlign: 'center',
-    },
-    // Bottom CTA with improved styling
-    bottomCtaContainer: {
-      marginTop: theme?.spacing?.[8] || 32,
-      alignItems: 'center',
-      paddingHorizontal: theme?.spacing?.[4] || 16,
-      paddingBottom: theme?.spacing?.[6] || 24,
-    },
-    bottomCtaText: {
-      fontSize: 16,
-      color: theme?.colors?.text?.primary || '#1E293B',
-      textAlign: 'center',
-      marginBottom: theme?.spacing?.[2] || 8,
-    },
-    bottomCtaButton: {
-      marginTop: 8,
-      borderRadius: 24,
-      backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
-      paddingHorizontal: 24,
-      paddingVertical: 12,
-    },
-    bottomCtaButtonText: {
-      color: '#fff',
-      fontWeight: '700',
-      fontSize: 16,
-    },
-    roleSelectionContainer: {
-      marginBottom: 24,
-    },
-    roleSelectionLabel: {
-      fontSize: 18,
+      lineHeight: 22,
+      fontFamily: 'System',
       fontWeight: '500',
-      color: theme?.colors?.text?.primary || '#1E293B',
-      marginBottom: 12,
     },
-    roleOptionsRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: 16,
+    authForm: {
+      gap: 20,
+    },
+
+    // Role selection - Softer fonts and blue color
+    roleSelection: {
       marginBottom: 8,
+    },
+    roleLabel: {
+      fontSize: 16,
+      fontWeight: '500', // Reduced from 600
+      color: '#1E293B',
+      marginBottom: 12,
+      fontFamily: 'System',
+      letterSpacing: -0.2,
+    },
+    roleOptions: {
+      flexDirection: 'row',
+      gap: 12,
     },
     roleOption: {
       flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: '#F8FAFC',
-      borderRadius: 16,
-      paddingVertical: 14,
-      paddingHorizontal: 18,
-      borderWidth: 1,
-      borderColor: '#E5E7EB',
-      marginHorizontal: 4,
-      minWidth: 0,
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: '#E2E8F0',
+      backgroundColor: '#FFFFFF',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
     },
     roleOptionActive: {
-      backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
-      borderColor: theme?.colors?.primary?.main || '#3C4FE0',
-      shadowColor: theme?.colors?.primary?.main || '#3C4FE0',
-      shadowOpacity: 0.12,
-      shadowRadius: 8,
+      borderColor: '#3B82F6', // Changed to blue-500
+      backgroundColor: '#EFF6FF',
+      shadowColor: '#3B82F6',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
       elevation: 2,
     },
-    roleOptionIcon: {
-      width: 28,
-      height: 28,
-      borderRadius: 14,
-      backgroundColor: '#E5E7EB',
+    roleIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      backgroundColor: '#F8FAFC',
       alignItems: 'center',
       justifyContent: 'center',
-      marginRight: 10,
+      marginRight: 12,
     },
-    roleOptionIconActive: {
-      backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
+    roleIconActive: {
+      backgroundColor: '#3B82F6', // Changed to blue-500
     },
-    roleOptionText: {
-      fontSize: 16,
-      color: theme?.colors?.text?.primary || '#1E293B',
-      fontWeight: '600',
+    roleText: {
+      fontSize: 14,
+      fontWeight: '500', // Reduced from 600
+      color: '#64748B',
+      flex: 1,
+      fontFamily: 'System',
     },
-    roleOptionTextActive: {
-      color: '#fff',
+    roleTextActive: {
+      color: '#3B82F6', // Changed to blue-500
     },
-    roleOptionBadge: {
-      backgroundColor: '#10B981',
-      borderRadius: 8,
-      paddingHorizontal: 8,
-      paddingVertical: 2,
-      marginLeft: 8,
-      alignSelf: 'center',
+
+    // Form fields - Softer fonts
+    formFields: {
+      gap: 20,
     },
-    roleOptionBadgeText: {
-      color: '#fff',
+    inputContainer: {
+      marginBottom: 4,
+    },
+    errorText: {
       fontSize: 12,
-      fontWeight: '700',
+      color: '#EF4444',
+      marginTop: 4,
+      marginLeft: 4,
+      fontWeight: '500',
+      fontFamily: 'System',
     },
-    bottomCtaButtonContent: {
+
+    // Buttons - Softer fonts and blue color
+    primaryButton: {
+      backgroundColor: '#3B82F6', // Changed to blue-500
+      borderRadius: 12,
+      height: 52,
+      marginTop: 8,
+      shadowColor: '#3B82F6',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.25,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    primaryButtonDisabled: {
+      backgroundColor: '#94A3B8',
+      shadowColor: '#94A3B8',
+      shadowOpacity: 0.1,
+      elevation: 2,
+    },
+    buttonContent: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
+      gap: 8,
     },
-    bottomCtaButtonText: {
-      color: '#fff',
-      fontWeight: '700',
+    buttonText: {
       fontSize: 16,
-      marginLeft: 10,
+      fontWeight: '500', // Reduced from 600
+      color: '#FFFFFF',
+      fontFamily: 'System',
+      letterSpacing: -0.2,
+    },
+
+    // Divider - Softer fonts
+    divider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 8,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: '#E2E8F0',
+    },
+    dividerText: {
+      fontSize: 12,
+      color: '#94A3B8',
+      marginHorizontal: 16,
+      fontWeight: '500',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      fontFamily: 'System',
+    },
+
+    // Social buttons - Softer fonts
+    socialButtons: {
+      flexDirection: 'col',
+      gap: 12,
+    },
+    socialButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+      backgroundColor: '#FFFFFF',
+      gap: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    socialButtonText: {
+      fontSize: 14,
+      fontWeight: '500', // Reduced from 600
+      color: '#475569',
+      fontFamily: 'System',
+    },
+
+    // Terms - Softer fonts
+    termsText: {
+      fontSize: 12,
+      color: '#94A3B8',
+      textAlign: 'center',
+      lineHeight: 16,
+      marginTop: 8,
+      fontFamily: 'System',
+    },
+    termsLink: {
+      color: '#3B82F6', // Changed to blue-500
+      fontWeight: '500', // Reduced from 600
+      textDecorationLine: 'underline',
+    },
+
+    // Features section - Softer fonts
+    featuresSection: {
+      paddingHorizontal: 20,
+      paddingVertical: 40,
+    },
+    featuresTitle: {
+      fontSize: 24,
+      fontWeight: '600', // Reduced from 700
+      color: '#1E293B',
+      textAlign: 'center',
+      marginBottom: 32,
+      fontFamily: 'System',
+      letterSpacing: -0.4,
+    },
+    featuresGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 16,
+      justifyContent: 'space-between',
+    },
+    featureCard: {
+      width: (screenWidth - 56) / 2,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 16,
+      padding: 20,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: '#F1F5F9',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    featureIcon: {
+      width: 56,
+      height: 56,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 16,
+    },
+    featureTitle: {
+      fontSize: 16,
+      fontWeight: '500', // Reduced from 600
+      color: '#1E293B',
+      marginBottom: 8,
+      textAlign: 'center',
+      fontFamily: 'System',
+      letterSpacing: -0.2,
+    },
+    featureDescription: {
+      fontSize: 13,
+      color: '#64748B',
+      textAlign: 'center',
+      lineHeight: 18,
+      fontFamily: 'System',
+      fontWeight: '500',
+    },
+
+    // Footer CTA - Softer fonts and blue color
+    footerCta: {
+      paddingHorizontal: 20,
+      paddingVertical: 32,
+      alignItems: 'center',
+    },
+    footerCtaText: {
+      fontSize: 18,
+      fontWeight: '500', // Reduced from 600
+      color: '#1E293B',
+      textAlign: 'center',
+      marginBottom: 24,
+      lineHeight: 26,
+      fontFamily: 'System',
+      letterSpacing: -0.3,
+    },
+    footerButton: {
+      borderColor: '#3B82F6', // Changed to blue-500
+      borderWidth: 2,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 12,
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+      shadowColor: '#3B82F6',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    footerButtonText: {
+      fontSize: 16,
+      fontWeight: '500', // Reduced from 600
+      color: '#3B82F6', // Changed to blue-500
+      fontFamily: 'System',
+      letterSpacing: -0.2,
     },
   });

@@ -6,18 +6,11 @@ import {
   StatusBar,
   SafeAreaView,
   Image,
-  TouchableOpacity,
-  Dimensions,
 } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import { useTheme } from '../../contexts/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import ActionCard from '../components/ActionCard';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 const OnboardingScreen = () => {
-  const { theme } = useTheme();
   const navigation = useNavigation();
 
   return (

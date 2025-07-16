@@ -1,12 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Dimensions, StyleSheet, View } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import { useTheme } from '../../contexts/ThemeContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const AnimatedBackground = () => {
-  const { theme } = useTheme();
   const floatingAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

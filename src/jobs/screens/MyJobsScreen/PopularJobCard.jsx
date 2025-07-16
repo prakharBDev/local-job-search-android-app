@@ -1,100 +1,167 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
-import Badge from '../../../components/elements/Badge';
-import Card from '../../../components/blocks/Card';
-import { useTheme } from '../../../contexts/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 
 const PopularJobCard = ({ job }) => {
-  const { theme } = useTheme();
+  const navigation = useNavigation();
+
+  const handlePress = () => {
+    navigation.navigate('JobDetails', { jobData: job });
+  };
+
   return (
-    <Card
-      style={{
-        width: 220,
-        marginRight: 16,
-        borderRadius: 20,
-        padding: 18,
-        backgroundColor: job.color[0],
-        shadowColor: job.color[0],
-        shadowOpacity: 0.12,
-        shadowRadius: 8,
-        elevation: 4,
-      }}
-    >
-      <View
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
+      <LinearGradient
+        colors={job.color}
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 10,
+          width: 240,
+          marginRight: 16,
+          borderRadius: 20,
+          padding: 20,
+          shadowColor: '#3B82F6',
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.15,
+          shadowRadius: 16,
+          elevation: 6,
         }}
       >
         <View
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: '#fff',
+            flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: 10,
+            marginBottom: 16,
           }}
         >
-          <Feather name={job.logo} size={20} color={job.color[1]} />
-        </View>
-        <Text
-          style={{
-            fontSize: 14,
-            fontWeight: '600',
-            color: '#fff',
-            flex: 1,
-          }}
-        >
-          {job.company}
-        </Text>
-      </View>
-      <Text
-        style={{
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#fff',
-          marginBottom: 8,
-        }}
-      >
-        {job.title}
-      </Text>
-      <Text style={{ fontSize: 13, color: '#E0E7EF', marginBottom: 10 }}>
-        {job.salary}
-      </Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <Badge
-          variant="default"
-          size="sm"
-          style={{ backgroundColor: '#fff', marginRight: 8 }}
-        >
-          <Text
+          <View
             style={{
-              color: job.color[1],
-              fontWeight: '600',
-              fontSize: 12,
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: 12,
             }}
           >
-            {job.type}
-          </Text>
-        </Badge>
-        <Badge
-          variant="outline"
-          size="sm"
+            <Feather name={job.logo} size={22} color={'#FFFFFF'} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: '600',
+                color: '#FFFFFF',
+                marginBottom: 2,
+                opacity: 0.9,
+              }}
+            >
+              {job.company}
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <Feather name="star" size={12} color="#FFF" />
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: '#FFFFFF',
+                  fontWeight: '500',
+                  opacity: 0.8,
+                }}
+              >
+                Featured
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <Text
           style={{
-            borderColor: '#fff',
-            backgroundColor: '#ffffff22',
+            fontSize: 18,
+            fontWeight: '700',
+            color: '#FFFFFF',
+            marginBottom: 8,
+            lineHeight: 24,
           }}
         >
-          <Text style={{ color: '#fff', fontWeight: '500', fontSize: 12 }}>
-            {job.time}
+          {job.title}
+        </Text>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 16,
+            gap: 4,
+          }}
+        >
+          <Feather name="dollar-sign" size={14} color="#FFFFFF" />
+          <Text
+            style={{
+              fontSize: 16,
+              color: '#FFFFFF',
+              fontWeight: '600',
+            }}
+          >
+            {job.salary}
           </Text>
-        </Badge>
-      </View>
-    </Card>
+        </View>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            flexWrap: 'wrap',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+              borderRadius: 8,
+            }}
+          >
+            <Text
+              style={{
+                color: '#FFFFFF',
+                fontWeight: '600',
+                fontSize: 12,
+              }}
+            >
+              {job.type}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+              borderRadius: 8,
+            }}
+          >
+            <Text
+              style={{
+                color: '#FFFFFF',
+                fontWeight: '500',
+                fontSize: 12,
+                opacity: 0.8,
+              }}
+            >
+              {job.time}
+            </Text>
+          </View>
+        </View>
+      </LinearGradient>
+    </TouchableOpacity>
   );
 };
 

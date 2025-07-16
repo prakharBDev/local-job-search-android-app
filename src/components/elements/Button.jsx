@@ -17,39 +17,51 @@ const Button = ({
 
   const buttonStyle = useMemo(() => {
     const baseStyle = {
-      borderRadius: theme?.borderRadius?.xl || 16,
+      borderRadius: 18, // Increased from 16 for softer look
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      ...(theme?.shadows?.md || {}),
     };
 
     const sizeStyles = {
       sm: {
         paddingHorizontal: theme?.spacing?.[4] || 16,
         paddingVertical: theme?.spacing?.[2] || 8,
-        minHeight: 36,
+        minHeight: 40, // Increased from 36
+        borderRadius: 16, // Slightly smaller for sm
       },
       md: {
         paddingHorizontal: theme?.spacing?.[6] || 24,
         paddingVertical: theme?.spacing?.[3] || 12,
-        minHeight: theme?.layout?.touchTarget?.minHeight || 44,
+        minHeight: 50, // Increased from 44
+        borderRadius: 18,
       },
       lg: {
         paddingHorizontal: theme?.spacing?.[8] || 32,
         paddingVertical: theme?.spacing?.[4] || 16,
         minHeight: 56,
+        borderRadius: 20, // Larger for lg
       },
     };
 
     const variantStyles = {
       default: {
-        backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
+        backgroundColor: '#3B82F6',
+        shadowColor: '#3B82F6',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        elevation: 4,
       },
       outline: {
         backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: theme?.colors?.border?.primary || '#E2E8F0',
+        borderWidth: 1.5, // Slightly thicker
+        borderColor: '#3B82F6',
+        shadowColor: '#3B82F6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
       },
       ghost: {
         backgroundColor: 'transparent',
@@ -57,7 +69,12 @@ const Button = ({
         elevation: 0,
       },
       gradient: {
-        backgroundColor: 'transparent',
+        backgroundColor: '#3B82F6',
+        shadowColor: '#3B82F6',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        elevation: 4,
       },
     };
 
@@ -74,35 +91,40 @@ const Button = ({
     const baseTextStyle = {
       textAlign: 'center',
       fontWeight: '600',
+      fontFamily: 'System', // Soft system font
+      letterSpacing: -0.3, // Tighter letter spacing for softer look
     };
 
     const sizeTextStyles = {
       sm: {
-        fontSize: theme?.typography?.bodySmall?.fontSize || 14,
-        lineHeight: theme?.typography?.bodySmall?.lineHeight || 20,
+        fontSize: 14,
+        lineHeight: 20,
+        letterSpacing: -0.2,
       },
       md: {
-        fontSize: theme?.typography?.body?.fontSize || 16,
-        lineHeight: theme?.typography?.body?.lineHeight || 24,
+        fontSize: 16,
+        lineHeight: 24,
+        letterSpacing: -0.3,
       },
       lg: {
-        fontSize: theme?.typography?.h6?.fontSize || 16,
-        lineHeight: theme?.typography?.h6?.lineHeight || 22,
+        fontSize: 17,
+        lineHeight: 24,
+        letterSpacing: -0.4,
       },
     };
 
     const variantTextStyles = {
       default: {
-        color: theme?.colors?.text?.white || '#FFFFFF',
+        color: '#FFFFFF',
       },
       outline: {
-        color: theme?.colors?.text?.primary || '#1E293B',
+        color: '#3B82F6',
       },
       ghost: {
         color: theme?.colors?.text?.secondary || '#475569',
       },
       gradient: {
-        color: theme?.colors?.text?.white || '#FFFFFF',
+        color: '#FFFFFF',
       },
     };
 
@@ -120,8 +142,8 @@ const Button = ({
           size="small"
           color={
             variant === 'default' || variant === 'gradient'
-              ? theme?.colors?.text?.white || '#FFFFFF'
-              : theme?.colors?.primary?.main || '#3C4FE0'
+              ? '#FFFFFF'
+              : '#3B82F6'
           }
           style={{ marginRight: theme?.spacing?.[2] || 8 }}
         />
@@ -136,11 +158,7 @@ const Button = ({
   if (variant === 'gradient') {
     return (
       <TouchableOpacity
-        style={[
-          buttonStyle,
-          { backgroundColor: theme?.colors?.primary?.main || '#3C4FE0' },
-          style,
-        ]}
+        style={[buttonStyle, { backgroundColor: '#3B82F6' }, style]}
         disabled={disabled || loading}
         {...props}
       >

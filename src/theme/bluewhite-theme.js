@@ -23,11 +23,11 @@ export const bluewhiteTheme = {
 
     // Primary colors
     primary: {
-      main: '#3C4FE0', // Deep blue (same as primary blue)
+      main: '#3B82F6', // Updated to match PR color scheme
       light: '#6366F1', // Lighter blue
       dark: '#1E40AF', // Darker blue
       foreground: '#FFFFFF',
-      cyan: '#3C4FE0', // Use primary blue as cyan for compatibility
+      cyan: '#3B82F6', // Use primary blue as cyan for compatibility
     },
 
     // Secondary colors
@@ -40,7 +40,7 @@ export const bluewhiteTheme = {
 
     // Accent colors
     accent: {
-      blue: '#3C4FE0', // Primary blue
+      blue: '#3B82F6', // Updated primary blue
       green: '#10B981', // Emerald green
       orange: '#F59E0B', // Amber orange
       purple: '#8B5CF6', // Violet purple
@@ -67,15 +67,15 @@ export const bluewhiteTheme = {
       success: '#10B981', // Green for success
       warning: '#F59E0B', // Amber for warnings
       error: '#EF4444', // Red for errors
-      info: '#3C4FE0', // Blue for info
+      info: '#3B82F6', // Blue for info
     },
 
     // Shadows
     shadows: {
-      soft: 'rgba(60, 79, 224, 0.08)',
-      medium: 'rgba(60, 79, 224, 0.12)',
-      strong: 'rgba(60, 79, 224, 0.16)',
-      glow: 'rgba(60, 79, 224, 0.25)',
+      soft: 'rgba(59, 130, 246, 0.08)',
+      medium: 'rgba(59, 130, 246, 0.12)',
+      strong: 'rgba(59, 130, 246, 0.16)',
+      glow: 'rgba(59, 130, 246, 0.25)',
       sm: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
@@ -115,7 +115,7 @@ export const bluewhiteTheme = {
     // Add border property for compatibility with theme usage in App.jsx
     border: {
       primary: '#E2E8F0', // matches interactive.border.primary
-      secondary: '#3C4FE0',
+      secondary: '#3B82F6',
       inactive: '#CBD5E1',
       focus: '#6366F1',
     },
@@ -133,8 +133,8 @@ export const bluewhiteTheme = {
 
     // Gradients for compatibility
     gradients: {
-      neon: ['#3C4FE0', '#6366F1'],
-      cyber: ['#10B981', '#3C4FE0'],
+      neon: ['#3B82F6', '#6366F1'],
+      cyber: ['#10B981', '#3B82F6'],
       accent: ['#F59E0B', '#EF4444'],
       background: ['#FFFFFF', '#F8FAFC'],
     },

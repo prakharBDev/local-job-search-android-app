@@ -46,8 +46,8 @@ const Button = ({
 
     const variantStyles = {
       default: {
-        backgroundColor: '#3B82F6',
-        shadowColor: '#3B82F6',
+        backgroundColor: theme?.colors?.primary?.main || '#3B82F6',
+        shadowColor: theme?.colors?.primary?.main || '#3B82F6',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 12,
@@ -56,8 +56,8 @@ const Button = ({
       outline: {
         backgroundColor: 'transparent',
         borderWidth: 1.5, // Slightly thicker
-        borderColor: '#3B82F6',
-        shadowColor: '#3B82F6',
+        borderColor: theme?.colors?.primary?.main || '#3B82F6',
+        shadowColor: theme?.colors?.primary?.main || '#3B82F6',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 8,
@@ -69,8 +69,8 @@ const Button = ({
         elevation: 0,
       },
       gradient: {
-        backgroundColor: '#3B82F6',
-        shadowColor: '#3B82F6',
+        backgroundColor: theme?.colors?.primary?.main || '#3B82F6',
+        shadowColor: theme?.colors?.primary?.main || '#3B82F6',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 12,
@@ -115,16 +115,16 @@ const Button = ({
 
     const variantTextStyles = {
       default: {
-        color: '#FFFFFF',
+        color: theme?.colors?.primary?.foreground || '#FFFFFF',
       },
       outline: {
-        color: '#3B82F6',
+        color: theme?.colors?.primary?.main || '#3B82F6',
       },
       ghost: {
         color: theme?.colors?.text?.secondary || '#475569',
       },
       gradient: {
-        color: '#FFFFFF',
+        color: theme?.colors?.primary?.foreground || '#FFFFFF',
       },
     };
 
@@ -142,8 +142,8 @@ const Button = ({
           size="small"
           color={
             variant === 'default' || variant === 'gradient'
-              ? '#FFFFFF'
-              : '#3B82F6'
+              ? theme?.colors?.primary?.foreground || '#FFFFFF'
+              : theme?.colors?.primary?.main || '#3B82F6'
           }
           style={{ marginRight: theme?.spacing?.[2] || 8 }}
         />
@@ -158,7 +158,7 @@ const Button = ({
   if (variant === 'gradient') {
     return (
       <TouchableOpacity
-        style={[buttonStyle, { backgroundColor: '#3B82F6' }, style]}
+        style={[buttonStyle, { backgroundColor: theme?.colors?.primary?.main || '#3B82F6' }, style]}
         disabled={disabled || loading}
         {...props}
       >

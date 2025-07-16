@@ -454,20 +454,6 @@ const IndexScreen = () => {
                 <Text style={styles.brandTagline}>Find your perfect match</Text>
               </View>
             </View>
-
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={toggleAuthMode}
-              activeOpacity={0.7}
-              accessibilityLabel={`Switch to ${
-                isLogin ? 'Sign Up' : 'Sign In'
-              }`}
-              accessibilityHint="Tap to switch between login and signup"
-            >
-              <Text style={styles.headerButtonText}>
-                {isLogin ? 'Sign Up' : 'Sign In'}
-              </Text>
-            </TouchableOpacity>
           </Animated.View>
 
           {/* Hero Section - Hide when keyboard is visible */}
@@ -533,78 +519,6 @@ const IndexScreen = () => {
               </View>
 
               <View style={styles.authForm}>
-                {/* Role Selection */}
-                <View style={styles.roleSelection}>
-                  <Text style={styles.roleLabel}>I want to:</Text>
-                  <View style={styles.roleOptions}>
-                    <TouchableOpacity
-                      style={[
-                        styles.roleOption,
-                        userRole === 'seeker' && styles.roleOptionActive,
-                      ]}
-                      onPress={() => handleRoleChange('seeker')}
-                      activeOpacity={0.8}
-                      accessibilityLabel="Find a job"
-                      accessibilityState={{ selected: userRole === 'seeker' }}
-                    >
-                      <View
-                        style={[
-                          styles.roleIcon,
-                          userRole === 'seeker' && styles.roleIconActive,
-                        ]}
-                      >
-                        <Feather
-                          name="search"
-                          size={16}
-                          color={userRole === 'seeker' ? '#FFFFFF' : '#64748B'}
-                        />
-                      </View>
-                      <Text
-                        style={[
-                          styles.roleText,
-                          userRole === 'seeker' && styles.roleTextActive,
-                        ]}
-                      >
-                        Find a Job
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[
-                        styles.roleOption,
-                        userRole === 'employer' && styles.roleOptionActive,
-                      ]}
-                      onPress={() => handleRoleChange('employer')}
-                      activeOpacity={0.8}
-                      accessibilityLabel="Hire talent"
-                      accessibilityState={{ selected: userRole === 'employer' }}
-                    >
-                      <View
-                        style={[
-                          styles.roleIcon,
-                          userRole === 'employer' && styles.roleIconActive,
-                        ]}
-                      >
-                        <Feather
-                          name="plus"
-                          size={16}
-                          color={
-                            userRole === 'employer' ? '#FFFFFF' : '#64748B'
-                          }
-                        />
-                      </View>
-                      <Text
-                        style={[
-                          styles.roleText,
-                          userRole === 'employer' && styles.roleTextActive,
-                        ]}
-                      >
-                        Hire Talent
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
                 {/* Form Fields */}
                 <View style={styles.formFields}>
                   <View style={styles.inputContainer}>
@@ -648,49 +562,6 @@ const IndexScreen = () => {
                       ) : null}
                     </View>
                   )}
-                </View>
-
-                {/* Primary CTA */}
-                <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    onPress={handleLogin}
-                    disabled={isLoading}
-                    style={[
-                      styles.primaryButton,
-                      isLoading && styles.primaryButtonDisabled,
-                    ]}
-                    accessibilityLabel={isLogin ? 'Sign in' : 'Create account'}
-                    accessibilityState={{ disabled: isLoading }}
-                  >
-                    <View style={styles.buttonContent}>
-                      {isLoading ? (
-                        <>
-                          <Feather name="loader" size={20} color="#FFFFFF" />
-                          <Text style={styles.buttonText}>Please wait...</Text>
-                        </>
-                      ) : (
-                        <>
-                          <Feather
-                            name="arrow-right"
-                            size={20}
-                            color="#FFFFFF"
-                          />
-                          <Text style={styles.buttonText}>
-                            {isLogin ? 'Sign In' : 'Create Account'}
-                          </Text>
-                        </>
-                      )}
-                    </View>
-                  </Button>
-                </Animated.View>
-
-                {/* Divider */}
-                <View style={styles.divider}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>or continue with</Text>
-                  <View style={styles.dividerLine} />
                 </View>
 
                 {/* Social Login */}

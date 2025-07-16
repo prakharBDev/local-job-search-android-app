@@ -444,6 +444,10 @@ export const getStyles = theme =>
       shadowRadius: 4,
       elevation: 2,
     },
+    socialButtonDisabled: {
+      opacity: 0.6,
+      backgroundColor: '#F8FAFC',
+    },
     socialButtonText: {
       fontSize: 14,
       fontWeight: '500', // Reduced from 600

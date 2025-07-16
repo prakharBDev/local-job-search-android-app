@@ -15,12 +15,19 @@ import {
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import Config from 'react-native-config';
 import Button from '../../components/elements/Button';
 import Input from '../../components/elements/Input';
 import Card from '../../components/blocks/Card';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../utils/supabase';
 import { getStyles } from './IndexScreen.styles.js';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -46,216 +53,18 @@ const IndexScreen = () => {
     new Animated.Value(1),
   ]).current;
 
-  // Animated background elements
-  const backgroundAnimations = useRef([
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-  ]).current;
-
-  const backgroundRotations = useRef([
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-  ]).current;
-
-  const backgroundScales = useRef([
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-  ]).current;
-
-  // Animated Background Component
-  const AnimatedBackground = () => {
-    const elements = [
-      { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
-      {
-        type: 'small',
-        color: '#10B981',
-        size: 40,
-        style: 'floatingElementSmall',
-      },
-      {
-        type: 'tiny',
-        color: '#F59E0B',
-        size: 20,
-        style: 'floatingElementTiny',
-      },
-      {
-        type: 'square',
-        color: '#EC4899',
-        size: 60,
-        style: 'floatingElementSquare',
-      },
-      { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
-      {
-        type: 'small',
-        color: '#10B981',
-        size: 40,
-        style: 'floatingElementSmall',
-      },
-      {
-        type: 'tiny',
-        color: '#F59E0B',
-        size: 20,
-        style: 'floatingElementTiny',
-      },
-      {
-        type: 'square',
-        color: '#EC4899',
-        size: 60,
-        style: 'floatingElementSquare',
-      },
-      { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
-      {
-        type: 'small',
-        color: '#10B981',
-        size: 40,
-        style: 'floatingElementSmall',
-      },
-    ];
-
-    const positions = [
-      { left: screenWidth * 0.1, top: 150 },
-      { left: screenWidth * 0.8, top: 250 },
-      { left: screenWidth * 0.2, top: 400 },
-      { left: screenWidth * 0.9, top: 500 },
-      { left: screenWidth * 0.05, top: 650 },
-      { left: screenWidth * 0.7, top: 750 },
-      { left: screenWidth * 0.3, top: 850 },
-      { left: screenWidth * 0.85, top: 950 },
-      { left: screenWidth * 0.15, top: 1050 },
-      { left: screenWidth * 0.6, top: 1150 },
-    ];
-
-    return (
-      <View style={styles.animatedBackground}>
-        {/* Floating elements */}
-        {backgroundAnimations.map((anim, index) => (
-          <Animated.View
-            key={index}
-            style={[
-              styles[elements[index].style],
-              {
-                transform: [
-                  {
-                    translateY: anim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, -50 - index * 10],
-                    }),
-                  },
-                  {
-                    translateX: anim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, (index % 2 === 0 ? 1 : -1) * 20],
-                    }),
-                  },
-                  {
-                    rotate: backgroundRotations[index].interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [
-                        '0deg',
-                        elements[index].type === 'square' ? '405deg' : '360deg',
-                      ],
-                    }),
-                  },
-                  {
-                    scale: backgroundScales[index].interpolate({
-                      inputRange: [0, 0.5, 1],
-                      outputRange: [1, 1.2, 1],
-                    }),
-                  },
-                ],
-                opacity: anim.interpolate({
-                  inputRange: [0, 0.5, 1],
-                  outputRange: [0.3, 0.8, 0.3],
-                }),
-                left: positions[index].left,
-                top: positions[index].top,
-              },
-            ]}
-          />
-        ))}
-
-        {/* Gradient overlays */}
-        <View style={styles.gradientOverlay} />
-        <View style={styles.gradientOverlayTop} />
-        <View style={styles.gradientOverlayBottom} />
-      </View>
-    );
-  };
-
   useEffect(() => {
-    // Start background animations
-    const startBackgroundAnimations = () => {
-      backgroundAnimations.forEach((anim, index) => {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(anim, {
-              toValue: 1,
-              duration: 4000 + index * 800,
-              useNativeDriver: true,
-            }),
-            Animated.timing(anim, {
-              toValue: 0,
-              duration: 4000 + index * 800,
-              useNativeDriver: true,
-            }),
-          ]),
-        ).start();
+    // Configure Google Sign-In
+    const webClientId = Config.GOOGLE_WEB_CLIENT_ID;
+    try {
+      GoogleSignin.configure({
+        scopes: ['email', 'profile'],
+        webClientId,
+        offlineAccess: true,
       });
-
-      backgroundRotations.forEach((rotation, index) => {
-        Animated.loop(
-          Animated.timing(rotation, {
-            toValue: 1,
-            duration: 10000 + index * 1500,
-            useNativeDriver: true,
-          }),
-        ).start();
-      });
-
-      backgroundScales.forEach((scale, index) => {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(scale, {
-              toValue: 1,
-              duration: 2000 + index * 300,
-              useNativeDriver: true,
-            }),
-            Animated.timing(scale, {
-              toValue: 0,
-              duration: 2000 + index * 300,
-              useNativeDriver: true,
-            }),
-          ]),
-        ).start();
-      });
-    };
-
-    startBackgroundAnimations();
-
+    } catch (error) {
+      console.error('GoogleSignin.configure failed:', error);
+    }
     // Entrance animation with staggered effect
     Animated.stagger(200, [
       Animated.parallel([
@@ -271,7 +80,6 @@ const IndexScreen = () => {
         }),
       ]),
     ]).start();
-
     // Keyboard listeners
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -281,7 +89,6 @@ const IndexScreen = () => {
       'keyboardDidHide',
       () => setIsKeyboardVisible(false),
     );
-
     return () => {
       keyboardDidShowListener?.remove();
       keyboardDidHideListener?.remove();
@@ -397,23 +204,131 @@ const IndexScreen = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    if (isLoading) return;
+    try {
+      setIsLoading(true);
+      await GoogleSignin.hasPlayServices();
+      try {
+        const currentUser = await GoogleSignin.getCurrentUser();
+        if (currentUser) {
+          await GoogleSignin.signOut();
+        }
+      } catch (currentUserError) {
+        // Ignore if no current user
+      }
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.data?.idToken;
+      if (!idToken) {
+        throw new Error('Google Sign-In did not return an ID token.');
+      }
+      // Sign in with Supabase using the Google ID token
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: idToken,
+      });
+      if (error) {
+        console.error('Supabase signInWithIdToken error:', error);
+        throw error;
+      }
+      const { session, user } = data;
+      if (!session || !user) {
+        throw new Error('Invalid authentication data');
+      }
+      // Check if user exists in our database
+      const { data: existingUser, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      let userRecord = existingUser;
+      let isNewUser = false;
+      if (userError && userError.code === 'PGRST116') {
+        isNewUser = true;
+        const newUserData = {
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.full_name || user.email?.split('@')[0],
+          provider: 'google',
+          google_id: user.id || user.user_metadata?.sub, // <-- Add this line
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          city: "morena"
+        };
+        const { data: createdUser, error: createError } = await supabase
+          .from('users')
+          .insert([newUserData])
+          .select()
+          .single();
+        if (createError) {
+          console.error('User creation error:', createError);
+          throw createError;
+        }
+        userRecord = createdUser;
+      } else if (userError) {
+        console.error('User fetch error:', userError);
+        throw userError;
+      } else {
+        // Update last login for existing user
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', user.id);
+        if (updateError) {
+          console.warn('Failed to update last login:', updateError);
+        }
+      }
+      // Log in the user in AuthContext
+      await login({ session, user, userRecord, isNewUser });
+      console.log('Google sign-in successful for:', user.email);
+      Alert.alert(
+        'Welcome!',
+        isNewUser
+          ? 'Account created successfully! Let\'s set up your profile.'
+          : `Welcome back, ${userRecord.name || 'User'}!`,
+        [{ text: 'Continue', style: 'default' }],
+      );
+    } catch (error) {
+      let errorMessage = 'Google Sign-In failed. Please try again.';
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        return; // User cancelled
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        errorMessage = 'Sign-in already in progress. Please wait.';
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        errorMessage = 'Google Play Services not available or outdated.';
+      } else if (error.message && error.message.includes('DEVELOPER_ERROR')) {
+        errorMessage = `Configuration Error: ${error.message}\n\nPlease check:\n- Package name: com.basicapp\n- SHA-1 fingerprint\n- Google Cloud Console setup`;
+      }
+      console.error('Google Sign-In error:', error);
+      Alert.alert('Authentication Error', errorMessage, [
+        { text: 'OK', style: 'default' },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSocialLogin = (provider, index) => {
+    console.log('🔵 Social login button pressed:', provider, 'index:', index);
     animateButton(socialButtonScales[index]);
 
-    // Provide user feedback
-    Alert.alert('Coming Soon', `${provider} login will be available soon!`, [
-      { text: 'OK', style: 'default' },
-    ]);
+    if (provider === 'Google') {
+      console.log('🔵 Calling handleGoogleSignIn...');
+      handleGoogleSignIn();
+    } else {
+      console.log('🔵 Provider not implemented:', provider);
+      Alert.alert('Coming Soon', `${provider} login will be available soon!`, [
+        { text: 'OK', style: 'default' },
+      ]);
+    }
   };
 
   const handleRoleChange = role => {
     setUserRole(role);
-    // Haptic feedback could be added here
   };
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
-    // Clear validation errors when switching modes
     setEmailError('');
     setPhoneError('');
   };
@@ -521,27 +436,6 @@ const IndexScreen = () => {
               <View style={styles.authForm}>
                 {/* Form Fields */}
                 <View style={styles.formFields}>
-                  <View style={styles.inputContainer}>
-                    <Input
-                      label="Email Address"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChangeText={handleEmailChange}
-                      onBlur={() => setEmailError(validateEmail(email))}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      leftIcon={
-                        <Feather name="mail" size={20} color="#94A3B8" />
-                      }
-                      error={emailError}
-                      accessibilityLabel="Email address"
-                    />
-                    {emailError ? (
-                      <Text style={styles.errorText}>{emailError}</Text>
-                    ) : null}
-                  </View>
-
                   {isLogin && (
                     <View style={styles.inputContainer}>
                       <Input
@@ -570,29 +464,30 @@ const IndexScreen = () => {
                     style={{ transform: [{ scale: socialButtonScales[0] }] }}
                   >
                     <TouchableOpacity
-                      style={styles.socialButton}
+                      style={[
+                        styles.socialButton,
+                        isLoading && styles.socialButtonDisabled,
+                      ]}
                       onPress={() => handleSocialLogin('Google', 0)}
                       activeOpacity={0.8}
                       accessibilityLabel="Continue with Google"
+                      disabled={isLoading}
                     >
-                      <FontAwesome name="google" size={20} color="#4285F4" />
-                      <Text style={styles.socialButtonText}>Google</Text>
+                      {isLoading ? (
+                        <>
+                          <FontAwesome name="google" size={20} color="#94A3B8" />
+                          <Text style={[styles.socialButtonText, { color: '#94A3B8' }]}>
+                            Signing in...
+                          </Text>
+                        </>
+                      ) : (
+                        <>
+                          <FontAwesome name="google" size={20} color="#4285F4" />
+                          <Text style={styles.socialButtonText}>Google</Text>
+                        </>
+                      )}
                     </TouchableOpacity>
                   </Animated.View>
-
-                  {/* <Animated.View
-                    style={{ transform: [{ scale: socialButtonScales[1] }] }}
-                  >
-                    <TouchableOpacity
-                      style={styles.socialButton}
-                      onPress={() => handleSocialLogin('LinkedIn', 1)}
-                      activeOpacity={0.8}
-                      accessibilityLabel="Continue with LinkedIn"
-                    >
-                      <FontAwesome name="linkedin" size={20} color="#0077B5" />
-                      <Text style={styles.socialButtonText}>LinkedIn</Text>
-                    </TouchableOpacity>
-                  </Animated.View> */}
                 </View>
 
                 {/* Terms */}

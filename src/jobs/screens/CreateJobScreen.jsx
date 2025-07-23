@@ -38,6 +38,9 @@ const CreateJobScreen = () => {
     salary: '',
     category_id: '',
     city: state.userRecord?.city || 'morena',
+    salaryRange: { min: '', max: '' },
+    requirements: [''],
+    skills: [''],
   });
 
   const [errors, setErrors] = useState({});
@@ -110,7 +113,7 @@ const CreateJobScreen = () => {
       newErrors.skills = ['At least one skill is needed'];
     }
 
-    if (formData.salaryRange.min && formData.salaryRange.max) {
+    if (formData.salaryRange?.min && formData.salaryRange?.max) {
       const minSalary = parseInt(formData.salaryRange.min);
       const maxSalary = parseInt(formData.salaryRange.max);
       if (isNaN(minSalary) || isNaN(maxSalary)) {
@@ -177,7 +180,7 @@ const CreateJobScreen = () => {
         experienceLevel: formData.experienceLevel,
         location: formData.location.trim(),
         salaryRange:
-          formData.salaryRange.min && formData.salaryRange.max
+          formData.salaryRange?.min && formData.salaryRange?.max
             ? {
                 min: parseInt(formData.salaryRange.min),
                 max: parseInt(formData.salaryRange.max),
@@ -567,7 +570,7 @@ const CreateJobScreen = () => {
                           focusedField === 'salary-min' &&
                             getStyles(theme).inputFocused,
                         ]}
-                        value={formData.salaryRange.min}
+                        value={formData.salaryRange?.min || ''}
                         onChangeText={value => handleSalaryChange('min', value)}
                         onFocus={() => setFocusedField('salary-min')}
                         onBlur={() => setFocusedField(null)}
@@ -593,7 +596,7 @@ const CreateJobScreen = () => {
                           focusedField === 'salary-max' &&
                             getStyles(theme).inputFocused,
                         ]}
-                        value={formData.salaryRange.max}
+                        value={formData.salaryRange?.max || ''}
                         onChangeText={value => handleSalaryChange('max', value)}
                         onFocus={() => setFocusedField('salary-max')}
                         onBlur={() => setFocusedField(null)}

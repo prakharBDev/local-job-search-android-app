@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { clearErrorHelper } from '../utils/clearError.js';
+import { userService } from '../services';
 import { useAuth } from './AuthContext';
 
 const initialState = {
@@ -48,7 +49,7 @@ const UserContext = createContext(undefined);
 
 export const UserProvider = ({ children }) => {
   const [state, dispatch] = useReducer(userReducer, initialState);
-  const { userRecord } = useAuth();
+  const { user, userRecord, checkAuthStatus } = useAuth();
 
   useEffect(() => {
     const loadSavedMode = async () => {
@@ -74,15 +75,35 @@ export const UserProvider = ({ children }) => {
   }, [userRecord]);
 
   const switchMode = async mode => {
+    if (!user) {
+      dispatch({
+        type: 'SET_MODE_ERROR',
+        payload: 'User not authenticated.',
+      });
+      return;
+    }
+
+    dispatch({ type: 'SET_MODE_LOADING' });
     try {
-      dispatch({ type: 'SET_MODE_LOADING' });
+      const updates = {
+        is_seeker: mode === 'seeker',
+        is_poster: mode === 'poster',
+      };
+
+      const { error } = await userService.updateUser(user.id, updates);
+
+      if (error) {
+        throw error;
+      }
 
       await AsyncStorage.setItem(USER_MODE_STORAGE_KEY, mode);
-
-      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Refresh user data to get the latest profile status
+      await checkAuthStatus(); 
 
       dispatch({ type: 'SET_MODE_SUCCESS', payload: mode });
     } catch (error) {
+      console.error("Failed to switch mode:", error);
       dispatch({
         type: 'SET_MODE_ERROR',
         payload: 'Failed to switch mode. Please try again.',

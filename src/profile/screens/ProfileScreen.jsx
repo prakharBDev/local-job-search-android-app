@@ -11,9 +11,10 @@ import {
 } from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { UserContext } from '../../contexts/UserContext';
+import { seekerService, companyService } from '../../services';
 
 const ProfileScreen = ({ navigation }) => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, userRecord, logout } = useContext(AuthContext);
   const { currentMode, toggleMode } = useContext(UserContext);
 
   const handleLogout = async () => {
@@ -42,11 +43,12 @@ const ProfileScreen = ({ navigation }) => {
     console.log('View Resume pressed');
   };
 
-  const handleModeSwitch = () => {
+  const handleModeSwitch = async () => {
+    const newMode = currentMode === 'seeker' ? 'poster' : 'seeker';
     Alert.alert(
       'Switch User Mode',
       `Are you sure you want to switch to ${
-        currentMode === 'seeker' ? 'Job Poster' : 'Job Seeker'
+        newMode === 'seeker' ? 'Job Seeker' : 'Job Poster'
       } mode?`,
       [
         {
@@ -55,10 +57,19 @@ const ProfileScreen = ({ navigation }) => {
         },
         {
           text: 'Switch',
-          onPress: () => {
-            toggleMode();
-            // Navigate to profile setup for the new mode
-            navigation.navigate('ProfileSetup');
+          onPress: async () => {
+            await toggleMode();
+            // Check if profile exists for the new mode
+            const { data: seekerProfile } = await seekerService.getSeekerProfile(user.id);
+            const { data: companyProfile } = await companyService.getCompanyProfile(user.id);
+
+            if (newMode === 'seeker' && !seekerProfile) {
+              navigation.navigate('SeekerProfileSetup');
+            } else if (newMode === 'poster' && !companyProfile) {
+              navigation.navigate('CompanyProfileSetup');
+            } else {
+              navigation.navigate('Dashboard');
+            }
           },
         },
       ],

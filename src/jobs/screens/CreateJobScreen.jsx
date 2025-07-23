@@ -25,7 +25,7 @@ import {
   jobService,
   categoriesService,
   companyService,
-} from '../../utils/database';
+} from '../../services';
 import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 
 const CreateJobScreen = () => {

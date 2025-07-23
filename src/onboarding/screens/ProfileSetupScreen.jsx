@@ -13,30 +13,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import Button from '../../components/elements/Button';
-import Card from '../../components/blocks/Card';
-import Input from '../../components/elements/Input';
-import { supabase } from '../../utils/supabase';
 
 const ProfileSetupScreen = ({ navigation }) => {
   const { theme } = useTheme();
-  const { state, checkAuthStatus } = useAuth();
+  const { state } = useAuth();
   const [selectedRole, setSelectedRole] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(0.95));
 
-  // Form data for different roles
-  const [seekerData, setSeekerData] = useState({
-    experience_level: 'fresher',
-    tenth_percentage: '',
-    twelfth_percentage: '',
-    graduation_percentage: '',
-  });
-
-  const [companyData, setCompanyData] = useState({
-    company_name: '',
-    company_description: '',
-  });
+  
 
   React.useEffect(() => {
     Animated.spring(scaleAnim, {
@@ -64,12 +48,7 @@ const ProfileSetupScreen = ({ navigation }) => {
     },
   ];
 
-  const experienceLevels = [
-    { id: 'fresher', name: 'Fresher (0-1 years)' },
-    { id: 'entry', name: 'Entry Level (1-3 years)' },
-    { id: 'mid', name: 'Mid Level (3-7 years)' },
-    { id: 'senior', name: 'Senior Level (7+ years)' },
-  ];
+  
 
   const handleRoleSelect = roleId => {
     setSelectedRole(roleId);
@@ -84,81 +63,10 @@ const ProfileSetupScreen = ({ navigation }) => {
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const userId = state.user?.id;
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
-
-      // Update user role preferences
-      const { error: userUpdateError } = await supabase
-        .from('users')
-        .update({
-          is_seeker: selectedRole === 'seeker',
-          is_poster: selectedRole === 'poster',
-        })
-        .eq('id', userId);
-
-      if (userUpdateError) {
-        throw userUpdateError;
-      }
-
-      // Create appropriate profile
-      if (selectedRole === 'seeker') {
-        const { error: seekerError } = await supabase
-          .from('seeker_profiles')
-          .insert([
-            {
-              user_id: userId,
-              experience_level: seekerData.experience_level,
-              tenth_percentage: seekerData.tenth_percentage
-                ? parseFloat(seekerData.tenth_percentage)
-                : null,
-              twelfth_percentage: seekerData.twelfth_percentage
-                ? parseFloat(seekerData.twelfth_percentage)
-                : null,
-              graduation_percentage: seekerData.graduation_percentage
-                ? parseFloat(seekerData.graduation_percentage)
-                : null,
-            },
-          ]);
-
-        if (seekerError) {
-          throw seekerError;
-        }
-      } else {
-        if (!companyData.company_name.trim()) {
-          Alert.alert(
-            'Company name required',
-            'Please enter your company name.',
-          );
-          return;
-        }
-
-        const { error: companyError } = await supabase
-          .from('company_profiles')
-          .insert([
-            {
-              user_id: userId,
-              company_name: companyData.company_name.trim(),
-              company_description:
-                companyData.company_description.trim() || null,
-            },
-          ]);
-
-        if (companyError) {
-          throw companyError;
-        }
-      }
-
-      // Refresh auth status to update the UI
-      await checkAuthStatus();
-    } catch (error) {
-      console.error('Profile setup error:', error);
-      Alert.alert('Error', 'Failed to set up your profile. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (selectedRole === 'seeker') {
+      navigation.navigate('SeekerProfileSetup');
+    } else {
+      navigation.navigate('CompanyProfileSetup');
     }
   };
 
@@ -238,108 +146,7 @@ const ProfileSetupScreen = ({ navigation }) => {
               ))}
             </View>
 
-            {/* Role-specific form */}
-            {selectedRole === 'seeker' && (
-              <View style={styles.formContainer}>
-                <Text style={styles.sectionTitle}>Experience Details</Text>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Experience Level</Text>
-                  <View style={styles.experienceContainer}>
-                    {experienceLevels.map(level => (
-                      <TouchableOpacity
-                        key={level.id}
-                        style={[
-                          styles.experienceButton,
-                          seekerData.experience_level === level.id &&
-                            styles.experienceButtonSelected,
-                        ]}
-                        onPress={() =>
-                          setSeekerData(prev => ({
-                            ...prev,
-                            experience_level: level.id,
-                          }))
-                        }
-                      >
-                        <Text
-                          style={[
-                            styles.experienceText,
-                            seekerData.experience_level === level.id &&
-                              styles.experienceTextSelected,
-                          ]}
-                        >
-                          {level.name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-
-                <Text style={styles.subSectionTitle}>
-                  Academic Scores (Optional)
-                </Text>
-                <Input
-                  label="10th Percentage"
-                  value={seekerData.tenth_percentage}
-                  onChangeText={text =>
-                    setSeekerData(prev => ({ ...prev, tenth_percentage: text }))
-                  }
-                  placeholder="e.g., 85.5"
-                  keyboardType="decimal-pad"
-                />
-                <Input
-                  label="12th Percentage"
-                  value={seekerData.twelfth_percentage}
-                  onChangeText={text =>
-                    setSeekerData(prev => ({
-                      ...prev,
-                      twelfth_percentage: text,
-                    }))
-                  }
-                  placeholder="e.g., 78.2"
-                  keyboardType="decimal-pad"
-                />
-                <Input
-                  label="Graduation Percentage"
-                  value={seekerData.graduation_percentage}
-                  onChangeText={text =>
-                    setSeekerData(prev => ({
-                      ...prev,
-                      graduation_percentage: text,
-                    }))
-                  }
-                  placeholder="e.g., 82.1"
-                  keyboardType="decimal-pad"
-                />
-              </View>
-            )}
-
-            {selectedRole === 'poster' && (
-              <View style={styles.formContainer}>
-                <Text style={styles.sectionTitle}>Company Details</Text>
-                <Input
-                  label="Company Name *"
-                  value={companyData.company_name}
-                  onChangeText={text =>
-                    setCompanyData(prev => ({ ...prev, company_name: text }))
-                  }
-                  placeholder="Enter your company name"
-                />
-                <Input
-                  label="Company Description"
-                  value={companyData.company_description}
-                  onChangeText={text =>
-                    setCompanyData(prev => ({
-                      ...prev,
-                      company_description: text,
-                    }))
-                  }
-                  placeholder="Brief description of your company"
-                  multiline
-                  numberOfLines={3}
-                />
-              </View>
-            )}
+            
 
             {/* Complete Button */}
             <View style={styles.buttonContainer}>

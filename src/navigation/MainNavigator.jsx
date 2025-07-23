@@ -15,6 +15,12 @@ import EditProfileScreen from '../profile/screens/EditProfileScreen';
 import JobDetailsScreen from '../jobs/screens/JobDetailsScreen';
 import AppliedJobsScreen from '../jobs/screens/AppliedJobsScreen';
 import OnboardingScreen from '../onboarding/screens/OnboardingScreen';
+import SeekerProfileSetupScreen from '../profile/screens/SeekerProfileSetupScreen';
+import CompanyProfileSetupScreen from '../profile/screens/CompanyProfileSetupScreen';
+import SkillsSelectionScreen from '../profile/screens/SkillsSelectionScreen';
+import CategorySelectionScreen from '../profile/screens/CategorySelectionScreen';
+import JobBrowseScreen from '../jobs/screens/JobBrowseScreen';
+import ApplicationDetailsScreen from '../jobs/screens/ApplicationDetailsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -61,12 +67,17 @@ const JobsStack = () => {
     >
       <Stack.Screen
         name="JobsMain"
-        component={IndexScreen}
+        component={JobBrowseScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
         name="JobDetails"
         component={JobDetailsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ApplicationDetails"
+        component={ApplicationDetailsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -159,6 +170,26 @@ const ProfileStack = () => {
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SeekerProfileSetup"
+        component={SeekerProfileSetupScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CompanyProfileSetup"
+        component={CompanyProfileSetupScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SkillsSelection"
+        component={SkillsSelectionScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CategorySelection"
+        component={CategorySelectionScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

@@ -79,23 +79,17 @@ export const seekerService = {
   /**
    * Create a new seeker profile
    */
-  async createSeekerProfile(userId, profileData) {
+  async createSeekerProfile(profileData) {
     try {
       const { data, error } = await supabase
         .from('seeker_profiles')
-        .insert([
-          {
-            user_id: userId,
-            ...profileData,
-          },
-        ])
-        .select()
-        .single();
+        .insert([profileData])
+        .select();
 
       if (error) {
         throw error;
       }
-      return { data, error: null };
+      return { data: data[0], error: null };
     } catch (error) {
       console.error('Error creating seeker profile:', error);
       return { data: null, error };
@@ -131,23 +125,11 @@ export const seekerService = {
     try {
       const { data, error } = await supabase
         .from('seeker_profiles')
-        .select(
-          `
-          *,
-          seeker_skills(
-            skill_id,
-            skills(id, name)
-          ),
-          seeker_categories(
-            category_id,
-            job_categories(id, name)
-          )
-        `,
-        )
+        .select('*')
         .eq('user_id', userId)
         .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         throw error;
       }
       return { data, error: null };
@@ -256,23 +238,17 @@ export const companyService = {
   /**
    * Create a new company profile
    */
-  async createCompanyProfile(userId, profileData) {
+  async createCompanyProfile(profileData) {
     try {
       const { data, error } = await supabase
         .from('company_profiles')
-        .insert([
-          {
-            user_id: userId,
-            ...profileData,
-          },
-        ])
-        .select()
-        .single();
+        .insert([profileData])
+        .select();
 
       if (error) {
         throw error;
       }
-      return { data, error: null };
+      return { data: data[0], error: null };
     } catch (error) {
       console.error('Error creating company profile:', error);
       return { data: null, error };
@@ -312,7 +288,7 @@ export const companyService = {
         .eq('user_id', userId)
         .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         throw error;
       }
       return { data, error: null };
@@ -791,13 +767,12 @@ export const skillsService = {
       const { data, error } = await supabase
         .from('skills')
         .insert([{ name: name.trim() }])
-        .select()
-        .single();
+        .select();
 
       if (error) {
         throw error;
       }
-      return { data, error: null };
+      return { data: data[0], error: null };
     } catch (error) {
       console.error('Error creating skill:', error);
       return { data: null, error };

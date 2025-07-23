@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,16 +6,129 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useAuth } from '../../contexts/AuthContext';
+import { 
+  applicationService, 
+  seekerService,
+  jobService 
+} from '../../services';
 
 const JobDetailsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { jobData } = route.params || {};
+  const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState('Description');
+  const [loading, setLoading] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [seekerProfile, setSeekerProfile] = useState(null);
+  const [jobDetails, setJobDetails] = useState(jobData);
+
+  // Load seeker profile and check application status
+  useEffect(() => {
+    const loadSeekerData = async () => {
+      if (user?.id) {
+        try {
+          const { data: profile, error } = await seekerService.getSeekerProfile(user.id);
+          if (profile && !error) {
+            setSeekerProfile(profile);
+            
+            // Check if user has already applied
+            if (jobDetails?.id) {
+              const { data: applicationData } = await applicationService.hasApplied(
+                jobDetails.id, 
+                profile.id
+              );
+              setHasApplied(!!applicationData);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading seeker data:', error);
+        }
+      }
+    };
+
+    loadSeekerData();
+  }, [user, jobDetails]);
+
+  // Load full job details if only basic data was passed
+  useEffect(() => {
+    const loadJobDetails = async () => {
+      if (jobDetails?.id && !jobDetails.company_profiles) {
+        try {
+          setLoading(true);
+          const { data: fullJobData, error } = await jobService.getJob(jobDetails.id);
+          if (fullJobData && !error) {
+            setJobDetails(fullJobData);
+          }
+        } catch (error) {
+          console.error('Error loading job details:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadJobDetails();
+  }, [jobDetails?.id]);
+
+  // Handle job application
+  const handleApplyJob = async () => {
+    if (!seekerProfile) {
+      Alert.alert(
+        'Profile Required',
+        'Please complete your seeker profile to apply for jobs.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Complete Profile', 
+            onPress: () => navigation.navigate('SeekerProfileSetup') 
+          }
+        ]
+      );
+      return;
+    }
+
+    if (hasApplied) {
+      Alert.alert('Already Applied', 'You have already applied for this job.');
+      return;
+    }
+
+    try {
+      setApplying(true);
+      
+      const { data, error } = await applicationService.applyForJob(
+        jobDetails.id,
+        seekerProfile.id,
+        null // Can add message input later
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      setHasApplied(true);
+      
+      Alert.alert(
+        'Application Sent!',
+        `Your application for ${jobDetails.title} has been submitted successfully.`,
+        [{ text: 'OK', style: 'default' }]
+      );
+
+    } catch (error) {
+      console.error('Error applying for job:', error);
+      Alert.alert('Error', 'Failed to apply for job. Please try again.');
+    } finally {
+      setApplying(false);
+    }
+  };
 
   // Mock job data based on the image with proper fallbacks
   const job = jobData || {
@@ -132,20 +245,23 @@ We're looking for someone who is passionate about user-centered design and has e
     ],
   };
 
+  // Use real job data when available, fall back to mock data
+  const currentJob = jobDetails || job;
+  
   // Ensure required properties exist with fallbacks
   const safeJob = {
-    ...job,
-    company: job.company || 'Unknown Company',
-    title: job.title || 'Job Title',
-    location: job.location || 'Location',
-    type: job.type || 'Full Time',
-    salary: job.salary || 'Salary not specified',
-    applicationsCount: job.applicationsCount || '0',
-    daysLeft: job.daysLeft || 'N/A',
-    description: job.description || 'No description available.',
-    requirements: job.requirements || ['No specific requirements listed'],
+    ...currentJob,
+    company: currentJob.company_profiles?.company_name || currentJob.company || 'Unknown Company',
+    title: currentJob.title || 'Job Title',
+    location: currentJob.city || currentJob.location || 'Location',
+    type: currentJob.type || 'Full Time',
+    salary: currentJob.salary || 'Salary not specified',
+    applicationsCount: currentJob.applicationsCount || '0',
+    daysLeft: currentJob.daysLeft || 'N/A',
+    description: currentJob.description || 'No description available.',
+    requirements: currentJob.requirements || ['No specific requirements listed'],
     companyLogo:
-      job.companyLogo ||
+      currentJob.companyLogo ||
       'https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png',
     peopleApplied: job.peopleApplied || [
       {
@@ -937,29 +1053,58 @@ We're looking for someone who is passionate about user-centered design and has e
       >
         <TouchableOpacity
           style={{
-            backgroundColor: '#1E88E5',
+            backgroundColor: hasApplied ? '#10B981' : '#1E88E5',
             paddingVertical: 16,
             borderRadius: 16,
             alignItems: 'center',
             justifyContent: 'center',
-            shadowColor: '#1E88E5',
+            shadowColor: hasApplied ? '#10B981' : '#1E88E5',
             shadowOffset: { width: 0, height: 6 },
             shadowOpacity: 0.25,
             shadowRadius: 12,
             elevation: 6,
+            opacity: applying ? 0.7 : 1,
           }}
+          onPress={handleApplyJob}
+          disabled={applying || hasApplied}
         >
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: '600',
-              color: '#FFFFFF',
-              fontFamily: 'System',
-              letterSpacing: -0.2,
-            }}
-          >
-            Apply Now
-          </Text>
+          {applying ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <ActivityIndicator size="small" color="#FFFFFF" />
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '600',
+                  color: '#FFFFFF',
+                  fontFamily: 'System',
+                  letterSpacing: -0.2,
+                  marginLeft: 8,
+                }}
+              >
+                Applying...
+              </Text>
+            </View>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Feather 
+                name={hasApplied ? "check" : "send"} 
+                size={16} 
+                color="#FFFFFF" 
+              />
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '600',
+                  color: '#FFFFFF',
+                  fontFamily: 'System',
+                  letterSpacing: -0.2,
+                  marginLeft: 8,
+                }}
+              >
+                {hasApplied ? 'Applied' : 'Apply Now'}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

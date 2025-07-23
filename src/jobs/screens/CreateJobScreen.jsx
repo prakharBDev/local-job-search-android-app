@@ -19,6 +19,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Card from '../../components/blocks/Card';
 import { theme } from '../../theme';
 import { useNavigation } from '@react-navigation/native';
+import { AppHeader, Icon } from '../../components/elements';
 import { getStyles } from './CreateJobScreen.styles.js';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -31,6 +32,25 @@ import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 const CreateJobScreen = () => {
   const navigation = useNavigation();
   const { state } = useAuth();
+
+  // Redirect job seekers away from this screen
+  useEffect(() => {
+    if (state.userRoles) {
+      setIsCheckingRole(false);
+      if (!state.userRoles.isCompany) {
+        Alert.alert(
+          'Access Denied',
+          'Only job posters can create job postings. Please contact support if you believe this is an error.',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+      }
+    }
+  }, [state.userRoles, navigation]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -47,6 +67,7 @@ const CreateJobScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const [isCheckingRole, setIsCheckingRole] = useState(true);
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -378,6 +399,20 @@ const CreateJobScreen = () => {
     );
   };
 
+  // Show loading screen while checking role
+  if (isCheckingRole) {
+    return (
+      <SafeAreaView style={getStyles(theme).container}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={theme.colors.primary.main} />
+          <Text style={{ marginTop: 16, color: theme.colors.text.primary }}>
+            Checking permissions...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={getStyles(theme).container}>
       <KeyboardAvoidingView
@@ -394,36 +429,20 @@ const CreateJobScreen = () => {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Header */}
+            {/* App Header */}
             <Animated.View
-              style={[
-                getStyles(theme).headerContainer,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                },
-              ]}
+              style={{
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              }}
             >
-              <View style={getStyles(theme).headerContent}>
-                <View style={getStyles(theme).headerRow}>
-                  <Pressable
-                    style={getStyles(theme).backButton}
-                    onPress={() => navigation.goBack()}
-                    accessibilityLabel="Go back"
-                    accessibilityHint="Returns to previous screen"
-                  >
-                    <Feather name="arrow-left" size={20} color="#1E293B" />
-                  </Pressable>
-                  <View style={getStyles(theme).headerTitleContainer}>
-                    <Text style={getStyles(theme).headerTitle}>
-                      Create Job Posting
-                    </Text>
-                    <Text style={getStyles(theme).headerSubtitle}>
-                      Fill in the details to attract the right candidates
-                    </Text>
-                  </View>
-                </View>
-              </View>
+              <AppHeader
+                title="Create Job Posting"
+                subtitle="Fill in the details to attract the right candidates"
+                leftIcon={<Icon name="arrow-left" size={20} color="#1E293B" />}
+                onLeftPress={() => navigation.goBack()}
+                background="#F7F9FC"
+              />
             </Animated.View>
 
             {/* Form */}

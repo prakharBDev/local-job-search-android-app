@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
+import Card from '../../components/blocks/Card';
+import Button from '../../components/elements/Button';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -18,6 +20,7 @@ const ProfileSetupScreen = ({ navigation }) => {
   const { theme } = useTheme();
   const { state } = useAuth();
   const [selectedRole, setSelectedRole] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(0.95));
 
   
@@ -63,10 +66,18 @@ const ProfileSetupScreen = ({ navigation }) => {
       return;
     }
 
-    if (selectedRole === 'seeker') {
-      navigation.navigate('SeekerProfileSetup');
-    } else {
-      navigation.navigate('CompanyProfileSetup');
+    setIsLoading(true);
+    try {
+      if (selectedRole === 'seeker') {
+        navigation.navigate('SeekerProfileSetup');
+      } else {
+        navigation.navigate('CompanyProfileSetup');
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+      Alert.alert('Error', 'Failed to navigate to profile setup');
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -109,51 +109,47 @@ export const getStyles = theme =>
       backgroundColor: 'rgba(255, 255, 255, 0.6)',
     },
 
-    // Header styles - Softer fonts and blue color
+    // Header Styles
     header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      paddingHorizontal: 24,
+      paddingTop: 20,
+      paddingBottom: 32,
       alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingTop: 16,
+    },
+    headerKeyboard: {
       paddingBottom: 16,
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(10px)',
     },
     brandContainer: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
     },
     brandIcon: {
       width: 40,
       height: 40,
-      borderRadius: 12,
+      borderRadius: 8,
       backgroundColor: '#3B82F6',
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: 12,
       shadowColor: '#3B82F6',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.15,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 4,
     },
     brandText: {
-      justifyContent: 'center',
+      alignItems: 'flex-start',
     },
     brandName: {
-      fontSize: 18,
-      fontWeight: '600', // Reduced from 700
+      fontSize: 24,
+      fontWeight: '700',
       color: '#1E293B',
-      lineHeight: 22,
-      fontFamily: 'System',
-      letterSpacing: -0.3,
+      marginBottom: 2,
     },
     brandTagline: {
-      fontSize: 13,
+      fontSize: 14,
       color: '#64748B',
-      lineHeight: 16,
-      fontFamily: 'System',
       fontWeight: '500',
     },
     headerButton: {
@@ -176,35 +172,48 @@ export const getStyles = theme =>
       fontFamily: 'System',
     },
 
-    // Hero section - Softer fonts
+    // Hero Section Styles
     heroSection: {
-      paddingHorizontal: 20,
-      paddingVertical: 40,
-      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingBottom: 32,
+    },
+    heroSectionKeyboard: {
+      paddingBottom: 16,
     },
     heroContent: {
       alignItems: 'center',
-      maxWidth: 400,
+    },
+    heroContentKeyboard: {
+      alignItems: 'center',
+      paddingVertical: 8,
     },
     heroTitle: {
-      fontSize: 36,
-      fontWeight: '600', // Reduced from 800
+      fontSize: 32,
+      fontWeight: '800',
       color: '#1E293B',
       textAlign: 'center',
-      lineHeight: 44,
-      marginBottom: 16,
-      fontFamily: 'System',
-      letterSpacing: -0.5,
+      lineHeight: 40,
+      marginBottom: 12,
+    },
+    heroTitleKeyboard: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: '#1E293B',
+      textAlign: 'center',
+      marginBottom: 4,
     },
     heroSubtitle: {
-      fontSize: 18,
+      fontSize: 16,
       color: '#64748B',
       textAlign: 'center',
-      lineHeight: 26,
+      lineHeight: 24,
       marginBottom: 32,
-      maxWidth: 320,
-      fontFamily: 'System',
-      fontWeight: '500',
+      paddingHorizontal: 20,
+    },
+    heroSubtitleKeyboard: {
+      fontSize: 14,
+      color: '#64748B',
+      textAlign: 'center',
     },
     heroStats: {
       flexDirection: 'row',
@@ -246,20 +255,23 @@ export const getStyles = theme =>
       backgroundColor: '#E2E8F0',
     },
 
-    // Auth section - Softer fonts
+    // Auth Container Styles
     authContainer: {
-      paddingHorizontal: 20,
-      paddingVertical: 20,
+      paddingHorizontal: 24,
+      paddingBottom: 32,
+    },
+    authContainerKeyboard: {
+      paddingBottom: 16,
     },
     authCard: {
       backgroundColor: '#FFFFFF',
-      borderRadius: 20,
-      padding: 28,
-      shadowColor: '#000',
+      borderRadius: 24,
+      padding: 32,
+      shadowColor: '#1E293B',
       shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.12,
+      shadowOpacity: 0.1,
       shadowRadius: 24,
-      elevation: 12,
+      elevation: 8,
       borderWidth: 1,
       borderColor: '#F1F5F9',
     },
@@ -565,5 +577,13 @@ export const getStyles = theme =>
       color: '#3B82F6', // Changed to blue-500
       fontFamily: 'System',
       letterSpacing: -0.2,
+    },
+    validationText: {
+      fontSize: 12,
+      color: '#EF4444',
+      textAlign: 'center',
+      marginTop: 8,
+      fontFamily: 'System',
+      fontStyle: 'italic',
     },
   });

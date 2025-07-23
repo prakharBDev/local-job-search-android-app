@@ -14,12 +14,12 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Button from '../../components/elements/Button';
 import Input from '../../components/elements/Input';
-import Card from '../../components/blocks/Card';
+import { AppHeader, Icon } from '../../components/elements';
 import { AuthContext } from '../../contexts/AuthContext';
 import { UserContext } from '../../contexts/UserContext';
 
 const ProfileSetupScreen = ({ navigation, route }) => {
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, updateUserRecord } = useContext(AuthContext);
   const { currentMode } = useContext(UserContext);
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -217,7 +217,14 @@ const ProfileSetupScreen = ({ navigation, route }) => {
 
       const profileData =
         currentMode === 'seeker' ? jobSeekerData : jobPosterData;
-      await updateUser({ ...user, ...profileData, profileCompleted: true });
+      // Convert city to lowercase to match database constraint
+      const updates = {
+        ...profileData,
+        city: profileData.city?.toLowerCase(),
+        profileCompleted: true,
+      };
+      
+      await updateUserRecord(updates);
 
       Alert.alert(
         'Profile Setup Complete!',
@@ -626,35 +633,20 @@ const ProfileSetupScreen = ({ navigation, route }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoid}
       >
-        {/* Header */}
+        {/* App Header */}
         <Animated.View
-          style={[
-            styles.header,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
+          style={{
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          }}
         >
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={currentStep === 1 ? () => navigation.goBack() : handleBack}
-          >
-            <Feather name="arrow-left" size={24} color="#3B82F6" />
-          </TouchableOpacity>
-
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>Profile Setup</Text>
-            <Text style={styles.headerSubtitle}>
-              {currentMode === 'seeker' ? 'Job Seeker' : 'Job Poster'} Profile
-            </Text>
-          </View>
-
-          <View style={styles.stepIndicator}>
-            <Text style={styles.stepText}>
-              {currentStep}/{maxSteps}
-            </Text>
-          </View>
+          <AppHeader
+            title="Profile Setup"
+            subtitle={`${currentMode === 'seeker' ? 'Job Seeker' : 'Job Poster'} Profile`}
+            leftIcon={<Icon name="arrow-left" size={20} color="#3B82F6" />}
+            onLeftPress={currentStep === 1 ? () => navigation.goBack() : handleBack}
+            background="#F8FAFC"
+          />
         </Animated.View>
 
         {/* Progress Bar */}
@@ -690,11 +682,11 @@ const ProfileSetupScreen = ({ navigation, route }) => {
               },
             ]}
           >
-            <Card style={styles.formCard}>
+            <View style={styles.formCard}>
               {currentMode === 'seeker'
                 ? renderJobSeekerStep()
                 : renderJobPosterStep()}
-            </Card>
+            </View>
           </Animated.View>
         </ScrollView>
 

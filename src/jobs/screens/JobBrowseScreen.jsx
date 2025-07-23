@@ -15,6 +15,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 import Card from '../../components/blocks/Card';
 import Button from '../../components/elements/Button';
+import { AppHeader, Icon } from '../../components/elements';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
@@ -336,15 +337,13 @@ const JobBrowseScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>Find Jobs</Text>
-            <Text style={styles.headerSubtitle}>
-              Discover opportunities in {selectedCity}
-            </Text>
-          </View>
-        </View>
+        {/* App Header */}
+        <AppHeader
+          title="Find Jobs"
+          subtitle={`Discover opportunities in ${selectedCity}`}
+          rightIcon={<Icon name="filter" size={20} color="#3B82F6" />}
+          background="#F7F9FC"
+        />
 
         {/* Search and Filters */}
         <View style={styles.searchSection}>

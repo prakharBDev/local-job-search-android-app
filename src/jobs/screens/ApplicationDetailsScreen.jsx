@@ -13,6 +13,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Card from '../../components/blocks/Card';
 import Button from '../../components/elements/Button';
+import { AppHeader, Icon } from '../../components/elements';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { applicationService } from '../../services';
@@ -153,19 +154,14 @@ const ApplicationDetailsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Feather name="arrow-left" size={24} color="#1F2937" />
-          </TouchableOpacity>
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>Application Details</Text>
-            <Text style={styles.headerSubtitle}>Track your application status</Text>
-          </View>
-        </View>
+        {/* App Header */}
+        <AppHeader
+          title="Application Details"
+          subtitle="Track your application status"
+          leftIcon={<Icon name="arrow-left" size={20} color="#1E293B" />}
+          onLeftPress={() => navigation.goBack()}
+          background="#F7F9FC"
+        />
 
         <ScrollView
           style={styles.scrollView}

@@ -17,6 +17,7 @@ import {
   seekerService,
   jobService 
 } from '../../services';
+import { AppHeader, Icon } from '../../components/elements';
 
 const JobDetailsScreen = () => {
   const navigation = useNavigation();
@@ -371,7 +372,7 @@ We're looking for someone who is passionate about user-centered design and has e
                     width: 6,
                     height: 6,
                     borderRadius: 3,
-                    backgroundColor: '#3B82F6',
+                    backgroundColor: '#4D8CFF',
                     marginTop: 8,
                     marginRight: 12,
                   }}
@@ -715,54 +716,15 @@ We're looking for someone who is passionate about user-centered design and has e
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
-      {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 20,
-          paddingVertical: 16,
-          backgroundColor: '#F8F9FA',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: '#FFFFFF',
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
-        >
-          <Feather name="arrow-left" size={20} color="#1E293B" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: '#FFFFFF',
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
-        >
-          <Feather name="bookmark" size={20} color="#1E293B" />
-        </TouchableOpacity>
-      </View>
+      {/* App Header */}
+      <AppHeader
+        title="Job Details"
+        leftIcon={<Icon name="arrow-left" size={20} color="#1E293B" />}
+        rightIcon={<Icon name="bookmark" size={20} color="#1E293B" />}
+        onLeftPress={() => navigation.goBack()}
+        background="#F8F9FA"
+        centered={false}
+      />
 
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {/* Job Header */}
@@ -993,7 +955,7 @@ We're looking for someone who is passionate about user-centered design and has e
                 flex: 1,
                 paddingVertical: 12,
                 borderRadius: 12,
-                backgroundColor: activeTab === tab ? '#3B82F6' : 'transparent',
+                backgroundColor: activeTab === tab ? '#4D8CFF' : 'transparent',
                 alignItems: 'center',
               }}
             >
@@ -1053,7 +1015,7 @@ We're looking for someone who is passionate about user-centered design and has e
       >
         <TouchableOpacity
           style={{
-            backgroundColor: hasApplied ? '#10B981' : '#1E88E5',
+            backgroundColor: hasApplied ? '#10B981' : '#4D8CFF',
             paddingVertical: 16,
             borderRadius: 16,
             alignItems: 'center',

@@ -15,6 +15,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Badge from '../../components/elements/Badge';
 import Button from '../../components/elements/Button';
 import Card from '../../components/blocks/Card';
+import { AppHeader, Icon } from '../../components/elements';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { applicationService, seekerService } from '../../services';
@@ -222,13 +223,14 @@ const AppliedJobsScreen = () => {
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Applied Jobs</Text>
-        <Text style={styles.subtitle}>
-          {applications.length} application{applications.length !== 1 ? 's' : ''}
-        </Text>
-      </View>
+      {/* App Header */}
+      <AppHeader
+        title="Applied Jobs"
+        subtitle={`${applications.length} application${applications.length !== 1 ? 's' : ''}`}
+        leftIcon={<Icon name="arrow-left" size={20} color="#1E293B" />}
+        onLeftPress={() => navigation.goBack()}
+        background="#F7F9FC"
+      />
 
       {/* Applications List */}
       <ScrollView

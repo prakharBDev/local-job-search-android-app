@@ -43,6 +43,8 @@ const IndexScreen = () => {
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const scrollViewRef = useRef(null);
+  const phoneInputRef = useRef(null);
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -83,11 +85,19 @@ const IndexScreen = () => {
     // Keyboard listeners
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
-      () => setIsKeyboardVisible(true),
+      () => {
+        setIsKeyboardVisible(true);
+        // Scroll to the auth card when keyboard appears
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+      },
     );
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
-      () => setIsKeyboardVisible(false),
+      () => {
+        setIsKeyboardVisible(false);
+      },
     );
     return () => {
       keyboardDidShowListener?.remove();
@@ -109,12 +119,15 @@ const IndexScreen = () => {
 
   // Phone validation
   const validatePhone = phone => {
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    if (!phone.trim()) {
+    // Remove +91 prefix for validation
+    const phoneWithoutPrefix = phone.replace(/^\+91\s*/, '');
+    const phoneRegex = /^[1-9][\d]{9}$/; // 10 digits for Indian mobile numbers
+    
+    if (!phoneWithoutPrefix.trim()) {
       return 'Phone number is required';
     }
-    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-      return 'Please enter a valid phone number';
+    if (!phoneRegex.test(phoneWithoutPrefix.replace(/\s/g, ''))) {
+      return 'Please enter a valid 10-digit phone number';
     }
     return '';
   };
@@ -128,9 +141,13 @@ const IndexScreen = () => {
   };
 
   const handlePhoneChange = text => {
-    setPhone(text);
+    // Remove +91 prefix if user tries to type it
+    const cleanText = text.replace(/^\+91\s*/, '');
+    // Limit to 10 digits
+    const limitedText = cleanText.replace(/\D/g, '').slice(0, 10);
+    setPhone(limitedText);
     if (phoneError) {
-      setPhoneError(validatePhone(text));
+      setPhoneError(validatePhone('+91 ' + limitedText));
     }
   };
 
@@ -157,7 +174,7 @@ const IndexScreen = () => {
 
     // Validate inputs
     const emailErr = validateEmail(email);
-    const phoneErr = isLogin ? validatePhone(phone) : '';
+    const phoneErr = isLogin ? validatePhone('+91 ' + phone) : '';
 
     setEmailError(emailErr);
     setPhoneError(phoneErr);
@@ -180,7 +197,7 @@ const IndexScreen = () => {
         id: `demo-user-${Date.now()}`,
         name: 'Demo User',
         email: email.trim(),
-        phone: phone.trim() || '+91 9876543210',
+        phone: phone.trim() ? '+91 ' + phone.trim() : '+91 9876543210',
         mode: userRole,
       };
 
@@ -206,6 +223,22 @@ const IndexScreen = () => {
 
   const handleGoogleSignIn = async () => {
     if (isLoading) return;
+    
+    // Validate phone number before proceeding with Google Sign-In
+    const phoneErr = validatePhone('+91 ' + phone);
+    if (phoneErr) {
+      setPhoneError(phoneErr);
+      Alert.alert('Phone Number Required', 'Please enter a valid phone number before signing in with Google.');
+      return;
+    }
+    
+    // Check if phone number is exactly 10 digits
+    if (phone.length !== 10 || !/^[1-9][\d]{9}$/.test(phone)) {
+      setPhoneError('Please enter a valid 10-digit phone number');
+      Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit phone number before signing in with Google.');
+      return;
+    }
+    
     try {
       setIsLoading(true);
       await GoogleSignin.hasPlayServices();
@@ -249,8 +282,9 @@ const IndexScreen = () => {
           id: user.id,
           email: user.email,
           name: user.user_metadata?.full_name || user.email?.split('@')[0],
+          phone_number: '+91 ' + phone, // Add phone number to new user
           provider: 'google',
-          google_id: user.id || user.user_metadata?.sub, // <-- Add this line
+          google_id: user.id || user.user_metadata?.sub,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           city: "morena"
@@ -269,17 +303,26 @@ const IndexScreen = () => {
         console.error('User fetch error:', userError);
         throw userError;
       } else {
-        // Update last login for existing user
+        // Update last login and phone number for existing user
         const { error: updateError } = await supabase
           .from('users')
-          .update({ updated_at: new Date().toISOString() })
+          .update({ 
+            updated_at: new Date().toISOString(),
+            phone_number: '+91 ' + phone // Update phone number if it changed
+          })
           .eq('id', user.id);
         if (updateError) {
-          console.warn('Failed to update last login:', updateError);
+          console.warn('Failed to update user:', updateError);
         }
       }
-      // Log in the user in AuthContext
-      await login({ session, user, userRecord, isNewUser });
+      // Log in the user in AuthContext with phone number
+      await login({ 
+        session, 
+        user, 
+        userRecord, 
+        isNewUser,
+        phoneNumber: '+91 ' + phone 
+      });
       console.log('Google sign-in successful for:', user.email);
       Alert.alert(
         'Welcome!',
@@ -308,19 +351,23 @@ const IndexScreen = () => {
     }
   };
 
-  const handleSocialLogin = (provider, index) => {
-    console.log('🔵 Social login button pressed:', provider, 'index:', index);
-    animateButton(socialButtonScales[index]);
+  // Check if phone number is valid for Google Sign-In
+  const isPhoneValidForGoogleSignIn = () => {
+    return phone.length === 10 && !phoneError && /^[1-9][\d]{9}$/.test(phone);
+  };
 
+  const handleSocialLogin = (provider, index) => {
     if (provider === 'Google') {
-      console.log('🔵 Calling handleGoogleSignIn...');
+      // Validate phone number before Google Sign-In
+      if (!isPhoneValidForGoogleSignIn()) {
+        const phoneErr = validatePhone('+91 ' + phone);
+        setPhoneError(phoneErr || 'Please enter a valid 10-digit phone number');
+        Alert.alert('Phone Number Required', 'Please enter a valid phone number before signing in with Google.');
+        return;
+      }
       handleGoogleSignIn();
-    } else {
-      console.log('🔵 Provider not implemented:', provider);
-      Alert.alert('Coming Soon', `${provider} login will be available soon!`, [
-        { text: 'OK', style: 'default' },
-      ]);
     }
+    animateButton(socialButtonScales[index]);
   };
 
   const handleRoleChange = role => {
@@ -340,8 +387,10 @@ const IndexScreen = () => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoid}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <ScrollView
+          ref={scrollViewRef}
           style={styles.scrollView}
           contentContainerStyle={[
             styles.scrollContent,
@@ -349,11 +398,13 @@ const IndexScreen = () => {
           ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          bounces={false}
         >
-          {/* Header */}
+          {/* Header - Always visible but smaller when keyboard is visible */}
           <Animated.View
             style={[
               styles.header,
+              isKeyboardVisible && styles.headerKeyboard,
               {
                 opacity: fadeAnim,
                 transform: [{ translateY: slideAnim }],
@@ -371,17 +422,18 @@ const IndexScreen = () => {
             </View>
           </Animated.View>
 
-          {/* Hero Section - Hide when keyboard is visible */}
-          {!isKeyboardVisible && (
-            <Animated.View
-              style={[
-                styles.heroSection,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                },
-              ]}
-            >
+          {/* Hero Section - Minimize when keyboard is visible instead of hiding */}
+          <Animated.View
+            style={[
+              styles.heroSection,
+              isKeyboardVisible && styles.heroSectionKeyboard,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            {!isKeyboardVisible ? (
               <View style={styles.heroContent}>
                 <Text style={styles.heroTitle}>
                   Discover Your{'\n'}Dream Career
@@ -408,13 +460,23 @@ const IndexScreen = () => {
                   </View>
                 </View>
               </View>
-            </Animated.View>
-          )}
+            ) : (
+              <View style={styles.heroContentKeyboard}>
+                <Text style={styles.heroTitleKeyboard}>
+                  Welcome to JobConnect
+                </Text>
+                <Text style={styles.heroSubtitleKeyboard}>
+                  Sign in to continue your journey
+                </Text>
+              </View>
+            )}
+          </Animated.View>
 
           {/* Auth Card */}
           <Animated.View
             style={[
               styles.authContainer,
+              isKeyboardVisible && styles.authContainerKeyboard,
               {
                 opacity: fadeAnim,
                 transform: [{ translateY: slideAnim }],
@@ -439,21 +501,20 @@ const IndexScreen = () => {
                   {isLogin && (
                     <View style={styles.inputContainer}>
                       <Input
+                        ref={phoneInputRef}
                         label="Phone Number"
-                        placeholder="+91 XXXXX XXXXX"
+                        placeholder="XXXXX XXXXX"
                         value={phone}
                         onChangeText={handlePhoneChange}
-                        onBlur={() => setPhoneError(validatePhone(phone))}
+                        onBlur={() => setPhoneError(validatePhone('+91 ' + phone))}
                         keyboardType="phone-pad"
                         leftIcon={
                           <Feather name="phone" size={20} color="#94A3B8" />
                         }
+                        prefix="+91 "
                         error={phoneError}
                         accessibilityLabel="Phone number"
                       />
-                      {phoneError ? (
-                        <Text style={styles.errorText}>{phoneError}</Text>
-                      ) : null}
                     </View>
                   )}
                 </View>
@@ -466,12 +527,12 @@ const IndexScreen = () => {
                     <TouchableOpacity
                       style={[
                         styles.socialButton,
-                        isLoading && styles.socialButtonDisabled,
+                        (isLoading || !isPhoneValidForGoogleSignIn()) && styles.socialButtonDisabled,
                       ]}
                       onPress={() => handleSocialLogin('Google', 0)}
                       activeOpacity={0.8}
                       accessibilityLabel="Continue with Google"
-                      disabled={isLoading}
+                      disabled={isLoading || !isPhoneValidForGoogleSignIn()}
                     >
                       {isLoading ? (
                         <>
@@ -482,12 +543,28 @@ const IndexScreen = () => {
                         </>
                       ) : (
                         <>
-                          <FontAwesome name="google" size={20} color="#4285F4" />
-                          <Text style={styles.socialButtonText}>Google</Text>
+                          <FontAwesome 
+                            name="google" 
+                            size={20} 
+                            color={isPhoneValidForGoogleSignIn() ? "#4285F4" : "#94A3B8"} 
+                          />
+                          <Text style={[
+                            styles.socialButtonText,
+                            !isPhoneValidForGoogleSignIn() && { color: '#94A3B8' }
+                          ]}>
+                            Google
+                          </Text>
                         </>
                       )}
                     </TouchableOpacity>
                   </Animated.View>
+                  
+                  {/* Phone validation message */}
+                  {!isPhoneValidForGoogleSignIn() && phone.length > 0 && (
+                    <Text style={styles.validationText}>
+                      Please enter a valid 10-digit phone number to continue with Google Sign-In
+                    </Text>
+                  )}
                 </View>
 
                 {/* Terms */}

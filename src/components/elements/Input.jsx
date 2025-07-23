@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { forwardRef, useState, useMemo } from 'react';
 import {
   View,
   TextInput,
@@ -9,7 +9,7 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 import { bluewhiteTheme } from '../../theme/bluewhite-theme';
 
-const Input = ({
+const Input = forwardRef(({
   label,
   placeholder,
   value,
@@ -23,11 +23,12 @@ const Input = ({
   leftIcon,
   rightIcon,
   onRightIconPress,
+  prefix,
   variant = 'default',
   style,
   containerStyle,
   ...props
-}) => {
+}, ref) => {
   const { theme } = useTheme();
   const safeTheme = theme || bluewhiteTheme;
   const [isFocused, setIsFocused] = useState(false);
@@ -143,19 +144,34 @@ const Input = ({
             {leftIcon}
           </View>
         )}
+        {prefix && (
+          <Text
+            style={[
+              styles.prefixText,
+              { 
+                color: safeTheme.colors.text.secondary || '#475569',
+                fontWeight: '600',
+              },
+            ]}
+          >
+            {prefix}
+          </Text>
+        )}
         <TextInput
+          ref={ref}
           style={[
             styles.input,
             {
               color: safeTheme.colors.text.primary || '#1E293B',
               flex: 1,
               textAlignVertical: multiline ? 'top' : 'center',
-              paddingLeft: leftIcon ? 8 : 0,
+              paddingLeft: (leftIcon ? 8 : 0) + (prefix ? 0 : 0),
             },
+            multiline && styles.inputMultiline,
             style,
           ]}
           placeholder={placeholder}
-          placeholderTextColor={safeTheme.colors.text.secondary || '#475569'}
+          placeholderTextColor={safeTheme.colors.text.tertiary || '#94A3B8'}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry && !isPasswordVisible}
@@ -181,7 +197,7 @@ const Input = ({
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -211,6 +227,9 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     flex: 1,
   },
+  inputMultiline: {
+    textAlignVertical: 'top',
+  },
   leftIconContainer: {
     marginRight: 8,
     justifyContent: 'center',
@@ -236,6 +255,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
+  },
+  prefixText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginRight: 8,
+    color: '#475569',
   },
 });
 

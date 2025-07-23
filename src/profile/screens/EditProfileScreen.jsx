@@ -15,13 +15,18 @@ import Feather from 'react-native-vector-icons/Feather';
 import Button from '../../components/elements/Button';
 import Input from '../../components/elements/Input';
 import Card from '../../components/blocks/Card';
+import { AppHeader, Icon } from '../../components/elements';
 import { AuthContext } from '../../contexts/AuthContext';
 import { UserContext } from '../../contexts/UserContext';
+import { seekerService, companyService, categoriesService } from '../../services';
 
 const EditProfileScreen = ({ navigation, route }) => {
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, userRecord, updateUserRecord } = useContext(AuthContext);
   const { currentMode } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [jobCategories, setJobCategories] = useState([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -29,51 +34,37 @@ const EditProfileScreen = ({ navigation, route }) => {
 
   // Job Seeker form state
   const [jobSeekerData, setJobSeekerData] = useState({
-    name: user?.name || '',
+    name: userRecord?.name || user?.name || '',
     email: user?.email || '',
-    phone: user?.phone || '',
-    city: user?.city || '',
-    education10th: user?.education10th || '',
-    education12th: user?.education12th || '',
-    graduationPercentage: user?.graduationPercentage || '',
-    skills: user?.skills || '',
-    experienceLevel: user?.experienceLevel || 'fresher',
-    jobCategories: user?.jobCategories || [],
-    bio: user?.bio || '',
+    phone: userRecord?.phone_number || user?.phone_number || '',
+    city: userRecord?.city || user?.city || '',
+    education10th: '',
+    education12th: '',
+    graduationPercentage: '',
+    skills: '',
+    experienceLevel: 'fresher',
+    jobCategories: [],
+    bio: '',
   });
 
   // Job Poster form state
   const [jobPosterData, setJobPosterData] = useState({
-    name: user?.name || '',
+    name: userRecord?.name || user?.name || '',
     email: user?.email || '',
-    phone: user?.phone || '',
-    companyName: user?.companyName || '',
-    city: user?.city || '',
-    companySize: user?.companySize || '',
-    industry: user?.industry || '',
-    description: user?.description || '',
-    website: user?.website || '',
-    bio: user?.bio || '',
+    phone: userRecord?.phone_number || user?.phone_number || '',
+    companyName: '',
+    city: userRecord?.city || user?.city || '',
+    companySize: '',
+    industry: '',
+    description: '',
+    website: '',
+    bio: '',
   });
 
   // Form validation errors
   const [errors, setErrors] = useState({});
 
-  // Job categories for selection
-  const jobCategories = [
-    'Technology',
-    'Healthcare',
-    'Finance',
-    'Education',
-    'Marketing',
-    'Sales',
-    'Design',
-    'Engineering',
-    'Operations',
-    'HR',
-    'Legal',
-    'Other',
-  ];
+  // Job categories will be fetched from database
 
   // Cities for selection
   const cities = ['Morena', 'Gwalior', 'Bhopal', 'Indore', 'Jabalpur', 'Other'];
@@ -108,7 +99,110 @@ const EditProfileScreen = ({ navigation, route }) => {
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Load categories and user profile data
+    loadCategories();
+    loadUserProfileData();
   }, []);
+
+  const loadCategories = async () => {
+    try {
+      setIsLoadingCategories(true);
+      const { data: categories, error } = await categoriesService.getAllCategories();
+      
+      if (error) {
+        console.error('Error loading categories:', error);
+        return;
+      }
+
+      console.log('Loaded categories from database:', categories);
+      setJobCategories(categories || []);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  };
+
+  const loadUserProfileData = async () => {
+    if (!userRecord?.id) {
+      setIsLoadingProfile(false);
+      return;
+    }
+
+    try {
+      if (currentMode === 'seeker') {
+        // Load seeker profile data
+        const { data: seekerProfile, error: seekerError } = await seekerService.getSeekerProfile(userRecord.id);
+        
+        if (seekerError && seekerError.code !== 'PGRST116') {
+          console.error('Error loading seeker profile:', seekerError);
+          return;
+        }
+
+        if (seekerProfile) {
+          // Load skills and categories separately
+          const { data: skills } = await seekerService.getSeekerSkills(seekerProfile.id);
+          const { data: categories } = await seekerService.getSeekerCategories(seekerProfile.id);
+
+          console.log('Loaded seeker data:', {
+            profile: seekerProfile,
+            skills: skills,
+            categories: categories
+          });
+
+          // Debug: Log the actual skills structure
+          console.log('Skills structure:', skills?.map(s => ({
+            skill_id: s.skill_id,
+            skill_name: s.skills?.name,
+            full_object: s
+          })));
+
+          setJobSeekerData(prev => ({
+            ...prev,
+            education10th: seekerProfile.tenth_percentage?.toString() || '',
+            education12th: seekerProfile.twelfth_percentage?.toString() || '',
+            graduationPercentage: seekerProfile.graduation_percentage?.toString() || '',
+            experienceLevel: seekerProfile.experience_level || 'fresher',
+            skills: skills?.map(s => s.skills?.name).filter(Boolean).join(', ') || '',
+            jobCategories: categories?.map(c => c.job_categories?.name).filter(Boolean) || [],
+          }));
+
+          // Debug: Log the actual category structure
+          console.log('Categories structure:', categories?.map(c => ({
+            category_id: c.category_id,
+            category_name: c.job_categories?.name,
+            full_object: c
+          })));
+        }
+      } else {
+        // Load company profile data
+        const { data: companyProfile, error: companyError } = await companyService.getCompanyProfile(userRecord.id);
+        
+        if (companyError && companyError.code !== 'PGRST116') {
+          console.error('Error loading company profile:', companyError);
+          return;
+        }
+
+        console.log('Loaded company data:', companyProfile);
+
+        if (companyProfile) {
+          setJobPosterData(prev => ({
+            ...prev,
+            companyName: companyProfile.company_name || '',
+            companySize: companyProfile.company_size || '',
+            industry: companyProfile.industry || '',
+            description: companyProfile.company_description || '',
+            website: companyProfile.website || '',
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading profile data:', error);
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
 
   // Validation functions
   const validateJobSeekerForm = () => {
@@ -167,12 +261,112 @@ const EditProfileScreen = ({ navigation, route }) => {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Update user record with basic info
+      const userUpdates = {
+        name: currentMode === 'seeker' ? jobSeekerData.name : jobPosterData.name,
+        email: currentMode === 'seeker' ? jobSeekerData.email : jobPosterData.email,
+        phone_number: currentMode === 'seeker' ? jobSeekerData.phone : jobPosterData.phone,
+        city: (currentMode === 'seeker' ? jobSeekerData.city : jobPosterData.city)?.toLowerCase(),
+      };
+      
+      await updateUserRecord(userUpdates);
 
-      const profileData =
-        currentMode === 'seeker' ? jobSeekerData : jobPosterData;
-      await updateUser({ ...user, ...profileData });
+      // Update profile-specific data
+      if (currentMode === 'seeker') {
+        // Get existing seeker profile
+        const { data: existingProfile } = await seekerService.getSeekerProfile(userRecord.id);
+        
+        const seekerUpdates = {
+          tenth_percentage: jobSeekerData.education10th ? parseFloat(jobSeekerData.education10th) : null,
+          twelfth_percentage: jobSeekerData.education12th ? parseFloat(jobSeekerData.education12th) : null,
+          graduation_percentage: jobSeekerData.graduationPercentage ? parseFloat(jobSeekerData.graduationPercentage) : null,
+          experience_level: jobSeekerData.experienceLevel,
+        };
+
+        console.log('Saving seeker profile:', {
+          existingProfile,
+          updates: seekerUpdates,
+          skills: jobSeekerData.skills,
+          categories: jobSeekerData.jobCategories
+        });
+
+        let seekerProfileId;
+        if (existingProfile) {
+          await seekerService.updateSeekerProfile(existingProfile.id, seekerUpdates);
+          seekerProfileId = existingProfile.id;
+        } else {
+          const { data: newProfile } = await seekerService.createSeekerProfile({
+            ...seekerUpdates,
+            user_id: userRecord.id,
+          });
+          seekerProfileId = newProfile.id;
+        }
+
+        // Save categories
+        if (seekerProfileId && jobSeekerData.jobCategories.length > 0) {
+          // Get category IDs from category names
+          const categoryIds = jobSeekerData.jobCategories
+            .map(categoryName => {
+              const category = jobCategories.find(cat => cat.name === categoryName);
+              return category?.id;
+            })
+            .filter(Boolean);
+
+          if (categoryIds.length > 0) {
+            console.log('Saving categories:', {
+              seekerProfileId,
+              categoryNames: jobSeekerData.jobCategories,
+              categoryIds
+            });
+
+            // First remove all existing categories
+            const { data: existingCategories } = await seekerService.getSeekerCategories(seekerProfileId);
+            if (existingCategories && existingCategories.length > 0) {
+              const existingCategoryIds = existingCategories.map(c => c.category_id);
+              console.log('Removing existing categories:', existingCategoryIds);
+              await seekerService.removeSeekerCategories(seekerProfileId, existingCategoryIds);
+            }
+
+            // Then add the new categories
+            console.log('Adding new categories:', categoryIds);
+            await seekerService.addSeekerCategories(seekerProfileId, categoryIds);
+          }
+        }
+      } else {
+        // Get existing company profile
+        const { data: existingProfile } = await companyService.getCompanyProfile(userRecord.id);
+        
+        // Only include fields that exist in the current database schema
+        const companyUpdates = {
+          company_name: jobPosterData.companyName,
+          company_description: jobPosterData.description,
+        };
+
+        // Add optional fields if they exist in the database
+        if (jobPosterData.industry) {
+          companyUpdates.industry = jobPosterData.industry;
+        }
+        if (jobPosterData.companySize) {
+          companyUpdates.company_size = jobPosterData.companySize;
+        }
+        if (jobPosterData.website) {
+          companyUpdates.website = jobPosterData.website;
+        }
+
+        console.log('Saving company profile:', {
+          existingProfile,
+          updates: companyUpdates
+        });
+
+        if (existingProfile) {
+          await companyService.updateCompanyProfile(existingProfile.id, companyUpdates);
+        } else {
+          await companyService.createCompanyProfile({
+            ...companyUpdates,
+            user_id: userRecord.id,
+          });
+        }
+      }
 
       Alert.alert(
         'Profile Updated!',
@@ -185,6 +379,7 @@ const EditProfileScreen = ({ navigation, route }) => {
         ],
       );
     } catch (error) {
+      console.error('Error updating profile:', error);
       Alert.alert('Error', 'Failed to update profile. Please try again.');
     } finally {
       setIsLoading(false);
@@ -372,29 +567,36 @@ const EditProfileScreen = ({ navigation, route }) => {
 
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Job Categories</Text>
-          <View style={styles.categoryGrid}>
-            {jobCategories.map(category => (
-              <TouchableOpacity
-                key={category}
-                style={[
-                  styles.categoryChip,
-                  jobSeekerData.jobCategories.includes(category) &&
-                    styles.categoryChipActive,
-                ]}
-                onPress={() => toggleJobCategory(category)}
-              >
-                <Text
+          {isLoadingCategories ? (
+            <View style={styles.loadingContainer}>
+              <Feather name="loader" size={20} color="#3B82F6" />
+              <Text style={styles.loadingText}>Loading categories...</Text>
+            </View>
+          ) : (
+            <View style={styles.categoryGrid}>
+              {jobCategories.map(category => (
+                <TouchableOpacity
+                  key={category.id}
                   style={[
-                    styles.categoryChipText,
-                    jobSeekerData.jobCategories.includes(category) &&
-                      styles.categoryChipTextActive,
+                    styles.categoryChip,
+                    jobSeekerData.jobCategories.includes(category.name) &&
+                      styles.categoryChipActive,
                   ]}
+                  onPress={() => toggleJobCategory(category.name)}
                 >
-                  {category}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+                  <Text
+                    style={[
+                      styles.categoryChipText,
+                      jobSeekerData.jobCategories.includes(category.name) &&
+                        styles.categoryChipTextActive,
+                    ]}
+                  >
+                    {category.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -573,38 +775,15 @@ const EditProfileScreen = ({ navigation, route }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoid}
       >
-        {/* Header */}
-        <Animated.View
-          style={[
-            styles.header,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Feather name="arrow-left" size={24} color="#3B82F6" />
-          </TouchableOpacity>
-
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>Edit Profile</Text>
-            <Text style={styles.headerSubtitle}>
-              Update your{' '}
-              {currentMode === 'seeker' ? 'job seeker' : 'job poster'}{' '}
-              information
-            </Text>
-          </View>
-
-          <View style={styles.modeBadge}>
-            <Text style={styles.modeText}>
-              {currentMode === 'seeker' ? '👤' : '💼'}
-            </Text>
-          </View>
-        </Animated.View>
+        {/* App Header */}
+        <AppHeader
+          title="Edit Profile"
+          subtitle={`Update your ${currentMode === 'seeker' ? 'job seeker' : 'job poster'} information`}
+          leftIcon={<Icon name="arrow-left" size={20} color="#3B82F6" />}
+          onLeftPress={() => navigation.goBack()}
+          rightIcon={<Text style={styles.modeText}>{currentMode === 'seeker' ? '👤' : '💼'}</Text>}
+          background="#FFFFFF"
+        />
 
         {/* Content */}
         <ScrollView
@@ -623,9 +802,16 @@ const EditProfileScreen = ({ navigation, route }) => {
             ]}
           >
             <Card style={styles.formCard}>
-              {currentMode === 'seeker'
-                ? renderJobSeekerForm()
-                : renderJobPosterForm()}
+              {isLoadingProfile ? (
+                <View style={styles.loadingContainer}>
+                  <Feather name="loader" size={24} color="#3B82F6" />
+                  <Text style={styles.loadingText}>Loading profile data...</Text>
+                </View>
+              ) : (
+                currentMode === 'seeker'
+                  ? renderJobSeekerForm()
+                  : renderJobPosterForm()
+              )}
             </Card>
           </Animated.View>
         </ScrollView>
@@ -644,7 +830,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             variant="primary"
             size="lg"
             onPress={handleSave}
-            disabled={isLoading}
+            disabled={isLoading || isLoadingProfile || isLoadingCategories}
             style={styles.saveButton}
           >
             <View style={styles.buttonContent}>
@@ -652,6 +838,11 @@ const EditProfileScreen = ({ navigation, route }) => {
                 <>
                   <Feather name="loader" size={20} color="#FFFFFF" />
                   <Text style={styles.buttonText}>Saving...</Text>
+                </>
+              ) : isLoadingProfile || isLoadingCategories ? (
+                <>
+                  <Feather name="loader" size={20} color="#FFFFFF" />
+                  <Text style={styles.buttonText}>Loading...</Text>
                 </>
               ) : (
                 <>
@@ -909,6 +1100,17 @@ const styles = {
   categoryChipTextActive: {
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#64748B',
+    fontWeight: '500',
   },
   navigationContainer: {
     paddingHorizontal: 24,

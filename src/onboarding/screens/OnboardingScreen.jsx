@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,141 +6,326 @@ import {
   StatusBar,
   SafeAreaView,
   Image,
+  Alert,
+  TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import ActionCard from '../components/ActionCard';
+import { useAuth } from '../../contexts/AuthContext';
+import Button from '../../components/elements/Button';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const OnboardingScreen = () => {
   const navigation = useNavigation();
+  const { user, userRecord, updateUserRecord } = useAuth();
+  
+  // Get user name from authentication data
+  const userName = userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'FRIEND';
+
+  const [selectedRoles, setSelectedRoles] = useState({
+    isSeeker: false,
+    isPoster: false,
+  });
+
+  const toggleRole = (role) => {
+    setSelectedRoles(prev => ({
+      ...prev,
+      [role]: !prev[role]
+    }));
+  };
+
+  const handleContinue = async () => {
+    if (!selectedRoles.isSeeker && !selectedRoles.isPoster) {
+      Alert.alert('Selection Required', 'Please select at least one role to continue.');
+      return;
+    }
+
+    try {
+      // Update user record with role selections
+      await updateUserRecord({
+        is_seeker: selectedRoles.isSeeker,
+      });
+
+      // Navigate based on selected roles
+      if (selectedRoles.isSeeker && selectedRoles.isPoster) {
+        // User selected both roles - start with seeker profile
+        navigation.navigate('SeekerProfileSetup', { selectedRoles });
+      } else if (selectedRoles.isSeeker) {
+        // User selected only seeker role
+        navigation.navigate('SeekerProfileSetup', { selectedRoles });
+      } else if (selectedRoles.isPoster) {
+        // User selected only poster role
+        navigation.navigate('CompanyProfileSetup', { selectedRoles });
+      }
+    } catch (error) {
+      console.error('Error updating user roles:', error);
+      Alert.alert('Error', 'Failed to save your role selection. Please try again.');
+    }
+  };
+
+  const styles = getStyles();
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <View style={styles.container}>
-        {/* Top Half: Illustration */}
-        <View style={styles.topHalf}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Hero Section with Image */}
+        <View style={styles.heroSection}>
           <Image
             source={require('../../assets/onboarding_screen.png')}
-            style={styles.illustration}
-            accessibilityLabel="Onboarding illustration"
+            style={styles.heroImage}
+            resizeMode="contain"
           />
-        </View>
-        {/* Bottom Half: Content */}
-        <View style={styles.bottomHalf}>
-          {/* Greeting */}
-          <View style={{ width: '100%', marginBottom: 4 }}>
-            <Text style={styles.greeting}>HEY RAKIB</Text>
-          </View>
-          {/* Main Question */}
-          <View style={{ width: '100%', marginBottom: 24 }}>
-            <Text style={styles.question}>What do you want?</Text>
-          </View>
-          {/* Action Cards */}
-          <View style={{ width: '100%', gap: 16 }}>
-            <ActionCard
-              title="Find a job"
-              subtitle="Find your dream job here"
-              iconName="search"
-              iconColor="#6c7cfb"
-              onPress={() => navigation.navigate('Jobs')}
-            />
-            <ActionCard
-              title="Post a job"
-              subtitle="Post your job here"
-              iconName="file-text"
-              iconColor="#22c993"
-              onPress={() => navigation.navigate('CreateJob')}
-            />
+          <View style={styles.heroContent}>
+            <Text style={styles.welcomeText}>Welcome, {userName}!</Text>
+            <Text style={styles.heroTitle}>Choose Your Path</Text>
+            <Text style={styles.heroSubtitle}>
+              Tell us what you'd like to do on our platform
+            </Text>
           </View>
         </View>
-      </View>
+
+        {/* Role Selection Section */}
+        <View style={styles.selectionSection}>
+          <Text style={styles.sectionTitle}>What would you like to do?</Text>
+          <Text style={styles.sectionSubtitle}>You can select both options</Text>
+          
+          {/* Role Cards */}
+          <View style={styles.roleCardsContainer}>
+            <TouchableOpacity
+              style={[
+                styles.roleCard,
+                selectedRoles.isSeeker && styles.roleCardSelected
+              ]}
+              onPress={() => toggleRole('isSeeker')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.roleCardHeader}>
+                <View style={[styles.roleIcon, { backgroundColor: '#3B82F6' }]}>
+                  <FontAwesome name="search" size={24} color="#FFFFFF" />
+                </View>
+                <View style={styles.roleCheckbox}>
+                  <View style={[
+                    styles.checkbox,
+                    selectedRoles.isSeeker && styles.checkboxSelected
+                  ]}>
+                    {selectedRoles.isSeeker && (
+                      <FontAwesome name="check" size={14} color="#FFFFFF" />
+                    )}
+                  </View>
+                </View>
+              </View>
+              <View style={styles.roleCardContent}>
+                <Text style={styles.roleTitle}>Find Jobs</Text>
+                <Text style={styles.roleDescription}>
+                  Browse and apply for job opportunities in your area
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.roleCard,
+                selectedRoles.isPoster && styles.roleCardSelected
+              ]}
+              onPress={() => toggleRole('isPoster')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.roleCardHeader}>
+                <View style={[styles.roleIcon, { backgroundColor: '#10B981' }]}>
+                  <FontAwesome name="briefcase" size={24} color="#FFFFFF" />
+                </View>
+                <View style={styles.roleCheckbox}>
+                  <View style={[
+                    styles.checkbox,
+                    selectedRoles.isPoster && styles.checkboxSelected
+                  ]}>
+                    {selectedRoles.isPoster && (
+                      <FontAwesome name="check" size={14} color="#FFFFFF" />
+                    )}
+                  </View>
+                </View>
+              </View>
+              <View style={styles.roleCardContent}>
+                <Text style={styles.roleTitle}>Post Jobs</Text>
+                <Text style={styles.roleDescription}>
+                  Create and manage job listings for your business
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Continue Button */}
+          <View style={styles.buttonContainer}>
+            <Button
+              onPress={handleContinue}
+              disabled={!selectedRoles.isSeeker && !selectedRoles.isPoster}
+              style={[
+                styles.continueButton,
+                (!selectedRoles.isSeeker && !selectedRoles.isPoster) && styles.continueButtonDisabled
+              ]}
+            >
+              <Text style={styles.buttonText}>Continue</Text>
+            </Button>
+            
+            <Text style={styles.helperText}>
+              {selectedRoles.isSeeker && selectedRoles.isPoster 
+                ? "You'll set up both profiles in sequence"
+                : "You can add the other role later in your profile settings"
+              }
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = () => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
-  topHalf: {
-    flex: 1.2,
-    width: '100%',
+  heroSection: {
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    backgroundColor: '#fff',
-  },
-  illustration: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-    marginBottom: 0,
-  },
-  bottomHalf: {
-    flex: 1,
-    width: '100%',
-    alignItems: 'center',
+    paddingTop: 40,
+    paddingBottom: 30,
     paddingHorizontal: 24,
-    paddingTop: 0,
-    backgroundColor: '#fff',
   },
-  greeting: {
-    color: '#7b8794',
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    marginLeft: 4,
+  heroImage: {
+    width: '100%',
+    height: 200,
+    marginBottom: 20,
   },
-  question: {
-    color: '#22223b',
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginLeft: 4,
-  },
-  actionCard: {
-    flexDirection: 'row',
+  heroContent: {
     alignItems: 'center',
-    borderRadius: 24,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-    backgroundColor: '#fff', // will be overridden below
+  },
+  welcomeText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  selectionSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  roleCardsContainer: {
     gap: 16,
+    marginBottom: 32,
   },
-  findJobCard: {
-    backgroundColor: '#eef0fd',
+  roleCard: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
   },
-  postJobCard: {
-    backgroundColor: '#eaf7f0',
-    marginBottom: 0,
+  roleCardSelected: {
+    borderColor: '#3B82F6',
+    backgroundColor: '#EFF6FF',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  roleCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  roleIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
   },
-  actionTitle: {
-    fontSize: 18,
+  roleCheckbox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkbox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  checkboxSelected: {
+    borderColor: '#3B82F6',
+    backgroundColor: '#3B82F6',
+  },
+  roleCardContent: {
+    flex: 1,
+  },
+  roleTitle: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#22223b',
+    color: '#1F2937',
+    marginBottom: 8,
   },
-  actionSubtitle: {
-    fontSize: 13,
-    color: '#7b8794',
-    marginTop: 2,
+  roleDescription: {
+    fontSize: 16,
+    color: '#6B7280',
+    lineHeight: 24,
+  },
+  buttonContainer: {
+    alignItems: 'center',
+  },
+  continueButton: {
+    minHeight: 56,
+    width: '100%',
+    marginBottom: 16,
+  },
+  continueButtonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  helperText: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
 

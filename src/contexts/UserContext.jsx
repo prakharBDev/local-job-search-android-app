@@ -87,7 +87,6 @@ export const UserProvider = ({ children }) => {
     try {
       const updates = {
         is_seeker: mode === 'seeker',
-        is_poster: mode === 'poster',
       };
 
       const { error } = await userService.updateUser(user.id, updates);

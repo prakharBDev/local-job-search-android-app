@@ -1,9 +1,13 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Image, StyleSheet, Text, View, Alert } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Button from '../components/elements/Button';
-import Card from '../components/blocks/Card';
-import { useTheme } from '../contexts/ThemeContext';
+import Button from '../../components/elements/Button';
+import Card from '../../components/blocks/Card';
+import Input from '../../components/elements/Input';
+import GoogleSignInButton from '../../shared/components/GoogleSignInButton';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { onboardingService } from '../../services';
 
 const getStyles = theme =>
   StyleSheet.create({
@@ -56,6 +60,9 @@ const getStyles = theme =>
       marginBottom: theme?.spacing?.[6] || 24,
       lineHeight: 20,
     },
+    phoneInput: {
+      marginBottom: theme?.spacing?.[6] || 24,
+    },
     googleButton: {
       marginBottom: theme?.spacing?.[6] || 24,
       borderColor: theme?.colors?.border?.primary || '#E2E8F0',
@@ -101,16 +108,111 @@ const getStyles = theme =>
       color: theme?.colors?.primary?.cyan || '#3C4FE0',
       fontWeight: '500',
     },
+    validationText: {
+      color: theme?.colors?.text?.error || '#EF4444',
+      fontSize: 12,
+      textAlign: 'center',
+      marginTop: theme?.spacing?.[2] || 8,
+    },
   });
 
 const LoginScreen = ({ onLogin }) => {
   const { theme } = useTheme();
+  const { login } = useAuth();
   const styles = getStyles(theme || {});
+  
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleLogin = () => {
-    setTimeout(() => {
-      onLogin();
-    }, 1000);
+  // Phone validation function (reusing pattern from IndexScreen)
+  const validatePhone = (phone) => {
+    // Remove +91 prefix for validation
+    const phoneWithoutPrefix = phone.replace(/^\+91\s*/, '');
+    const phoneRegex = /^[1-9][\d]{9}$/; // 10 digits for Indian mobile numbers
+    
+    if (!phoneWithoutPrefix.trim()) {
+      return 'Phone number is required';
+    }
+    if (!phoneRegex.test(phoneWithoutPrefix.replace(/\s/g, ''))) {
+      return 'Please enter a valid 10-digit phone number';
+    }
+    return '';
+  };
+
+  const handlePhoneChange = (text) => {
+    // Remove +91 prefix if user tries to type it
+    const cleanText = text.replace(/^\+91\s*/, '');
+    // Limit to 10 digits
+    const limitedText = cleanText.replace(/\D/g, '').slice(0, 10);
+    setPhoneNumber(limitedText);
+    
+    // Clear error when user starts typing
+    if (phoneError) {
+      setPhoneError(validatePhone('+91 ' + limitedText));
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    const error = validatePhone('+91 ' + phoneNumber);
+    setPhoneError(error);
+  };
+
+  const isPhoneValid = () => {
+    // Check if phone number is exactly 10 digits and no validation errors
+    return phoneNumber.length === 10 && !phoneError && /^[1-9][\d]{9}$/.test(phoneNumber);
+  };
+
+  const handleGoogleSignInSuccess = async (result) => {
+    if (result.error) {
+      Alert.alert('Sign In Error', result.error);
+      return;
+    }
+
+    // Double-check phone validation before proceeding
+    if (!isPhoneValid()) {
+      const error = validatePhone('+91 ' + phoneNumber);
+      setPhoneError(error);
+      Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit phone number before signing in.');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const { data, userInfo } = result;
+      
+      if (data?.session && data?.user) {
+        // Use onboarding service to check if user exists
+        const { exists, userRecord, error: userCheckError } = await onboardingService.checkUserExists(data.user.id);
+        
+        if (userCheckError) {
+          console.error('Error checking user existence:', userCheckError);
+          // Continue as new user if check fails
+        }
+
+        const isNewUser = !exists;
+        
+        // Call the login method with phone number
+        await login({
+          session: data.session,
+          user: data.user,
+          userRecord: userRecord || null,
+          isNewUser,
+          phoneNumber: '+91 ' + phoneNumber,
+        });
+
+        // Call the original onLogin callback
+        if (onLogin) {
+          onLogin({ phoneNumber: '+91 ' + phoneNumber });
+        }
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Failed to proceed with login. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -118,7 +220,7 @@ const LoginScreen = ({ onLogin }) => {
       <View style={styles.content}>
         <View style={styles.header}>
           <Image
-            source={require('../assests/rocket_1323780.png')}
+            source={require('../../assets/rocket_1323780.png')}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -131,27 +233,32 @@ const LoginScreen = ({ onLogin }) => {
         <Card style={styles.loginCard}>
           <Text style={styles.loginTitle}>Get Started</Text>
           <Text style={styles.loginSubtitle}>
-            Sign in to access both job searching and posting features
+            Enter your phone number to continue with Google Sign-In
           </Text>
 
-          <Button
-            variant="outline"
-            fullWidth
-            onPress={handleGoogleLogin}
-            icon={null}
-            disabled={false}
-            style={styles.googleButton}
-          >
-            <View style={styles.buttonContent}>
-              <FontAwesome
-                name="google"
-                size={20}
-                color={theme?.colors?.text?.primary || '#1E293B'}
-                style={styles.googleIcon}
-              />
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </View>
-          </Button>
+          <Input
+            label="Phone Number *"
+            value={phoneNumber}
+            onChangeText={handlePhoneChange}
+            onBlur={handlePhoneBlur}
+            placeholder="Enter your phone number"
+            prefix="+91 "
+            keyboardType="phone-pad"
+            error={phoneError}
+            style={styles.phoneInput}
+            maxLength={10}
+          />
+
+          <GoogleSignInButton 
+            onSuccess={handleGoogleSignInSuccess}
+            disabled={!isPhoneValid() || isLoading}
+          />
+
+          {!isPhoneValid() && phoneNumber.length > 0 && (
+            <Text style={styles.validationText}>
+              Please enter a valid 10-digit phone number to continue
+            </Text>
+          )}
 
           <View style={styles.features}>
             <View style={styles.featureItem}>

@@ -1,12 +1,12 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Icon from '../components/elements/Icon';
+import { Icon } from '../components/elements';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 
 // Import screens
 import DashboardScreen from '../dashboard/screens/DashboardScreen';
-import IndexScreen from '../landingpage/screens/IndexScreen';
 import MyJobsScreen from '../jobs/screens/MyJobsScreen';
 import CreateJobScreen from '../jobs/screens/CreateJobScreen';
 import ProfileScreen from '../profile/screens/ProfileScreen';
@@ -203,6 +203,7 @@ const ProfileStack = () => {
 
 const MainNavigator = () => {
   const { theme } = useTheme();
+  const { userRoles } = useAuth();
 
   return (
     <Tab.Navigator
@@ -251,16 +252,19 @@ const MainNavigator = () => {
         name="MyJobs"
         component={MyJobsStack}
         options={{
-          tabBarLabel: 'My Jobs',
+          tabBarLabel: userRoles?.isCompany ? 'My Jobs' : 'Applications',
         }}
       />
-      <Tab.Screen
-        name="CreateJob"
-        component={CreateJobStack}
-        options={{
-          tabBarLabel: 'Create',
-        }}
-      />
+      {/* Only show Create Job tab for companies/job posters */}
+      {userRoles.isCompany && (
+        <Tab.Screen
+          name="CreateJob"
+          component={CreateJobStack}
+          options={{
+            tabBarLabel: 'Create',
+          }}
+        />
+      )}
       <Tab.Screen
         name="Profile"
         component={ProfileStack}

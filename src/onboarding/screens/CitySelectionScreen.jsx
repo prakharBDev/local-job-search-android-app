@@ -63,7 +63,7 @@ const CitySelectionScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-      await updateUserRecord({ city: selectedCity });
+              await updateUserRecord({ city: selectedCity.toLowerCase() });
       // Navigation will be handled automatically by the auth state change
     } catch (error) {
       console.error('City update error:', error);
@@ -174,7 +174,7 @@ const CitySelectionScreen = ({ navigation }) => {
                     onPress: async () => {
                       setIsLoading(true);
                       try {
-                        await updateUserRecord({ city: 'morena' }); // Default to morena
+                        await updateUserRecord({ city: 'morena' }); // Default to morena (already lowercase)
                       } catch (error) {
                         console.error('Skip error:', error);
                       } finally {

@@ -7,58 +7,80 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  Alert,
 } from 'react-native';
-
-const user = {
-  name: 'John Doe',
-};
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigation } from '@react-navigation/native';
+import { AppHeader } from '../../components/elements';
 
 const DashboardScreen = () => {
+  const { user, userRecord, logout } = useAuth();
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('This Week');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Handler stubs
+  // Use actual user data from auth context - prioritize userRecord name
+  const userName = userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+
   const handleProfilePress = () => {
     // TODO: Navigate to profile screen
   };
-  const handleLogout = () => {
-    // TODO: Implement logout logic
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsLoggingOut(true);
+              await logout();
+              
+              // Reset navigation to ensure clean state
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              });
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert(
+                'Logout Failed',
+                'There was an error logging out. Please try again.',
+                [{ text: 'OK' }]
+              );
+            } finally {
+              setIsLoggingOut(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
+      
+      {/* App Header */}
+      <AppHeader
+        title="Dashboard"
+        subtitle={`Welcome back, ${userName}!`}
+        rightIcon={<Text style={styles.iconText}>👤</Text>}
+        onRightPress={handleProfilePress}
+        background="#F7F9FC"
+      />
+      
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section */}
-        <View style={styles.headerContainer}>
-          <View style={styles.headerContent}>
-            <View style={styles.welcomeSection}>
-              <Text style={styles.welcomeText}>Welcome back,</Text>
-              <Text style={styles.userName}>{user.name}!</Text>
-              <Text style={styles.subtitle}>
-                Here's your job search progress
-              </Text>
-            </View>
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                style={styles.profileCard}
-                onPress={handleProfilePress}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.profileName}>{user.name}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.logoutBtn}
-                onPress={handleLogout}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.logoutText}>Logout</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
 
         {/* Tabs Section */}
         <View style={styles.tabsContainer}>

@@ -7,6 +7,7 @@ export { default as applicationService } from './application.service';
 export { default as skillsService } from './skills.service';
 export { default as categoriesService } from './categories.service';
 export { default as analyticsService } from './analytics.service';
+export { default as onboardingService } from './onboarding.service';
 
 // You can also export them as a single object if preferred
 import userService from './user.service';
@@ -17,6 +18,7 @@ import applicationService from './application.service';
 import skillsService from './skills.service';
 import categoriesService from './categories.service';
 import analyticsService from './analytics.service';
+import onboardingService from './onboarding.service';
 
 export default {
   userService,
@@ -27,4 +29,5 @@ export default {
   skillsService,
   categoriesService,
   analyticsService,
+  onboardingService,
 };

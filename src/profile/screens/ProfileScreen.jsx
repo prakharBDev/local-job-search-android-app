@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -11,14 +11,61 @@ import {
 } from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { UserContext } from '../../contexts/UserContext';
-import { seekerService, companyService } from '../../services';
+import { seekerService, companyService, userService } from '../../services';
+import { AppHeader, Icon } from '../../components/elements';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, userRecord, logout } = useContext(AuthContext);
   const { currentMode, toggleMode } = useContext(UserContext);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Debug: Log user data to see what's available
+  console.log('ProfileScreen Debug:', {
+    userRecord: userRecord,
+    user: user,
+    userMetadata: user?.user_metadata,
+    email: user?.email,
+    nameFromRecord: userRecord?.name,
+    nameFromMetadata: user?.user_metadata?.full_name,
+    emailPrefix: user?.email?.split('@')[0]
+  });
 
   const handleLogout = async () => {
-    await logout();
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsLoggingOut(true);
+              await logout();
+              
+              // Reset navigation to ensure clean state
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              });
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert(
+                'Logout Failed',
+                'There was an error logging out. Please try again.',
+                [{ text: 'OK' }]
+              );
+            } finally {
+              setIsLoggingOut(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleSettings = () => {
@@ -84,38 +131,26 @@ const ProfileScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Header Section */}
-        <View style={styles.headerContainer}>
-          <View style={styles.headerContent}>
-            <View style={styles.headerLeft}>
-              <Text style={styles.headerTitle}>Profile</Text>
-              <Text style={styles.headerSubtitle}>
-                Manage your account & preferences
-              </Text>
-            </View>
-            <View style={styles.headerRight}>
-              <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={handleSettings}
-              >
-                <Text style={styles.settingsIcon}>⚙️</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+        {/* App Header */}
+        <AppHeader
+          title="Profile"
+          subtitle="Manage your account & preferences"
+          rightIcon={<Icon name="settings" size={20} color="#3B82F6" />}
+          onRightPress={handleSettings}
+          background="#F7F9FC"
+        />
 
         {/* User Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
             <View style={styles.avatarContainer}>
               <Text style={styles.avatarText}>
-                {(user?.name || 'User').charAt(0).toUpperCase()}
+                {(userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User').charAt(0).toUpperCase()}
               </Text>
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.userName}>{user?.name || 'John Doe'}</Text>
-              <Text style={styles.userEmail}>
-                {user?.email || 'john.doe@example.com'}
+              <Text style={styles.userName}>
+                {userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
               </Text>
               <View style={styles.modeContainer}>
                 <View style={styles.modeBadge}>
@@ -134,6 +169,8 @@ const ProfileScreen = ({ navigation }) => {
           >
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
+          
+
         </View>
 
         {/* Quick Stats */}
@@ -359,8 +396,17 @@ const ProfileScreen = ({ navigation }) => {
 
         {/* Logout Button */}
         <View style={styles.logoutContainer}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Sign Out</Text>
+          <TouchableOpacity 
+            style={[
+              styles.logoutButton,
+              isLoggingOut && { opacity: 0.6 }
+            ]} 
+            onPress={handleLogout}
+            disabled={isLoggingOut}
+          >
+            <Text style={styles.logoutText}>
+              {isLoggingOut ? 'Signing out...' : 'Sign Out'}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

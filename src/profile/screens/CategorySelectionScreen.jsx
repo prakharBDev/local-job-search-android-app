@@ -71,8 +71,23 @@ const CategorySelectionScreen = ({ navigation, route }) => {
   };
 
   const handleDone = () => {
-    route.params.onCategoriesSelected(selectedCategories);
-    navigation.goBack();
+    // Navigate back with all the form data preserved
+    navigation.navigate({
+      name: 'SeekerProfileSetup',
+      params: { 
+        updatedCategories: selectedCategories,
+        // Preserve all other form data
+        selectedCity: route.params?.selectedCity,
+        selectedSkills: route.params?.selectedSkills,
+        experience_level: route.params?.experience_level,
+        tenth_percentage: route.params?.tenth_percentage,
+        twelfth_percentage: route.params?.twelfth_percentage,
+        graduation_percentage: route.params?.graduation_percentage,
+        nextScreen: route.params?.nextScreen,
+        selectedRoles: route.params?.selectedRoles,
+      },
+      merge: true,
+    });
   };
 
   const styles = getStyles(theme);

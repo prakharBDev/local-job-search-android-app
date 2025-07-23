@@ -12,7 +12,13 @@ import SplashScreen from './src/splash/screens/SplashScreen';
 import SettingsScreen from './src/settings/screens/SettingsScreen';
 import AboutScreen from './src/about/screens/AboutScreen';
 import CitySelectionScreen from './src/onboarding/screens/CitySelectionScreen';
+import OnboardingScreen from './src/onboarding/screens/OnboardingScreen';
+import OnboardingSuccessScreen from './src/onboarding/screens/OnboardingSuccessScreen';
 import ProfileSetupNavigator from './src/onboarding/navigation/ProfileSetupNavigator';
+import SeekerProfileSetupScreen from './src/profile/screens/SeekerProfileSetupScreen';
+import CompanyProfileSetupScreen from './src/profile/screens/CompanyProfileSetupScreen';
+import SkillsSelectionScreen from './src/profile/screens/SkillsSelectionScreen';
+import CategorySelectionScreen from './src/profile/screens/CategorySelectionScreen';
 
 // Import providers and components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -61,8 +67,14 @@ const IndexScreenContainer = () => {
 
 // Main App Navigator
 const AppNavigator = () => {
-  const { isAuthenticated, isLoading, needsCitySelection, needsProfileSetup } =
-    useAuth();
+  const { 
+    isAuthenticated, 
+    isLoading, 
+    needsCitySelection, 
+    needsProfileSetup,
+    needsRoleSelection,
+    userRecord 
+  } = useAuth();
   const { theme } = useTheme();
 
   return (
@@ -79,6 +91,40 @@ const AppNavigator = () => {
           component={CitySelectionScreen}
           options={{}}
         />
+      ) : needsRoleSelection ? (
+        <>
+          <RootStack.Screen
+            name="Onboarding"
+            component={OnboardingScreen}
+            options={{}}
+          />
+          {/* Profile Setup Screens - Accessible from Onboarding */}
+          <RootStack.Screen
+            name="SeekerProfileSetup"
+            component={SeekerProfileSetupScreen}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="CompanyProfileSetup"
+            component={CompanyProfileSetupScreen}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="SkillsSelection"
+            component={SkillsSelectionScreen}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="CategorySelection"
+            component={CategorySelectionScreen}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="OnboardingSuccess"
+            component={OnboardingSuccessScreen}
+            options={{ headerShown: false }}
+          />
+        </>
       ) : needsProfileSetup ? (
         <RootStack.Screen
           name="ProfileSetup"
@@ -134,6 +180,8 @@ const linking = {
           Splash: 'splash',
         },
       },
+      Onboarding: 'onboarding',
+      OnboardingSuccess: 'onboarding-success',
       Main: {
         path: '/app',
         screens: {
@@ -143,8 +191,21 @@ const linking = {
           MyJobs: 'my-jobs',
         },
       },
+      ProfileSetup: {
+        path: '/profile-setup',
+        screens: {
+          ProfileSetup: 'setup',
+          SeekerProfileSetup: 'seeker',
+          CompanyProfileSetup: 'company',
+        },
+      },
       Settings: 'settings',
       About: 'about',
+      // Profile Setup Screens
+      SeekerProfileSetup: 'seeker-profile-setup',
+      CompanyProfileSetup: 'company-profile-setup',
+      SkillsSelection: 'skills-selection',
+      CategorySelection: 'category-selection',
       // TODO: Add additional routes when screens are created
     },
   },
@@ -167,6 +228,9 @@ const InnerApp = ({ initialState, onStateChange }) => {
       linking={linking}
       initialState={initialState}
       onStateChange={onStateChange}
+      onUnhandledAction={(action) => {
+        console.warn('Unhandled navigation action:', action);
+      }}
       theme={{
         dark: false,
         colors: {

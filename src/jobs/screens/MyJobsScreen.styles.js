@@ -139,6 +139,56 @@ export const getStyles = theme =>
       borderColor: '#E0F2FE',
     },
 
+    // Error Styles
+    errorContainer: {
+      backgroundColor: '#FEF2F2',
+      borderWidth: 1,
+      borderColor: '#FECACA',
+      borderRadius: 16,
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      marginHorizontal: 24,
+      marginBottom: 20,
+      shadowColor: '#F87171',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    errorText: {
+      fontSize: 16,
+      color: '#DC2626',
+      fontWeight: '500',
+      textAlign: 'center',
+      fontFamily: 'System',
+    },
+
+    // No Results Styles
+    noResultsContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 60,
+    },
+    noResultsText: {
+      fontSize: 20,
+      color: '#374151',
+      fontWeight: '600',
+      textAlign: 'center',
+      marginTop: 16,
+      marginBottom: 8,
+      fontFamily: 'System',
+      letterSpacing: -0.3,
+    },
+    noResultsSubtext: {
+      fontSize: 16,
+      color: '#6B7280',
+      fontWeight: '400',
+      textAlign: 'center',
+      fontFamily: 'System',
+      letterSpacing: -0.2,
+    },
+
     // Section Styles - Enhanced soft typography
     sectionHeader: {
       flexDirection: 'row',

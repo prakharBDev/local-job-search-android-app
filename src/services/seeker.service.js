@@ -7,11 +7,12 @@ import { supabase } from '../utils/supabase';
 const seekerService = {
   /**
    * Create a new seeker profile
-   * @param {Object} profileData - Profile data including user_id
+   * @param {Object} profileData - Profile data (must include user_id)
    * @returns {Promise<{data: Object|null, error: Error|null}>}
    */
   async createSeekerProfile(profileData) {
     try {
+      // Expect user_id to be provided by the caller (from AuthContext)
       const { data, error } = await supabase
         .from('seeker_profiles')
         .insert([profileData])
@@ -19,6 +20,12 @@ const seekerService = {
         .single();
 
       if (error) {
+        console.error('Supabase error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw error;
       }
       return { data, error: null };
@@ -120,7 +127,21 @@ const seekerService = {
    */
   async addSeekerSkills(seekerId, skillIds) {
     try {
-      const skillsData = skillIds.map(skillId => ({
+      // First, get existing skills to avoid duplicates
+      const { data: existingSkills } = await supabase
+        .from('seeker_skills')
+        .select('skill_id')
+        .eq('seeker_id', seekerId);
+
+      const existingSkillIds = existingSkills?.map(s => s.skill_id) || [];
+      const newSkillIds = skillIds.filter(skillId => !existingSkillIds.includes(skillId));
+
+      if (newSkillIds.length === 0) {
+        console.log('All skills already exist for this seeker');
+        return { data: existingSkills, error: null };
+      }
+
+      const skillsData = newSkillIds.map(skillId => ({
         seeker_id: seekerId,
         skill_id: skillId,
       }));
@@ -165,14 +186,28 @@ const seekerService = {
   },
 
   /**
-   * Add categories to seeker profile
+   * Add categories to seeker profile (handles existing relationships)
    * @param {string} seekerId - Seeker profile ID
    * @param {Array<string>} categoryIds - Array of category IDs
    * @returns {Promise<{data: Array|null, error: Error|null}>}
    */
   async addSeekerCategories(seekerId, categoryIds) {
     try {
-      const categoriesData = categoryIds.map(categoryId => ({
+      // First, get existing categories to avoid duplicates
+      const { data: existingCategories } = await supabase
+        .from('seeker_categories')
+        .select('category_id')
+        .eq('seeker_id', seekerId);
+
+      const existingCategoryIds = existingCategories?.map(c => c.category_id) || [];
+      const newCategoryIds = categoryIds.filter(categoryId => !existingCategoryIds.includes(categoryId));
+
+      if (newCategoryIds.length === 0) {
+        console.log('All categories already exist for this seeker');
+        return { data: existingCategories, error: null };
+      }
+
+      const categoriesData = newCategoryIds.map(categoryId => ({
         seeker_id: seekerId,
         category_id: categoryId,
       }));

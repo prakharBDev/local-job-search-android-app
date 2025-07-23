@@ -4,9 +4,10 @@ import {
   GoogleSigninButton,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import { View, StyleSheet, Text } from 'react-native';
 import { supabase } from '../../utils/supabase';
 
-export default function GoogleSignInButton({ onSuccess }) {
+export default function GoogleSignInButton({ onSuccess, disabled = false }) {
   useEffect(() => {
     GoogleSignin.configure({
       scopes: ['https://www.googleapis.com/auth/drive.readonly'],
@@ -17,6 +18,11 @@ export default function GoogleSignInButton({ onSuccess }) {
   }, []);
 
   const handleGoogleSignIn = async () => {
+    if (disabled) {
+      console.log('Google Sign-In button is disabled');
+      return;
+    }
+
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
@@ -34,12 +40,23 @@ export default function GoogleSignInButton({ onSuccess }) {
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
+        console.log('User cancelled Google Sign-In');
       } else if (error.code === statusCodes.IN_PROGRESS) {
         // operation (e.g. sign in) is in progress already
+        console.log('Google Sign-In already in progress');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         // play services not available or outdated
+        console.log('Google Play Services not available');
+        if (onSuccess) {
+          onSuccess({
+            data: null,
+            error: 'Google Play Services not available. Please update your Google Play Services.',
+            userInfo: null,
+          });
+        }
       } else {
         // some other error happened
+        console.error('Google Sign-In error:', error);
         if (onSuccess) {
           onSuccess({
             data: null,
@@ -52,10 +69,34 @@ export default function GoogleSignInButton({ onSuccess }) {
   };
 
   return (
-    <GoogleSigninButton
-      size={GoogleSigninButton.Size.Wide}
-      color={GoogleSigninButton.Color.Dark}
-      onPress={handleGoogleSignIn}
-    />
+    <View style={[styles.container, disabled && styles.disabled]}>
+      <GoogleSigninButton
+        size={GoogleSigninButton.Size.Wide}
+        color={GoogleSigninButton.Color.Dark}
+        onPress={handleGoogleSignIn}
+        disabled={disabled}
+      />
+      {disabled && (
+        <Text style={styles.disabledText}>
+          Please enter a valid phone number first
+        </Text>
+      )}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    opacity: 1,
+  },
+  disabled: {
+    opacity: 0.6,
+  },
+  disabledText: {
+    fontSize: 12,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 8,
+    fontStyle: 'italic',
+  },
+});

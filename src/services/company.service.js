@@ -7,11 +7,12 @@ import { supabase } from '../utils/supabase';
 const companyService = {
   /**
    * Create a new company profile
-   * @param {Object} profileData - Company profile data including user_id
+   * @param {Object} profileData - Profile data (must include user_id)
    * @returns {Promise<{data: Object|null, error: Error|null}>}
    */
   async createCompanyProfile(profileData) {
     try {
+      // Expect user_id to be provided by the caller (from AuthContext)
       const { data, error } = await supabase
         .from('company_profiles')
         .insert([profileData])
@@ -19,6 +20,12 @@ const companyService = {
         .single();
 
       if (error) {
+        console.error('Supabase error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw error;
       }
       return { data, error: null };

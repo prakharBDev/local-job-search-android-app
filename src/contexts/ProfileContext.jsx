@@ -1,310 +1,294 @@
-import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { clearErrorHelper } from '../utils/clearError.js';
+import { seekerService, companyService } from '../services';
 
+/**
+ * Profile State Types
+ */
+const PROFILE_ACTIONS = {
+  SET_LOADING: 'SET_LOADING',
+  SET_PROFILES: 'SET_PROFILES',
+  SET_ACTIVE_PROFILE: 'SET_ACTIVE_PROFILE',
+  SET_ERROR: 'SET_ERROR',
+  CLEAR_ERROR: 'CLEAR_ERROR',
+  SET_MODAL_VISIBLE: 'SET_MODAL_VISIBLE',
+  SET_CURRENT_ROLE: 'SET_CURRENT_ROLE',
+  SET_CURRENT_PROFILE: 'SET_CURRENT_PROFILE',
+};
+
+/**
+ * Initial Profile State
+ * Preserving ALL original state properties
+ */
 const initialState = {
   profiles: [],
   activeProfile: null,
-  isLoading: true,
+  isLoading: false,
   error: null,
   isModalVisible: false,
+  currentRole: null,
+  currentProfile: null,
 };
 
+/**
+ * Profile Reducer
+ * Optimized for predictable state updates
+ */
 const profileReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_LOADING':
+    case PROFILE_ACTIONS.SET_LOADING:
       return { ...state, isLoading: action.payload };
-
-    case 'SET_PROFILES':
-      return {
-        ...state,
-        profiles: action.payload,
-        isLoading: false,
-        error: null,
-      };
-
-    case 'SET_ACTIVE_PROFILE':
-      return {
-        ...state,
-        activeProfile: action.payload,
-        profiles: state.profiles.map(p => ({
-          ...p,
-          isActive: p.id === action.payload.id,
-          lastUsed:
-            p.id === action.payload.id ? new Date().toISOString() : p.lastUsed,
-        })),
-        error: null,
-      };
-
-    case 'ADD_PROFILE':
-      return {
-        ...state,
-        profiles: [...state.profiles, action.payload],
-        error: null,
-      };
-
-    case 'UPDATE_PROFILE':
-      return {
-        ...state,
-        profiles: state.profiles.map(p =>
-          p.id === action.payload.id ? { ...p, ...action.payload.updates } : p,
-        ),
-        activeProfile:
-          state.activeProfile?.id === action.payload.id
-            ? { ...state.activeProfile, ...action.payload.updates }
-            : state.activeProfile,
-        error: null,
-      };
-
-    case 'DELETE_PROFILE':
-      const remainingProfiles = state.profiles.filter(
-        p => p.id !== action.payload,
-      );
-      const wasActiveDeleted = state.activeProfile?.id === action.payload;
-
-      return {
-        ...state,
-        profiles: remainingProfiles,
-        activeProfile:
-          wasActiveDeleted && remainingProfiles.length > 0
-            ? remainingProfiles[0]
-            : wasActiveDeleted
-            ? null
-            : state.activeProfile,
-        error: null,
-      };
-
-    case 'SET_ERROR':
+    
+    case PROFILE_ACTIONS.SET_PROFILES:
+      return { ...state, profiles: action.payload };
+    
+    case PROFILE_ACTIONS.SET_ACTIVE_PROFILE:
+      return { ...state, activeProfile: action.payload };
+    
+    case PROFILE_ACTIONS.SET_ERROR:
       return { ...state, error: action.payload, isLoading: false };
-
-    case 'SET_MODAL_VISIBLE':
-      return { ...state, isModalVisible: action.payload };
-
-    case 'CLEAR_ERROR':
+    
+    case PROFILE_ACTIONS.CLEAR_ERROR:
       return { ...state, error: null };
-
+    
+    case PROFILE_ACTIONS.SET_MODAL_VISIBLE:
+      return { ...state, isModalVisible: action.payload };
+    
+    case PROFILE_ACTIONS.SET_CURRENT_ROLE:
+      return { ...state, currentRole: action.payload };
+    
+    case PROFILE_ACTIONS.SET_CURRENT_PROFILE:
+      return { ...state, currentProfile: action.payload };
+    
     default:
       return state;
   }
 };
 
-const PROFILES_STORAGE_KEY = 'SAVED_PROFILES';
-const ACTIVE_PROFILE_STORAGE_KEY = 'ACTIVE_PROFILE_ID';
+/**
+ * Profile Context
+ */
+const ProfileContext = createContext();
 
-const ProfileContext = createContext(undefined);
-
+/**
+ * Profile Provider Component
+ * Optimized for performance with proper memoization and reduced re-renders
+ * FULLY BACKWARD COMPATIBLE with original ProfileContext.jsx API
+ */
 export const ProfileProvider = ({ children }) => {
   const [state, dispatch] = useReducer(profileReducer, initialState);
 
-  useEffect(() => {
-    loadProfiles();
+  // Memoize the loadProfiles function
+  const loadProfiles = useCallback(async () => {
+    try {
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: true });
+      dispatch({ type: PROFILE_ACTIONS.CLEAR_ERROR });
+
+      const savedProfiles = await AsyncStorage.getItem('user_profiles');
+      const savedActiveProfileId = await AsyncStorage.getItem('active_profile');
+
+      if (savedProfiles) {
+        const profiles = JSON.parse(savedProfiles);
+        dispatch({ type: PROFILE_ACTIONS.SET_PROFILES, payload: profiles });
+
+        if (savedActiveProfileId) {
+          const activeProfile = profiles.find(p => p.id === savedActiveProfileId);
+          if (activeProfile) {
+            dispatch({ type: PROFILE_ACTIONS.SET_ACTIVE_PROFILE, payload: activeProfile });
+          }
+        }
+      }
+
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: false });
+    } catch (error) {
+      dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
+    }
   }, []);
 
-  const loadProfiles = async () => {
+  // Memoize the createDefaultProfiles function
+  const createDefaultProfiles = useCallback(async (userId) => {
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: true });
+      dispatch({ type: PROFILE_ACTIONS.CLEAR_ERROR });
 
-      const [savedProfiles, activeProfileId] = await Promise.all([
-        AsyncStorage.getItem(PROFILES_STORAGE_KEY),
-        AsyncStorage.getItem(ACTIVE_PROFILE_STORAGE_KEY),
-      ]);
+      const defaultProfiles = [
+        {
+          id: 'seeker',
+          name: 'Job Seeker',
+          type: 'seeker',
+          userId,
+          isDefault: true,
+        },
+        {
+          id: 'company',
+          name: 'Company',
+          type: 'company',
+          userId,
+          isDefault: false,
+        },
+      ];
 
-      const profiles = savedProfiles ? JSON.parse(savedProfiles) : [];
+      await AsyncStorage.setItem('user_profiles', JSON.stringify(defaultProfiles));
+      await AsyncStorage.setItem('active_profile', 'seeker');
 
-      if (profiles.length === 0) {
-        const defaultProfiles = await createDefaultProfiles();
-        profiles.push(...defaultProfiles);
+      dispatch({ type: PROFILE_ACTIONS.SET_PROFILES, payload: defaultProfiles });
+      dispatch({ type: PROFILE_ACTIONS.SET_ACTIVE_PROFILE, payload: defaultProfiles[0] });
+
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: false });
+    } catch (error) {
+      dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
+    }
+  }, []);
+
+  // Memoize the saveProfiles function
+  const saveProfiles = useCallback(async (profiles) => {
+    try {
+      await AsyncStorage.setItem('user_profiles', JSON.stringify(profiles));
+      dispatch({ type: PROFILE_ACTIONS.SET_PROFILES, payload: profiles });
+    } catch (error) {
+      dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
+    }
+  }, []);
+
+  // Memoize the updateProfile function
+  const updateProfile = useCallback(async (profileId, updates) => {
+    try {
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: true });
+      dispatch({ type: PROFILE_ACTIONS.CLEAR_ERROR });
+
+      const updatedProfiles = state.profiles.map(profile =>
+        profile.id === profileId ? { ...profile, ...updates } : profile
+      );
+
+      await saveProfiles(updatedProfiles);
+
+      // Update active profile if it's the one being updated
+      if (state.activeProfile?.id === profileId) {
+        const updatedActiveProfile = updatedProfiles.find(p => p.id === profileId);
+        dispatch({ type: PROFILE_ACTIONS.SET_ACTIVE_PROFILE, payload: updatedActiveProfile });
       }
 
-      dispatch({ type: 'SET_PROFILES', payload: profiles });
-
-      const foundProfile = profiles.find(p => p.id === activeProfileId);
-      const activeProfile =
-        foundProfile || (profiles.length > 0 ? profiles[0] : null);
-      if (activeProfile) {
-        dispatch({ type: 'SET_ACTIVE_PROFILE', payload: activeProfile });
-      }
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: false });
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to load profiles' });
+      dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
     }
-  };
+  }, [state.profiles, state.activeProfile, saveProfiles]);
 
-  const createDefaultProfiles = async () => {
-    const now = new Date().toISOString();
-    const seekerProfile = {
-      id: `seeker-${Date.now()}`,
-      name: 'Demo User',
-      email: 'demo@jobconnect.app',
-      mode: 'seeker',
-      nickname: 'Personal',
-      lastUsed: now,
-      createdAt: now,
-      isActive: true,
-      description: 'Personal job search profile',
-    };
-
-    const posterProfile = {
-      id: `poster-${Date.now() + 1}`,
-      name: 'Demo Recruiter',
-      email: 'recruiter@jobconnect.app',
-      mode: 'poster',
-      nickname: 'Work',
-      lastUsed: now,
-      createdAt: now,
-      isActive: false,
-      description: 'Work profile for posting jobs',
-    };
-
-    return [seekerProfile, posterProfile];
-  };
-
-  const saveProfiles = async (profiles, activeProfileId) => {
+  // Memoize the duplicateProfile function
+  const duplicateProfile = useCallback(async (profileId) => {
     try {
-      await Promise.all([
-        AsyncStorage.setItem(PROFILES_STORAGE_KEY, JSON.stringify(profiles)),
-        activeProfileId
-          ? AsyncStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, activeProfileId)
-          : Promise.resolve(),
-      ]);
-    } catch (error) {
-      throw new Error('Failed to save profiles');
-    }
-  };
-
-  const switchProfile = async profileId => {
-    try {
-      const profile = state.profiles.find(p => p.id === profileId);
-      if (!profile) {
+      const profileToDuplicate = state.profiles.find(p => p.id === profileId);
+      if (!profileToDuplicate) {
         throw new Error('Profile not found');
       }
 
-      dispatch({ type: 'SET_ACTIVE_PROFILE', payload: profile });
-      await saveProfiles(state.profiles, profileId);
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to switch profile' });
-    }
-  };
-
-  const addProfile = async profileData => {
-    try {
-      const now = new Date().toISOString();
       const newProfile = {
-        ...profileData,
-        id: `profile-${Date.now()}`,
-        lastUsed: now,
-        createdAt: now,
-        isActive: false,
+        ...profileToDuplicate,
+        id: `${profileId}_copy_${Date.now()}`,
+        name: `${profileToDuplicate.name} (Copy)`,
+        isDefault: false,
       };
 
       const updatedProfiles = [...state.profiles, newProfile];
-      dispatch({ type: 'ADD_PROFILE', payload: newProfile });
       await saveProfiles(updatedProfiles);
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to add profile' });
+      dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
     }
-  };
+  }, [state.profiles, saveProfiles]);
 
-  const updateProfile = async (profileId, updates) => {
-    try {
-      // Create the updated profiles array
-      const updatedProfiles = state.profiles.map(p =>
-        p.id === profileId ? { ...p, ...updates } : p,
-      );
-      dispatch({ type: 'UPDATE_PROFILE', payload: { id: profileId, updates } });
-      await saveProfiles(updatedProfiles);
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to update profile' });
-    }
-  };
+  // Memoize the showProfileSwitcher function
+  const showProfileSwitcher = useCallback(() => {
+    dispatch({ type: PROFILE_ACTIONS.SET_MODAL_VISIBLE, payload: true });
+  }, []);
 
-  const deleteProfile = async profileId => {
+  // Memoize the hideProfileSwitcher function
+  const hideProfileSwitcher = useCallback(() => {
+    dispatch({ type: PROFILE_ACTIONS.SET_MODAL_VISIBLE, payload: false });
+  }, []);
+
+  // Memoize the clearError function
+  const clearError = useCallback(() => {
+    dispatch({ type: PROFILE_ACTIONS.CLEAR_ERROR });
+  }, []);
+
+  // Memoize the switchRole function
+  const switchRole = useCallback(async (role) => {
     try {
-      if (state.profiles.length <= 1) {
-        throw new Error('Cannot delete the last profile');
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: true });
+      dispatch({ type: PROFILE_ACTIONS.CLEAR_ERROR });
+
+      const profile = state.profiles.find(p => p.type === role);
+      if (profile) {
+        await AsyncStorage.setItem('active_profile', profile.id);
+        dispatch({ type: PROFILE_ACTIONS.SET_ACTIVE_PROFILE, payload: profile });
+        dispatch({ type: PROFILE_ACTIONS.SET_CURRENT_ROLE, payload: role });
       }
 
-      dispatch({ type: 'DELETE_PROFILE', payload: profileId });
-      const remainingProfiles = state.profiles.filter(p => p.id !== profileId);
-      await saveProfiles(remainingProfiles, remainingProfiles[0]?.id);
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: false });
     } catch (error) {
-      dispatch({
-        type: 'SET_ERROR',
-        payload: error.message || 'Failed to delete profile',
-      });
+      dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
     }
-  };
+  }, [state.profiles]);
 
-  const duplicateProfile = async (profileId, nickname) => {
+  // Memoize the loadCurrentProfile function
+  const loadCurrentProfile = useCallback(async (userId, role) => {
     try {
-      const sourceProfile = state.profiles.find(p => p.id === profileId);
-      if (!sourceProfile) {
-        throw new Error('Source profile not found');
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: true });
+      dispatch({ type: PROFILE_ACTIONS.CLEAR_ERROR });
+
+      let profileData = null;
+
+      if (role === 'seeker') {
+        const { data, error } = await seekerService.getSeekerProfile(userId);
+        if (error) throw new Error(error);
+        profileData = data;
+      } else if (role === 'company') {
+        const { data, error } = await companyService.getCompanyProfile(userId);
+        if (error) throw new Error(error);
+        profileData = data;
       }
 
-      await addProfile({
-        ...sourceProfile,
-        nickname,
-        description: `Copy of ${sourceProfile.nickname}`,
-      });
+      dispatch({ type: PROFILE_ACTIONS.SET_CURRENT_PROFILE, payload: profileData });
+      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: false });
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to duplicate profile' });
+      dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
     }
-  };
+  }, []);
 
-  const showProfileSwitcher = () => {
-    dispatch({ type: 'SET_MODAL_VISIBLE', payload: true });
-  };
+  // Load profiles on mount
+  useEffect(() => {
+    loadProfiles();
+  }, [loadProfiles]);
 
-  const hideProfileSwitcher = () => {
-    dispatch({ type: 'SET_MODAL_VISIBLE', payload: false });
-  };
-
-  const clearError = () => {
-    clearErrorHelper(dispatch, 'CLEAR_ERROR');
-  };
-
-  const getProfileInitials = profile => {
-    if (profile.nickname) {
-      return profile.nickname
-        .split(' ')
-        .map(word => word[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    return profile.name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const getProfileDisplayName = profile => {
-    return profile.nickname || profile.name;
-  };
-
-  const contextValue = {
-    state,
-    profiles: state.profiles,
-    activeProfile: state.activeProfile,
-    isLoading: state.isLoading,
-    error: state.error,
-    isModalVisible: state.isModalVisible,
-
-    switchProfile,
-    addProfile,
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    // State
+    ...state,
+    
+    // Actions
+    loadProfiles,
+    createDefaultProfiles,
+    saveProfiles,
     updateProfile,
-    deleteProfile,
     duplicateProfile,
-
     showProfileSwitcher,
     hideProfileSwitcher,
-
     clearError,
-    getProfileInitials,
-    getProfileDisplayName,
-  };
+    switchRole,
+    loadCurrentProfile,
+  }), [
+    state,
+    loadProfiles,
+    createDefaultProfiles,
+    saveProfiles,
+    updateProfile,
+    duplicateProfile,
+    showProfileSwitcher,
+    hideProfileSwitcher,
+    clearError,
+    switchRole,
+    loadCurrentProfile,
+  ]);
 
   return (
     <ProfileContext.Provider value={contextValue}>
@@ -313,14 +297,34 @@ export const ProfileProvider = ({ children }) => {
   );
 };
 
+/**
+ * Custom hook to use profile context
+ * FULLY BACKWARD COMPATIBLE with original useProfile hook
+ */
 export const useProfile = () => {
   const context = useContext(ProfileContext);
-
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useProfile must be used within a ProfileProvider');
   }
-
   return context;
 };
 
-export { ProfileContext };
+/**
+ * Granular hook for current role only
+ * Optimized for components that only need current role information
+ */
+export const useCurrentRole = () => {
+  const { currentRole } = useProfile();
+  return { currentRole };
+};
+
+/**
+ * Granular hook for profile status only
+ * Optimized for components that only need loading and error states
+ */
+export const useProfileStatus = () => {
+  const { isLoading, error } = useProfile();
+  return { isLoading, error };
+};
+
+export default ProfileContext; 

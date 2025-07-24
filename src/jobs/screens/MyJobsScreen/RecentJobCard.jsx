@@ -15,13 +15,25 @@ const RecentJobCard = ({ item }) => {
       .slice(0, 2);
   };
 
-  // Get company logo colors based on company name
+  // Get company logo colors based on company name - using soft pastel colors
   const getCompanyLogoColor = companyName => {
     const colors = [
-      '#FF5722', // Orange for TechVibe Studios (TS)
-      '#2196F3', // Blue for GrowthHack Co (GC)
-      '#4CAF50', // Green for Designify (D)
-      '#9C27B0', // Purple for FinEdge (F)
+      '#E3F2FD', // Soft Blue for TechVibe Studios (TS)
+      '#E8F5E9', // Soft Green for GrowthHack Co (GC)
+      '#F3E5F5', // Soft Purple for Designify (D)
+      '#FFF3E0', // Soft Orange for FinEdge (F)
+    ];
+    const index = companyName.length % colors.length;
+    return colors[index];
+  };
+
+  // Get company logo text color based on company name
+  const getCompanyLogoTextColor = companyName => {
+    const colors = [
+      '#1976D2', // Dark Blue for TechVibe Studios (TS)
+      '#388E3C', // Dark Green for GrowthHack Co (GC)
+      '#7B1FA2', // Dark Purple for Designify (D)
+      '#F57C00', // Dark Orange for FinEdge (F)
     ];
     const index = companyName.length % colors.length;
     return colors[index];
@@ -37,16 +49,16 @@ const RecentJobCard = ({ item }) => {
       activeOpacity={0.7}
       style={{
         backgroundColor: '#FFFFFF',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
+        borderRadius: 16,
+        padding: 20,
+        marginBottom: 16,
+        shadowColor: '#E0E0E0',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
         borderWidth: 1,
-        borderColor: '#F0F0F0',
+        borderColor: '#F5F5F5',
       }}
     >
       {/* Main Content Row */}
@@ -59,20 +71,22 @@ const RecentJobCard = ({ item }) => {
         {/* Company Logo */}
         <View
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: 8,
+            width: 48,
+            height: 48,
+            borderRadius: 12,
             backgroundColor: getCompanyLogoColor(item.company),
             alignItems: 'center',
             justifyContent: 'center',
-            marginRight: 12,
+            marginRight: 16,
+            borderWidth: 1,
+            borderColor: '#F0F0F0',
           }}
         >
           <Text
             style={{
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: '700',
-              color: '#FFFFFF',
+              color: getCompanyLogoTextColor(item.company),
             }}
           >
             {getCompanyInitials(item.company)}
@@ -80,15 +94,15 @@ const RecentJobCard = ({ item }) => {
         </View>
 
         {/* Job Details */}
-        <View style={{ flex: 1, paddingRight: 8 }}>
+        <View style={{ flex: 1, paddingRight: 12 }}>
           {/* Job Title */}
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: '600',
-              color: '#1A1A1A',
-              marginBottom: 4,
-              lineHeight: 22,
+              color: '#212121',
+              marginBottom: 6,
+              lineHeight: 24,
             }}
           >
             {item.title}
@@ -97,11 +111,11 @@ const RecentJobCard = ({ item }) => {
           {/* Company and Salary */}
           <Text
             style={{
-              fontSize: 14,
-              color: '#666666',
+              fontSize: 15,
+              color: '#9E9E9E',
               fontWeight: '400',
-              marginBottom: 8,
-              lineHeight: 20,
+              marginBottom: 10,
+              lineHeight: 22,
             }}
           >
             {item.company} | {item.salary}
@@ -110,10 +124,10 @@ const RecentJobCard = ({ item }) => {
           {/* Experience and Job Type */}
           <Text
             style={{
-              fontSize: 13,
-              color: '#999999',
+              fontSize: 14,
+              color: '#B0BEC5',
               fontWeight: '400',
-              lineHeight: 18,
+              lineHeight: 20,
             }}
           >
             Experience: 2-4 years {item.type}
@@ -124,13 +138,13 @@ const RecentJobCard = ({ item }) => {
         <View
           style={{
             alignItems: 'flex-end',
-            paddingTop: 2,
+            paddingTop: 4,
           }}
         >
           <Text
             style={{
-              fontSize: 12,
-              color: '#3B82F6',
+              fontSize: 13,
+              color: '#3949AB',
               fontWeight: '500',
             }}
           >

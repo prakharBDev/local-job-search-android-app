@@ -169,7 +169,7 @@ const AppliedJobsScreen = () => {
     return (
       <View style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#A5B4FC" />
           <Text style={styles.loadingText}>Loading your applications...</Text>
         </View>
       </View>
@@ -227,9 +227,9 @@ const AppliedJobsScreen = () => {
       <AppHeader
         title="Applied Jobs"
         subtitle={`${applications.length} application${applications.length !== 1 ? 's' : ''}`}
-        leftIcon={<Icon name="arrow-left" size={20} color="#1E293B" />}
+        leftIcon={<Icon name="arrow-left" size={20} color="#64748B" />}
         onLeftPress={() => navigation.goBack()}
-        background="#F7F9FC"
+        background="#FFFFFF"
       />
 
       {/* Applications List */}
@@ -240,8 +240,8 @@ const AppliedJobsScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={['#3B82F6']}
-            tintColor="#3B82F6"
+            colors={['#A5B4FC']}
+            tintColor="#A5B4FC"
           />
         }
         showsVerticalScrollIndicator={false}
@@ -273,27 +273,27 @@ const AppliedJobsScreen = () => {
               {/* Application Details */}
               <View style={styles.cardDetails}>
                 <View style={styles.detailRow}>
-                  <Feather name="calendar" size={14} color="#6B7280" />
+                  <Feather name="calendar" size={14} color="#E2E8F0" />
                   <Text style={styles.detailText}>
                     Applied on {formatDate(application.created_at)}
                   </Text>
                 </View>
 
                 <View style={styles.detailRow}>
-                  <Feather name="map-pin" size={14} color="#6B7280" />
+                  <Feather name="map-pin" size={14} color="#E2E8F0" />
                   <Text style={styles.detailText}>{job?.city || 'Location'}</Text>
                 </View>
 
                 {job?.salary && (
                   <View style={styles.detailRow}>
-                    <Feather name="dollar-sign" size={14} color="#6B7280" />
-                    <Text style={styles.detailText}>{job.salary}</Text>
+                    <Feather name="dollar-sign" size={14} color="#E2E8F0" />
+                    <Text style={styles.detailText}>₹{job.salary}</Text>
                   </View>
                 )}
 
                 {job?.job_categories && (
                   <View style={styles.detailRow}>
-                    <Feather name="tag" size={14} color="#6B7280" />
+                    <Feather name="tag" size={14} color="#E2E8F0" />
                     <Text style={styles.detailText}>{job.job_categories.name}</Text>
                   </View>
                 )}
@@ -334,7 +334,7 @@ const AppliedJobsScreen = () => {
                   style={styles.actionButton}
                 >
                   <View style={styles.buttonContent}>
-                    <Feather name="eye" size={14} color="#3B82F6" />
+                    <Feather name="eye" size={14} color="#A5B4FC" />
                     <Text style={styles.actionButtonText}>View Details</Text>
                   </View>
                 </Button>
@@ -346,7 +346,7 @@ const AppliedJobsScreen = () => {
                   style={styles.actionButton}
                 >
                   <View style={styles.buttonContent}>
-                    <Feather name="external-link" size={14} color="#3B82F6" />
+                    <Feather name="external-link" size={14} color="#A5B4FC" />
                     <Text style={styles.actionButtonText}>View Job</Text>
                   </View>
                 </Button>
@@ -362,7 +362,7 @@ const AppliedJobsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
   },
 
   // Loading
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#6B7280',
+    color: '#E2E8F0',
     fontWeight: '500',
   },
 
@@ -386,21 +386,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowColor: '#F8FAFC',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.01,
+    shadowRadius: 2,
+    elevation: 1,
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#64748B',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#6B7280',
+    color: '#E2E8F0',
     fontWeight: '500',
   },
 
@@ -419,11 +419,13 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowColor: '#F8FAFC',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.01,
+    shadowRadius: 2,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F8FAFC',
   },
 
   // Card Header
@@ -440,7 +442,7 @@ const styles = StyleSheet.create({
   jobTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#64748B',
     marginBottom: 4,
   },
   companyRow: {
@@ -450,7 +452,7 @@ const styles = StyleSheet.create({
   },
   companyName: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#E2E8F0',
     fontWeight: '500',
   },
 
@@ -466,7 +468,7 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#E2E8F0',
     fontWeight: '500',
   },
 
@@ -476,8 +478,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     padding: 12,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAFC',
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#F8FAFC',
   },
   statusIndicator: {
     width: 32,
@@ -490,7 +494,7 @@ const styles = StyleSheet.create({
   statusText: {
     flex: 1,
     fontSize: 13,
-    color: '#374151',
+    color: '#CBD5E1',
     fontWeight: '500',
     lineHeight: 18,
   },
@@ -511,7 +515,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: 13,
-    color: '#3B82F6',
+    color: '#A5B4FC',
     fontWeight: '600',
   },
 
@@ -525,13 +529,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#374151',
+    color: '#64748B',
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 16,
-    color: '#6B7280',
+    color: '#E2E8F0',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,

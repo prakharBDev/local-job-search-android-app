@@ -80,10 +80,6 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
     try {
       // user.id comes from AuthContext, which is the single source of truth for authentication
       const phoneToSave = userRecord?.phone_number || user?.phone_number || user?.user_metadata?.phone_number;
-      console.log('Saving phone number to database:', phoneToSave);
-      console.log('UserRecord phone:', userRecord?.phone_number);
-      console.log('User phone:', user?.phone_number);
-      console.log('User metadata phone:', user?.user_metadata?.phone_number);
       
       await updateUserRecord({
         name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || user?.name,

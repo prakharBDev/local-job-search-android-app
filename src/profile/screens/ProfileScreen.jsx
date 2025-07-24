@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,27 +8,189 @@ import {
   StatusBar,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
-import { AuthContext } from '../../contexts/AuthContext';
-import { UserContext } from '../../contexts/UserContext';
+import { useFocusEffect } from '@react-navigation/native';
+import Feather from 'react-native-vector-icons/Feather';
+import Button from '../../components/elements/Button';
+import Card from '../../components/blocks/Card';
+import { useAuth } from '../../contexts/AuthContext';
+import { useUser } from '../../contexts/UserContext';
 import { seekerService, companyService, userService } from '../../services';
 import { AppHeader, Icon } from '../../components/elements';
+import { bluewhiteTheme } from '../../theme/bluewhite-theme';
 
 const ProfileScreen = ({ navigation }) => {
-  const { user, userRecord, logout } = useContext(AuthContext);
-  const { currentMode, toggleMode } = useContext(UserContext);
+  const { user, userRecord, updateUserRecord, checkAuthStatus } = useAuth();
+  const { currentMode, toggleMode } = useUser();
+  const [profileData, setProfileData] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Debug: Log user data to see what's available
-  console.log('ProfileScreen Debug:', {
-    userRecord: userRecord,
-    user: user,
-    userMetadata: user?.user_metadata,
-    email: user?.email,
-    nameFromRecord: userRecord?.name,
-    nameFromMetadata: user?.user_metadata?.full_name,
-    emailPrefix: user?.email?.split('@')[0]
+  const onRefresh = useRef(async () => {
+    setRefreshing(true);
+    // Refresh both user data and profile data
+    await checkAuthStatus();
+    await loadProfileData();
+    setRefreshing(false);
   });
+
+  // Load profile data from database
+  const loadProfileData = async () => {
+    if (!user?.id) {
+      setLoadingProfile(false);
+      return;
+    }
+
+    try {
+      setLoadingProfile(true);
+      let result;
+
+      if (currentMode === 'seeker') {
+        result = await seekerService.getSeekerProfile(user.id);
+      } else {
+        result = await companyService.getCompanyProfile(user.id);
+      }
+
+      if (result.data) {
+        setProfileData(result.data);
+      }
+    } catch (error) {
+      console.error('Error loading profile data:', error);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Removed checkAuthStatus() as it was causing navigation reset
+      loadProfileData();
+    }, [user?.id, currentMode])
+  );
+
+  // Get display name with proper fallback chain
+  const getDisplayName = () => {
+    if (profileData?.name) return profileData.name;
+    if (profileData?.full_name) return profileData.full_name;
+    if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
+    if (user?.email) return user.email.split('@')[0];
+    return 'User';
+  };
+
+  // Get skills from profile data
+  const getSkills = () => {
+    // Check for nested seeker_skills structure
+    if (profileData?.seeker_skills && Array.isArray(profileData.seeker_skills)) {
+      const skills = profileData.seeker_skills.map(skillObj => {
+        // Handle both direct skill objects and nested skill objects
+        if (skillObj.skills && skillObj.skills.name) {
+          return skillObj.skills.name;
+        }
+        if (skillObj.name) {
+          return skillObj.name;
+        }
+        return null;
+      }).filter(Boolean);
+      
+      return skills;
+    }
+    // Fallback to direct skills array
+    if (profileData?.skills && Array.isArray(profileData.skills)) {
+      const skills = profileData.skills.map(skill => skill.name || skill);
+      return skills;
+    }
+    
+    return [];
+  };
+
+  // Render skills as buttons
+  const renderSkills = () => {
+    const skills = getSkills();
+    
+    if (skills.length === 0) {
+      return (
+        <Text style={styles.noSkillsText}>No skills added yet</Text>
+      );
+    }
+
+    return (
+      <View style={styles.skillsGrid}>
+        {skills.map((skill, index) => (
+          <View key={index} style={styles.skillButton}>
+            <Text style={styles.skillButtonText}>
+              {skill}
+            </Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
+  // Get experience level from profile data
+  const getExperienceLevel = () => {
+    if (profileData?.experience_level) return profileData.experience_level;
+    if (profileData?.years_of_experience) {
+      const years = profileData.years_of_experience;
+      if (years <= 1) return 'Fresher (0-1 years)';
+      if (years <= 3) return 'Junior (1-3 years)';
+      if (years <= 5) return 'Mid-level (3-5 years)';
+      return 'Senior (5+ years)';
+    }
+    return 'Not specified';
+  };
+
+  // Get phone number from user record
+  const getPhoneNumber = () => {
+    if (user?.user_metadata?.phone_number) {
+      return user.user_metadata.phone_number;
+    }
+    if (user?.phone) {
+      return user.phone;
+    }
+    return 'Not specified';
+  };
+
+  // Get city from user record
+  const getCity = () => {
+    if (user?.user_metadata?.city) {
+      return user.user_metadata.city;
+    }
+    if (user?.city) {
+      return user.city;
+    }
+    return 'Not specified';
+  };
+
+  // Get percentage values from profile data
+  const getTenthPercentage = () => {
+    if (profileData?.tenth_percentage !== null && profileData?.tenth_percentage !== undefined) {
+      return `${profileData.tenth_percentage}%`;
+    }
+    return 'Not specified';
+  };
+
+  const getTwelfthPercentage = () => {
+    if (profileData?.twelfth_percentage !== null && profileData?.twelfth_percentage !== undefined) {
+      return `${profileData.twelfth_percentage}%`;
+    }
+    return 'Not specified';
+  };
+
+  const getGraduationPercentage = () => {
+    if (profileData?.graduation_percentage !== null && profileData?.graduation_percentage !== undefined) {
+      return `${profileData.graduation_percentage}%`;
+    }
+    return 'Not specified';
+  };
+
+  // Check if percentage data exists to show/hide sections
+  const hasPercentageData = () => {
+    return profileData?.tenth_percentage !== null && profileData?.tenth_percentage !== undefined ||
+           profileData?.twelfth_percentage !== null && profileData?.twelfth_percentage !== undefined ||
+           profileData?.graduation_percentage !== null && profileData?.graduation_percentage !== undefined;
+  };
 
   const handleLogout = async () => {
     Alert.alert(
@@ -82,16 +244,15 @@ const ProfileScreen = ({ navigation }) => {
 
   const handleViewApplications = () => {
     // TODO: Navigate to applications screen
-    console.log('View Applications pressed');
   };
 
   const handleViewResume = () => {
     // TODO: Navigate to resume screen
-    console.log('View Resume pressed');
   };
 
   const handleModeSwitch = async () => {
     const newMode = currentMode === 'seeker' ? 'poster' : 'seeker';
+    
     Alert.alert(
       'Switch User Mode',
       `Are you sure you want to switch to ${
@@ -125,11 +286,14 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh.current} />
+        }
       >
         {/* App Header */}
         <AppHeader
@@ -137,7 +301,7 @@ const ProfileScreen = ({ navigation }) => {
           subtitle="Manage your account & preferences"
           rightIcon={<Icon name="settings" size={20} color="#3B82F6" />}
           onRightPress={handleSettings}
-          background="#F7F9FC"
+          background="#FFFFFF"
         />
 
         {/* User Profile Card */}
@@ -145,12 +309,12 @@ const ProfileScreen = ({ navigation }) => {
           <View style={styles.profileHeader}>
             <View style={styles.avatarContainer}>
               <Text style={styles.avatarText}>
-                {(userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User').charAt(0).toUpperCase()}
+                {getDisplayName().charAt(0).toUpperCase()}
               </Text>
             </View>
             <View style={styles.profileInfo}>
               <Text style={styles.userName}>
-                {userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                {getDisplayName()}
               </Text>
               <View style={styles.modeContainer}>
                 <View style={styles.modeBadge}>
@@ -169,9 +333,153 @@ const ProfileScreen = ({ navigation }) => {
           >
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
-          
-
         </View>
+
+        {/* Contact Information Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Contact Information</Text>
+          
+          {/* Email Section */}
+          <View style={styles.detailCard}>
+            <View style={styles.detailHeader}>
+              <Text style={styles.detailIcon}>📧</Text>
+              <Text style={styles.detailTitle}>Email</Text>
+            </View>
+            <Text style={styles.detailValue}>
+              {user?.email || 'Not specified'}
+            </Text>
+          </View>
+
+          {/* Phone Number Section */}
+          <View style={styles.detailCard}>
+            <View style={styles.detailHeader}>
+              <Text style={styles.detailIcon}>📞</Text>
+              <Text style={styles.detailTitle}>Phone Number</Text>
+            </View>
+            <Text style={styles.detailValue}>
+              {getPhoneNumber()}
+            </Text>
+          </View>
+
+          {/* City Section */}
+          <View style={styles.detailCard}>
+            <View style={styles.detailHeader}>
+              <Text style={styles.detailIcon}>📍</Text>
+              <Text style={styles.detailTitle}>City</Text>
+            </View>
+            <Text style={styles.detailValue}>
+              {getCity()}
+            </Text>
+          </View>
+        </View>
+
+        {/* Profile Details Section */}
+        {currentMode === 'seeker' && profileData && (
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Profile Details</Text>
+            
+            {/* Skills Section */}
+            <View style={styles.detailCard}>
+              <View style={styles.detailHeader}>
+                <Text style={styles.detailIcon}>💼</Text>
+                <Text style={styles.detailTitle}>Skills</Text>
+                {(() => {
+                  const skillsCount = getSkills().length;
+                  return skillsCount > 0 ? (
+                    <View style={styles.skillsCountBadge}>
+                      <Text style={styles.skillsCountText}>{skillsCount}</Text>
+                    </View>
+                  ) : null;
+                })()}
+              </View>
+              {renderSkills()}
+            </View>
+
+            {/* Experience Level Section */}
+            <View style={styles.detailCard}>
+              <View style={styles.detailHeader}>
+                <Text style={styles.detailIcon}>🌱</Text>
+                <Text style={styles.detailTitle}>Experience Level</Text>
+              </View>
+              <View style={styles.experienceContainer}>
+                <Text style={[
+                  styles.detailValue, 
+                  getExperienceLevel() !== 'Not specified' && styles.experienceValue
+                ]}>
+                  {getExperienceLevel()}
+                </Text>
+                {getExperienceLevel() !== 'Not specified' && (
+                  <View style={styles.experienceBadge}>
+                    <Text style={styles.experienceBadgeText}>Level</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* 10th Percentage Section */}
+            <View style={styles.detailCard}>
+              <View style={styles.detailHeader}>
+                <Text style={styles.detailIcon}>📚</Text>
+                <Text style={styles.detailTitle}>10th Standard</Text>
+              </View>
+              <View style={styles.percentageContainer}>
+                <Text style={[
+                  styles.detailValue, 
+                  getTenthPercentage() !== 'Not specified' && styles.percentageValue
+                ]}>
+                  {getTenthPercentage()}
+                </Text>
+                {getTenthPercentage() !== 'Not specified' && (
+                  <View style={styles.percentageBadge}>
+                    <Text style={styles.percentageBadgeText}>Academic</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* 12th Percentage Section */}
+            <View style={styles.detailCard}>
+              <View style={styles.detailHeader}>
+                <Text style={styles.detailIcon}>🎓</Text>
+                <Text style={styles.detailTitle}>12th Standard</Text>
+              </View>
+              <View style={styles.percentageContainer}>
+                <Text style={[
+                  styles.detailValue, 
+                  getTwelfthPercentage() !== 'Not specified' && styles.percentageValue
+                ]}>
+                  {getTwelfthPercentage()}
+                </Text>
+                {getTwelfthPercentage() !== 'Not specified' && (
+                  <View style={styles.percentageBadge}>
+                    <Text style={styles.percentageBadgeText}>Academic</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Graduation Percentage Section */}
+            <View style={styles.detailCard}>
+              <View style={styles.detailHeader}>
+                <Text style={styles.detailIcon}>🎯</Text>
+                <Text style={styles.detailTitle}>Graduation</Text>
+              </View>
+              <View style={styles.percentageContainer}>
+                <Text style={[
+                  styles.detailValue, 
+                  getGraduationPercentage() !== 'Not specified' && styles.percentageValue
+                ]}>
+                  {getGraduationPercentage()}
+                </Text>
+                {getGraduationPercentage() !== 'Not specified' && (
+                  <View style={styles.percentageBadge}>
+                    <Text style={styles.percentageBadgeText}>Academic</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Quick Stats */}
         <View style={styles.statsContainer}>
@@ -417,7 +725,7 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F7F9FC',
+    backgroundColor: '#FFFFFF',
   },
   scrollView: {
     flex: 1,
@@ -434,11 +742,11 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
     borderBottomLeftRadius: 32,
     borderBottomRightRadius: 32,
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 8,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
     marginBottom: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
@@ -454,7 +762,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '600',
-    color: '#1E293B',
+    color: '#334155',
     marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.5,
@@ -462,7 +770,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#64748B',
+    color: '#94A3B8',
     fontFamily: 'System',
     letterSpacing: -0.1,
   },
@@ -473,13 +781,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     borderRadius: 18,
     padding: 14,
-    shadowColor: '#CBD5E1',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#F1F5F9',
   },
   settingsIcon: {
     fontSize: 20,
@@ -492,13 +800,13 @@ const styles = StyleSheet.create({
     padding: 24,
     marginHorizontal: 24,
     marginBottom: 24,
-    shadowColor: '#8B9DC3',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 6,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#F8FAFC',
   },
   profileHeader: {
     flexDirection: 'row',
@@ -509,15 +817,15 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#60A5FA',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 20,
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowColor: '#60A5FA',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   avatarText: {
     fontSize: 28,
@@ -531,7 +839,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#1E293B',
+    color: '#334155',
     marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.4,
@@ -539,7 +847,7 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#64748B',
+    color: '#94A3B8',
     marginBottom: 12,
     fontFamily: 'System',
     letterSpacing: -0.1,
@@ -563,16 +871,16 @@ const styles = StyleSheet.create({
     letterSpacing: -0.1,
   },
   editButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#60A5FA',
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowColor: '#60A5FA',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   editButtonText: {
     fontSize: 16,
@@ -597,18 +905,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: 130,
-    shadowColor: '#8B9DC3',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#F8FAFC',
   },
   statNumber: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1E293B',
+    color: '#334155',
     marginBottom: 8,
     fontFamily: 'System',
     letterSpacing: -0.6,
@@ -617,7 +925,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#64748B',
+    color: '#94A3B8',
     marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.1,
@@ -627,7 +935,7 @@ const styles = StyleSheet.create({
   statSubtext: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#94A3B8',
+    color: '#CBD5E1',
     fontFamily: 'System',
     textAlign: 'center',
     minHeight: 16,
@@ -641,7 +949,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1E293B',
+    color: '#334155',
     marginBottom: 16,
     fontFamily: 'System',
     letterSpacing: -0.3,
@@ -658,13 +966,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
-    shadowColor: '#8B9DC3',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#F8FAFC',
   },
   actionIcon: {
     backgroundColor: '#EFF6FF',
@@ -674,11 +982,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowColor: '#60A5FA',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 2,
   },
   actionEmoji: {
     fontSize: 24,
@@ -686,7 +994,7 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1E293B',
+    color: '#334155',
     marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.2,
@@ -695,7 +1003,7 @@ const styles = StyleSheet.create({
   actionSubtitle: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#64748B',
+    color: '#94A3B8',
     fontFamily: 'System',
     textAlign: 'center',
   },
@@ -704,13 +1012,13 @@ const styles = StyleSheet.create({
   settingsGrid: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    shadowColor: '#8B9DC3',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#F8FAFC',
     overflow: 'hidden',
   },
   settingItem: {
@@ -730,7 +1038,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
     shadowColor: '#F59E0B',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -743,7 +1051,7 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#1E293B',
+    color: '#334155',
     marginBottom: 2,
     fontFamily: 'System',
     letterSpacing: -0.2,
@@ -751,7 +1059,7 @@ const styles = StyleSheet.create({
   settingSubtitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#64748B',
+    color: '#94A3B8',
     fontFamily: 'System',
   },
   settingArrow: {
@@ -767,13 +1075,13 @@ const styles = StyleSheet.create({
     padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#8B9DC3',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#F8FAFC',
   },
   modeSwitchContent: {
     flex: 1,
@@ -781,7 +1089,7 @@ const styles = StyleSheet.create({
   modeSwitchTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1E293B',
+    color: '#334155',
     marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.2,
@@ -789,7 +1097,7 @@ const styles = StyleSheet.create({
   modeSwitchSubtitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#64748B',
+    color: '#94A3B8',
     fontFamily: 'System',
     lineHeight: 20,
   },
@@ -800,9 +1108,9 @@ const styles = StyleSheet.create({
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
+    shadowColor: '#60A5FA',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
   },
@@ -821,13 +1129,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
-    shadowColor: '#8B9DC3',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#F8FAFC',
   },
   supportIcon: {
     backgroundColor: '#F0FDF4',
@@ -839,7 +1147,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     shadowColor: '#10B981',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -849,7 +1157,7 @@ const styles = StyleSheet.create({
   supportTitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#1E293B',
+    color: '#334155',
     fontFamily: 'System',
     letterSpacing: -0.1,
   },
@@ -866,18 +1174,215 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 24,
     alignItems: 'center',
-    shadowColor: '#EF4444',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowColor: '#FCA5A5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
     borderWidth: 1,
     borderColor: '#FEE2E2',
   },
   logoutText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#EF4444',
+    color: '#F87171',
+    fontFamily: 'System',
+    letterSpacing: -0.2,
+  },
+
+  // Profile Details Styles
+  detailCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#E2E8F0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F8FAFC',
+    minHeight: 60,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  detailIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  detailTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#1E293B',
+    fontFamily: 'System',
+    letterSpacing: -0.2,
+  },
+  detailValue: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#64748B',
+    fontFamily: 'System',
+    lineHeight: 22,
+    textAlign: 'left',
+    flexWrap: 'wrap',
+    flex: 1,
+  },
+  percentageValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1E293B',
+    fontFamily: 'System',
+    letterSpacing: -0.6,
+    textAlign: 'left',
+    flex: 1,
+    flexWrap: 'wrap',
+  },
+  percentageContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    flexWrap: 'wrap',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  percentageBadge: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    marginLeft: 4,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+    alignSelf: 'flex-start',
+  },
+  percentageBadgeText: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#3B82F6',
+    fontFamily: 'System',
+    letterSpacing: -0.1,
+  },
+
+  // Skills Grid Styles
+  skillsGrid: {
+    flexDirection: 'column',
+    marginTop: 12,
+    gap: 8,
+  },
+  skillButton: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#60A5FA',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+    minHeight: 44,
+    width: '100%',
+  },
+  skillButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#3B82F6',
+    fontFamily: 'System',
+    letterSpacing: -0.1,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  noSkillsText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#64748B',
+    fontFamily: 'System',
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  skillsCountBadge: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginLeft: 12,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+  },
+  skillsCountText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    fontFamily: 'System',
+    letterSpacing: -0.1,
+  },
+
+  // Experience Level Styles
+  experienceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    flexWrap: 'wrap',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  experienceValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1E293B',
+    fontFamily: 'System',
+    letterSpacing: -0.6,
+    textAlign: 'left',
+    flex: 1,
+    flexWrap: 'wrap',
+  },
+  experienceBadge: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    marginLeft: 4,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+    alignSelf: 'flex-start',
+  },
+  experienceBadgeText: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#3B82F6',
+    fontFamily: 'System',
+    letterSpacing: -0.1,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#F87171',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#60A5FA',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  retryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
     fontFamily: 'System',
     letterSpacing: -0.2,
   },

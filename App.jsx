@@ -77,6 +77,8 @@ const AppNavigator = () => {
   } = useAuth();
   const { theme } = useTheme();
 
+
+
   return (
     <RootStack.Navigator
       screenOptions={{

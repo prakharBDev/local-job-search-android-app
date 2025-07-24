@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
   View,
   Text,
@@ -7,15 +7,16 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
+import { bluewhiteTheme } from '../../theme/bluewhite-theme';
 
-const AppHeader = ({
+const AppHeader = memo(({
   title,
   subtitle,
   leftIcon,
   rightIcon,
   onLeftPress,
   onRightPress,
-  background = '#FFFFFF',
+  background = bluewhiteTheme.colors.background.primary,
   centered = true,
   style,
 }) => {
@@ -39,11 +40,11 @@ const AppHeader = ({
 
         {/* Center Content */}
         <View style={[styles.centerSection, centered && styles.centered]}>
-          <Text style={[styles.title, { color: theme?.colors?.text?.primary || '#1E293B' }]}>
+          <Text style={[styles.title, { color: theme?.colors?.text?.primary || bluewhiteTheme.colors.text.primary }]}>
             {title}
           </Text>
           {subtitle && (
-            <Text style={[styles.subtitle, { color: theme?.colors?.text?.secondary || '#475569' }]}>
+            <Text style={[styles.subtitle, { color: theme?.colors?.text?.secondary || bluewhiteTheme.colors.text.secondary }]}>
               {subtitle}
             </Text>
           )}
@@ -64,11 +65,11 @@ const AppHeader = ({
       </View>
     </SafeAreaView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: bluewhiteTheme.colors.background.primary,
   },
   container: {
     flexDirection: 'row',
@@ -76,9 +77,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: bluewhiteTheme.colors.background.primary,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: bluewhiteTheme.colors.background.tertiary,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -103,13 +104,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1E293B',
+    color: bluewhiteTheme.colors.text.primary,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
     fontWeight: 'normal',
-    color: '#475569',
+    color: bluewhiteTheme.colors.text.secondary,
     textAlign: 'center',
     marginTop: 2,
   },
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: bluewhiteTheme.colors.background.secondary,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

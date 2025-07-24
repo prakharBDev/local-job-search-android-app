@@ -1,116 +1,205 @@
 {
-  "timestamp": "2025-07-10T16:18:09.886Z",
+  "timestamp": "2025-07-24T06:32:51.022Z",
   "scores": {
-    "fileSize": 100,
+    "fileSize": 45,
     "duplication": 0,
     "testCoverage": 0,
-    "performance": 0,
-    "overall": 20
+    "performance": 84,
+    "overall": 36
   },
   "metrics": {
     "fileSizes": {
-      "total": 68,
+      "total": 99,
       "distribution": {
-        "small": 35,
-        "medium": 18,
-        "large": 15,
-        "xlarge": 0
+        "small": 33,
+        "medium": 22,
+        "large": 33,
+        "xlarge": 11
       },
-      "oversized": 0
+      "oversized": 11
     },
     "duplication": {
-      "duplicateFunctions": 2,
-      "duplicateLines": 2399,
-      "totalLines": 9217,
-      "percentage": 26.02799175436693
+      "duplicateFunctions": 11,
+      "duplicateLines": 5612,
+      "totalLines": 23631,
+      "percentage": 23.748465998053405
     },
     "testCoverage": {
       "percentage": 0,
       "hasTests": false
     },
     "performance": {
-      "totalIssues": 22,
+      "totalIssues": 12,
+      "optimizationsFound": 19,
       "issues": [
         {
-          "file": "src/components/blocks/ProfileSwitcher.jsx",
-          "issue": "Consider using useMemo/useCallback for optimization"
-        },
-        {
-          "file": "src/components/elements/Button.jsx",
-          "issue": "Inline styles detected (use StyleSheet.create)"
-        },
-        {
-          "file": "src/dashboard/screens/DashboardScreen.jsx",
-          "issue": "Inline styles detected (use StyleSheet.create)"
-        },
-        {
-          "file": "src/dashboard/screens/DashboardScreen.jsx",
-          "issue": "Consider using useMemo/useCallback for optimization"
-        },
-        {
-          "file": "src/home/components/HomeCard.jsx",
-          "issue": "Inline styles detected (use StyleSheet.create)"
-        },
-        {
-          "file": "src/jobs/screens/AppliedJobsScreen.jsx",
-          "issue": "Consider using useMemo/useCallback for optimization"
-        },
-        {
           "file": "src/jobs/screens/CreateJobScreen.jsx",
-          "issue": "Consider using useMemo/useCallback for optimization"
+          "issue": "Multiple inline styles detected (use StyleSheet.create)"
         },
         {
           "file": "src/jobs/screens/JobDetailsScreen.jsx",
-          "issue": "Inline styles detected (use StyleSheet.create)"
-        },
-        {
-          "file": "src/jobs/screens/JobDetailsScreen.jsx",
-          "issue": "Consider using useMemo/useCallback for optimization"
+          "issue": "Multiple inline styles detected (use StyleSheet.create)"
         },
         {
           "file": "src/jobs/screens/MyJobsScreen/PopularJobCard.jsx",
-          "issue": "Inline styles detected (use StyleSheet.create)"
+          "issue": "Multiple inline styles detected (use StyleSheet.create)"
+        },
+        {
+          "file": "src/jobs/screens/MyJobsScreen/RecentJobCard.jsx",
+          "issue": "Multiple inline styles detected (use StyleSheet.create)"
+        },
+        {
+          "file": "src/onboarding/screens/CitySelectionScreen.jsx",
+          "issue": "Consider React.memo optimization"
+        },
+        {
+          "file": "src/onboarding/screens/ProfileSetupScreen.jsx",
+          "issue": "Consider React.memo optimization"
+        },
+        {
+          "file": "src/shared/components/ErrorBoundary.jsx",
+          "issue": "Consider React.memo optimization"
+        },
+        {
+          "file": "src/shared/components/ThemedBadge.tsx",
+          "issue": "Consider React.memo optimization"
+        },
+        {
+          "file": "src/shared/components/ThemedButton.tsx",
+          "issue": "Consider React.memo optimization"
+        },
+        {
+          "file": "src/shared/components/ThemedCard.tsx",
+          "issue": "Consider React.memo optimization"
+        }
+      ],
+      "optimizations": [
+        {
+          "file": "src/auth/components/Login.jsx",
+          "optimization": "useMemo used"
+        },
+        {
+          "file": "src/auth/components/Login.jsx",
+          "optimization": "useCallback used"
+        },
+        {
+          "file": "src/components/elements/AppHeader.jsx",
+          "optimization": "React.memo used"
+        },
+        {
+          "file": "src/components/elements/Button.jsx",
+          "optimization": "React.memo used"
+        },
+        {
+          "file": "src/components/elements/Button.jsx",
+          "optimization": "useMemo used"
+        },
+        {
+          "file": "src/components/elements/Button.jsx",
+          "optimization": "useCallback used"
+        },
+        {
+          "file": "src/components/elements/Input.jsx",
+          "optimization": "useMemo used"
+        },
+        {
+          "file": "src/contexts/AuthContext.jsx",
+          "optimization": "useMemo used"
+        },
+        {
+          "file": "src/contexts/AuthContext.jsx",
+          "optimization": "useCallback used"
+        },
+        {
+          "file": "src/contexts/AuthContext.jsx",
+          "optimization": "useReducer used"
         }
       ]
     }
   },
   "issues": [
     {
+      "type": "File Size",
+      "severity": "high",
+      "count": 11,
+      "description": "11 files exceed recommended size limits",
+      "files": [
+        "src/dashboard/screens/DashboardScreen.jsx",
+        "src/jobs/screens/AppliedJobsScreen.jsx",
+        "src/jobs/screens/CreateJobScreen.jsx",
+        "src/jobs/screens/JobDetailsScreen.jsx",
+        "src/landingpage/screens/IndexScreen.jsx",
+        "src/landingpage/screens/IndexScreen.styles.js",
+        "src/profile/screens/EditProfileScreen.jsx",
+        "src/profile/screens/ProfileScreen.jsx",
+        "src/profile/screens/ProfileSetupScreen.jsx",
+        "src/services/application.service.js",
+        "src/utils/database.js"
+      ]
+    },
+    {
       "type": "Code Duplication",
       "severity": "medium",
-      "count": 2,
-      "description": "26.0% code duplication detected",
+      "count": 11,
+      "description": "23.7% code duplication detected",
       "details": [
         {
           "name": "getStyles",
           "files": [
             "src/components/blocks/ProfileSwitcher.styles.js",
-            "src/jobs/screens/CreateJobScreen.styles.js",
-            "src/jobs/screens/JobDetailsScreen.styles.js",
-            "src/jobs/screens/MyJobsScreen.styles.js"
+            "src/onboarding/screens/OnboardingScreen.jsx",
+            "src/onboarding/screens/OnboardingSuccessScreen.jsx"
           ]
         },
         {
-          "name": "clearError",
+          "name": "useUser",
           "files": [
             "src/contexts/AuthContext.jsx",
-            "src/contexts/ProfileContext.jsx",
             "src/contexts/UserContext.jsx"
+          ]
+        },
+        {
+          "name": "getStatusColor",
+          "files": [
+            "src/jobs/screens/ApplicationDetailsScreen.jsx",
+            "src/jobs/screens/AppliedJobsScreen.jsx"
+          ]
+        },
+        {
+          "name": "getStatusIcon",
+          "files": [
+            "src/jobs/screens/ApplicationDetailsScreen.jsx",
+            "src/jobs/screens/AppliedJobsScreen.jsx"
+          ]
+        },
+        {
+          "name": "formatDate",
+          "files": [
+            "src/jobs/screens/ApplicationDetailsScreen.jsx",
+            "src/jobs/screens/AppliedJobsScreen.jsx"
           ]
         }
       ]
     },
     {
+      "type": "Test Coverage",
+      "severity": "medium",
+      "count": 1,
+      "description": "Could not run test coverage analysis",
+      "recommendation": "Ensure tests are properly configured"
+    },
+    {
       "type": "Performance",
       "severity": "medium",
-      "count": 22,
-      "description": "22 potential performance issues detected",
+      "count": 12,
+      "description": "12 potential performance issues detected",
       "recommendation": "Implement React performance optimizations"
     }
   ],
   "recommendations": [
     "Critical: Major refactoring required",
     "Focus on reducing file sizes and code duplication",
-    "Increase test coverage to at least 70%"
+    "Increase test coverage to at least 50%",
+    "Implement performance optimizations"
   ]
 }

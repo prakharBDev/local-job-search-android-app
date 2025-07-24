@@ -101,19 +101,29 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
           onChangeText={setSearchQuery}
         />
       </View>
-      <ScrollView>
-        {filteredSkills.map(skill => (
-          <TouchableOpacity
-            key={skill.id}
-            style={styles.skillItem}
-            onPress={() => handleToggleSkill(skill)}
-          >
-            <Text style={styles.skillName}>{skill.name}</Text>
-            {selectedSkills.find(s => s.id === skill.id) && (
-              <Text style={styles.checkmark}>✓</Text>
-            )}
-          </TouchableOpacity>
-        ))}
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.skillsGrid}>
+          {filteredSkills.map(skill => {
+            const isSelected = selectedSkills.find(s => s.id === skill.id);
+            return (
+              <TouchableOpacity
+                key={skill.id}
+                style={[
+                  styles.skillButton,
+                  isSelected && styles.skillButtonSelected
+                ]}
+                onPress={() => handleToggleSkill(skill)}
+              >
+                <Text style={[
+                  styles.skillButtonText,
+                  isSelected && styles.skillButtonTextSelected
+                ]}>
+                  {skill.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </ScrollView>
       <View style={styles.footer}>
         <TextInput
@@ -124,7 +134,9 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
         />
         <Button onPress={handleAddNewSkill}>Add</Button>
       </View>
-      <Button onPress={handleDone}>Done</Button>
+      <View style={styles.doneButtonContainer}>
+        <Button onPress={handleDone}>Done</Button>
+      </View>
     </SafeAreaView>
   );
 };
@@ -170,6 +182,41 @@ const getStyles = theme =>
       padding: 10,
       borderRadius: 8,
       marginRight: 10,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      padding: 10,
+      alignItems: 'center',
+    },
+    skillsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: 10,
+    },
+    skillButton: {
+      backgroundColor: theme.colors.background.secondary,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: theme.colors.border.primary,
+    },
+    skillButtonSelected: {
+      backgroundColor: theme.colors.primary.main,
+      borderColor: theme.colors.primary.main,
+    },
+    skillButtonText: {
+      color: theme.colors.text.primary,
+      fontSize: 14,
+    },
+    skillButtonTextSelected: {
+      color: theme.colors.background.primary,
+    },
+    doneButtonContainer: {
+      padding: 10,
     },
   });
 

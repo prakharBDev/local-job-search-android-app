@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { bluewhiteTheme } from '../theme/bluewhite-theme';
 
 // Create context
@@ -9,29 +9,33 @@ const themes = {
   bluewhite: bluewhiteTheme,
 };
 
-// Theme provider component
+// Theme provider component - Optimized for performance
 export const ThemeProvider = ({ children, initialTheme = 'bluewhite' }) => {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
 
+  // Memoize the setTheme function for performance
+  const setTheme = useCallback((themeName) => {
+    if (themes[themeName]) {
+      setCurrentTheme(themeName);
+    } else {
+      console.warn(
+        `Theme "${themeName}" not found. Available themes: ${Object.keys(
+          themes,
+        ).join(', ')}`,
+      );
+    }
+  }, []);
+
+  // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(
     () => ({
       theme: themes[currentTheme],
       currentTheme,
       availableThemes: Object.keys(themes),
-      setTheme: themeName => {
-        if (themes[themeName]) {
-          setCurrentTheme(themeName);
-        } else {
-          console.warn(
-            `Theme "${themeName}" not found. Available themes: ${Object.keys(
-              themes,
-            ).join(', ')}`,
-          );
-        }
-      },
+      setTheme,
       isLoading: false,
     }),
-    [currentTheme],
+    [currentTheme, setTheme],
   );
 
   return (
@@ -46,6 +50,60 @@ export const useTheme = () => {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
+};
+
+/**
+ * Granular hook for colors only
+ * Optimized for components that only need color information
+ */
+export const useColors = () => {
+  const { theme } = useTheme();
+  return theme?.colors || {};
+};
+
+/**
+ * Granular hook for spacing only
+ * Optimized for components that only need spacing information
+ */
+export const useSpacing = () => {
+  const { theme } = useTheme();
+  return theme?.spacing || {};
+};
+
+/**
+ * Granular hook for typography only
+ * Optimized for components that only need typography information
+ */
+export const useTypography = () => {
+  const { theme } = useTheme();
+  return theme?.typography || {};
+};
+
+/**
+ * Granular hook for shadows only
+ * Optimized for components that only need shadow information
+ */
+export const useShadows = () => {
+  const { theme } = useTheme();
+  return theme?.shadows || {};
+};
+
+/**
+ * Granular hook for border radius only
+ * Optimized for components that only need border radius information
+ */
+export const useBorderRadius = () => {
+  const { theme } = useTheme();
+  return theme?.borderRadius || {};
+};
+
+/**
+ * Granular hook for theme mode only
+ * Optimized for components that only need theme switching information
+ */
+export const useThemeMode = () => {
+  const { theme, currentTheme, setTheme } = useTheme();
+  return { theme, currentTheme, setTheme };
 };
 
 // HOC for theme-aware components

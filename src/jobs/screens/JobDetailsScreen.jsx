@@ -65,7 +65,7 @@ const JobDetailsScreen = () => {
       if (jobDetails?.id && !jobDetails.company_profiles) {
         try {
           setLoading(true);
-          const { data: fullJobData, error } = await jobService.getJob(jobDetails.id);
+          const { data: fullJobData, error } = await jobService.getJobById(jobDetails.id);
           if (fullJobData && !error) {
             setJobDetails(fullJobData);
           }
@@ -835,7 +835,7 @@ We're looking for someone who is passionate about user-centered design and has e
                 letterSpacing: -0.1,
               }}
             >
-              {safeJob.salary}
+              ₹{safeJob.salary}
             </Text>
           </View>
 

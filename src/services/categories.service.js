@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { apiClient, handleApiError } from './api';
 
 /**
  * Categories Service
@@ -11,18 +11,20 @@ const categoriesService = {
    */
   async getAllCategories() {
     try {
-      const { data, error } = await supabase
-        .from('job_categories')
-        .select('*')
-        .order('name');
+      const { data, error } = await apiClient.query('job_categories', {
+        select: '*',
+        orderBy: { column: 'name', ascending: true },
+        cache: true,
+        cacheKey: 'all_categories'
+      });
 
       if (error) {
         throw error;
       }
       return { data, error: null };
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getAllCategories');
+      return { data: null, error: apiError };
     }
   },
 
@@ -33,19 +35,39 @@ const categoriesService = {
    */
   async createCategory(name) {
     try {
-      const { data, error } = await supabase
-        .from('job_categories')
-        .insert([{ name: name.trim() }])
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('job_categories')
+            .insert([{ 
+              name: name.trim(),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }])
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'createCategory'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('all_categories');
+      apiClient.clearCache('categories_with_job_count');
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error creating category:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'createCategory');
+      return { data: null, error: apiError };
     }
   },
 
@@ -56,19 +78,21 @@ const categoriesService = {
    */
   async getCategoryById(categoryId) {
     try {
-      const { data, error } = await supabase
-        .from('job_categories')
-        .select('*')
-        .eq('id', categoryId)
-        .single();
+      const { data, error } = await apiClient.query('job_categories', {
+        select: '*',
+        filters: { id: categoryId },
+        limit: 1,
+        cache: true,
+        cacheKey: `category_${categoryId}`
+      });
 
       if (error) {
         throw error;
       }
-      return { data, error: null };
+      return { data: data?.[0] || null, error: null };
     } catch (error) {
-      console.error('Error fetching category by ID:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getCategoryById');
+      return { data: null, error: apiError };
     }
   },
 
@@ -80,23 +104,40 @@ const categoriesService = {
    */
   async updateCategory(categoryId, updates) {
     try {
-      const { data, error } = await supabase
-        .from('job_categories')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', categoryId)
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('job_categories')
+            .update({
+              ...updates,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', categoryId)
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'updateCategory'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('all_categories');
+      apiClient.clearCache('categories_with_job_count');
+      apiClient.clearCache(`category_${categoryId}`);
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error updating category:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'updateCategory');
+      return { data: null, error: apiError };
     }
   },
 
@@ -107,18 +148,35 @@ const categoriesService = {
    */
   async deleteCategory(categoryId) {
     try {
-      const { error } = await supabase
-        .from('job_categories')
-        .delete()
-        .eq('id', categoryId);
+      const { error } = await apiClient.request(
+        async () => {
+          const { error } = await apiClient.supabase
+            .from('job_categories')
+            .delete()
+            .eq('id', categoryId);
+          
+          return { error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'deleteCategory'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('all_categories');
+      apiClient.clearCache('categories_with_job_count');
+      apiClient.clearCache(`category_${categoryId}`);
+
       return { error: null };
     } catch (error) {
-      console.error('Error deleting category:', error);
-      return { error };
+      const apiError = handleApiError(error, 'deleteCategory');
+      return { error: apiError };
     }
   },
 
@@ -128,13 +186,24 @@ const categoriesService = {
    */
   async getCategoriesWithJobCount() {
     try {
-      const { data, error } = await supabase
-        .from('job_categories')
-        .select(`
-          *,
-          jobs(count)
-        `)
-        .order('name');
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('job_categories')
+            .select(`
+              *,
+              jobs(count)
+            `)
+            .order('name');
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: 'categories_with_job_count',
+          context: 'getCategoriesWithJobCount'
+        }
+      );
 
       if (error) {
         throw error;
@@ -148,8 +217,8 @@ const categoriesService = {
 
       return { data: categoriesWithCount, error: null };
     } catch (error) {
-      console.error('Error fetching categories with job count:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getCategoriesWithJobCount');
+      return { data: null, error: apiError };
     }
   },
 };

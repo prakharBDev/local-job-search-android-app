@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { apiClient, handleApiError } from './api';
 
 /**
  * Analytics Service
@@ -12,10 +12,12 @@ const analyticsService = {
    */
   async getSeekerDashboardStats(seekerId) {
     try {
-      const { data: applications, error: appError } = await supabase
-        .from('applications')
-        .select('status')
-        .eq('seeker_id', seekerId);
+      const { data: applications, error: appError } = await apiClient.query('applications', {
+        select: 'status',
+        filters: { seeker_id: seekerId },
+        cache: true,
+        cacheKey: `seeker_stats_${seekerId}`
+      });
 
       if (appError) {
         throw appError;
@@ -24,15 +26,16 @@ const analyticsService = {
       const stats = {
         totalApplications: applications.length,
         applied: applications.filter(app => app.status === 'applied').length,
-        underReview: applications.filter(app => app.status === 'under_review').length,
-        hired: applications.filter(app => app.status === 'hired').length,
+        reviewed: applications.filter(app => app.status === 'reviewed').length,
+        shortlisted: applications.filter(app => app.status === 'shortlisted').length,
         rejected: applications.filter(app => app.status === 'rejected').length,
+        withdrawn: applications.filter(app => app.status === 'withdrawn').length,
       };
 
       return { data: stats, error: null };
     } catch (error) {
-      console.error('Error fetching seeker dashboard stats:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getSeekerDashboardStats');
+      return { data: null, error: apiError };
     }
   },
 
@@ -43,19 +46,32 @@ const analyticsService = {
    */
   async getCompanyDashboardStats(companyId) {
     try {
-      const { data: jobs, error: jobsError } = await supabase
-        .from('jobs')
-        .select('id, is_active')
-        .eq('company_id', companyId);
+      const { data: jobs, error: jobsError } = await apiClient.query('jobs', {
+        select: 'id, is_active',
+        filters: { company_id: companyId },
+        cache: true,
+        cacheKey: `company_jobs_${companyId}`
+      });
 
       if (jobsError) {
         throw jobsError;
       }
 
-      const { data: applications, error: appError } = await supabase
-        .from('applications')
-        .select('status, jobs!inner(company_id)')
-        .eq('jobs.company_id', companyId);
+      const { data: applications, error: appError } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('applications')
+            .select('status, jobs!inner(company_id)')
+            .eq('jobs.company_id', companyId);
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: `company_applications_${companyId}`,
+          context: 'getCompanyDashboardStats'
+        }
+      );
 
       if (appError) {
         throw appError;
@@ -67,14 +83,15 @@ const analyticsService = {
         inactiveJobs: jobs.filter(job => !job.is_active).length,
         totalApplications: applications.length,
         pendingApplications: applications.filter(app => app.status === 'applied').length,
-        underReview: applications.filter(app => app.status === 'under_review').length,
-        hired: applications.filter(app => app.status === 'hired').length,
+        reviewed: applications.filter(app => app.status === 'reviewed').length,
+        shortlisted: applications.filter(app => app.status === 'shortlisted').length,
+        rejected: applications.filter(app => app.status === 'rejected').length,
       };
 
       return { data: stats, error: null };
     } catch (error) {
-      console.error('Error fetching company dashboard stats:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getCompanyDashboardStats');
+      return { data: null, error: apiError };
     }
   },
 
@@ -85,20 +102,35 @@ const analyticsService = {
    */
   async getJobMarketStats(city) {
     try {
-      const { data: jobs, error: jobsError } = await supabase
-        .from('jobs')
-        .select('id, is_active, salary_min, salary_max')
-        .eq('city', city)
-        .eq('is_active', true);
+      const { data: jobs, error: jobsError } = await apiClient.query('jobs', {
+        select: 'id, is_active, salary_min, salary_max',
+        filters: { 
+          city: city,
+          is_active: true 
+        },
+        cache: true,
+        cacheKey: `market_jobs_${city}`
+      });
 
       if (jobsError) {
         throw jobsError;
       }
 
-      const { data: applications, error: appError } = await supabase
-        .from('applications')
-        .select('status, jobs!inner(city)')
-        .eq('jobs.city', city);
+      const { data: applications, error: appError } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('applications')
+            .select('status, jobs!inner(city)')
+            .eq('jobs.city', city);
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: `market_applications_${city}`,
+          context: 'getJobMarketStats'
+        }
+      );
 
       if (appError) {
         throw appError;
@@ -118,8 +150,8 @@ const analyticsService = {
 
       return { data: stats, error: null };
     } catch (error) {
-      console.error('Error fetching job market stats:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getJobMarketStats');
+      return { data: null, error: apiError };
     }
   },
 
@@ -129,14 +161,25 @@ const analyticsService = {
    */
   async getSkillDemandStats() {
     try {
-      const { data, error } = await supabase
-        .from('job_skills')
-        .select(`
-          skill_id,
-          skills(id, name),
-          jobs!inner(is_active)
-        `)
-        .eq('jobs.is_active', true);
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('job_skills')
+            .select(`
+              skill_id,
+              skills(id, name),
+              jobs!inner(is_active)
+            `)
+            .eq('jobs.is_active', true);
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: 'skill_demand_stats',
+          context: 'getSkillDemandStats'
+        }
+      );
 
       if (error) {
         throw error;
@@ -157,8 +200,8 @@ const analyticsService = {
 
       return { data: skillStats, error: null };
     } catch (error) {
-      console.error('Error fetching skill demand stats:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getSkillDemandStats');
+      return { data: null, error: apiError };
     }
   },
 
@@ -168,14 +211,25 @@ const analyticsService = {
    */
   async getCategoryStats() {
     try {
-      const { data, error } = await supabase
-        .from('job_categories')
-        .select(`
-          id,
-          name,
-          jobs(count)
-        `)
-        .order('name');
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('job_categories')
+            .select(`
+              id,
+              name,
+              jobs(count)
+            `)
+            .order('name');
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: 'category_stats',
+          context: 'getCategoryStats'
+        }
+      );
 
       if (error) {
         throw error;
@@ -189,8 +243,8 @@ const analyticsService = {
 
       return { data: categoryStats, error: null };
     } catch (error) {
-      console.error('Error fetching category stats:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getCategoryStats');
+      return { data: null, error: apiError };
     }
   },
 };

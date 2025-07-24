@@ -1,6 +1,6 @@
 export const popularJobs = [
   {
-    id: 1,
+    id: '550e8400-e29b-41d4-a716-446655440001',
     company: 'TechVibe Studios',
     logo: 'briefcase',
     title: 'Frontend Developer',
@@ -10,9 +10,23 @@ export const popularJobs = [
     color: ['#3B82F6', '#2563EB'],
     location: 'Bangalore',
     bookmarked: false,
+    // Add required fields to prevent API calls
+    company_profiles: {
+      id: '550e8400-e29b-41d4-a716-446655440101',
+      company_name: 'TechVibe Studios',
+      company_description: 'Leading technology company',
+      is_verified: true
+    },
+    job_categories: {
+      id: '550e8400-e29b-41d4-a716-446655440201',
+      name: 'Technology'
+    },
+    description: 'We are looking for a skilled Frontend Developer to join our team...',
+    city: 'bangalore',
+    is_active: true
   },
   {
-    id: 2,
+    id: '550e8400-e29b-41d4-a716-446655440002',
     company: 'GrowthHack Co',
     logo: 'trending-up',
     title: 'Growth Marketer',
@@ -22,9 +36,22 @@ export const popularJobs = [
     color: ['#10B981', '#059669'],
     location: 'Remote',
     bookmarked: true,
+    company_profiles: {
+      id: '550e8400-e29b-41d4-a716-446655440102',
+      company_name: 'GrowthHack Co',
+      company_description: 'Digital marketing agency',
+      is_verified: false
+    },
+    job_categories: {
+      id: '550e8400-e29b-41d4-a716-446655440202',
+      name: 'Marketing'
+    },
+    description: 'Join our dynamic marketing team as a Growth Marketer...',
+    city: 'remote',
+    is_active: true
   },
   {
-    id: 3,
+    id: '550e8400-e29b-41d4-a716-446655440003',
     company: 'Designify',
     logo: 'pen-tool',
     title: 'UI/UX Designer',
@@ -34,9 +61,22 @@ export const popularJobs = [
     color: ['#6366F1', '#8B5CF6'],
     location: 'Delhi',
     bookmarked: false,
+    company_profiles: {
+      id: '550e8400-e29b-41d4-a716-446655440103',
+      company_name: 'Designify',
+      company_description: 'Creative design studio',
+      is_verified: true
+    },
+    job_categories: {
+      id: '550e8400-e29b-41d4-a716-446655440203',
+      name: 'Design'
+    },
+    description: 'We are seeking a creative UI/UX Designer to create amazing user experiences...',
+    city: 'delhi',
+    is_active: true
   },
   {
-    id: 4,
+    id: '550e8400-e29b-41d4-a716-446655440004',
     company: 'FinEdge',
     logo: 'dollar-sign',
     title: 'Finance Analyst',
@@ -46,12 +86,25 @@ export const popularJobs = [
     color: ['#F59E42', '#FBBF24'],
     location: 'Mumbai',
     bookmarked: false,
+    company_profiles: {
+      id: '550e8400-e29b-41d4-a716-446655440104',
+      company_name: 'FinEdge',
+      company_description: 'Financial services company',
+      is_verified: true
+    },
+    job_categories: {
+      id: '550e8400-e29b-41d4-a716-446655440204',
+      name: 'Finance'
+    },
+    description: 'Join our finance team as a Finance Analyst to help drive business decisions...',
+    city: 'mumbai',
+    is_active: true
   },
 ];
 
 export const recentJobs = [
   {
-    id: 5,
+    id: '550e8400-e29b-41d4-a716-446655440005',
     company: 'TechVibe Studios',
     logo: 'briefcase',
     title: 'Backend Developer',
@@ -60,9 +113,22 @@ export const recentJobs = [
     time: '2 hours ago',
     location: 'Bangalore',
     bookmarked: false,
+    company_profiles: {
+      id: '550e8400-e29b-41d4-a716-446655440105',
+      company_name: 'TechVibe Studios',
+      company_description: 'Leading technology company',
+      is_verified: true
+    },
+    job_categories: {
+      id: '550e8400-e29b-41d4-a716-446655440205',
+      name: 'Technology'
+    },
+    description: 'We are looking for an experienced Backend Developer to join our team...',
+    city: 'bangalore',
+    is_active: true
   },
   {
-    id: 6,
+    id: '550e8400-e29b-41d4-a716-446655440006',
     company: 'GrowthHack Co',
     logo: 'trending-up',
     title: 'SEO Specialist',
@@ -71,9 +137,22 @@ export const recentJobs = [
     time: '1 hour ago',
     location: 'Remote',
     bookmarked: true,
+    company_profiles: {
+      id: '550e8400-e29b-41d4-a716-446655440106',
+      company_name: 'GrowthHack Co',
+      company_description: 'Digital marketing agency',
+      is_verified: false
+    },
+    job_categories: {
+      id: '550e8400-e29b-41d4-a716-446655440206',
+      name: 'Marketing'
+    },
+    description: 'Join our marketing team as an SEO Specialist to improve search rankings...',
+    city: 'remote',
+    is_active: true
   },
   {
-    id: 7,
+    id: '550e8400-e29b-41d4-a716-446655440007',
     company: 'Designify',
     logo: 'pen-tool',
     title: 'Graphic Designer',
@@ -82,9 +161,22 @@ export const recentJobs = [
     time: '30 min ago',
     location: 'Delhi',
     bookmarked: false,
+    company_profiles: {
+      id: '550e8400-e29b-41d4-a716-446655440107',
+      company_name: 'Designify',
+      company_description: 'Creative design studio',
+      is_verified: true
+    },
+    job_categories: {
+      id: '550e8400-e29b-41d4-a716-446655440207',
+      name: 'Design'
+    },
+    description: 'We are seeking a creative Graphic Designer to create stunning visuals...',
+    city: 'delhi',
+    is_active: true
   },
   {
-    id: 8,
+    id: '550e8400-e29b-41d4-a716-446655440008',
     company: 'FinEdge',
     logo: 'dollar-sign',
     title: 'Accountant',
@@ -93,5 +185,18 @@ export const recentJobs = [
     time: '4 hours ago',
     location: 'Mumbai',
     bookmarked: false,
+    company_profiles: {
+      id: '550e8400-e29b-41d4-a716-446655440108',
+      company_name: 'FinEdge',
+      company_description: 'Financial services company',
+      is_verified: true
+    },
+    job_categories: {
+      id: '550e8400-e29b-41d4-a716-446655440208',
+      name: 'Finance'
+    },
+    description: 'Join our finance team as an Accountant to manage financial records...',
+    city: 'mumbai',
+    is_active: true
   },
 ];

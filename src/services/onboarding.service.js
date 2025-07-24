@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { apiClient, handleApiError } from './api';
 
 /**
  * Onboarding Service
@@ -12,25 +12,22 @@ class OnboardingService {
    */
   async checkUserExists(googleId) {
     try {
-      const { data: userRecord, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('google_id', googleId)
-        .single();
-
-      if (error && error.code === 'PGRST116') {
-        // User not found
-        return { exists: false, userRecord: null, error: null };
-      }
+      const { data: userRecord, error } = await apiClient.query('users', {
+        select: '*',
+        filters: { google_id: googleId },
+        limit: 1,
+        cache: true,
+        cacheKey: `user_google_${googleId}`
+      });
 
       if (error) {
         throw error;
       }
 
-      return { exists: true, userRecord, error: null };
+      return { exists: !!userRecord?.[0], userRecord: userRecord?.[0] || null, error: null };
     } catch (error) {
-      console.error('Error checking user existence:', error);
-      return { exists: false, userRecord: null, error };
+      const apiError = handleApiError(error, 'checkUserExists');
+      return { exists: false, userRecord: null, error: apiError };
     }
   }
 
@@ -44,71 +41,119 @@ class OnboardingService {
       const missingSteps = [];
 
       // Check if user has city selected and onboarding status
-      const { data: userRecord } = await supabase
-        .from('users')
-        .select('city, onboarding_completed, last_onboarding_step')
-        .eq('id', userId)
-        .single();
+      const { data: userRecord, error: userError } = await apiClient.query('users', {
+        select: 'city, onboarding_completed, last_onboarding_step',
+        filters: { id: userId },
+        limit: 1,
+        cache: true,
+        cacheKey: `user_onboarding_${userId}`
+      });
+
+      if (userError) {
+        throw userError;
+      }
+
+      const user = userRecord?.[0];
 
       // If onboarding is already completed, skip all checks
-      if (userRecord?.onboarding_completed) {
+      if (user?.onboarding_completed) {
         return { isComplete: true, missingSteps: [], error: null };
       }
 
-      if (!userRecord?.city) {
+      if (!user?.city) {
         missingSteps.push('city_selection');
       }
 
       // Check if user has roles selected
-      const { data: seekerProfile } = await supabase
-        .from('seeker_profiles')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
+      const { data: seekerProfile, error: seekerError } = await apiClient.query('seeker_profiles', {
+        select: 'id',
+        filters: { user_id: userId },
+        limit: 1,
+        cache: true,
+        cacheKey: `seeker_profile_${userId}`
+      });
 
-      const { data: companyProfile } = await supabase
-        .from('company_profiles')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
+      if (seekerError) {
+        throw seekerError;
+      }
 
-      if (!seekerProfile && !companyProfile) {
+      const { data: companyProfile, error: companyError } = await apiClient.query('company_profiles', {
+        select: 'id',
+        filters: { user_id: userId },
+        limit: 1,
+        cache: true,
+        cacheKey: `company_profile_${userId}`
+      });
+
+      if (companyError) {
+        throw companyError;
+      }
+
+      if (!seekerProfile?.[0] && !companyProfile?.[0]) {
         missingSteps.push('role_selection');
       }
 
       // Check if profiles are complete
-      if (seekerProfile) {
-        const { data: seekerSkills } = await supabase
-          .from('seeker_skills')
-          .select('skill_id')
-          .eq('seeker_id', seekerProfile.id);
+      if (seekerProfile?.[0]) {
+        const seekerId = seekerProfile[0].id;
 
-        const { data: seekerCategories } = await supabase
-          .from('seeker_categories')
-          .select('category_id')
-          .eq('seeker_id', seekerProfile.id);
+        const { data: seekerSkills, error: skillsError } = await apiClient.query('seeker_skills', {
+          select: 'skill_id',
+          filters: { seeker_id: seekerId },
+          cache: true,
+          cacheKey: `seeker_skills_${seekerId}`
+        });
+
+        if (skillsError) {
+          throw skillsError;
+        }
+
+        const { data: seekerCategories, error: categoriesError } = await apiClient.query('seeker_categories', {
+          select: 'category_id',
+          filters: { seeker_id: seekerId },
+          cache: true,
+          cacheKey: `seeker_categories_${seekerId}`
+        });
+
+        if (categoriesError) {
+          throw categoriesError;
+        }
 
         // Check if profile has required fields
-        const { data: seekerRecord } = await supabase
-          .from('seeker_profiles')
-          .select('experience_level')
-          .eq('id', seekerProfile.id)
-          .single();
+        const { data: seekerRecord, error: seekerRecordError } = await apiClient.query('seeker_profiles', {
+          select: 'experience_level',
+          filters: { id: seekerId },
+          limit: 1,
+          cache: true,
+          cacheKey: `seeker_record_${seekerId}`
+        });
 
-        if (!seekerSkills?.length || !seekerCategories?.length || !seekerRecord?.experience_level) {
+        if (seekerRecordError) {
+          throw seekerRecordError;
+        }
+
+        if (!seekerSkills?.length || !seekerCategories?.length || !seekerRecord?.[0]?.experience_level) {
           missingSteps.push('seeker_profile_incomplete');
         }
       }
 
-      if (companyProfile) {
-        // Check if company profile has required fields
-        const { data: companyRecord } = await supabase
-          .from('company_profiles')
-          .select('company_name, contact_email')
-          .eq('id', companyProfile.id)
-          .single();
+      if (companyProfile?.[0]) {
+        const companyId = companyProfile[0].id;
 
-        if (!companyRecord?.company_name || !companyRecord?.contact_email) {
+        // Check if company profile has required fields
+        const { data: companyRecord, error: companyRecordError } = await apiClient.query('company_profiles', {
+          select: 'company_name, contact_email',
+          filters: { id: companyId },
+          limit: 1,
+          cache: true,
+          cacheKey: `company_record_${companyId}`
+        });
+
+        if (companyRecordError) {
+          throw companyRecordError;
+        }
+
+        if (!companyRecord?.[0]?.company_name || !companyRecord?.[0]?.contact_email) {
           missingSteps.push('company_profile_incomplete');
         }
       }
@@ -117,8 +162,8 @@ class OnboardingService {
 
       return { isComplete, missingSteps, error: null };
     } catch (error) {
-      console.error('Error checking profile completion:', error);
-      return { isComplete: false, missingSteps: [], error };
+      const apiError = handleApiError(error, 'checkProfileCompletion');
+      return { isComplete: false, missingSteps: [], error: apiError };
     }
   }
 
@@ -157,28 +202,43 @@ class OnboardingService {
    */
   async createInitialUserRecord(userData, phoneNumber) {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .upsert({
-          id: userData.id,
-          email: userData.email,
-          name: userData.user_metadata?.full_name || userData.email?.split('@')[0],
-          phone_number: phoneNumber,
-          google_id: userData.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('users')
+            .upsert({
+              id: userData.id,
+              email: userData.email,
+              name: userData.user_metadata?.full_name || userData.email?.split('@')[0],
+              phone_number: phoneNumber,
+              google_id: userData.id,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'createInitialUserRecord'
+        }
+      );
 
       if (error) {
         throw error;
       }
 
+      // Clear related caches
+      apiClient.clearCache(`user_google_${userData.id}`);
+      apiClient.clearCache(`user_onboarding_${userData.id}`);
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error creating initial user record:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'createInitialUserRecord');
+      return { data: null, error: apiError };
     }
   }
 
@@ -190,24 +250,39 @@ class OnboardingService {
    */
   async updateOnboardingProgress(userId, updates) {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', userId)
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('users')
+            .update({
+              ...updates,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId)
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'updateOnboardingProgress'
+        }
+      );
 
       if (error) {
         throw error;
       }
 
+      // Clear related caches
+      apiClient.clearCache(`user_onboarding_${userId}`);
+      apiClient.clearCache(`user_google_${data?.google_id}`);
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error updating onboarding progress:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'updateOnboardingProgress');
+      return { data: null, error: apiError };
     }
   }
 
@@ -224,20 +299,27 @@ class OnboardingService {
         throw completionError;
       }
 
-      const { data: userRecord } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const { data: userRecord, error: userError } = await apiClient.query('users', {
+        select: '*',
+        filters: { id: userId },
+        limit: 1,
+        cache: true,
+        cacheKey: `user_full_${userId}`
+      });
 
-      const nextScreen = this.determineNextScreen(userRecord, missingSteps);
+      if (userError) {
+        throw userError;
+      }
+
+      const user = userRecord?.[0];
+      const nextScreen = this.determineNextScreen(user, missingSteps);
 
       return {
         status: {
           isComplete,
           missingSteps,
           nextScreen,
-          userRecord,
+          userRecord: user,
           needsCitySelection: missingSteps.includes('city_selection'),
           needsRoleSelection: missingSteps.includes('role_selection'),
           needsProfileSetup: missingSteps.includes('seeker_profile_incomplete') || missingSteps.includes('company_profile_incomplete'),
@@ -245,8 +327,8 @@ class OnboardingService {
         error: null
       };
     } catch (error) {
-      console.error('Error getting onboarding status:', error);
-      return { status: null, error };
+      const apiError = handleApiError(error, 'getOnboardingStatus');
+      return { status: null, error: apiError };
     }
   }
 }

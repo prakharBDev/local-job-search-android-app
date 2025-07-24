@@ -7,6 +7,28 @@ import { useNavigation } from '@react-navigation/native';
 const PopularJobCard = ({ job }) => {
   const navigation = useNavigation();
 
+  // Get soft pastel gradient colors based on job type
+  const getSoftGradientColors = (jobType) => {
+    const gradients = {
+      'Full Time': ['#E3F2FD', '#BBDEFB'], // Soft Blue
+      'Part Time': ['#E8F5E9', '#C8E6C9'], // Soft Green
+      'Contract': ['#F3E5F5', '#E1BEE7'], // Soft Purple
+      'Freelance': ['#FFF3E0', '#FFCC02'], // Soft Orange
+    };
+    return gradients[jobType] || ['#E3F2FD', '#BBDEFB']; // Default to soft blue
+  };
+
+  // Get icon color based on job type
+  const getIconColor = (jobType) => {
+    const colors = {
+      'Full Time': '#1976D2', // Dark Blue
+      'Part Time': '#388E3C', // Dark Green
+      'Contract': '#7B1FA2', // Dark Purple
+      'Freelance': '#F57C00', // Dark Orange
+    };
+    return colors[jobType] || '#1976D2'; // Default to dark blue
+  };
+
   const handlePress = () => {
     navigation.navigate('JobDetails', { jobData: job });
   };
@@ -14,17 +36,19 @@ const PopularJobCard = ({ job }) => {
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
       <LinearGradient
-        colors={job.color}
+        colors={getSoftGradientColors(job.type)}
         style={{
           width: 240,
           marginRight: 16,
           borderRadius: 20,
           padding: 20,
-          shadowColor: '#3B82F6',
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.15,
-          shadowRadius: 16,
-          elevation: 6,
+          shadowColor: '#E0E0E0',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+          elevation: 4,
+          borderWidth: 1,
+          borderColor: '#F0F0F0',
         }}
       >
         <View
@@ -36,25 +60,26 @@ const PopularJobCard = ({ job }) => {
         >
           <View
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              width: 48,
+              height: 48,
+              borderRadius: 24,
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
               alignItems: 'center',
               justifyContent: 'center',
               marginRight: 12,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.9)',
             }}
           >
-            <Feather name={job.logo} size={22} color={'#FFFFFF'} />
+            <Feather name={job.logo} size={24} color={getIconColor(job.type)} />
           </View>
           <View style={{ flex: 1 }}>
             <Text
               style={{
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: '600',
-                color: '#FFFFFF',
-                marginBottom: 2,
-                opacity: 0.9,
+                color: '#212121',
+                marginBottom: 4,
               }}
             >
               {job.company}
@@ -66,13 +91,12 @@ const PopularJobCard = ({ job }) => {
                 gap: 4,
               }}
             >
-              <Feather name="star" size={12} color="#FFF" />
+              <Feather name="star" size={12} color="#FFC107" />
               <Text
                 style={{
                   fontSize: 12,
-                  color: '#FFFFFF',
+                  color: '#9E9E9E',
                   fontWeight: '500',
-                  opacity: 0.8,
                 }}
               >
                 Featured
@@ -85,8 +109,8 @@ const PopularJobCard = ({ job }) => {
           style={{
             fontSize: 18,
             fontWeight: '700',
-            color: '#FFFFFF',
-            marginBottom: 8,
+            color: '#212121',
+            marginBottom: 10,
             lineHeight: 24,
           }}
         >
@@ -98,18 +122,17 @@ const PopularJobCard = ({ job }) => {
             flexDirection: 'row',
             alignItems: 'center',
             marginBottom: 16,
-            gap: 4,
+            gap: 6,
           }}
         >
-          <Feather name="dollar-sign" size={14} color="#FFFFFF" />
           <Text
             style={{
               fontSize: 16,
-              color: '#FFFFFF',
+              color: '#388E3C',
               fontWeight: '600',
             }}
           >
-            {job.salary}
+            ₹{job.salary}
           </Text>
         </View>
 
@@ -123,15 +146,17 @@ const PopularJobCard = ({ job }) => {
         >
           <View
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              paddingHorizontal: 10,
-              paddingVertical: 6,
-              borderRadius: 8,
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.95)',
             }}
           >
             <Text
               style={{
-                color: '#FFFFFF',
+                color: '#3949AB',
                 fontWeight: '600',
                 fontSize: 12,
               }}
@@ -142,18 +167,19 @@ const PopularJobCard = ({ job }) => {
 
           <View
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              paddingHorizontal: 10,
-              paddingVertical: 6,
-              borderRadius: 8,
+              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.8)',
             }}
           >
             <Text
               style={{
-                color: '#FFFFFF',
+                color: '#9E9E9E',
                 fontWeight: '500',
                 fontSize: 12,
-                opacity: 0.8,
               }}
             >
               {job.time}

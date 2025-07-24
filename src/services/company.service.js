@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { apiClient, buildCompanyProfileQuery, handleApiError } from './api';
 
 /**
  * Company Service
@@ -12,26 +12,39 @@ const companyService = {
    */
   async createCompanyProfile(profileData) {
     try {
-      // Expect user_id to be provided by the caller (from AuthContext)
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .insert([profileData])
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('company_profiles')
+            .insert([{
+              ...profileData,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }])
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'createCompanyProfile'
+        }
+      );
 
       if (error) {
-        console.error('Supabase error details:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('company_profiles');
+      apiClient.clearCache(`company_profile_${profileData.user_id}`);
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error creating company profile:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'createCompanyProfile');
+      return { data: null, error: apiError };
     }
   },
 
@@ -43,23 +56,40 @@ const companyService = {
    */
   async updateCompanyProfile(companyId, updates) {
     try {
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', companyId)
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('company_profiles')
+            .update({
+              ...updates,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', companyId)
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'updateCompanyProfile'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('company_profiles');
+      apiClient.clearCache(`company_profile_${data?.user_id}`);
+      apiClient.clearCache(`company_${companyId}`);
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error updating company profile:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'updateCompanyProfile');
+      return { data: null, error: apiError };
     }
   },
 
@@ -70,19 +100,24 @@ const companyService = {
    */
   async getCompanyProfile(userId) {
     try {
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+      const { data, error } = await buildCompanyProfileQuery(userId, {
+        includeJobs: false,
+        includeApplications: false,
+        cache: true,
+        cacheKey: `company_profile_${userId}`
+      });
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         throw error;
       }
-      return { data, error: null };
+
+      // Handle array response - return first item or null if no profile exists
+      const profile = Array.isArray(data) ? data[0] || null : data;
+      
+      return { data: profile, error: null };
     } catch (error) {
-      console.error('Error fetching company profile:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getCompanyProfile');
+      return { data: null, error: apiError };
     }
   },
 
@@ -93,22 +128,24 @@ const companyService = {
    */
   async getCompanyById(companyId) {
     try {
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .select(`
+      const { data, error } = await apiClient.query('company_profiles', {
+        select: `
           *,
           users(name, email)
-        `)
-        .eq('id', companyId)
-        .single();
+        `,
+        filters: { id: companyId },
+        cache: true,
+        cacheKey: `company_${companyId}`
+      });
 
       if (error) {
         throw error;
       }
-      return { data, error: null };
+
+      return { data: data?.[0] || null, error: null };
     } catch (error) {
-      console.error('Error fetching company by ID:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getCompanyById');
+      return { data: null, error: apiError };
     }
   },
 
@@ -118,22 +155,25 @@ const companyService = {
    */
   async getVerifiedCompanies() {
     try {
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .select(`
+      const { data, error } = await apiClient.query('company_profiles', {
+        select: `
           *,
           users(name, email)
-        `)
-        .eq('is_verified', true)
-        .order('company_name');
+        `,
+        filters: { is_verified: true },
+        orderBy: { column: 'company_name', ascending: true },
+        cache: true,
+        cacheKey: 'verified_companies'
+      });
 
       if (error) {
         throw error;
       }
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error fetching verified companies:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getVerifiedCompanies');
+      return { data: null, error: apiError };
     }
   },
 
@@ -144,22 +184,34 @@ const companyService = {
    */
   async getCompaniesByCity(city) {
     try {
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .select(`
-          *,
-          users(city)
-        `)
-        .eq('users.city', city)
-        .order('company_name');
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('company_profiles')
+            .select(`
+              *,
+              users(city)
+            `)
+            .eq('users.city', city)
+            .order('company_name');
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: `companies_city_${city}`,
+          context: 'getCompaniesByCity'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error fetching companies by city:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getCompaniesByCity');
+      return { data: null, error: apiError };
     }
   },
 
@@ -171,23 +223,40 @@ const companyService = {
    */
   async updateVerificationStatus(companyId, isVerified) {
     try {
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .update({ 
-          is_verified: isVerified,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', companyId)
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('company_profiles')
+            .update({ 
+              is_verified: isVerified,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', companyId)
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'updateVerificationStatus'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('company_profiles');
+      apiClient.clearCache('verified_companies');
+      apiClient.clearCache(`company_${companyId}`);
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error updating verification status:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'updateVerificationStatus');
+      return { data: null, error: apiError };
     }
   },
 
@@ -199,23 +268,35 @@ const companyService = {
    */
   async searchCompanies(searchTerm, limit = 20) {
     try {
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .select(`
-          *,
-          users(name, email, city)
-        `)
-        .ilike('company_name', `%${searchTerm}%`)
-        .order('company_name')
-        .limit(limit);
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('company_profiles')
+            .select(`
+              *,
+              users(name, email, city)
+            `)
+            .ilike('company_name', `%${searchTerm}%`)
+            .order('company_name')
+            .limit(limit);
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: `search_companies_${searchTerm}_${limit}`,
+          context: 'searchCompanies'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error searching companies:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'searchCompanies');
+      return { data: null, error: apiError };
     }
   },
 
@@ -226,21 +307,32 @@ const companyService = {
    */
   async getCompanyWithStats(companyId) {
     try {
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .select(`
-          *,
-          users(name, email, city),
-          jobs(
-            id,
-            title,
-            is_active,
-            created_at,
-            applications(id, status)
-          )
-        `)
-        .eq('id', companyId)
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('company_profiles')
+            .select(`
+              *,
+              users(name, email, city),
+              jobs(
+                id,
+                title,
+                is_active,
+                created_at,
+                applications(id, status)
+              )
+            `)
+            .eq('id', companyId)
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: `company_stats_${companyId}`,
+          context: 'getCompanyWithStats'
+        }
+      );
 
       if (error) {
         throw error;
@@ -265,8 +357,8 @@ const companyService = {
 
       return { data, error: null };
     } catch (error) {
-      console.error('Error fetching company with stats:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getCompanyWithStats');
+      return { data: null, error: apiError };
     }
   },
 
@@ -277,22 +369,40 @@ const companyService = {
    */
   async deleteCompanyProfile(companyId) {
     try {
-      // Instead of actual deletion, we could mark as inactive
-      // For now, we'll do actual deletion but in production, consider soft delete
-      const { data, error } = await supabase
-        .from('company_profiles')
-        .delete()
-        .eq('id', companyId)
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('company_profiles')
+            .delete()
+            .eq('id', companyId)
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'deleteCompanyProfile'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('company_profiles');
+      apiClient.clearCache('verified_companies');
+      apiClient.clearCache(`company_${companyId}`);
+      if (data?.user_id) {
+        apiClient.clearCache(`company_profile_${data.user_id}`);
+      }
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error deleting company profile:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'deleteCompanyProfile');
+      return { data: null, error: apiError };
     }
   },
 };

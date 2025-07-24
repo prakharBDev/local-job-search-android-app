@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { AppHeader } from '../../components/elements';
+import { bluewhiteTheme } from '../../theme/bluewhite-theme';
 
 const DashboardScreen = () => {
   const { user, userRecord, logout } = useAuth();
@@ -20,13 +21,16 @@ const DashboardScreen = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Use actual user data from auth context - prioritize userRecord name
-  const userName = userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+  const userName = useMemo(() => 
+    userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User',
+    [userRecord?.name, user?.user_metadata?.full_name, user?.email]
+  );
 
-  const handleProfilePress = () => {
+  const handleProfilePress = useCallback(() => {
     // TODO: Navigate to profile screen
-  };
+  }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     Alert.alert(
       'Confirm Logout',
       'Are you sure you want to logout?',
@@ -62,7 +66,7 @@ const DashboardScreen = () => {
         },
       ]
     );
-  };
+  }, [logout, navigation]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -115,73 +119,73 @@ const DashboardScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Activity Cards Grid */}
-          <View style={styles.cardsContainer}>
-            <View style={styles.cardRow}>
-              <View style={[styles.activityCard, styles.cardLeft]}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.iconCircle}>
-                    <Text style={styles.iconText}>✈️</Text>
-                  </View>
-                  <Text style={styles.cardTitle}>
-                    Applied to{'\n'}Senior Developer
-                  </Text>
+          {/* Activity Cards Grid - Improved Layout */}
+          <View style={styles.cardsGrid}>
+            {/* Card 1: Job Applications */}
+            <View style={styles.activityCard}>
+              <View style={styles.cardTopSection}>
+                <View style={styles.iconContainer}>
+                  <Text style={styles.cardIcon}>✈️</Text>
                 </View>
-                <View style={styles.cardMainContent}>
-                  <Text style={styles.cardCount}>24</Text>
-                </View>
-                <View style={styles.cardBottomInfo}>
-                  <Text style={styles.cardTime}>2 hours ago</Text>
-                </View>
+                <Text style={styles.cardLabel}>Applied to Senior Developer</Text>
               </View>
-              <View style={[styles.activityCard, styles.cardRight]}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.iconCircleBlue}>
-                    <Text style={styles.iconText}>👁️</Text>
-                  </View>
-                  <Text style={styles.cardTitle}>Profile Views</Text>
-                </View>
-                <View style={styles.cardMainContent}>
-                  <Text style={styles.cardCount}>
-                    156 <Text style={styles.percentUp}>+12%</Text>
-                  </Text>
-                </View>
-                <View style={styles.cardBottomInfo}>
-                  <Text style={styles.cardSubtext}>This week</Text>
-                </View>
+              <View style={styles.cardValueSection}>
+                <Text style={styles.cardValue}>24</Text>
+              </View>
+              <View style={styles.cardBottomSection}>
+                <Text style={styles.cardSubtext}>2 hours ago</Text>
               </View>
             </View>
 
-            <View style={styles.cardRow}>
-              <View style={[styles.activityCard, styles.cardLeft]}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.iconCircleGreen}>
-                    <Text style={styles.iconText}>📅</Text>
-                  </View>
-                  <Text style={styles.cardTitle}>Interviews Scheduled</Text>
+            {/* Card 2: Profile Views */}
+            <View style={styles.activityCard}>
+              <View style={styles.cardTopSection}>
+                <View style={[styles.iconContainer, styles.iconContainerBlue]}>
+                  <Text style={styles.cardIcon}>👁️</Text>
                 </View>
-                <View style={styles.cardMainContent}>
-                  <Text style={styles.cardCount}>3</Text>
-                </View>
-                <View style={styles.cardBottomInfo}>
-                  <Text style={styles.cardTime}>1 day ago</Text>
-                </View>
+                <Text style={styles.cardLabel}>Profile Views</Text>
               </View>
-              <View style={[styles.activityCard, styles.cardRight]}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.iconCirclePurple}>
-                    <Text style={styles.iconText}>🎯</Text>
-                  </View>
-                  <Text style={styles.cardTitle}>Job Matches</Text>
+              <View style={styles.cardValueSection}>
+                <Text style={styles.cardValue}>
+                  156 <Text style={styles.trendPositive}>+12%</Text>
+                </Text>
+              </View>
+              <View style={styles.cardBottomSection}>
+                <Text style={styles.cardSubtext}>This week</Text>
+              </View>
+            </View>
+
+            {/* Card 3: Interviews Scheduled */}
+            <View style={styles.activityCard}>
+              <View style={styles.cardTopSection}>
+                <View style={[styles.iconContainer, styles.iconContainerGreen]}>
+                  <Text style={styles.cardIcon}>📅</Text>
                 </View>
-                <View style={styles.cardMainContent}>
-                  <Text style={styles.cardCount}>
-                    89 <Text style={styles.percentUp}>+2%</Text>
-                  </Text>
+                <Text style={styles.cardLabel}>Interviews Scheduled</Text>
+              </View>
+              <View style={styles.cardValueSection}>
+                <Text style={styles.cardValue}>3</Text>
+              </View>
+              <View style={styles.cardBottomSection}>
+                <Text style={styles.cardSubtext}>1 day ago</Text>
+              </View>
+            </View>
+
+            {/* Card 4: Job Matches */}
+            <View style={styles.activityCard}>
+              <View style={styles.cardTopSection}>
+                <View style={[styles.iconContainer, styles.iconContainerPurple]}>
+                  <Text style={styles.cardIcon}>🎯</Text>
                 </View>
-                <View style={styles.cardBottomInfo}>
-                  <Text style={styles.cardSubtext}>New matches</Text>
-                </View>
+                <Text style={styles.cardLabel}>Job Matches</Text>
+              </View>
+              <View style={styles.cardValueSection}>
+                <Text style={styles.cardValue}>
+                  89 <Text style={styles.trendPositive}>+2%</Text>
+                </Text>
+              </View>
+              <View style={styles.cardBottomSection}>
+                <Text style={styles.cardSubtext}>New matches</Text>
               </View>
             </View>
           </View>
@@ -396,124 +400,95 @@ const styles = StyleSheet.create({
     letterSpacing: -0.1,
   },
 
-  // Cards Styles - Fixed alignment issues
-  cardsContainer: {
-    marginBottom: 32,
-  },
-  cardRow: {
+  // Improved Activity Cards Grid Layout
+  cardsGrid: {
     flexDirection: 'row',
-    marginBottom: 16,
-    gap: 16,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 32,
   },
   activityCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: 20,
-    flex: 1,
-    minHeight: 160,
-    shadowColor: '#8B9DC3',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    justifyContent: 'space-between',
-  },
-  cardLeft: {
-    marginRight: 8,
-  },
-  cardRight: {
-    marginLeft: 8,
-  },
-  cardContent: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  cardHeader: {
+    padding: 16,
+    width: '48%',
+    minHeight: 140,
     marginBottom: 16,
+    shadowColor: bluewhiteTheme.colors.text.tertiary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E5EAF1',
+    justifyContent: 'space-between',
   },
-  iconCircle: {
-    backgroundColor: '#EFF6FF',
-    borderRadius: 16,
-    width: 40,
-    height: 40,
+  
+  // Card Top Section - Icon + Label
+  cardTopSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  iconContainer: {
+    backgroundColor: '#F0F4FF',
+    borderRadius: 12,
+    width: 32,
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
   },
-  iconCircleBlue: {
+  iconContainerBlue: {
     backgroundColor: '#DBEAFE',
-    borderRadius: 16,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
   },
-  iconCircleGreen: {
+  iconContainerGreen: {
     backgroundColor: '#DCFCE7',
-    borderRadius: 16,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
   },
-  iconCirclePurple: {
+  iconContainerPurple: {
     backgroundColor: '#F3E8FF',
-    borderRadius: 16,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
   },
-  iconText: {
-    fontSize: 20,
+  cardIcon: {
+    fontSize: 16,
   },
-  cardTitle: {
+  cardLabel: {
+    flex: 1,
+    fontSize: 13,
     fontWeight: '500',
-    color: '#1E293B',
-    fontSize: 15,
-    marginBottom: 12,
-    lineHeight: 20,
+    color: '#64748B',
     fontFamily: 'System',
-    letterSpacing: -0.2,
-    minHeight: 40,
+    letterSpacing: -0.1,
+    lineHeight: 18,
   },
-  cardMainContent: {
+  
+  // Card Value Section - Main Number
+  cardValueSection: {
     marginBottom: 8,
   },
-  cardCount: {
-    fontWeight: '600',
+  cardValue: {
     fontSize: 24,
+    fontWeight: '600',
     color: '#1E293B',
-    marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.4,
   },
-  cardBottomInfo: {
-    marginTop: 'auto',
-  },
-  cardTime: {
-    color: '#64748B',
-    fontSize: 13,
-    fontWeight: '500',
-    fontFamily: 'System',
-  },
-  cardSubtext: {
-    color: '#64748B',
-    fontSize: 13,
-    fontWeight: '500',
-    fontFamily: 'System',
-    marginTop: 4,
-  },
-  percentUp: {
+  trendPositive: {
     color: '#22C55E',
     fontWeight: '600',
     fontSize: 16,
     fontFamily: 'System',
+  },
+  
+  // Card Bottom Section - Subtext
+  cardBottomSection: {
+    marginTop: 'auto',
+  },
+  cardSubtext: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '500',
+    fontFamily: 'System',
+    letterSpacing: -0.1,
   },
 
   // Progress Styles - Enhanced with better visual hierarchy
@@ -521,13 +496,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#8B9DC3',
+    shadowColor: bluewhiteTheme.colors.text.tertiary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: bluewhiteTheme.colors.background.tertiary,
   },
   progressItem: {
     marginBottom: 20,

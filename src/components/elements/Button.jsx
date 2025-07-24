@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
+import { bluewhiteTheme } from '../../theme/bluewhite-theme';
 
-const Button = ({
+const Button = memo(({
   children,
   variant = 'default',
   size = 'md',
@@ -11,6 +12,13 @@ const Button = ({
   fullWidth = false,
   disabled = false,
   style,
+  textStyle,
+  containerStyle,
+  onPress,
+  onPressIn,
+  onPressOut,
+  onLongPress,
+  activeOpacity = 0.8,
   ...props
 }) => {
   const { theme } = useTheme();
@@ -46,8 +54,8 @@ const Button = ({
 
     const variantStyles = {
       default: {
-        backgroundColor: theme?.colors?.primary?.main || '#3B82F6',
-        shadowColor: theme?.colors?.primary?.main || '#3B82F6',
+        backgroundColor: theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main,
+        shadowColor: theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 12,
@@ -56,8 +64,8 @@ const Button = ({
       outline: {
         backgroundColor: 'transparent',
         borderWidth: 1.5, // Slightly thicker
-        borderColor: theme?.colors?.primary?.main || '#3B82F6',
-        shadowColor: theme?.colors?.primary?.main || '#3B82F6',
+        borderColor: theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main,
+        shadowColor: theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 8,
@@ -69,8 +77,8 @@ const Button = ({
         elevation: 0,
       },
       gradient: {
-        backgroundColor: theme?.colors?.primary?.main || '#3B82F6',
-        shadowColor: theme?.colors?.primary?.main || '#3B82F6',
+        backgroundColor: theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main,
+        shadowColor: theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 12,
@@ -87,7 +95,7 @@ const Button = ({
     };
   }, [theme, size, variant, fullWidth, disabled]);
 
-  const textStyle = useMemo(() => {
+  const textStyleComputed = useMemo(() => {
     const baseTextStyle = {
       textAlign: 'center',
       fontWeight: '600',
@@ -115,16 +123,16 @@ const Button = ({
 
     const variantTextStyles = {
       default: {
-        color: theme?.colors?.primary?.foreground || '#FFFFFF',
+        color: theme?.colors?.primary?.foreground || bluewhiteTheme.colors.primary.foreground,
       },
       outline: {
-        color: theme?.colors?.primary?.main || '#3B82F6',
+        color: theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main,
       },
       ghost: {
-        color: theme?.colors?.text?.secondary || '#475569',
+        color: theme?.colors?.text?.secondary || bluewhiteTheme.colors.text.secondary,
       },
       gradient: {
-        color: theme?.colors?.primary?.foreground || '#FFFFFF',
+        color: theme?.colors?.primary?.foreground || bluewhiteTheme.colors.primary.foreground,
       },
     };
 
@@ -132,8 +140,34 @@ const Button = ({
       ...baseTextStyle,
       ...sizeTextStyles[size],
       ...variantTextStyles[variant],
+      ...textStyle, // Apply custom text style override
     };
-  }, [theme, size, variant]);
+  }, [theme, size, variant, textStyle]);
+
+  // Memoized event handlers
+  const handlePress = useCallback((event) => {
+    if (onPress && !disabled && !loading) {
+      onPress(event);
+    }
+  }, [onPress, disabled, loading]);
+
+  const handlePressIn = useCallback((event) => {
+    if (onPressIn && !disabled && !loading) {
+      onPressIn(event);
+    }
+  }, [onPressIn, disabled, loading]);
+
+  const handlePressOut = useCallback((event) => {
+    if (onPressOut && !disabled && !loading) {
+      onPressOut(event);
+    }
+  }, [onPressOut, disabled, loading]);
+
+  const handleLongPress = useCallback((event) => {
+    if (onLongPress && !disabled && !loading) {
+      onLongPress(event);
+    }
+  }, [onLongPress, disabled, loading]);
 
   const renderContent = () => (
     <>
@@ -142,8 +176,8 @@ const Button = ({
           size="small"
           color={
             variant === 'default' || variant === 'gradient'
-              ? theme?.colors?.primary?.foreground || '#FFFFFF'
-              : theme?.colors?.primary?.main || '#3B82F6'
+              ? theme?.colors?.primary?.foreground || bluewhiteTheme.colors.primary.foreground
+              : theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main
           }
           style={{ marginRight: theme?.spacing?.[2] || 8 }}
         />
@@ -151,31 +185,45 @@ const Button = ({
       {icon && !loading && (
         <View style={{ marginRight: theme?.spacing?.[2] || 8 }}>{icon}</View>
       )}
-      <Text style={textStyle}>{children}</Text>
+      <Text style={textStyleComputed}>{children}</Text>
     </>
   );
 
   if (variant === 'gradient') {
     return (
-      <TouchableOpacity
-        style={[buttonStyle, { backgroundColor: theme?.colors?.primary?.main || '#3B82F6' }, style]}
-        disabled={disabled || loading}
-        {...props}
-      >
-        {renderContent()}
-      </TouchableOpacity>
+      <View style={containerStyle}>
+        <TouchableOpacity
+          style={[buttonStyle, { backgroundColor: theme?.colors?.primary?.main || bluewhiteTheme.colors.primary.main }, style]}
+          disabled={disabled || loading}
+          activeOpacity={activeOpacity}
+          onPress={handlePress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onLongPress={handleLongPress}
+          {...props}
+        >
+          {renderContent()}
+        </TouchableOpacity>
+      </View>
     );
   }
 
   return (
-    <TouchableOpacity
-      style={[buttonStyle, style]}
-      disabled={disabled || loading}
-      {...props}
-    >
-      {renderContent()}
-    </TouchableOpacity>
+    <View style={containerStyle}>
+      <TouchableOpacity
+        style={[buttonStyle, style]}
+        disabled={disabled || loading}
+        activeOpacity={activeOpacity}
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onLongPress={handleLongPress}
+        {...props}
+      >
+        {renderContent()}
+      </TouchableOpacity>
+    </View>
   );
-};
+});
 
 export default Button;

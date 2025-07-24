@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { apiClient, handleApiError } from './api';
 
 /**
  * Skills Service
@@ -11,18 +11,20 @@ const skillsService = {
    */
   async getAllSkills() {
     try {
-      const { data, error } = await supabase
-        .from('skills')
-        .select('*')
-        .order('name');
+      const { data, error } = await apiClient.query('skills', {
+        select: '*',
+        orderBy: { column: 'name', ascending: true },
+        cache: true,
+        cacheKey: 'all_skills'
+      });
 
       if (error) {
         throw error;
       }
       return { data, error: null };
     } catch (error) {
-      console.error('Error fetching skills:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getAllSkills');
+      return { data: null, error: apiError };
     }
   },
 
@@ -33,18 +35,37 @@ const skillsService = {
    */
   async createSkill(name) {
     try {
-      const { data, error } = await supabase
-        .from('skills')
-        .insert([{ name: name.trim() }])
-        .select();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('skills')
+            .insert([{ 
+              name: name.trim(),
+              created_at: new Date().toISOString(),
+            }])
+            .select();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'createSkill'
+        }
+      );
 
       if (error) {
         throw error;
       }
-      return { data: data[0], error: null };
+
+      // Clear related caches
+      apiClient.clearCache('all_skills');
+      apiClient.clearCache('skills');
+
+      return { data: data?.[0] || null, error: null };
     } catch (error) {
-      console.error('Error creating skill:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'createSkill');
+      return { data: null, error: apiError };
     }
   },
 
@@ -55,20 +76,31 @@ const skillsService = {
    */
   async searchSkills(searchTerm) {
     try {
-      const { data, error } = await supabase
-        .from('skills')
-        .select('*')
-        .ilike('name', `%${searchTerm}%`)
-        .order('name')
-        .limit(20);
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('skills')
+            .select('*')
+            .ilike('name', `%${searchTerm}%`)
+            .order('name')
+            .limit(20);
+          
+          return { data, error };
+        },
+        { 
+          cache: true,
+          cacheKey: `search_skills_${searchTerm}`,
+          context: 'searchSkills'
+        }
+      );
 
       if (error) {
         throw error;
       }
       return { data, error: null };
     } catch (error) {
-      console.error('Error searching skills:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'searchSkills');
+      return { data: null, error: apiError };
     }
   },
 
@@ -79,19 +111,21 @@ const skillsService = {
    */
   async getSkillById(skillId) {
     try {
-      const { data, error } = await supabase
-        .from('skills')
-        .select('*')
-        .eq('id', skillId)
-        .single();
+      const { data, error } = await apiClient.query('skills', {
+        select: '*',
+        filters: { id: skillId },
+        limit: 1,
+        cache: true,
+        cacheKey: `skill_${skillId}`
+      });
 
       if (error) {
         throw error;
       }
-      return { data, error: null };
+      return { data: data?.[0] || null, error: null };
     } catch (error) {
-      console.error('Error fetching skill by ID:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'getSkillById');
+      return { data: null, error: apiError };
     }
   },
 
@@ -103,23 +137,40 @@ const skillsService = {
    */
   async updateSkill(skillId, updates) {
     try {
-      const { data, error } = await supabase
-        .from('skills')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', skillId)
-        .select()
-        .single();
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('skills')
+            .update({
+              ...updates,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', skillId)
+            .select()
+            .single();
+          
+          return { data, error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'updateSkill'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('all_skills');
+      apiClient.clearCache('skills');
+      apiClient.clearCache(`skill_${skillId}`);
+
       return { data, error: null };
     } catch (error) {
-      console.error('Error updating skill:', error);
-      return { data: null, error };
+      const apiError = handleApiError(error, 'updateSkill');
+      return { data: null, error: apiError };
     }
   },
 
@@ -130,18 +181,35 @@ const skillsService = {
    */
   async deleteSkill(skillId) {
     try {
-      const { error } = await supabase
-        .from('skills')
-        .delete()
-        .eq('id', skillId);
+      const { error } = await apiClient.request(
+        async () => {
+          const { error } = await apiClient.supabase
+            .from('skills')
+            .delete()
+            .eq('id', skillId);
+          
+          return { error };
+        },
+        { 
+          cache: false, 
+          retries: false,
+          context: 'deleteSkill'
+        }
+      );
 
       if (error) {
         throw error;
       }
+
+      // Clear related caches
+      apiClient.clearCache('all_skills');
+      apiClient.clearCache('skills');
+      apiClient.clearCache(`skill_${skillId}`);
+
       return { error: null };
     } catch (error) {
-      console.error('Error deleting skill:', error);
-      return { error };
+      const apiError = handleApiError(error, 'deleteSkill');
+      return { error: apiError };
     }
   },
 };

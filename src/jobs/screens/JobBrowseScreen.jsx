@@ -247,8 +247,7 @@ const JobBrowseScreen = () => {
             )}
             {job.salary && (
               <View style={styles.metaItem}>
-                <Feather name="dollar-sign" size={14} color="#6B7280" />
-                <Text style={styles.metaText}>{job.salary}</Text>
+                <Text style={styles.metaText}>₹{job.salary}</Text>
               </View>
             )}
           </View>

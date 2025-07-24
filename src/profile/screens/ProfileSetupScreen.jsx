@@ -15,12 +15,12 @@ import Feather from 'react-native-vector-icons/Feather';
 import Button from '../../components/elements/Button';
 import Input from '../../components/elements/Input';
 import { AppHeader, Icon } from '../../components/elements';
-import { AuthContext } from '../../contexts/AuthContext';
-import { UserContext } from '../../contexts/UserContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useUser } from '../../contexts/UserContext';
 
 const ProfileSetupScreen = ({ navigation, route }) => {
-  const { user, updateUserRecord } = useContext(AuthContext);
-  const { currentMode } = useContext(UserContext);
+  const { user, updateUserRecord } = useAuth();
+  const { currentMode } = useUser();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,14 +31,15 @@ const ProfileSetupScreen = ({ navigation, route }) => {
 
   // Job Seeker form state
   const [jobSeekerData, setJobSeekerData] = useState({
-    name: user?.name || '',
-    city: '',
-    education10th: '',
-    education12th: '',
-    graduationPercentage: '',
-    skills: '',
-    experienceLevel: 'fresher',
+    name: user?.user_metadata?.name || user?.email?.split('@')[0] || '',
+    city: user?.user_metadata?.city || '',
+    education10th: user?.user_metadata?.education10th || '',
+    education12th: user?.user_metadata?.education12th || '',
+    graduationPercentage: user?.user_metadata?.graduationPercentage || '',
+    skills: user?.user_metadata?.skills || '',
+    experienceLevel: user?.user_metadata?.experienceLevel || 'fresher',
     jobCategories: [],
+    newSkill: '',
   });
 
   // Job Poster form state
@@ -370,18 +371,42 @@ const ProfileSetupScreen = ({ navigation, route }) => {
             </Text>
 
             <View style={styles.formFields}>
-              <Input
-                label="Skills"
-                placeholder="e.g., React Native, JavaScript, UI/UX"
-                value={jobSeekerData.skills}
-                onChangeText={text =>
-                  setJobSeekerData({ ...jobSeekerData, skills: text })
-                }
-                multiline
-                numberOfLines={3}
-                leftIcon={<Feather name="code" size={20} color="#94A3B8" />}
-                error={errors.skills}
-              />
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Skills</Text>
+                <View style={styles.skillsGrid}>
+                  {jobSeekerData.skills.split(',').filter(skill => skill.trim()).map((skill, index) => (
+                    <View key={index} style={styles.skillChip}>
+                      <Text style={styles.skillChipText}>{skill.trim()}</Text>
+                      <TouchableOpacity
+                        style={styles.removeSkillButton}
+                        onPress={() => {
+                          const skillsArray = jobSeekerData.skills.split(',').filter(s => s.trim() !== skill.trim());
+                          setJobSeekerData({ ...jobSeekerData, skills: skillsArray.join(', ') });
+                        }}
+                      >
+                        <Feather name="x" size={16} color="#94A3B8" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+                <Input
+                  placeholder="Add a skill and press Enter"
+                  value={jobSeekerData.newSkill}
+                  onChangeText={text => setJobSeekerData({ ...jobSeekerData, newSkill: text })}
+                  onSubmitEditing={() => {
+                    if (jobSeekerData.newSkill.trim()) {
+                      const currentSkills = jobSeekerData.skills ? jobSeekerData.skills + ', ' : '';
+                      setJobSeekerData({ 
+                        ...jobSeekerData, 
+                        skills: currentSkills + jobSeekerData.newSkill.trim(),
+                        newSkill: ''
+                      });
+                    }
+                  }}
+                  leftIcon={<Feather name="code" size={20} color="#94A3B8" />}
+                  error={errors.skills}
+                />
+              </View>
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Experience Level</Text>
@@ -1052,6 +1077,38 @@ const styles = {
     color: '#FFFFFF',
     fontFamily: 'System',
     letterSpacing: -0.3,
+  },
+  skillsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 16,
+  },
+  skillChip: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#CBD5E1',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  skillChipText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#64748B',
+    fontFamily: 'System',
+    letterSpacing: -0.1,
+    marginRight: 8,
+  },
+  removeSkillButton: {
+    padding: 4,
   },
 };
 

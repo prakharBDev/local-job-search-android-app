@@ -37,6 +37,7 @@ export const getStyles = theme =>
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: theme.spacing[4],
+      backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent white background
       borderWidth: 1,
       borderColor: '#FFFFFF', // White outline as requested
       flexShrink: 0, // Prevent logo from shrinking

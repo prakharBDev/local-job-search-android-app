@@ -80,12 +80,7 @@ const RecentJobCard = React.memo(({ item, index = 0 }) => {
     >
       <View style={styles.contentRow}>
         {/* Company Logo */}
-        <View
-          style={[
-            styles.logoContainer,
-            { backgroundColor: cardColors.iconBg },
-          ]}
-        >
+        <View style={styles.logoContainer}>
           <Text
             style={[
               styles.logoText,

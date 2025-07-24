@@ -68,10 +68,7 @@ const PopularJobCard = React.memo(({ job, index = 0 }) => {
         { backgroundColor: categoryColors.background }
       ]}>
         <View style={styles.headerContainer}>
-          <View style={[
-            styles.logoContainer,
-            { backgroundColor: categoryColors.iconBg }
-          ]}>
+          <View style={styles.logoContainer}>
             <Feather 
               name={job.logo} 
               size={24} 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
   Animated,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
@@ -13,7 +14,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Card from '../../components/blocks/Card';
 import Button from '../../components/elements/Button';
 import { AppHeader, Icon } from '../../components/elements';
+import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { applicationService } from '../../services';
 import { getStyles } from './ApplicationDetailsScreen.styles';
 
 const ApplicationDetailsScreen = () => {
@@ -21,9 +24,11 @@ const ApplicationDetailsScreen = () => {
   const route = useRoute();
   const { applicationData } = route.params || {};
   const { theme } = useTheme();
+  const { user } = useAuth();
   const styles = getStyles(theme);
 
-  const [application] = useState(applicationData);
+  const [application, setApplication] = useState(applicationData);
+  const [loading, setLoading] = useState(false);
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;

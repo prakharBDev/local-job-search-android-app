@@ -123,8 +123,7 @@ export const getStyles = theme =>
 
     // Job type pill
     jobTypePill: {
-      backgroundColor:
-        theme.colors.buttonTags?.fullTime?.background || '#F3F4F6',
+      backgroundColor: theme.colors.buttonTags?.fullTime?.background || '#F3F4F6',
       paddingHorizontal: 12,
       paddingVertical: 4,
       borderRadius: 9999,
@@ -139,8 +138,7 @@ export const getStyles = theme =>
 
     // Days left pill
     daysLeftPill: {
-      backgroundColor:
-        theme.colors.buttonTags?.daysLeft?.background || '#FEF3C7',
+      backgroundColor: theme.colors.buttonTags?.daysLeft?.background || '#FEF3C7',
       paddingHorizontal: 12,
       paddingVertical: 4,
       borderRadius: 9999,
@@ -152,6 +150,7 @@ export const getStyles = theme =>
       fontWeight: '500',
       fontFamily: 'Inter',
     },
+
   });
 
 // Function to get alternating purple/green colors for job cards
@@ -165,12 +164,11 @@ export const getJobCategoryColors = (theme, jobType, company, index = 0) => {
       iconBg: 'rgba(139, 92, 246, 0.1)',
     },
     {
-      background:
-        theme.colors.jobCategories?.secondary?.background || '#E4FCE5', // Light parrot green
+      background: theme.colors.jobCategories?.secondary?.background || '#E4FCE5', // Light parrot green
       text: theme.colors.jobCategories?.secondary?.text || '#1F2937',
       accent: '#22C55E', // Green accent for icons
       iconBg: 'rgba(34, 197, 94, 0.1)',
-    },
+    }
   ];
 
   // Alternate between the two color schemes based on index

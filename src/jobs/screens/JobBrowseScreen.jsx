@@ -90,12 +90,11 @@ const JobBrowseScreen = () => {
   const loadPopularJobs = async () => {
     try {
       // Load recent jobs as popular jobs (limit to 3)
-      const { data: popularJobsData, error: popularJobsError } =
-        await jobService.getJobs(
-          {}, // no filters
-          { limit: 3, orderBy: { column: 'created_at', ascending: false } },
-        );
-
+      const { data: popularJobsData, error: popularJobsError } = await jobService.getJobs(
+        {}, // no filters
+        { limit: 3, orderBy: { column: 'created_at', ascending: false } }
+      );
+      
       if (popularJobsData && !popularJobsError) {
         setPopularJobs(popularJobsData);
       }
@@ -233,12 +232,12 @@ const JobBrowseScreen = () => {
     if (!salary) {
       return 'Salary not specified';
     }
-
+    
     // If salary already has ₹ symbol, return as is
     if (salary.includes('₹')) {
       return salary;
     }
-
+    
     // Add ₹ symbol to the database value
     return `₹${salary}`;
   };
@@ -349,7 +348,23 @@ const JobBrowseScreen = () => {
     );
   };
 
-  // Filter pill component moved to inline usage
+  const renderFilterPill = (label, value, onPress, isSelected) => (
+    <TouchableOpacity
+      key={value}
+      style={[styles.filterPill, isSelected && styles.filterPillSelected]}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <Text
+        style={[
+          styles.filterPillText,
+          isSelected && styles.filterPillTextSelected,
+        ]}
+      >
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
 
   if (loading && jobs.length === 0) {
     return (
@@ -385,7 +400,8 @@ const JobBrowseScreen = () => {
             showsHorizontalScrollIndicator={false}
             style={styles.filtersContainer}
             contentContainerStyle={styles.filtersContent}
-          />
+          >
+          </ScrollView>
         </View>
 
         {/* Jobs List */}
@@ -445,7 +461,7 @@ const JobBrowseScreen = () => {
                   <Feather name="x" size={24} color="#6B7280" />
                 </TouchableOpacity>
               </View>
-
+              
               {/* Search Section */}
               <View style={styles.modalSearchSection}>
                 <Text style={styles.modalSectionTitle}>Search</Text>
@@ -473,34 +489,28 @@ const JobBrowseScreen = () => {
                   <TouchableOpacity
                     style={[
                       styles.modalOption,
-                      selectedCity === 'morena' && styles.modalOptionSelected,
+                      selectedCity === 'morena' && styles.modalOptionSelected
                     ]}
                     onPress={() => setSelectedCity('morena')}
                   >
-                    <Text
-                      style={[
-                        styles.modalOptionText,
-                        selectedCity === 'morena' &&
-                          styles.modalOptionTextSelected,
-                      ]}
-                    >
+                    <Text style={[
+                      styles.modalOptionText,
+                      selectedCity === 'morena' && styles.modalOptionTextSelected
+                    ]}>
                       Morena
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.modalOption,
-                      selectedCity === 'gwalior' && styles.modalOptionSelected,
+                      selectedCity === 'gwalior' && styles.modalOptionSelected
                     ]}
                     onPress={() => setSelectedCity('gwalior')}
                   >
-                    <Text
-                      style={[
-                        styles.modalOptionText,
-                        selectedCity === 'gwalior' &&
-                          styles.modalOptionTextSelected,
-                      ]}
-                    >
+                    <Text style={[
+                      styles.modalOptionText,
+                      selectedCity === 'gwalior' && styles.modalOptionTextSelected
+                    ]}>
                       Gwalior
                     </Text>
                   </TouchableOpacity>
@@ -514,17 +524,14 @@ const JobBrowseScreen = () => {
                   <TouchableOpacity
                     style={[
                       styles.modalOption,
-                      selectedCategory === '' && styles.modalOptionSelected,
+                      selectedCategory === '' && styles.modalOptionSelected
                     ]}
                     onPress={() => setSelectedCategory('')}
                   >
-                    <Text
-                      style={[
-                        styles.modalOptionText,
-                        selectedCategory === '' &&
-                          styles.modalOptionTextSelected,
-                      ]}
-                    >
+                    <Text style={[
+                      styles.modalOptionText,
+                      selectedCategory === '' && styles.modalOptionTextSelected
+                    ]}>
                       All Categories
                     </Text>
                   </TouchableOpacity>
@@ -533,18 +540,14 @@ const JobBrowseScreen = () => {
                       key={category.id}
                       style={[
                         styles.modalOption,
-                        selectedCategory === category.id &&
-                          styles.modalOptionSelected,
+                        selectedCategory === category.id && styles.modalOptionSelected
                       ]}
                       onPress={() => setSelectedCategory(category.id)}
                     >
-                      <Text
-                        style={[
-                          styles.modalOptionText,
-                          selectedCategory === category.id &&
-                            styles.modalOptionTextSelected,
-                        ]}
-                      >
+                      <Text style={[
+                        styles.modalOptionText,
+                        selectedCategory === category.id && styles.modalOptionTextSelected
+                      ]}>
                         {category.name}
                       </Text>
                     </TouchableOpacity>

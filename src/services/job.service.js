@@ -1,9 +1,4 @@
-import {
-  apiClient,
-  buildJobQuery,
-  buildSearchQuery,
-  handleApiError,
-} from './api';
+import { apiClient, buildJobQuery, buildSearchQuery, handleApiError } from './api';
 
 /**
  * Job Service
@@ -28,7 +23,7 @@ const jobService = {
         offset: options.offset || 0,
         orderBy: options.orderBy || { column: 'created_at', ascending: false },
         cache: options.cache !== false,
-        ...options,
+        ...options
       });
 
       if (error) {
@@ -57,7 +52,7 @@ const jobService = {
         includeSkills: true,
         includeApplications: options.includeApplications || false,
         cache: true,
-        ...options,
+        ...options
       });
 
       if (error) {
@@ -78,16 +73,14 @@ const jobService = {
    */
   async createJob(jobData) {
     try {
-      const operation = async supabase => {
+      const operation = async (supabase) => {
         return await supabase
           .from('jobs')
-          .insert([
-            {
-              ...jobData,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-          ])
+          .insert([{
+            ...jobData,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }])
           .select()
           .single();
       };
@@ -119,7 +112,7 @@ const jobService = {
    */
   async updateJob(jobId, updates) {
     try {
-      const operation = async supabase => {
+      const operation = async (supabase) => {
         return await supabase
           .from('jobs')
           .update({
@@ -157,10 +150,10 @@ const jobService = {
    */
   async deleteJob(jobId) {
     try {
-      const operation = async supabase => {
+      const operation = async (supabase) => {
         return await supabase
           .from('jobs')
-          .update({
+          .update({ 
             is_active: false,
             updated_at: new Date().toISOString(),
           })
@@ -200,7 +193,7 @@ const jobService = {
         filters,
         limit: options.limit || 20,
         cache: false, // Don't cache search results
-        ...options,
+        ...options
       });
 
       if (error) {
@@ -230,7 +223,7 @@ const jobService = {
         limit: options.limit || 50,
         orderBy: { column: 'created_at', ascending: false },
         cache: true,
-        ...options,
+        ...options
       });
 
       if (error) {
@@ -259,7 +252,7 @@ const jobService = {
         limit: options.limit || 20,
         orderBy: { column: 'created_at', ascending: false },
         cache: true,
-        ...options,
+        ...options
       });
 
       if (error) {
@@ -289,7 +282,7 @@ const jobService = {
         limit: options.limit || 20,
         orderBy: { column: 'created_at', ascending: false },
         cache: true,
-        ...options,
+        ...options
       });
 
       if (error) {
@@ -316,7 +309,7 @@ const jobService = {
         limit: options.limit || 10,
         orderBy: { column: 'created_at', ascending: false },
         cache: true,
-        ...options,
+        ...options
       });
 
       if (error) {
@@ -337,7 +330,7 @@ const jobService = {
    */
   async getJobStats(filters = {}) {
     try {
-      const operation = async supabase => {
+      const operation = async (supabase) => {
         const stats = {};
 
         // Get total jobs
@@ -354,11 +347,10 @@ const jobService = {
           .select('city')
           .eq('is_active', true);
 
-        stats.jobsByCity =
-          jobsByCity?.reduce((acc, job) => {
-            acc[job.city] = (acc[job.city] || 0) + 1;
-            return acc;
-          }, {}) || {};
+        stats.jobsByCity = jobsByCity?.reduce((acc, job) => {
+          acc[job.city] = (acc[job.city] || 0) + 1;
+          return acc;
+        }, {}) || {};
 
         // Get jobs by category
         const { data: jobsByCategory } = await supabase
@@ -366,12 +358,11 @@ const jobService = {
           .select('category_id, job_categories(name)')
           .eq('is_active', true);
 
-        stats.jobsByCategory =
-          jobsByCategory?.reduce((acc, job) => {
-            const categoryName = job.job_categories?.name || 'Unknown';
-            acc[categoryName] = (acc[categoryName] || 0) + 1;
-            return acc;
-          }, {}) || {};
+        stats.jobsByCategory = jobsByCategory?.reduce((acc, job) => {
+          const categoryName = job.job_categories?.name || 'Unknown';
+          acc[categoryName] = (acc[categoryName] || 0) + 1;
+          return acc;
+        }, {}) || {};
 
         // Get recent job postings (last 7 days)
         const sevenDaysAgo = new Date();
@@ -390,7 +381,7 @@ const jobService = {
 
       const { data, error } = await apiClient.request(operation, {
         cache: true,
-        cacheKey: `job_stats_${JSON.stringify(filters)}`,
+        cacheKey: `job_stats_${JSON.stringify(filters)}`
       });
 
       if (error) {
@@ -412,13 +403,15 @@ const jobService = {
    */
   async addSkillsToJob(jobId, skillIds) {
     try {
-      const operation = async supabase => {
+      const operation = async (supabase) => {
         const skillData = skillIds.map(skillId => ({
           job_id: jobId,
           skill_id: skillId,
         }));
 
-        return await supabase.from('job_skills').insert(skillData);
+        return await supabase
+          .from('job_skills')
+          .insert(skillData);
       };
 
       const { error } = await apiClient.request(operation, {
@@ -448,7 +441,7 @@ const jobService = {
    */
   async removeSkillsFromJob(jobId, skillIds) {
     try {
-      const operation = async supabase => {
+      const operation = async (supabase) => {
         return await supabase
           .from('job_skills')
           .delete()
@@ -482,18 +475,16 @@ const jobService = {
    */
   async getJobSkills(jobId) {
     try {
-      const operation = async supabase => {
+      const operation = async (supabase) => {
         return await supabase
           .from('job_skills')
-          .select(
-            `
+          .select(`
             id,
             skills (
               id,
               name
             )
-          `,
-          )
+          `)
           .eq('job_id', jobId);
       };
 
@@ -507,13 +498,10 @@ const jobService = {
       }
 
       // Transform the data to return just the skills
-      const skills =
-        data
-          ?.map(item => ({
-            id: item.skills?.id || item.id,
-            name: item.skills?.name || 'Unknown Skill',
-          }))
-          .filter(skill => skill.name !== 'Unknown Skill') || [];
+      const skills = data?.map(item => ({
+        id: item.skills?.id || item.id,
+        name: item.skills?.name || 'Unknown Skill'
+      })).filter(skill => skill.name !== 'Unknown Skill') || [];
 
       return { data: skills, error: null };
     } catch (error) {

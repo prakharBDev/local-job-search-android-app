@@ -100,7 +100,6 @@ const OnboardingScreen = () => {
           <Text style={styles.sectionTitle}>What would you like to do?</Text>
           <Text style={styles.sectionSubtitle}>
             You can select both options
-          </Text>
 
           {/* Role Cards */}
           <View style={styles.roleCardsContainer}>
@@ -189,7 +188,8 @@ const OnboardingScreen = () => {
             <Text style={styles.helperText}>
               {selectedRoles.isSeeker && selectedRoles.isPoster
                 ? "You'll set up both profiles in sequence"
-                : 'You can add the other role later in your profile settings'}
+                : 'You can add the other role later in your profile settings'
+              }
             </Text>
           </View>
         </View>

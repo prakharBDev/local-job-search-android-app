@@ -820,6 +820,7 @@ const EditProfileScreen = ({ navigation, route }) => {
                   .split(',')
                   .some(
                     s => s.trim().toLowerCase() === skill.name.toLowerCase(),
+                  );
 
                 return (
                   <TouchableOpacity
@@ -853,6 +854,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           )}
           {errors.skills && (
             <Text style={styles.errorText}>{errors.skills}</Text>
+          )}
 
           {/* Add custom skill input */}
           <View style={styles.customSkillContainer}>

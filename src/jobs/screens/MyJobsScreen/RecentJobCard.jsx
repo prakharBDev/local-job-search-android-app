@@ -125,20 +125,32 @@ const RecentJobCard = React.memo(({ item, index = 0 }) => {
             {formatSalary(item.salary)}
           </Text>
 
-          <Text style={[
-            styles.locationText,
-            { color: cardColors.text, opacity: 0.7 }
-          ]}>
-            Experience: 2-4 years
-          </Text>
-          
-          {/* Job Type - separate line without borders */}
-          <Text style={[
-            styles.jobTypeText,
-            { color: cardColors.text, opacity: 0.8 }
-          ]}>
-            {item.type}
-          </Text>
+          {/* Meta information pills */}
+          <View style={styles.metaContainer}>
+            <View style={[
+              styles.experiencePill,
+              { backgroundColor: 'rgba(255, 255, 255, 0.2)' }
+            ]}>
+              <Text style={[
+                styles.pillText,
+                { color: '#FFFFFF' }
+              ]}>
+                Experience: 2-4 years
+              </Text>
+            </View>
+            
+            <View style={[
+              styles.jobTypePill,
+              { backgroundColor: 'rgba(255, 255, 255, 0.2)' }
+            ]}>
+              <Text style={[
+                styles.pillText,
+                { color: '#FFFFFF' }
+              ]}>
+                {item.type}
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* Time Posted */}

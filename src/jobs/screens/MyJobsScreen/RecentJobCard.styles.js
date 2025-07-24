@@ -38,9 +38,7 @@ export const getStyles = theme =>
       justifyContent: 'center',
       marginRight: theme.spacing[4],
       borderWidth: 1,
-      borderColor:
-        theme.colors.interactive?.border?.secondary ||
-        theme.colors.border?.secondary,
+      borderColor: '#FFFFFF', // White outline as requested
       flexShrink: 0, // Prevent logo from shrinking
     },
 
@@ -110,6 +108,36 @@ export const getStyles = theme =>
       color: theme.colors.text?.tertiary || '#9E9E9E',
       fontWeight: '500',
       marginTop: 2, // Small spacing from experience text
+    },
+
+    // Meta information section (experience and job type pills)
+    metaContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[2],
+      flexWrap: 'wrap',
+      marginBottom: theme.spacing[2],
+    },
+
+    // Experience pill
+    experiencePill: {
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 9999, // rounded-full
+    },
+
+    // Job type pill
+    jobTypePill: {
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 9999, // rounded-full
+    },
+
+    // Pill text styling
+    pillText: {
+      fontSize: 12,
+      fontWeight: '500',
+      fontFamily: 'Inter',
     },
 
     timeContainer: {

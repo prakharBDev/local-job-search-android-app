@@ -18,7 +18,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../contexts/UserContext';
 import { seekerService, companyService, userService } from '../../services';
 import { AppHeader, Icon } from '../../components/elements';
-import { bluewhiteTheme } from '../../theme/bluewhite-theme';
+import { theme } from '../../theme';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, userRecord, updateUserRecord, checkAuthStatus } = useAuth();
@@ -286,7 +286,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.background.secondary} />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -299,9 +299,9 @@ const ProfileScreen = ({ navigation }) => {
         <AppHeader
           title="Profile"
           subtitle="Manage your account & preferences"
-          rightIcon={<Icon name="settings" size={20} color="#3B82F6" />}
+          rightIcon={<Icon name="settings" size={20} color={theme.colors.primary.main} />}
           onRightPress={handleSettings}
-          background="#FFFFFF"
+          background={theme.colors.background.secondary}
         />
 
         {/* User Profile Card */}
@@ -725,7 +725,7 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.background.secondary,
   },
   scrollView: {
     flex: 1,
@@ -736,20 +736,20 @@ const styles = StyleSheet.create({
 
   // Header Styles
   headerContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.background.secondary,
     paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: 28,
     borderBottomLeftRadius: 32,
     borderBottomRightRadius: 32,
-    shadowColor: '#E2E8F0',
+    shadowColor: theme.colors.shadow.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
     marginBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: theme.colors.border.primary,
   },
   headerContent: {
     flexDirection: 'row',
@@ -762,7 +762,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '600',
-    color: '#334155',
+    color: theme.colors.text.primary,
     marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.5,
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#94A3B8',
+    color: theme.colors.text.secondary,
     fontFamily: 'System',
     letterSpacing: -0.1,
   },
@@ -778,16 +778,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   settingsButton: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background.primary,
     borderRadius: 18,
     padding: 14,
-    shadowColor: '#E2E8F0',
+    shadowColor: theme.colors.shadow.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: theme.colors.border.primary,
   },
   settingsIcon: {
     fontSize: 20,
@@ -795,18 +795,18 @@ const styles = StyleSheet.create({
 
   // Profile Card Styles
   profileCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.background.secondary,
     borderRadius: 24,
     padding: 24,
     marginHorizontal: 24,
     marginBottom: 24,
-    shadowColor: '#E2E8F0',
+    shadowColor: theme.colors.shadow.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F8FAFC',
+    borderColor: theme.colors.border.primary,
   },
   profileHeader: {
     flexDirection: 'row',
@@ -817,11 +817,11 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#60A5FA',
+    backgroundColor: theme.colors.primary.main,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 20,
-    shadowColor: '#60A5FA',
+    shadowColor: theme.colors.primary.main,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -830,7 +830,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: theme.colors.background.secondary,
     fontFamily: 'System',
   },
   profileInfo: {
@@ -839,7 +839,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#334155',
+    color: theme.colors.text.primary,
     marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.4,
@@ -847,7 +847,7 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#94A3B8',
+    color: theme.colors.text.secondary,
     marginBottom: 12,
     fontFamily: 'System',
     letterSpacing: -0.1,
@@ -856,27 +856,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   modeBadge: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: theme.colors.primary.light,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#DBEAFE',
+    borderColor: theme.colors.border.focus,
   },
   modeText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#3B82F6',
+    color: theme.colors.primary.main,
     fontFamily: 'System',
     letterSpacing: -0.1,
   },
   editButton: {
-    backgroundColor: '#60A5FA',
+    backgroundColor: theme.colors.primary.main,
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
-    shadowColor: '#60A5FA',
+    shadowColor: theme.colors.primary.main,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -885,7 +885,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: theme.colors.background.secondary,
     fontFamily: 'System',
     letterSpacing: -0.2,
   },
@@ -899,24 +899,24 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.background.secondary,
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: 130,
-    shadowColor: '#E2E8F0',
+    shadowColor: theme.colors.shadow.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F8FAFC',
+    borderColor: theme.colors.border.primary,
   },
   statNumber: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#334155',
+    color: theme.colors.text.primary,
     marginBottom: 8,
     fontFamily: 'System',
     letterSpacing: -0.6,
@@ -925,7 +925,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#94A3B8',
+    color: theme.colors.text.secondary,
     marginBottom: 4,
     fontFamily: 'System',
     letterSpacing: -0.1,
@@ -935,7 +935,7 @@ const styles = StyleSheet.create({
   statSubtext: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#CBD5E1',
+    color: theme.colors.text.muted,
     fontFamily: 'System',
     textAlign: 'center',
     minHeight: 16,
@@ -949,7 +949,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#334155',
+    color: theme.colors.text.primary,
     marginBottom: 16,
     fontFamily: 'System',
     letterSpacing: -0.3,
@@ -962,17 +962,17 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.background.secondary,
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
-    shadowColor: '#E2E8F0',
+    shadowColor: theme.colors.shadow.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F8FAFC',
+    borderColor: theme.colors.border.primary,
   },
   actionIcon: {
     backgroundColor: '#EFF6FF',

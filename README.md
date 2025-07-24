@@ -56,7 +56,7 @@ BasicApp is a professional React Native job portal application featuring:
 
 ### Installation
 
-```bash
+````bash
 # 1. Clone the repository
 git clone <repository-url>
 cd BasicApp
@@ -70,10 +70,31 @@ cd ios && pod install && cd ..
 # 4. Start Metro bundler
 npm start
 
-# 5. Run the app
-npm run android  # For Android
-npm run ios      # For iOS
+# 5. Environment Setup
+Set up your environment variables for Supabase:
+
+```bash
+# Run the setup script (recommended)
+npm run setup:env
+
+# Or manually create .env file
+touch .env
+````
+
+Add the following environment variables to your `.env` file:
+
+```env
+# Supabase Configuration
+SUPABASE_URL=your_supabase_url_here
+SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
+
+**Note**: The `.env` file is already in `.gitignore` to keep your credentials secure.
+
+# 6. Run the app
+
+npm run android # For Android
+npm run ios # For iOS
 
 ### Quick Development Commands
 
@@ -108,6 +129,7 @@ BasicApp/
 │   ├── 🔗 hooks/               # Custom React hooks
 │   ├── 🛠️ utils/               # Utility functions
 │   ├── 📡 services/            # API and external services
+│   ├── ⚙️ config/              # Environment configuration
 │   └── 📝 types/               # TypeScript definitions
 ├── 📁 docs/                    # Comprehensive documentation
 ├── 📁 scripts/                 # Quality automation scripts

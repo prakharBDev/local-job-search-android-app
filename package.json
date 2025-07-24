@@ -27,7 +27,8 @@
     "lint-staged": "lint-staged",
     "docs:generate": "node scripts/generate-docs.js",
     "docs:validate": "node scripts/generate-docs.js --validate-only",
-    "docs:health": "node scripts/generate-docs.js --health-only"
+    "docs:health": "node scripts/generate-docs.js --health-only",
+    "setup:env": "node scripts/setup-env.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.24.0",

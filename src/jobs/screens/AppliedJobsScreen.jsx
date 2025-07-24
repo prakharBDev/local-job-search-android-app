@@ -81,6 +81,7 @@ const AppliedJobsScreen = () => {
       setLoading(true);
       const { data, error } = await applicationService.getSeekerApplications(
         seekerProfile.id,
+      );
 
       if (error) {
         throw error;

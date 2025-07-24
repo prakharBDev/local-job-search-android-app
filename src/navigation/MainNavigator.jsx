@@ -116,7 +116,7 @@ const MyJobsStack = () => {
       />
       <Stack.Screen
         name="JobDetails"
-        component={JobDetailsScreen}
+        component={SwipeableJobDetailsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

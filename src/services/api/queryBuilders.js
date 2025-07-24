@@ -140,21 +140,17 @@ export const buildCompanyProfileQuery = (userId, options = {}) => {
   } = options;
 
   // Build select statement
-  const select = `
-    *,
-    ${
-      includeJobs
-        ? 'jobs(id, title, description, city, is_active, created_at)'
-        : ''
-    }
-    ${
-      includeApplications
-        ? ',jobs.applications(id, status, created_at, seeker_profiles(users(name)))'
-        : ''
-    }
-  `
-    .replace(/\s+/g, ' ')
-    .trim();
+  let select = '*';
+  
+  if (includeJobs) {
+    select += ',jobs(id, title, description, city, is_active, created_at)';
+  }
+  
+  if (includeApplications) {
+    select += ',jobs.applications(id, status, created_at, seeker_profiles(users(name)))';
+  }
+  
+  select = select.replace(/\s+/g, ' ').trim();
 
   return apiClient.query('company_profiles', {
     select,

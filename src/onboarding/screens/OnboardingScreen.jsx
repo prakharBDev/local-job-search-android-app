@@ -100,6 +100,7 @@ const OnboardingScreen = () => {
           <Text style={styles.sectionTitle}>What would you like to do?</Text>
           <Text style={styles.sectionSubtitle}>
             You can select both options
+          </Text>
 
           {/* Role Cards */}
           <View style={styles.roleCardsContainer}>

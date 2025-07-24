@@ -19,7 +19,7 @@ const stats = [
   },
 ];
 
-const StatsRow = () => {
+const StatsRow = React.memo(() => {
   const { theme } = useTheme();
   const styles = StyleSheet.create({
     statsRow: {
@@ -69,6 +69,8 @@ const StatsRow = () => {
       ))}
     </View>
   );
-};
+});
+
+StatsRow.displayName = 'StatsRow';
 
 export default StatsRow;

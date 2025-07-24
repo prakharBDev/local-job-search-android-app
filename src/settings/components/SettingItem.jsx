@@ -1,11 +1,13 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-const SettingItem = ({ title }) => (
+const SettingItem = React.memo(({ title }) => (
   <TouchableOpacity style={styles.settingItem}>
     <Text style={styles.settingText}>{title}</Text>
   </TouchableOpacity>
-);
+));
+
+SettingItem.displayName = 'SettingItem';
 
 const styles = StyleSheet.create({
   settingItem: {

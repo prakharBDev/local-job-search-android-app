@@ -3,55 +3,59 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const PROFILE_ROLES = ['seeker', 'poster'];
 
-const ProfileRoleSelector = ({ selectedRole, onRoleChange, theme }) => {
-  return (
-    <View style={styles.inputGroup}>
-      <Text
-        style={[
-          styles.label,
-          { color: theme?.colors?.text?.primary || '#1E293B' },
-        ]}
-      >
-        Role
-      </Text>
-      <View style={styles.roleContainer}>
-        {PROFILE_ROLES.map(role => (
-          <TouchableOpacity
-            key={role}
-            style={[
-              styles.roleButton,
-              {
-                backgroundColor:
-                  selectedRole === role
-                    ? `${theme.colors.primary.cyan}10`
-                    : theme?.colors?.background?.secondary || '#F8FAFC',
-                borderColor:
-                  selectedRole === role
-                    ? theme.colors.primary.cyan
-                    : theme?.colors?.border?.primary || '#E2E8F0',
-              },
-            ]}
-            onPress={() => onRoleChange(role)}
-          >
-            <Text
+const ProfileRoleSelector = React.memo(
+  ({ selectedRole, onRoleChange, theme }) => {
+    return (
+      <View style={styles.inputGroup}>
+        <Text
+          style={[
+            styles.label,
+            { color: theme?.colors?.text?.primary || '#1E293B' },
+          ]}
+        >
+          Role
+        </Text>
+        <View style={styles.roleContainer}>
+          {PROFILE_ROLES.map(role => (
+            <TouchableOpacity
+              key={role}
               style={[
-                styles.roleText,
+                styles.roleButton,
                 {
-                  color:
+                  backgroundColor:
+                    selectedRole === role
+                      ? `${theme.colors.primary.cyan}10`
+                      : theme?.colors?.background?.secondary || '#F8FAFC',
+                  borderColor:
                     selectedRole === role
                       ? theme.colors.primary.cyan
-                      : theme?.colors?.text?.primary || '#1E293B',
+                      : theme?.colors?.border?.primary || '#E2E8F0',
                 },
               ]}
+              onPress={() => onRoleChange(role)}
             >
-              {role}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.roleText,
+                  {
+                    color:
+                      selectedRole === role
+                        ? theme.colors.primary.cyan
+                        : theme?.colors?.text?.primary || '#1E293B',
+                  },
+                ]}
+              >
+                {role}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
-    </View>
-  );
-};
+    );
+  },
+);
+
+ProfileRoleSelector.displayName = 'ProfileRoleSelector';
 
 const styles = StyleSheet.create({
   inputGroup: {

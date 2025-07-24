@@ -31,7 +31,7 @@ const getStyles = theme =>
     },
   });
 
-const AboutScreen = () => {
+const AboutScreen = React.memo(() => {
   const { theme } = useTheme();
   const styles = getStyles(theme);
   return (
@@ -43,6 +43,8 @@ const AboutScreen = () => {
       <Text style={styles.version}>Version 1.0.0</Text>
     </View>
   );
-};
+});
+
+AboutScreen.displayName = 'AboutScreen';
 
 export default AboutScreen;

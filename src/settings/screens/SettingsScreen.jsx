@@ -34,7 +34,7 @@ const getStyles = theme =>
     },
   });
 
-const SettingsScreen = () => {
+const SettingsScreen = React.memo(() => {
   const { theme } = useTheme();
   const styles = getStyles(theme);
   return (
@@ -48,6 +48,8 @@ const SettingsScreen = () => {
       </View>
     </View>
   );
-};
+});
+
+SettingsScreen.displayName = 'SettingsScreen';
 
 export default SettingsScreen;

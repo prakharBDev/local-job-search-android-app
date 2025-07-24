@@ -79,7 +79,7 @@ export const getStyles = theme =>
     salaryText: {
       fontSize: 16,
       fontWeight: '700',
-      color: theme.colors.accent?.green || '#10B981',
+      color: '#FFFFFF', // White color as requested
       marginBottom: theme.spacing[2], // Add bottom margin for spacing
       flexWrap: 'wrap', // Allow text to wrap
     },

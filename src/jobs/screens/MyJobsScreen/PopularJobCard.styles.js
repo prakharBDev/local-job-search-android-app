@@ -88,7 +88,7 @@ export const getStyles = theme =>
 
     salaryText: {
       fontSize: 16, // Increased from 14 for better visibility
-      color: theme.colors.text?.primary || '#1F2937', // Dark gray as specified
+      color: '#FFFFFF', // White color as requested
       fontWeight: '700', // Made bold for better visibility
       fontFamily: 'Inter',
       flexWrap: 'wrap', // Allow text to wrap

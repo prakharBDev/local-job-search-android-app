@@ -11,8 +11,8 @@ export const getStyles = theme =>
       marginRight: theme.spacing[4], // Space between cards
       marginBottom: theme.spacing[2],
       borderWidth: 0,
-      width: 280, // Fixed width for consistent card size
-      minHeight: 200, // Minimum height to ensure content fits
+      width: 240, // Reduced from 280 to make it more compact
+      minHeight: 180, // Reduced minimum height to match smaller width
       ...{
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },

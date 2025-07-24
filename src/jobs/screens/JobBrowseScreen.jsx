@@ -243,7 +243,7 @@ const JobBrowseScreen = () => {
           {/* Company Header */}
           <View style={styles.companyHeader}>
             <View style={styles.companyIcon}>
-              <Feather name="briefcase" size={20} color="#3B82F6" />
+              <Feather name="briefcase" size={20} color={theme.colors.primary.main} />
             </View>
             <View style={styles.companyInfo}>
               <Text style={styles.companyName}>
@@ -354,7 +354,7 @@ const JobBrowseScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color={theme.colors.primary.main} />
           <Text style={styles.loadingText}>Loading jobs...</Text>
         </View>
       </SafeAreaView>
@@ -368,7 +368,7 @@ const JobBrowseScreen = () => {
         <AppHeader
           title="Find Jobs"
           subtitle={`Discover opportunities in ${selectedCity}`}
-          rightIcon={<Icon name="filter" size={20} color="#3B82F6" />}
+          rightIcon={<Icon name="filter" size={20} color={theme.colors.primary.main} />}
           background="#F7F9FC"
         />
 
@@ -439,8 +439,8 @@ const JobBrowseScreen = () => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={handleRefresh}
-              colors={['#3B82F6']}
-              tintColor="#3B82F6"
+              colors={[theme.colors.primary.main]}
+              tintColor={theme.colors.primary.main}
             />
           }
           showsVerticalScrollIndicator={false}

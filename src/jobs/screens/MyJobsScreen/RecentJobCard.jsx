@@ -129,7 +129,15 @@ const RecentJobCard = React.memo(({ item, index = 0 }) => {
             styles.locationText,
             { color: cardColors.text, opacity: 0.7 }
           ]}>
-            Experience: 2-4 years • {item.type}
+            Experience: 2-4 years
+          </Text>
+          
+          {/* Job Type - separate line without borders */}
+          <Text style={[
+            styles.jobTypeText,
+            { color: cardColors.text, opacity: 0.8 }
+          ]}>
+            {item.type}
           </Text>
         </View>
 

@@ -99,8 +99,8 @@ export const getStyles = theme =>
       borderColor: '#E5E7EB',
     },
     filterPillSelected: {
-      backgroundColor: '#3B82F6',
-      borderColor: '#3B82F6',
+      backgroundColor: theme.colors.primary.main,
+      borderColor: theme.colors.primary.main,
     },
     filterPillText: {
       fontSize: 14,
@@ -143,7 +143,7 @@ export const getStyles = theme =>
       width: 44,
       height: 44,
       borderRadius: 12,
-      backgroundColor: '#EFF6FF',
+      backgroundColor: theme.colors.primary.light + '20',
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: 12,
@@ -209,18 +209,18 @@ export const getStyles = theme =>
       marginBottom: 16,
     },
     skillTag: {
-      backgroundColor: '#F0F9FF',
+      backgroundColor: theme.colors.primary.light + '20',
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 12,
       marginRight: 8,
       marginBottom: 6,
       borderWidth: 1,
-      borderColor: '#BAE6FD',
+      borderColor: theme.colors.primary.light + '40',
     },
     skillText: {
       fontSize: 12,
-      color: '#0369A1',
+      color: theme.colors.primary.dark,
       fontWeight: '500',
     },
 

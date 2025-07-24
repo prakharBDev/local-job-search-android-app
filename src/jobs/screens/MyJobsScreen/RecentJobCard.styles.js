@@ -104,6 +104,14 @@ export const getStyles = theme =>
       fontWeight: '500',
     },
 
+    // Job type text - separate styling without borders
+    jobTypeText: {
+      fontSize: 12,
+      color: theme.colors.text?.tertiary || '#9E9E9E',
+      fontWeight: '500',
+      marginTop: 2, // Small spacing from experience text
+    },
+
     timeContainer: {
       flexDirection: 'row',
       alignItems: 'center',

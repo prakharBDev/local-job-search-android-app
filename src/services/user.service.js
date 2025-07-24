@@ -1,4 +1,5 @@
 import { apiClient, buildProfileQuery, handleApiError } from './api';
+import { User, SeekerProfile, CompanyProfile } from '../models';
 
 /**
  * User Service
@@ -25,7 +26,9 @@ const userService = {
         throw error;
       }
 
-      return { data, error: null };
+      // Convert to User model
+      const user = User.fromApi(data);
+      return { data: user, error: null };
     } catch (error) {
       const normalizedError = handleApiError(error, 'getUserProfile');
       return { data: null, error: normalizedError };
@@ -64,7 +67,9 @@ const userService = {
       // Clear related cache entries
       apiClient.clearCache(`user_profile_${userId}`);
 
-      return { data, error: null };
+      // Convert to User model
+      const user = User.fromApi(data);
+      return { data: user, error: null };
     } catch (error) {
       const normalizedError = handleApiError(error, 'updateUser');
       return { data: null, error: normalizedError };
@@ -119,7 +124,9 @@ const userService = {
         throw error;
       }
 
-      return { data: data?.[0] || null, error: null };
+      // Convert to User model
+      const user = data?.[0] ? User.fromApi(data[0]) : null;
+      return { data: user, error: null };
     } catch (error) {
       const normalizedError = handleApiError(error, 'getUserByEmail');
       return { data: null, error: normalizedError };
@@ -144,7 +151,9 @@ const userService = {
         throw error;
       }
 
-      return { data: data?.[0] || null, error: null };
+      // Convert to User model
+      const user = data?.[0] ? User.fromApi(data[0]) : null;
+      return { data: user, error: null };
     } catch (error) {
       const normalizedError = handleApiError(error, 'getUserByGoogleId');
       return { data: null, error: normalizedError };
@@ -181,7 +190,9 @@ const userService = {
         throw error;
       }
 
-      return { data, error: null };
+      // Convert to User model
+      const user = User.fromApi(data);
+      return { data: user, error: null };
     } catch (error) {
       const normalizedError = handleApiError(error, 'createUser');
       return { data: null, error: normalizedError };

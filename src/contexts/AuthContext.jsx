@@ -209,6 +209,72 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // Memoize the login function for Google Sign-In with phone number
+  const login = useCallback(async ({ session, user, userRecord, isNewUser, phoneNumber }) => {
+    try {
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
+      dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
+
+      // Store session and user data
+      dispatch({
+        type: AUTH_ACTIONS.SET_USER,
+        payload: { user, userRecord },
+      });
+      dispatch({ type: AUTH_ACTIONS.SET_SESSION, payload: session });
+
+      // Store session in AsyncStorage
+      await AsyncStorage.setItem('user_session', JSON.stringify(session));
+      await AsyncStorage.setItem('user_data', JSON.stringify(user));
+
+      // Check onboarding status
+      try {
+        const { status: onboardingStatus, error: onboardingError } =
+          await onboardingService.getOnboardingStatus(user.id);
+
+        if (onboardingError) {
+          throw onboardingError;
+        }
+
+        dispatch({
+          type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
+          payload: {
+            needsCitySelection: onboardingStatus.needsCitySelection,
+            needsProfileSetup: onboardingStatus.needsProfileSetup,
+            needsRoleSelection: onboardingStatus.needsRoleSelection,
+            userRoles: onboardingStatus.userRoles || [],
+          },
+        });
+
+        // Store onboarding status
+        await AsyncStorage.setItem('onboarding_status', JSON.stringify(onboardingStatus));
+      } catch (onboardingError) {
+        console.warn('Failed to get onboarding status:', onboardingError);
+        // Set default onboarding status for new users
+        const defaultStatus = {
+          needsCitySelection: isNewUser,
+          needsProfileSetup: isNewUser,
+          needsRoleSelection: isNewUser,
+          userRoles: [],
+        };
+        
+        dispatch({
+          type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
+          payload: defaultStatus,
+        });
+
+        await AsyncStorage.setItem('onboarding_status', JSON.stringify(defaultStatus));
+      }
+
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      return { success: true };
+    } catch (error) {
+      console.error('Login error:', error);
+      dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      return { error: error.message };
+    }
+  }, []);
+
   // Memoize the clearError function
   const clearError = useCallback(() => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
@@ -338,6 +404,7 @@ export const AuthProvider = ({ children }) => {
 
       // Actions
       signInWithGoogle,
+      login,
       logout,
       updateUserRecord,
       updateUserProfile,
@@ -347,6 +414,7 @@ export const AuthProvider = ({ children }) => {
     [
       state,
       signInWithGoogle,
+      login,
       logout,
       updateUserRecord,
       updateUserProfile,

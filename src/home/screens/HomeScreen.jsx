@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useTheme } from '../contexts/ThemeContext';
-import { ThemedText, ThemedCard, ThemedButton } from '../components/themed';
-import AboutScreen from './AboutScreen';
-import SettingsScreen from './SettingsScreen';
-import HomeCard from './components/HomeCard';
+import { useTheme } from '../../contexts/ThemeContext';
+import { ThemedText, ThemedCard, ThemedButton } from '../../components/themed';
+import AboutScreen from '../../about/screens/AboutScreen';
+import SettingsScreen from '../../settings/screens/SettingsScreen';
+import HomeCard from '../components/HomeCard';
 
 const HomeScreen = () => {
   const { theme } = useTheme();

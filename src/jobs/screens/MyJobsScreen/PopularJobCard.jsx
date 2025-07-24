@@ -10,7 +10,7 @@ import {
   getJobTypeIconColors,
 } from './PopularJobCard.styles';
 
-const PopularJobCard = React.memo(({ job, index = 0 }) => {
+const PopularJobCard = React.memo(({ job, index = 0, isApplied = false }) => {
   const navigation = useNavigation();
   const { theme } = useTheme();
 
@@ -71,7 +71,7 @@ const PopularJobCard = React.memo(({ job, index = 0 }) => {
   };
 
   const handlePress = () => {
-    navigation.navigate('SwipeableJobDetails', { 
+            navigation.navigate('JobsSwipeableJobDetails', { 
       jobData: job,
       jobList: [job], // Single job for swipeable view
       currentIndex: 0
@@ -153,6 +153,22 @@ const PopularJobCard = React.memo(({ job, index = 0 }) => {
                 { color: '#FFFFFF' }
               ]}>
                 {job.daysLeft} days left
+              </Text>
+            </View>
+          )}
+
+          {/* Application Status Badge */}
+          {isApplied && (
+            <View style={[
+              styles.daysLeftPill,
+              { backgroundColor: '#10B981' } // Green for applied
+            ]}>
+              <Feather name="check-circle" size={12} color="#FFFFFF" />
+              <Text style={[
+                styles.daysLeftPillText,
+                { color: '#FFFFFF', marginLeft: 4 }
+              ]}>
+                Applied
               </Text>
             </View>
           )}

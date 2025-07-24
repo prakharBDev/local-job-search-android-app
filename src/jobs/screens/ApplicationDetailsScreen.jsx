@@ -52,11 +52,11 @@ const ApplicationDetailsScreen = () => {
 
   if (!application) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.errorContainer}>
-          <Feather name="alert-circle" size={48} color="#EF4444" />
-          <Text style={styles.errorTitle}>Application Not Found</Text>
-          <Text style={styles.errorText}>
+          <Feather name="alert-circle" size={48} color={theme.colors.status.error} />
+          <Text style={[styles.errorTitle, { color: theme.colors.text.primary }]}>Application Not Found</Text>
+          <Text style={[styles.errorText, { color: theme.colors.text.secondary }]}>
             The application data could not be loaded.
           </Text>
           <Button
@@ -77,15 +77,15 @@ const ApplicationDetailsScreen = () => {
   const getStatusColor = status => {
     switch (status) {
       case 'applied':
-        return '#3B82F6';
+        return theme.colors.primary.main;
       case 'under_review':
-        return '#F59E0B';
+        return theme.colors.status.warning;
       case 'hired':
-        return '#10B981';
+        return theme.colors.status.success;
       case 'rejected':
-        return '#EF4444';
+        return theme.colors.status.error;
       default:
-        return '#6B7280';
+        return theme.colors.text.secondary;
     }
   };
 
@@ -145,7 +145,7 @@ const ApplicationDetailsScreen = () => {
   };
 
   const handleViewJob = () => {
-    navigation.navigate('JobDetails', { jobData: job });
+    navigation.navigate('JobsSwipeableJobDetails', { jobData: job });
   };
 
   const handleContactCompany = () => {
@@ -167,15 +167,14 @@ const ApplicationDetailsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Animated.View style={[styles.container, { opacity: fadeAnim, backgroundColor: theme.colors.background }]}>
         {/* App Header */}
         <AppHeader
           title="Application Details"
           subtitle="Track your application status"
-          leftIcon={<Icon name="arrow-left" size={20} color="#1E293B" />}
+          leftIcon={<Icon name="arrow-left" size={20} color={theme.colors.text.primary} />}
           onLeftPress={() => navigation.goBack()}
-          background="#F7F9FC"
         />
 
         <ScrollView
@@ -241,17 +240,17 @@ const ApplicationDetailsScreen = () => {
             <Card style={styles.jobCard}>
               <View style={styles.jobHeader}>
                 <View style={styles.companyIcon}>
-                  <Feather name="briefcase" size={20} color="#3B82F6" />
+                  <Feather name="briefcase" size={20} color={theme.colors.primary.main} />
                 </View>
                 <View style={styles.jobInfo}>
-                  <Text style={styles.jobTitle}>{job?.title}</Text>
-                  <Text style={styles.companyName}>
+                  <Text style={[styles.jobTitle, { color: theme.colors.text.primary }]}>{job?.title}</Text>
+                  <Text style={[styles.companyName, { color: theme.colors.text.secondary }]}>
                     {company?.company_name}
                     {company?.is_verified && (
                       <Feather
                         name="check-circle"
                         size={14}
-                        color="#10B981"
+                        color={theme.colors.status.success}
                         style={{ marginLeft: 6 }}
                       />
                     )}
@@ -261,20 +260,20 @@ const ApplicationDetailsScreen = () => {
 
               <View style={styles.jobMeta}>
                 <View style={styles.metaItem}>
-                  <Feather name="map-pin" size={16} color="#6B7280" />
-                  <Text style={styles.metaText}>{job?.city}</Text>
+                  <Feather name="map-pin" size={16} color={theme.colors.text.secondary} />
+                  <Text style={[styles.metaText, { color: theme.colors.text.secondary }]}>{job?.city}</Text>
                 </View>
                 {job?.salary && (
                   <View style={styles.metaItem}>
-                    <Text style={styles.metaText}>
+                    <Text style={[styles.metaText, { color: theme.colors.text.secondary }]}>
                       {formatSalary(job.salary)}
                     </Text>
                   </View>
                 )}
                 {job?.job_categories && (
                   <View style={styles.metaItem}>
-                    <Feather name="tag" size={16} color="#6B7280" />
-                    <Text style={styles.metaText}>
+                    <Feather name="tag" size={16} color={theme.colors.text.secondary} />
+                    <Text style={[styles.metaText, { color: theme.colors.text.secondary }]}>
                       {job.job_categories.name}
                     </Text>
                   </View>
@@ -285,37 +284,37 @@ const ApplicationDetailsScreen = () => {
                 style={styles.viewJobButton}
                 onPress={handleViewJob}
               >
-                <Text style={styles.viewJobText}>View Full Job Details</Text>
-                <Feather name="arrow-right" size={16} color="#3B82F6" />
+                <Text style={[styles.viewJobText, { color: theme.colors.primary.main }]}>View Full Job Details</Text>
+                <Feather name="arrow-right" size={16} color={theme.colors.primary.main} />
               </TouchableOpacity>
             </Card>
 
             {/* Application Message */}
             {application.message && (
               <Card style={styles.messageCard}>
-                <Text style={styles.messageTitle}>
+                <Text style={[styles.messageTitle, { color: theme.colors.text.primary }]}>
                   Your Application Message
                 </Text>
-                <Text style={styles.messageText}>{application.message}</Text>
+                <Text style={[styles.messageText, { color: theme.colors.text.secondary }]}>{application.message}</Text>
               </Card>
             )}
 
             {/* Timeline */}
             <Card style={styles.timelineCard}>
-              <Text style={styles.timelineTitle}>Application Timeline</Text>
+              <Text style={[styles.timelineTitle, { color: theme.colors.text.primary }]}>Application Timeline</Text>
 
               <View style={styles.timelineItem}>
                 <View style={styles.timelineDot}>
                   <Feather name="send" size={12} color="#FFFFFF" />
                 </View>
                 <View style={styles.timelineContent}>
-                  <Text style={styles.timelineEventTitle}>
+                  <Text style={[styles.timelineEventTitle, { color: theme.colors.text.primary }]}>
                     Application Submitted
                   </Text>
-                  <Text style={styles.timelineEventDate}>
+                  <Text style={[styles.timelineEventDate, { color: theme.colors.text.secondary }]}>
                     {formatDate(application.created_at)}
                   </Text>
-                  <Text style={styles.timelineEventDesc}>
+                  <Text style={[styles.timelineEventDesc, { color: theme.colors.text.secondary }]}>
                     Your application was successfully submitted to{' '}
                     {company?.company_name}
                   </Text>
@@ -337,16 +336,16 @@ const ApplicationDetailsScreen = () => {
                     />
                   </View>
                   <View style={styles.timelineContent}>
-                    <Text style={styles.timelineEventTitle}>
-                      Status Updated
-                    </Text>
-                    <Text style={styles.timelineEventDate}>
-                      {formatDate(application.updated_at)}
-                    </Text>
-                    <Text style={styles.timelineEventDesc}>
-                      Application status changed to "
-                      {getStatusText(application.status)}"
-                    </Text>
+                                      <Text style={[styles.timelineEventTitle, { color: theme.colors.text.primary }]}>
+                    Status Updated
+                  </Text>
+                  <Text style={[styles.timelineEventDate, { color: theme.colors.text.secondary }]}>
+                    {formatDate(application.updated_at)}
+                  </Text>
+                  <Text style={[styles.timelineEventDesc, { color: theme.colors.text.secondary }]}>
+                    Application status changed to "
+                    {getStatusText(application.status)}"
+                  </Text>
                   </View>
                 </View>
               )}
@@ -361,7 +360,7 @@ const ApplicationDetailsScreen = () => {
                 style={styles.actionButton}
               >
                 <View style={styles.buttonContent}>
-                  <Feather name="eye" size={20} color="#3B82F6" />
+                  <Feather name="eye" size={20} color={theme.colors.primary.main} />
                   <Text style={styles.actionButtonText}>View Job</Text>
                 </View>
               </Button>

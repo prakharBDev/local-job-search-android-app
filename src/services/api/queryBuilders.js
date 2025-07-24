@@ -143,14 +143,12 @@ export const buildCompanyProfileQuery = (userId, options = {}) => {
   let select = '*';
   
   if (includeJobs) {
-    select += ',jobs(id, title, description, city, is_active, created_at)';
+    select += ',jobs(id,title,description,city,is_active,created_at)';
   }
   
   if (includeApplications) {
-    select += ',jobs.applications(id, status, created_at, seeker_profiles(users(name)))';
+    select += ',jobs(applications(id,status,created_at,seeker_profiles(users(name))))';
   }
-  
-  select = select.replace(/\s+/g, ' ').trim();
 
   return apiClient.query('company_profiles', {
     select,
@@ -178,26 +176,15 @@ export const buildApplicationQuery = (options = {}) => {
   } = options;
 
   // Build select statement
-  const select = `
-    *,
-    ${
-      includeJob
-        ? 'jobs(id, title, description, city, salary, job_categories(id, name))'
-        : ''
-    }
-    ${
-      includeSeeker
-        ? ',seeker_profiles(experience_level, users(name, email))'
-        : ''
-    }
-    ${
-      includeCompany
-        ? ',jobs.company_profiles(id, company_name, is_verified)'
-        : ''
-    }
-  `
-    .replace(/\s+/g, ' ')
-    .trim();
+  let select = '*';
+  
+  if (includeJob) {
+    select += ',jobs(id,title,description,city,salary,job_categories(id,name),company_profiles(id,company_name,is_verified))';
+  }
+  
+  if (includeSeeker) {
+    select += ',seeker_profiles(experience_level,users(name,email))';
+  }
 
   return apiClient.query('applications', {
     select,

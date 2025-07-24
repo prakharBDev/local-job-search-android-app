@@ -22,14 +22,14 @@ export const bluewhiteTheme = {
       disabled: '#D1D5DB', // Disabled text color
     },
 
-    // Primary colors - Updated with new purple color
+    // Primary colors - Traditional blue-white theme
     primary: {
-      main: '#6475f8', // New purple as requested
-      secondary: '#5c6bf7', // Darker purple for hover states
-      light: '#7c88f9', // Lighter purple for info tags
-      dark: '#4c5bf6', // Dark purple for contrast
+      main: '#3C4FE0', // Deep blue as per original theme
+      secondary: '#5c6bf7', // Darker blue for hover states
+      light: '#7c88f9', // Lighter blue for info tags
+      dark: '#2E3FD0', // Dark blue for contrast
       foreground: '#FFFFFF', // White text on primary buttons
-      brand: '#6475f8', // Main brand color - new purple
+      brand: '#3C4FE0', // Main brand color - deep blue
     },
 
     // Secondary colors
@@ -40,9 +40,9 @@ export const bluewhiteTheme = {
       foreground: '#1E293B',
     },
 
-    // Accent colors - Updated with vibrant solid colors from reference
+    // Accent colors - Traditional blue-white theme
     accent: {
-      blue: '#6475f8', // Updated to new purple
+      blue: '#3C4FE0', // Deep blue as per original theme
       green: '#3DD598', // Vibrant green for job categories
       pink: '#FF647C', // Vibrant pink for job categories
       purple: '#8B5CF6', // Violet purple for job categories
@@ -56,12 +56,12 @@ export const bluewhiteTheme = {
     interactive: {
       hover: '#F1F5F9', // Light hover state
       pressed: '#E2E8F0', // Pressed state
-      focus: '#6475f8', // Focus ring color
+      focus: '#3C4FE0', // Focus ring color - deep blue
       disabled: '#F8FAFC', // Disabled background
       border: {
         primary: '#E2E8F0', // Default border
         secondary: '#CBD5E1', // Secondary border
-        focus: '#6475f8', // Focus border
+        focus: '#3C4FE0', // Focus border - deep blue
         error: '#EF4444', // Error border
       },
     },
@@ -71,7 +71,7 @@ export const bluewhiteTheme = {
       success: '#10B981', // Green for success
       warning: '#F59E0B', // Amber for warnings
       error: '#EF4444', // Red for errors
-      info: '#6475f8', // Purple for info
+      info: '#3C4FE0', // Deep blue for info
     },
 
     // Shadows

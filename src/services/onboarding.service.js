@@ -345,6 +345,46 @@ class OnboardingService {
       const user = userRecord?.[0];
       const nextScreen = this.determineNextScreen(user, missingSteps);
 
+      // Check for existing profiles to determine user roles
+      const { data: seekerProfile, error: seekerError } = await apiClient.query(
+        'seeker_profiles',
+        {
+          select: 'id',
+          filters: { user_id: userId },
+          limit: 1,
+          cache: true,
+          cacheKey: `seeker_profile_${userId}`,
+        },
+      );
+
+      if (seekerError) {
+        console.warn('Error fetching seeker profile:', seekerError);
+      }
+
+      const { data: companyProfile, error: companyError } = await apiClient.query(
+        'company_profiles',
+        {
+          select: 'id',
+          filters: { user_id: userId },
+          limit: 1,
+          cache: true,
+          cacheKey: `company_profile_${userId}`,
+        },
+      );
+
+      if (companyError) {
+        console.warn('Error fetching company profile:', companyError);
+      }
+
+      // Determine user roles based on existing profiles
+      const userRoles = [];
+      if (seekerProfile?.[0]) {
+        userRoles.push('seeker');
+      }
+      if (companyProfile?.[0]) {
+        userRoles.push('company');
+      }
+
       return {
         status: {
           isComplete,
@@ -356,6 +396,7 @@ class OnboardingService {
           needsProfileSetup:
             missingSteps.includes('seeker_profile_incomplete') ||
             missingSteps.includes('company_profile_incomplete'),
+          userRoles,
         },
         error: null,
       };

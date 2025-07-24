@@ -97,6 +97,11 @@ const JobBrowseScreen = () => {
       
       if (popularJobsData && !popularJobsError) {
         setPopularJobs(popularJobsData);
+        
+        // Check which popular jobs user has already applied to
+        if (seekerProfile && popularJobsData) {
+          await checkAppliedJobs(popularJobsData);
+        }
       }
     } catch (error) {
       console.error('Error loading popular jobs:', error);
@@ -159,22 +164,22 @@ const JobBrowseScreen = () => {
     }
 
     try {
-      const appliedJobIds = new Set();
+      const currentAppliedJobs = new Set(appliedJobs); // Keep existing applied jobs
 
       // Check each job for existing applications
       await Promise.all(
         jobsList.map(async job => {
           const { data } = await applicationService.hasApplied(
-            job.id,
             seekerProfile.id,
+            job.id,
           );
           if (data) {
-            appliedJobIds.add(job.id);
+            currentAppliedJobs.add(job.id);
           }
         }),
       );
 
-      setAppliedJobs(appliedJobIds);
+      setAppliedJobs(currentAppliedJobs);
     } catch (error) {
       console.error('Error checking applied jobs:', error);
     }
@@ -197,11 +202,11 @@ const JobBrowseScreen = () => {
     }
 
     try {
-      const { error } = await applicationService.applyForJob(
-        job.id,
-        seekerProfile.id,
-        null, // Optional message - can be enhanced later
-      );
+      const { error } = await applicationService.applyForJob({
+        job_id: job.id,
+        seeker_id: seekerProfile.id,
+        message: '', // Optional message - can be enhanced later
+      });
 
       if (error) {
         throw error;
@@ -253,7 +258,7 @@ const JobBrowseScreen = () => {
           onPress={() => {
             // Navigate to swipeable job details with full job list
             const currentIndex = jobs.findIndex(j => j.id === job.id);
-            navigation.navigate('SwipeableJobDetails', {
+            navigation.navigate('JobsSwipeableJobDetails', {
               jobData: job,
               jobList: jobs,
               currentIndex: currentIndex >= 0 ? currentIndex : 0,
@@ -432,7 +437,12 @@ const JobBrowseScreen = () => {
               contentContainerStyle={styles.popularJobsContainer}
             >
               {popularJobs.map((job, index) => (
-                <PopularJobCard key={job.id} job={job} index={index} />
+                <PopularJobCard 
+                  key={job.id} 
+                  job={job} 
+                  index={index}
+                  isApplied={appliedJobs.has(job.id)}
+                />
               ))}
             </ScrollView>
           </View>

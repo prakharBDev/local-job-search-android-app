@@ -21,7 +21,7 @@ import { AppHeader, Icon } from '../../components/elements';
 import { theme } from '../../theme';
 
 const ProfileScreen = ({ navigation }) => {
-  const { user, userRecord, updateUserRecord, checkAuthStatus } = useAuth();
+  const { user, userRecord, updateUserRecord, checkAuthStatus, logout } = useAuth();
   const { currentMode } = useUser();
   const [profileData, setProfileData] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -305,6 +305,7 @@ const ProfileScreen = ({ navigation }) => {
           }
           onRightPress={handleSettings}
           background={theme.colors.background.secondary}
+          centered={true}
         />
 
         {/* User Profile Card */}

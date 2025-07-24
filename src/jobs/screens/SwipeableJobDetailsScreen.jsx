@@ -53,17 +53,20 @@ const SwipeableJobDetailsScreen = () => {
       if (user?.id) {
         try {
           const { data: profile, error } = await seekerService.getSeekerProfile(user.id);
+          
           if (profile && !error) {
             setSeekerProfile(profile);
             
             // Check if user has already applied
             if (jobDetails?.id) {
-              const { data: applicationData } = await applicationService.hasApplied(
-                jobDetails.id, 
-                profile.id
+              const { data: applicationData, error: checkError } = await applicationService.hasApplied(
+                profile.id,
+                jobDetails.id
               );
               setHasApplied(!!applicationData);
             }
+          } else {
+            // No seeker profile found or error occurred
           }
         } catch (err) {
           console.error('Error loading seeker data:', err);
@@ -190,8 +193,50 @@ const SwipeableJobDetailsScreen = () => {
       return;
     }
 
+    // Check if user has already applied for this job
+    if (hasApplied) {
+      Alert.alert(
+        'Already Applied', 
+        'You have already applied for this job. You cannot apply twice.',
+        [
+          { text: 'OK', style: 'default' },
+                      { 
+              text: 'View My Applications', 
+              onPress: () => navigation.navigate('MyJobsAppliedJobs')
+            }
+        ]
+      );
+      return;
+    }
+
+    // Double-check with server to prevent race conditions
     try {
       setLoading(true);
+      const { data: alreadyApplied, error: checkError } = await applicationService.hasApplied(
+        seekerProfile.id,
+        jobDetails.id
+      );
+
+      if (checkError) {
+        console.error('Error checking application status:', checkError);
+      } else if (alreadyApplied) {
+        setHasApplied(true);
+        Alert.alert(
+          'Already Applied', 
+          'You have already applied for this job. You cannot apply twice.',
+          [
+            { text: 'OK', style: 'default' },
+            { 
+              text: 'View My Applications', 
+              onPress: () => navigation.navigate('MyJobsAppliedJobs')
+            }
+          ]
+        );
+        return;
+      }
+
+      
+
       const { error } = await applicationService.applyForJob({
         job_id: jobDetails.id,
         seeker_id: seekerProfile.id,
@@ -783,6 +828,35 @@ const SwipeableJobDetailsScreen = () => {
             >
               {safeJob.title}
             </Text>
+
+            {/* Application Status Badge */}
+            {hasApplied && (
+              <View
+                style={{
+                  backgroundColor: '#10B981',
+                  paddingHorizontal: 12,
+                  paddingVertical: 4,
+                  borderRadius: 12,
+                  alignSelf: 'center',
+                  marginBottom: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <Icon name="check-circle" size={14} color="#FFFFFF" />
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: '600',
+                    color: '#FFFFFF',
+                    marginLeft: 4,
+                    fontFamily: 'System',
+                  }}
+                >
+                  Already Applied
+                </Text>
+              </View>
+            )}
 
             {/* Location */}
             <View

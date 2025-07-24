@@ -4,7 +4,7 @@ export const getStyles = theme =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background?.primary || '#F3F4F6', // Off-white for depth contrast
+      backgroundColor: theme.colors.background?.primary || '#F8FAFC', // Lighter background for better contrast
     },
     scrollView: {
       flex: 1,
@@ -172,12 +172,12 @@ export const getStyles = theme =>
       marginBottom: theme.spacing[5] || 22,
     },
     sectionTitle: {
-      fontSize: 20, // text-xl equivalent
+      fontSize: 22, // text-xl equivalent
       fontWeight: '700', // font-bold as requested
-      color: theme.colors.text?.primary || '#111827', // High contrast black
-      fontFamily: 'Inter',
-      letterSpacing: -0.5,
-      marginTop: 24, // mt-6 spacing for sections
+      color: theme.colors.text?.primary || '#0F172A', // Darker for better contrast
+      fontFamily: 'System',
+      letterSpacing: -0.4,
+      marginBottom: 4,
     },
     seeAllText: {
       fontSize: theme.typography?.body?.fontSize || 16,
@@ -252,44 +252,137 @@ export const getStyles = theme =>
       fontFamily: 'System',
     },
 
-    // Actions Container for Seeker View
-    actionsContainer: {
-      flexDirection: 'row',
-      gap: theme.spacing[4] || 16,
+
+
+    // Application Components Styles
+    sectionSubtitle: {
+      fontSize: 15,
+      color: theme.colors.text?.secondary || '#475569',
+      fontWeight: '500',
+      marginTop: theme.spacing[1] || 4,
+      letterSpacing: -0.1,
+      fontFamily: 'System',
+    },
+    filterSection: {
       marginTop: theme.spacing[4] || 16,
+      marginBottom: theme.spacing[4] || 16,
     },
-    actionCard: {
-      flex: 1,
+    filterLabel: {
+      fontSize: 14,
+      fontWeight: '500',
+      marginBottom: theme.spacing[2] || 8,
+    },
+    filterButtons: {
+      flexDirection: 'row',
+      gap: theme.spacing[2] || 8,
+    },
+    filterButton: {
+      paddingHorizontal: theme.spacing[3] || 12,
+      paddingVertical: theme.spacing[2] || 8,
+      borderRadius: theme.borderRadius?.md || 12,
       backgroundColor: theme.colors.background?.primary || '#FFFFFF',
-      borderRadius: theme.borderRadius?.lg || 16,
-      padding: theme.spacing[4] || 16,
-      alignItems: 'center',
       borderWidth: 1,
-      borderColor: theme.colors.interactive?.border?.secondary || '#E5E7EB',
-      ...theme.shadows?.sm,
+      borderColor: theme.colors.interactive?.border?.primary || '#E2E8F0',
     },
-    actionIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: theme.colors.background?.secondary || '#F8FAFC',
-      justifyContent: 'center',
-      alignItems: 'center',
+    filterButtonText: {
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    applicationsList: {
+      gap: theme.spacing[4] || 16,
+    },
+    applicationCard: {
       marginBottom: theme.spacing[3] || 12,
     },
-    actionTitle: {
+    applicationHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing[3] || 12,
+    },
+    jobInfo: {
+      flex: 1,
+    },
+    jobTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      marginBottom: theme.spacing[1] || 4,
+    },
+    companyRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[1] || 4,
+    },
+    companyName: {
+      fontSize: 14,
+      fontWeight: '400',
+    },
+    applicationDetails: {
+      marginBottom: theme.spacing[3] || 12,
+    },
+    detailRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing[2] || 8,
+      gap: theme.spacing[2] || 8,
+    },
+    detailText: {
+      fontSize: 14,
+      fontWeight: '400',
+    },
+    statusMessage: {
+      padding: theme.spacing[3] || 12,
+      borderRadius: theme.borderRadius?.md || 12,
+      marginBottom: theme.spacing[3] || 12,
+    },
+    statusMessageText: {
+      fontSize: 14,
+      fontWeight: '400',
+      textAlign: 'center',
+    },
+    applicationActions: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+    },
+    actionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing[4] || 16,
+      paddingVertical: theme.spacing[2] || 8,
+      borderRadius: theme.borderRadius?.md || 12,
+      gap: theme.spacing[2] || 8,
+    },
+    actionButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing[8] || 32,
+      marginTop: theme.spacing[8] || 32,
+    },
+    emptyTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginTop: theme.spacing[4] || 16,
+      marginBottom: theme.spacing[2] || 8,
+      textAlign: 'center',
+    },
+    emptyDescription: {
+      fontSize: 16,
+      textAlign: 'center',
+      marginBottom: theme.spacing[6] || 24,
+      lineHeight: 24,
+    },
+    emptyButton: {
+      paddingHorizontal: theme.spacing[6] || 24,
+      paddingVertical: theme.spacing[3] || 12,
+      borderRadius: theme.borderRadius?.md || 12,
+    },
+    emptyButtonText: {
       fontSize: 16,
       fontWeight: '600',
-      color: theme.colors.text?.primary || '#1F2937',
-      marginBottom: theme.spacing[1] || 4,
-      textAlign: 'center',
-      fontFamily: 'Inter',
-    },
-    actionSubtitle: {
-      fontSize: 12,
-      fontWeight: '400',
-      color: theme.colors.text?.secondary || '#6B7280',
-      textAlign: 'center',
-      fontFamily: 'System',
     },
   });

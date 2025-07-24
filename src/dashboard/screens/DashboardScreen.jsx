@@ -79,6 +79,7 @@ const DashboardScreen = () => {
         rightIcon={<Text style={styles.iconText}>👤</Text>}
         onRightPress={handleProfilePress}
         background="#F7F9FC"
+        centered={true}
       />
 
       <ScrollView

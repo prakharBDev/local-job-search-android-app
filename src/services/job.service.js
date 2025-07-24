@@ -1,4 +1,5 @@
 import { apiClient, buildJobQuery, buildSearchQuery, handleApiError } from './api';
+import { Job, JobCategory, Skill } from '../models';
 
 /**
  * Job Service

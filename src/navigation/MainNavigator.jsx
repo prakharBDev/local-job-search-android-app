@@ -13,7 +13,6 @@ import ProfileScreen from '../profile/screens/ProfileScreen';
 import ProfileSetupScreen from '../profile/screens/ProfileSetupScreen';
 import EditProfileScreen from '../profile/screens/EditProfileScreen';
 import SwipeableJobDetailsScreen from '../jobs/screens/SwipeableJobDetailsScreen';
-import AppliedJobsScreen from '../jobs/screens/AppliedJobsScreen';
 import OnboardingScreen from '../onboarding/screens/OnboardingScreen';
 import SeekerProfileSetupScreen from '../profile/screens/SeekerProfileSetupScreen';
 import CompanyProfileSetupScreen from '../profile/screens/CompanyProfileSetupScreen';
@@ -21,6 +20,8 @@ import SkillsSelectionScreen from '../profile/screens/SkillsSelectionScreen';
 import CategorySelectionScreen from '../profile/screens/CategorySelectionScreen';
 import JobBrowseScreen from '../jobs/screens/JobBrowseScreen';
 import ApplicationDetailsScreen from '../jobs/screens/ApplicationDetailsScreen';
+import ApplicationsReviewScreen from '../jobs/screens/ApplicationsReviewScreen';
+import JobManagementScreen from '../jobs/screens/JobManagementScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -71,17 +72,17 @@ const JobsStack = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="JobDetails"
+        name="JobsJobDetails"
         component={SwipeableJobDetailsScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="SwipeableJobDetails"
+        name="JobsSwipeableJobDetails"
         component={SwipeableJobDetailsScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="ApplicationDetails"
+        name="JobsApplicationDetails"
         component={ApplicationDetailsScreen}
         options={{ headerShown: false }}
       />
@@ -109,13 +110,9 @@ const MyJobsStack = () => {
         component={MyJobsScreen}
         options={{ headerShown: false }}
       />
+
       <Stack.Screen
-        name="AppliedJobs"
-        component={AppliedJobsScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="JobDetails"
+        name="MyJobsJobDetails"
         component={SwipeableJobDetailsScreen}
         options={{ headerShown: false }}
       />
@@ -141,6 +138,64 @@ const CreateJobStack = () => {
       <Stack.Screen
         name="CreateJobMain"
         component={CreateJobScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const JobManagementStack = () => {
+  const { theme } = useTheme();
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+        },
+        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="JobManagementMain"
+        component={JobManagementScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="JobManagementJobDetails"
+        component={SwipeableJobDetailsScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const ApplicationsReviewStack = () => {
+  const { theme } = useTheme();
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+        },
+        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="ApplicationsReviewMain"
+        component={ApplicationsReviewScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ApplicationsReviewApplicationDetails"
+        component={ApplicationDetailsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -208,7 +263,15 @@ const ProfileStack = () => {
 
 const MainNavigator = () => {
   const { theme } = useTheme();
-  const { userRoles } = useAuth();
+  const auth = useAuth();
+
+  // Safety check - return null if auth context is not ready
+  if (!auth || !auth.userRoles) {
+    return null;
+  }
+
+  // Determine if user is a poster (company) or seeker
+  const isPoster = auth.userRoles?.isCompany || false;
 
   return (
     <Tab.Navigator
@@ -220,6 +283,12 @@ const MainNavigator = () => {
             iconName = 'home';
           } else if (route.name === 'Jobs') {
             iconName = 'briefcase';
+          } else if (route.name === 'AppliedJobs') {
+            iconName = 'file-text';
+          } else if (route.name === 'JobManagement') {
+            iconName = 'briefcase';
+          } else if (route.name === 'ApplicationsReview') {
+            iconName = 'users';
           } else if (route.name === 'MyJobs') {
             iconName = 'folder';
           } else if (route.name === 'CreateJob') {
@@ -228,63 +297,101 @@ const MainNavigator = () => {
             iconName = 'user';
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return <Icon name={iconName} size={focused ? 24 : 22} color={color} />;
         },
-        tabBarActiveTintColor: theme?.colors?.primary?.main || '#6475f8', // New purple for active tab
-        tabBarInactiveTintColor: theme?.colors?.secondary?.main || '#6B7280', // Gray for inactive
+        tabBarActiveTintColor: theme?.colors?.primary?.main || '#3C4FE0',
+        tabBarInactiveTintColor: theme?.colors?.text?.secondary || '#475569',
         tabBarStyle: {
           backgroundColor: theme?.colors?.background?.secondary || '#FFFFFF',
-          borderTopColor: theme?.colors?.border?.primary || '#E2E8F0',
-          paddingTop: 8,
-          paddingBottom: 8,
-          height: 60, // Slightly taller for better visual balance
+          borderTopColor: theme?.colors?.interactive?.border?.primary || '#E2E8F0',
+          borderTopWidth: 1,
+          paddingTop: 12,
+          paddingBottom: 12,
+          height: 70,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+          elevation: 8,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600', // Bold for active tabs
-          fontFamily: 'Inter',
+          fontSize: 11,
+          fontWeight: '600',
+          fontFamily: 'System',
+          marginTop: 2,
+          letterSpacing: -0.1,
         },
         headerShown: false,
       })}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardStack}
-        options={{
-          tabBarLabel: 'Dashboard',
-        }}
-      />
-      <Tab.Screen
-        name="Jobs"
-        component={JobsStack}
-        options={{
-          tabBarLabel: 'Jobs',
-        }}
-      />
-      <Tab.Screen
-        name="MyJobs"
-        component={MyJobsStack}
-        options={{
-          tabBarLabel: userRoles?.isCompany ? 'My Jobs' : 'Applications',
-        }}
-      />
-      {/* Only show Create Job tab for companies/job posters */}
-      {userRoles.isCompany && (
-        <Tab.Screen
-          name="CreateJob"
-          component={CreateJobStack}
-          options={{
-            tabBarLabel: 'Create',
-          }}
-        />
+      {isPoster ? (
+        // Poster Navigation (4 tabs) - Full functionality
+        <>
+          <Tab.Screen
+            name="Dashboard"
+            component={DashboardStack}
+            options={{
+              tabBarLabel: 'Dashboard',
+            }}
+          />
+          <Tab.Screen
+            name="JobManagement"
+            component={JobManagementStack}
+            options={{
+              tabBarLabel: 'Jobs',
+            }}
+          />
+          <Tab.Screen
+            name="ApplicationsReview"
+            component={ApplicationsReviewStack}
+            options={{
+              tabBarLabel: 'Applications',
+            }}
+          />
+          <Tab.Screen
+            name="Profile"
+            component={ProfileStack}
+            options={{
+              tabBarLabel: 'Profile',
+            }}
+          />
+        </>
+      ) : (
+        // Seeker Navigation (4 tabs) - Full functionality
+        <>
+          <Tab.Screen
+            name="Dashboard"
+            component={DashboardStack}
+            options={{
+              tabBarLabel: 'Dashboard',
+            }}
+          />
+          <Tab.Screen
+            name="Jobs"
+            component={JobsStack}
+            options={{
+              tabBarLabel: 'Jobs',
+            }}
+          />
+          <Tab.Screen
+            name="MyJobs"
+            component={MyJobsStack}
+            options={{
+              tabBarLabel: 'Applied',
+            }}
+          />
+          <Tab.Screen
+            name="Profile"
+            component={ProfileStack}
+            options={{
+              tabBarLabel: 'Profile',
+            }}
+          />
+        </>
       )}
-      <Tab.Screen
-        name="Profile"
-        component={ProfileStack}
-        options={{
-          tabBarLabel: 'Profile',
-        }}
-      />
     </Tab.Navigator>
   );
 };

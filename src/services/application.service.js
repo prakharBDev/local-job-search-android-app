@@ -1,4 +1,5 @@
 import { apiClient, buildApplicationQuery, handleApiError } from './api';
+import { Application } from '../models';
 
 /**
  * Application Service
@@ -12,19 +13,32 @@ const applicationService = {
    */
   async applyForJob(applicationData) {
     try {
+      // First check if user has already applied
+      const { data: alreadyApplied, error: checkError } = await this.hasApplied(
+        applicationData.seeker_id,
+        applicationData.job_id
+      );
+
+      if (checkError) {
+        console.error('Error checking existing application:', checkError);
+      } else if (alreadyApplied) {
+        return { 
+          data: null, 
+          error: new Error('You have already applied for this job. Duplicate applications are not allowed.') 
+        };
+      }
+
       const { data, error } = await apiClient.request(
         async () => {
+          const insertData = {
+            ...applicationData,
+            status: 'applied', // Default status
+          };
+          
+          // Simple insert with select
           const { data, error } = await apiClient.supabase
             .from('applications')
-            .insert([
-              {
-                ...applicationData,
-                status: 'applied', // Default status
-                applied_at: new Date().toISOString(),
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              },
-            ])
+            .insert([insertData])
             .select(
               `
               *,
@@ -57,6 +71,10 @@ const applicationService = {
       );
 
       if (error) {
+        // Handle unique constraint violation specifically
+        if (error.code === '23505' && error.message.includes('applications_job_id_seeker_id_key')) {
+          throw new Error('You have already applied for this job. Duplicate applications are not allowed.');
+        }
         throw error;
       }
 
@@ -64,6 +82,7 @@ const applicationService = {
       apiClient.clearCache('applications');
       apiClient.clearCache(`applications_seeker_${applicationData.seeker_id}`);
       apiClient.clearCache(`applications_job_${applicationData.job_id}`);
+      apiClient.clearCache(`has_applied_${applicationData.seeker_id}_${applicationData.job_id}`);
 
       return { data, error: null };
     } catch (error) {
@@ -80,6 +99,10 @@ const applicationService = {
    */
   async getSeekerApplications(seekerId, status = null) {
     try {
+      console.log('=== GET SEEKER APPLICATIONS ===');
+      console.log('Seeker ID:', seekerId);
+      console.log('Status filter:', status);
+      
       const { data, error } = await buildApplicationQuery({
         filters: {
           seeker_id: seekerId,
@@ -94,12 +117,17 @@ const applicationService = {
         cacheKey: `applications_seeker_${seekerId}_${status || 'all'}`,
       });
 
+      console.log('Applications data:', data);
+      console.log('Applications error:', error);
+
       if (error) {
         throw error;
       }
 
+      console.log('=== END GET SEEKER APPLICATIONS ===');
       return { data, error: null };
     } catch (error) {
+      console.error('Error in getSeekerApplications:', error);
       const apiError = handleApiError(error, 'getSeekerApplications');
       return { data: null, error: apiError };
     }
@@ -170,10 +198,9 @@ const applicationService = {
    * Update application status
    * @param {string} applicationId - Application ID
    * @param {string} status - New status
-   * @param {string} updatedBy - User ID who updated the status
    * @returns {Promise<{data: Object|null, error: Error|null}>}
    */
-  async updateApplicationStatus(applicationId, status, updatedBy) {
+  async updateApplicationStatus(applicationId, status) {
     try {
       const { data, error } = await apiClient.request(
         async () => {
@@ -182,7 +209,6 @@ const applicationService = {
             .update({
               status,
               updated_at: new Date().toISOString(),
-              updated_by: updatedBy,
             })
             .eq('id', applicationId)
             .select()
@@ -214,6 +240,94 @@ const applicationService = {
       return { data, error: null };
     } catch (error) {
       const apiError = handleApiError(error, 'updateApplicationStatus');
+      return { data: null, error: apiError };
+    }
+  },
+
+  /**
+   * Get applications for a specific job
+   * @param {string} jobId - Job ID
+   * @returns {Promise<{data: Array|null, error: Error|null}>}
+   */
+  async getApplicationsByJob(jobId) {
+    try {
+      const { data, error } = await buildApplicationQuery({
+        filters: { job_id: jobId },
+        includeJob: false,
+        includeSeeker: true,
+        includeCompany: false,
+        includeCategory: false,
+        orderBy: { column: 'created_at', ascending: false },
+        cache: true,
+        cacheKey: `applications_job_${jobId}`,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return { data, error: null };
+    } catch (error) {
+      const apiError = handleApiError(error, 'getApplicationsByJob');
+      return { data: null, error: apiError };
+    }
+  },
+
+  /**
+   * Get all applications for a company
+   * @param {string} companyId - Company ID
+   * @returns {Promise<{data: Array|null, error: Error|null}>}
+   */
+  async getApplicationsByCompany(companyId) {
+    try {
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('applications')
+            .select(
+              `
+              *,
+              jobs(
+                id,
+                title,
+                city,
+                job_type,
+                created_at
+              ),
+              seeker_profiles(
+                id,
+                experience_level,
+                tenth_percentage,
+                twelfth_percentage,
+                graduation_percentage,
+                users(
+                  id,
+                  name,
+                  email,
+                  phone_number
+                )
+              )
+            `,
+            )
+            .eq('jobs.company_id', companyId)
+            .order('created_at', { ascending: false });
+
+          return { data, error };
+        },
+        {
+          cache: true,
+          cacheKey: `applications_company_${companyId}`,
+          context: 'getApplicationsByCompany',
+        },
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      return { data, error: null };
+    } catch (error) {
+      const apiError = handleApiError(error, 'getApplicationsByCompany');
       return { data: null, error: apiError };
     }
   },
@@ -415,6 +529,9 @@ const applicationService = {
    */
   async getSeekerApplicationStats(seekerId) {
     try {
+      console.log('=== GET SEEKER APPLICATION STATS ===');
+      console.log('Seeker ID:', seekerId);
+      
       const { data, error } = await apiClient.request(
         async () => {
           const { data, error } = await apiClient.supabase
@@ -431,6 +548,9 @@ const applicationService = {
         },
       );
 
+      console.log('Raw applications data:', data);
+      console.log('Raw applications error:', error);
+
       if (error) {
         throw error;
       }
@@ -442,16 +562,19 @@ const applicationService = {
       const stats = {
         total: data.length,
         applied: data.filter(app => app.status === 'applied').length,
-        reviewed: data.filter(app => app.status === 'reviewed').length,
-        shortlisted: data.filter(app => app.status === 'shortlisted').length,
+        under_review: data.filter(app => app.status === 'under_review').length,
+        hired: data.filter(app => app.status === 'hired').length,
         rejected: data.filter(app => app.status === 'rejected').length,
-        withdrawn: data.filter(app => app.status === 'withdrawn').length,
         recent: data.filter(app => new Date(app.created_at) >= thirtyDaysAgo)
           .length,
       };
 
+      console.log('Calculated stats:', stats);
+      console.log('=== END GET SEEKER APPLICATION STATS ===');
+
       return { data: stats, error: null };
     } catch (error) {
+      console.error('Error in getSeekerApplicationStats:', error);
       const apiError = handleApiError(error, 'getSeekerApplicationStats');
       return { data: null, error: apiError };
     }

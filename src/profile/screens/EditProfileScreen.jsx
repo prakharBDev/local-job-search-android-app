@@ -816,8 +816,8 @@ const EditProfileScreen = ({ navigation, route }) => {
           ) : (
             <View style={styles.skillsGrid}>
               {allSkills.map(skill => {
-                const isSelected = (jobSeekerData.skills || '')
-                  .split(',')
+                const isSelected = jobSeekerData.skills
+                  ?.split(',')
                   .some(
                     s => s.trim().toLowerCase() === skill.name.toLowerCase(),
                   );

@@ -12,7 +12,7 @@ const Icon = ({
   ...props
 }) => {
   const { theme } = useTheme();
-  const iconColor = color || theme?.colors?.text?.primary || '#1E293B';
+  const iconColor = color || theme?.colors?.text?.primary || '#0F172A';
 
   const IconComponent = type === 'fontawesome' ? FontAwesome : Feather;
 

@@ -36,7 +36,11 @@ const initialState = {
   needsCitySelection: false,
   needsProfileSetup: false,
   needsRoleSelection: false,
-  userRoles: [],
+  userRoles: {
+    isSeeker: false,
+    isCompany: false,
+    isPoster: false,
+  },
   error: null,
 };
 
@@ -50,11 +54,27 @@ const authReducer = (state, action) => {
       return { ...state, isLoading: action.payload };
 
     case AUTH_ACTIONS.SET_USER:
+      // Automatically determine user roles based on is_seeker field
+      let userRoles = {
+        isSeeker: false,
+        isCompany: false,
+        isPoster: false,
+      };
+      
+      if (action.payload.userRecord?.is_seeker !== undefined) {
+        userRoles = {
+          isSeeker: action.payload.userRecord.is_seeker,
+          isCompany: !action.payload.userRecord.is_seeker,
+          isPoster: !action.payload.userRecord.is_seeker,
+        };
+      }
+
       return {
         ...state,
         user: action.payload.user,
         userRecord: action.payload.userRecord,
         isAuthenticated: !!action.payload.user,
+        userRoles,
       };
 
     case AUTH_ACTIONS.SET_SESSION:
@@ -67,12 +87,24 @@ const authReducer = (state, action) => {
       return { ...state, error: null };
 
     case AUTH_ACTIONS.SET_ONBOARDING_STATUS:
+      // Update user roles if provided in onboarding status
+      let updatedUserRoles = state.userRoles;
+      if (action.payload.userRoles) {
+        updatedUserRoles = action.payload.userRoles;
+      } else if (action.payload.userRecord?.is_seeker !== undefined) {
+        updatedUserRoles = {
+          isSeeker: action.payload.userRecord.is_seeker,
+          isCompany: !action.payload.userRecord.is_seeker,
+          isPoster: !action.payload.userRecord.is_seeker,
+        };
+      }
+
       return {
         ...state,
         needsCitySelection: action.payload.needsCitySelection,
         needsProfileSetup: action.payload.needsProfileSetup,
         needsRoleSelection: action.payload.needsRoleSelection,
-        userRoles: action.payload.userRoles || [],
+        userRoles: updatedUserRoles,
       };
 
     case AUTH_ACTIONS.LOGOUT:
@@ -165,12 +197,35 @@ export const AuthProvider = ({ children }) => {
           throw error;
         }
 
+        // Also update the users table for phone_number and city
+        const userTableUpdates = {};
+        if (updates.phone_number) {
+          userTableUpdates.phone_number = updates.phone_number;
+        }
+        if (updates.phone) {
+          userTableUpdates.phone_number = updates.phone;
+        }
+        if (updates.city) {
+          userTableUpdates.city = updates.city;
+        }
+
+        if (Object.keys(userTableUpdates).length > 0) {
+          const { error: userTableError } = await supabase
+            .from('users')
+            .update(userTableUpdates)
+            .eq('id', state.user.id);
+
+          if (userTableError) {
+            console.error('Error updating users table:', userTableError);
+          }
+        }
+
         // Update local state
         dispatch({
           type: AUTH_ACTIONS.SET_USER,
           payload: {
             user: data.user,
-            userRecord: { ...state.userRecord, ...updates },
+            userRecord: { ...state.userRecord, ...updates, ...userTableUpdates },
           },
         });
 
@@ -235,6 +290,14 @@ export const AuthProvider = ({ children }) => {
           throw onboardingError;
         }
 
+        console.log('🎭 [AuthContext] Setting user roles from onboarding service:', {
+          userRoles: onboardingStatus.userRoles || [],
+          needsCitySelection: onboardingStatus.needsCitySelection,
+          needsProfileSetup: onboardingStatus.needsProfileSetup,
+          needsRoleSelection: onboardingStatus.needsRoleSelection,
+          onboardingComplete: onboardingStatus.isComplete
+        });
+
         dispatch({
           type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
           payload: {
@@ -297,9 +360,31 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (session?.user) {
+        // Fetch user data from the users table to get phone_number and other fields
+        let userRecord = session.user;
+        try {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (!userError && userData) {
+            // Merge auth user data with database user data
+            userRecord = {
+              ...session.user,
+              ...userData,
+            };
+          }
+        } catch (userError) {
+          console.warn('Failed to fetch user data from users table:', userError);
+          // Fallback to just auth user data
+          userRecord = session.user;
+        }
+
         dispatch({
           type: AUTH_ACTIONS.SET_USER,
-          payload: { user: session.user, userRecord: session.user },
+          payload: { user: session.user, userRecord },
         });
         dispatch({ type: AUTH_ACTIONS.SET_SESSION, payload: session });
 
@@ -330,7 +415,11 @@ export const AuthProvider = ({ children }) => {
               needsCitySelection: true,
               needsProfileSetup: true,
               needsRoleSelection: true,
-              userRoles: [],
+              userRoles: {
+                isSeeker: false,
+                isCompany: false,
+                isPoster: false,
+              },
             },
           });
         }
@@ -349,9 +438,31 @@ export const AuthProvider = ({ children }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
+        // Fetch user data from the users table to get phone_number and other fields
+        let userRecord = session.user;
+        try {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (!userError && userData) {
+            // Merge auth user data with database user data
+            userRecord = {
+              ...session.user,
+              ...userData,
+            };
+          }
+        } catch (userError) {
+          console.warn('Failed to fetch user data from users table:', userError);
+          // Fallback to just auth user data
+          userRecord = session.user;
+        }
+
         dispatch({
           type: AUTH_ACTIONS.SET_USER,
-          payload: { user: session.user, userRecord: session.user },
+          payload: { user: session.user, userRecord },
         });
         dispatch({ type: AUTH_ACTIONS.SET_SESSION, payload: session });
 

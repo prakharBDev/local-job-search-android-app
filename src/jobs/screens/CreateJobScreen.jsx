@@ -27,13 +27,13 @@ import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 
 const CreateJobScreen = () => {
   const navigation = useNavigation();
-  const { state } = useAuth();
+  const { userRoles, userRecord, isLoading: authLoading } = useAuth();
 
   // Redirect job seekers away from this screen
   useEffect(() => {
-    if (state.userRoles) {
+    if (!authLoading && userRoles) {
       setIsCheckingRole(false);
-      if (!state.userRoles.isCompany) {
+      if (!userRoles.isCompany) {
         Alert.alert(
           'Access Denied',
           'Only job posters can create job postings. Please contact support if you believe this is an error.',
@@ -45,16 +45,18 @@ const CreateJobScreen = () => {
           ],
         );
       }
+    } else if (!authLoading && !userRoles) {
+      // If auth is not loading but userRoles is still undefined, show loading
+      setIsCheckingRole(true);
     }
-  }, [state.userRoles, navigation]);
+  }, [userRoles, authLoading, navigation]);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     salary: '',
     category_id: '',
-    city: state.userRecord?.city || 'morena',
-    salaryRange: { min: '', max: '' },
+    city: userRecord?.city || 'morena',
     requirements: [''],
     skills: [''],
   });
@@ -120,6 +122,15 @@ const CreateJobScreen = () => {
       newErrors.location = 'Location is required';
     }
 
+    if (!formData.salary.trim()) {
+      newErrors.salary = 'Salary is required';
+    } else {
+      const salary = parseInt(formData.salary.replace(/,/g, ''));
+      if (isNaN(salary) || salary <= 0) {
+        newErrors.salary = 'Please enter a valid salary amount';
+      }
+    }
+
     const validRequirements = formData.requirements.filter(req => req.trim());
     if (validRequirements.length === 0) {
       newErrors.requirements = ['At least one requirement is needed'];
@@ -128,27 +139,6 @@ const CreateJobScreen = () => {
     const validSkills = formData.skills.filter(skill => skill.trim());
     if (validSkills.length === 0) {
       newErrors.skills = ['At least one skill is needed'];
-    }
-
-    if (formData.salaryRange?.min && formData.salaryRange?.max) {
-      const minSalary = parseInt(formData.salaryRange.min);
-      const maxSalary = parseInt(formData.salaryRange.max);
-      if (isNaN(minSalary) || isNaN(maxSalary)) {
-        newErrors.salaryRange = {
-          min: 'Invalid salary amount',
-          max: 'Invalid salary amount',
-        };
-      } else if (minSalary >= maxSalary) {
-        newErrors.salaryRange = {
-          min: 'Minimum salary must be less than maximum',
-          max: '',
-        };
-      } else if (minSalary < 0 || maxSalary < 0) {
-        newErrors.salaryRange = {
-          min: 'Salary cannot be negative',
-          max: 'Salary cannot be negative',
-        };
-      }
     }
 
     setErrors(newErrors);
@@ -170,7 +160,7 @@ const CreateJobScreen = () => {
     ]).start();
   };
 
-  const handleSubmit = async (isDraft = false) => {
+    const handleSubmit = async (isDraft = false) => {
     if (!isDraft && !validateForm()) {
       Alert.alert(
         'Validation Error',
@@ -196,13 +186,7 @@ const CreateJobScreen = () => {
         skills: cleanSkills,
         experienceLevel: formData.experienceLevel,
         location: formData.location.trim(),
-        salaryRange:
-          formData.salaryRange?.min && formData.salaryRange?.max
-            ? {
-                min: parseInt(formData.salaryRange.min),
-                max: parseInt(formData.salaryRange.max),
-              }
-            : undefined,
+        salary: parseInt(formData.salary.replace(/,/g, '')),
         jobType: formData.jobType,
         status: isDraft ? 'draft' : 'active',
       };
@@ -268,15 +252,25 @@ const CreateJobScreen = () => {
     }
   };
 
-  const handleSalaryChange = (type, value) => {
+  const handleSalaryChange = (value) => {
+    // Remove non-numeric characters except commas
+    const cleanValue = value.replace(/[^\d,]/g, '');
+    
+    // Format with commas for thousands
+    let formattedValue = cleanValue;
+    if (cleanValue) {
+      const numericValue = cleanValue.replace(/,/g, '');
+      formattedValue = parseInt(numericValue).toLocaleString('en-IN');
+    }
+    
     setFormData(prev => ({
       ...prev,
-      salaryRange: { ...prev.salaryRange, [type]: value },
+      salary: formattedValue,
     }));
 
     // Clear salary errors when user starts typing
-    if (errors.salaryRange) {
-      setErrors(prev => ({ ...prev, salaryRange: null }));
+    if (errors.salary) {
+      setErrors(prev => ({ ...prev, salary: null }));
     }
   };
 
@@ -568,65 +562,34 @@ const CreateJobScreen = () => {
                       .join(' '),
                 )}
 
-                {/* Salary Range */}
+                {/* Salary */}
                 <View style={getStyles(theme).fieldContainer}>
                   <Text style={getStyles(theme).fieldLabel}>
-                    Salary Range (Optional)
+                    Salary <Text style={getStyles(theme).requiredStar}>*</Text>
                   </Text>
-                  <View style={getStyles(theme).salaryContainer}>
-                    <View style={getStyles(theme).salaryField}>
-                      <Text style={getStyles(theme).salaryLabel}>
-                        Minimum ($)
-                      </Text>
-                      <TextInput
-                        style={[
-                          getStyles(theme).input,
-                          getStyles(theme).salaryInput,
-                          errors.salaryRange?.min &&
-                            getStyles(theme).inputError,
-                          focusedField === 'salary-min' &&
-                            getStyles(theme).inputFocused,
-                        ]}
-                        value={formData.salaryRange?.min || ''}
-                        onChangeText={value => handleSalaryChange('min', value)}
-                        onFocus={() => setFocusedField('salary-min')}
-                        onBlur={() => setFocusedField(null)}
-                        placeholder="60,000"
-                        placeholderTextColor={theme.colors.text.secondary}
-                        keyboardType="numeric"
-                        accessibilityLabel="Minimum salary"
-                      />
-                    </View>
-                    <View style={getStyles(theme).salaryDividerContainer}>
-                      <Text style={getStyles(theme).salaryDivider}>to</Text>
-                    </View>
-                    <View style={getStyles(theme).salaryField}>
-                      <Text style={getStyles(theme).salaryLabel}>
-                        Maximum ($)
-                      </Text>
-                      <TextInput
-                        style={[
-                          getStyles(theme).input,
-                          getStyles(theme).salaryInput,
-                          errors.salaryRange?.max &&
-                            getStyles(theme).inputError,
-                          focusedField === 'salary-max' &&
-                            getStyles(theme).inputFocused,
-                        ]}
-                        value={formData.salaryRange?.max || ''}
-                        onChangeText={value => handleSalaryChange('max', value)}
-                        onFocus={() => setFocusedField('salary-max')}
-                        onBlur={() => setFocusedField(null)}
-                        placeholder="90,000"
-                        placeholderTextColor={theme.colors.text.secondary}
-                        keyboardType="numeric"
-                        accessibilityLabel="Maximum salary"
-                      />
-                    </View>
+                  <View style={getStyles(theme).salaryInputContainer}>
+                    <Text style={getStyles(theme).salarySymbol}>₹</Text>
+                    <TextInput
+                      style={[
+                        getStyles(theme).input,
+                        getStyles(theme).salaryInput,
+                        errors.salary && getStyles(theme).inputError,
+                        focusedField === 'salary' && getStyles(theme).inputFocused,
+                      ]}
+                      value={formData.salary}
+                      onChangeText={handleSalaryChange}
+                      onFocus={() => setFocusedField('salary')}
+                      onBlur={() => setFocusedField(null)}
+                      placeholder="50,000"
+                      placeholderTextColor={theme.colors.text.secondary}
+                      keyboardType="numeric"
+                      accessibilityLabel="Salary per month"
+                    />
+                    <Text style={getStyles(theme).salaryUnit}>per month</Text>
                   </View>
-                  {errors.salaryRange?.min && (
+                  {errors.salary && (
                     <Text style={getStyles(theme).errorText}>
-                      {errors.salaryRange.min}
+                      {errors.salary}
                     </Text>
                   )}
                 </View>

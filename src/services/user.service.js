@@ -1,5 +1,5 @@
 import { apiClient, buildProfileQuery, handleApiError } from './api';
-import { User, SeekerProfile, CompanyProfile } from '../models';
+import { User } from '../models';
 
 /**
  * User Service
@@ -103,6 +103,33 @@ const userService = {
     } catch (error) {
       const normalizedError = handleApiError(error, 'updateLastLogin');
       return { error: normalizedError };
+    }
+  },
+
+  /**
+   * Get user by ID
+   * @param {string} userId - User ID
+   * @returns {Promise<{data: Object|null, error: Error|null}>}
+   */
+  async getUserById(userId) {
+    try {
+      const { data, error } = await apiClient.query('users', {
+        select: '*',
+        filters: { id: userId },
+        cache: true,
+        cacheKey: `user_${userId}`,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Convert to User model
+      const user = data?.[0] ? User.fromApi(data[0]) : null;
+      return { data: user, error: null };
+    } catch (error) {
+      const normalizedError = handleApiError(error, 'getUserById');
+      return { data: null, error: normalizedError };
     }
   },
 

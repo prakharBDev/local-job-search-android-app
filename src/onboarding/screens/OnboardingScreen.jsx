@@ -33,8 +33,8 @@ const OnboardingScreen = () => {
 
   const toggleRole = role => {
     setSelectedRoles(prev => ({
-      ...prev,
-      [role]: !prev[role],
+      isSeeker: role === 'isSeeker',
+      isPoster: role === 'isPoster',
     }));
   };
 
@@ -99,7 +99,7 @@ const OnboardingScreen = () => {
         <View style={styles.selectionSection}>
           <Text style={styles.sectionTitle}>What would you like to do?</Text>
           <Text style={styles.sectionSubtitle}>
-            You can select both options
+            Choose one option to get started
           </Text>
 
           {/* Role Cards */}
@@ -124,7 +124,7 @@ const OnboardingScreen = () => {
                     ]}
                   >
                     {selectedRoles.isSeeker && (
-                      <FontAwesome name="check" size={14} color="#FFFFFF" />
+                      <FontAwesome name="check" size={10} color="#FFFFFF" />
                     )}
                   </View>
                 </View>
@@ -157,7 +157,7 @@ const OnboardingScreen = () => {
                     ]}
                   >
                     {selectedRoles.isPoster && (
-                      <FontAwesome name="check" size={14} color="#FFFFFF" />
+                      <FontAwesome name="check" size={10} color="#FFFFFF" />
                     )}
                   </View>
                 </View>
@@ -176,21 +176,17 @@ const OnboardingScreen = () => {
             <Button
               onPress={handleContinue}
               disabled={!selectedRoles.isSeeker && !selectedRoles.isPoster}
-              style={[
-                styles.continueButton,
-                !selectedRoles.isSeeker &&
-                  !selectedRoles.isPoster &&
-                  styles.continueButtonDisabled,
-              ]}
+              variant="primary"
+              size="lg"
+              fullWidth={true}
+              style={styles.continueButton}
+              textStyle={styles.buttonText}
             >
-              <Text style={styles.buttonText}>Continue</Text>
+              Continue
             </Button>
 
             <Text style={styles.helperText}>
-              {selectedRoles.isSeeker && selectedRoles.isPoster
-                ? "You'll set up both profiles in sequence"
-                : 'You can add the other role later in your profile settings'
-              }
+              You can add the other role later in your profile settings
             </Text>
           </View>
         </View>
@@ -211,14 +207,14 @@ const getStyles = () =>
     },
     heroSection: {
       alignItems: 'center',
-      paddingTop: 40,
-      paddingBottom: 30,
+      paddingTop: 32,
+      paddingBottom: 24,
       paddingHorizontal: 24,
     },
     heroImage: {
       width: '100%',
-      height: 200,
-      marginBottom: 20,
+      height: 280,
+      marginBottom: 24,
     },
     heroContent: {
       alignItems: 'center',
@@ -297,9 +293,9 @@ const getStyles = () =>
       justifyContent: 'center',
     },
     checkbox: {
-      width: 28,
-      height: 28,
-      borderRadius: 14,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
       borderWidth: 2,
       borderColor: '#D1D5DB',
       alignItems: 'center',
@@ -326,19 +322,27 @@ const getStyles = () =>
     },
     buttonContainer: {
       alignItems: 'center',
+      paddingHorizontal: 0,
+      marginTop: 24,
+      width: '100%',
     },
     continueButton: {
-      minHeight: 56,
-      width: '100%',
       marginBottom: 16,
-    },
-    continueButtonDisabled: {
-      opacity: 0.6,
+      borderRadius: 16,
+      shadowColor: '#3C4FE0',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.2,
+      shadowRadius: 12,
+      elevation: 8,
     },
     buttonText: {
       fontSize: 18,
-      fontWeight: '600',
+      fontWeight: '700',
       color: '#FFFFFF',
+      textAlign: 'center',
+      letterSpacing: 0.5,
+      flex: 1,
+      textAlignVertical: 'center',
     },
     helperText: {
       fontSize: 14,

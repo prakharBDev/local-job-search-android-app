@@ -11,10 +11,12 @@ export class Application {
     this.status = data.status || 'applied';
     this.created_at = data.created_at || null;
     this.updated_at = data.updated_at || null;
-    
+
     // Related data
     this.job = data.job ? new Job(data.job) : null;
-    this.seeker_profile = data.seeker_profile ? new SeekerProfile(data.seeker_profile) : null;
+    this.seeker_profile = data.seeker_profile
+      ? new SeekerProfile(data.seeker_profile)
+      : null;
   }
 
   static fromApi(data) {
@@ -78,6 +80,8 @@ export class Application {
   }
 
   get appliedDate() {
-    return this.created_at ? new Date(this.created_at).toLocaleDateString() : 'Unknown';
+    return this.created_at
+      ? new Date(this.created_at).toLocaleDateString()
+      : 'Unknown';
   }
-} 
+}

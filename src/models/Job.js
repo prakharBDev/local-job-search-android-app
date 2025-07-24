@@ -14,9 +14,11 @@ export class Job {
     this.is_active = data.is_active ?? true;
     this.created_at = data.created_at || null;
     this.updated_at = data.updated_at || null;
-    
+
     // Related data
-    this.company_profile = data.company_profile ? new CompanyProfile(data.company_profile) : null;
+    this.company_profile = data.company_profile
+      ? new CompanyProfile(data.company_profile)
+      : null;
     this.category = data.category ? new JobCategory(data.category) : null;
     this.skills = data.skills || [];
     this.applications = data.applications || [];
@@ -118,4 +120,4 @@ export class Skill {
       created_at: this.created_at,
     };
   }
-} 
+}

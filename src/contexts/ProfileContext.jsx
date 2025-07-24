@@ -97,44 +97,53 @@ export const ProfileProvider = ({ children }) => {
   }, []);
 
   // Memoize the updateCurrentProfile function
-  const updateCurrentProfile = useCallback(async (updates) => {
-    try {
-      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: true });
-      dispatch({ type: PROFILE_ACTIONS.CLEAR_ERROR });
+  const updateCurrentProfile = useCallback(
+    async updates => {
+      try {
+        dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: true });
+        dispatch({ type: PROFILE_ACTIONS.CLEAR_ERROR });
 
-      if (!state.currentProfile) {
-        throw new Error('No current profile to update');
-      }
-
-      // Update the profile based on the current role
-      const userId = state.currentProfile.user_id || state.currentProfile.id;
-      const role = state.currentProfile.role || 'seeker';
-
-      let updatedProfile = null;
-
-      if (role === 'seeker') {
-        const { data, error } = await seekerService.updateSeekerProfile(userId, updates);
-        if (error) {
-          throw new Error(error);
+        if (!state.currentProfile) {
+          throw new Error('No current profile to update');
         }
-        updatedProfile = data;
-      } else if (role === 'company') {
-        const { data, error } = await companyService.updateCompanyProfile(userId, updates);
-        if (error) {
-          throw new Error(error);
-        }
-        updatedProfile = data;
-      }
 
-      dispatch({
-        type: PROFILE_ACTIONS.SET_CURRENT_PROFILE,
-        payload: updatedProfile,
-      });
-      dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: false });
-    } catch (error) {
-      dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
-    }
-  }, [state.currentProfile]);
+        // Update the profile based on the current role
+        const userId = state.currentProfile.user_id || state.currentProfile.id;
+        const role = state.currentProfile.role || 'seeker';
+
+        let updatedProfile = null;
+
+        if (role === 'seeker') {
+          const { data, error } = await seekerService.updateSeekerProfile(
+            userId,
+            updates,
+          );
+          if (error) {
+            throw new Error(error);
+          }
+          updatedProfile = data;
+        } else if (role === 'company') {
+          const { data, error } = await companyService.updateCompanyProfile(
+            userId,
+            updates,
+          );
+          if (error) {
+            throw new Error(error);
+          }
+          updatedProfile = data;
+        }
+
+        dispatch({
+          type: PROFILE_ACTIONS.SET_CURRENT_PROFILE,
+          payload: updatedProfile,
+        });
+        dispatch({ type: PROFILE_ACTIONS.SET_LOADING, payload: false });
+      } catch (error) {
+        dispatch({ type: PROFILE_ACTIONS.SET_ERROR, payload: error.message });
+      }
+    },
+    [state.currentProfile],
+  );
 
   // Memoize the clearError function
   const clearError = useCallback(() => {
@@ -152,12 +161,7 @@ export const ProfileProvider = ({ children }) => {
       updateCurrentProfile,
       clearError,
     }),
-    [
-      state,
-      loadCurrentProfile,
-      updateCurrentProfile,
-      clearError,
-    ],
+    [state, loadCurrentProfile, updateCurrentProfile, clearError],
   );
 
   return (

@@ -15,10 +15,14 @@ export class User {
     this.last_login_at = data.last_login_at || null;
     this.created_at = data.created_at || null;
     this.updated_at = data.updated_at || null;
-    
+
     // Related data
-    this.seeker_profile = data.seeker_profile ? new SeekerProfile(data.seeker_profile) : null;
-    this.company_profile = data.company_profile ? new CompanyProfile(data.company_profile) : null;
+    this.seeker_profile = data.seeker_profile
+      ? new SeekerProfile(data.seeker_profile)
+      : null;
+    this.company_profile = data.company_profile
+      ? new CompanyProfile(data.company_profile)
+      : null;
   }
 
   /**
@@ -99,7 +103,7 @@ export class SeekerProfile {
     this.experience_level = data.experience_level || 'fresher';
     this.created_at = data.created_at || null;
     this.updated_at = data.updated_at || null;
-    
+
     // Related data
     this.skills = data.skills || [];
     this.categories = data.categories || [];
@@ -123,7 +127,11 @@ export class SeekerProfile {
   }
 
   get hasEducation() {
-    return this.tenth_percentage || this.twelfth_percentage || this.graduation_percentage;
+    return (
+      this.tenth_percentage ||
+      this.twelfth_percentage ||
+      this.graduation_percentage
+    );
   }
 
   get experienceLevelLabel() {
@@ -174,4 +182,4 @@ export class CompanyProfile {
   get isVerified() {
     return this.is_verified;
   }
-} 
+}

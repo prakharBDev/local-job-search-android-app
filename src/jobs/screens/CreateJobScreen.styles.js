@@ -214,38 +214,45 @@ export const getStyles = theme =>
       fontWeight: '600',
     },
 
-    // Salary Styles - Enhanced spacing and curves
-    salaryContainer: {
+    // Salary Styles - Single field with Rupee symbol and per month
+    salaryInputContainer: {
       flexDirection: 'row',
-      alignItems: 'flex-end',
-      gap: 16,
+      alignItems: 'center',
+      backgroundColor: '#FFFFFF',
+      borderWidth: 1.5,
+      borderColor: '#E2E8F0',
+      borderRadius: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.04,
+      shadowRadius: 8,
+      elevation: 2,
     },
-    salaryField: {
+    salarySymbol: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: '#374151',
+      marginRight: 8,
+      fontFamily: 'System',
+    },
+    salaryInput: {
       flex: 1,
-    },
-    salaryLabel: {
-      fontSize: 14,
+      fontSize: 16,
+      color: '#1E293B',
       fontWeight: '500',
-      color: '#6B7280',
-      marginBottom: 8,
+      paddingVertical: 12,
       fontFamily: 'System',
       letterSpacing: -0.2,
     },
-    salaryInput: {
-      textAlign: 'center',
-      borderRadius: 16,
-    },
-    salaryDividerContainer: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingBottom: 10,
-    },
-    salaryDivider: {
-      fontSize: 16,
-      color: '#6B7280',
+    salaryUnit: {
+      fontSize: 14,
       fontWeight: '500',
-      paddingHorizontal: 8,
+      color: '#6B7280',
+      marginLeft: 8,
       fontFamily: 'System',
+      letterSpacing: -0.2,
     },
 
     // Array Field Styles - More polished

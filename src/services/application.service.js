@@ -291,7 +291,6 @@ const applicationService = {
                 id,
                 title,
                 city,
-                job_type,
                 created_at
               ),
               seeker_profiles(
@@ -430,7 +429,6 @@ const applicationService = {
                 id,
                 title,
                 city,
-                job_type,
                 created_at
               ),
               seeker_profiles(

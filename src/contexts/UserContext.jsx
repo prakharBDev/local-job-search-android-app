@@ -14,11 +14,14 @@ export const UserProvider = ({ children }) => {
     return 'seeker';
   }, [userRoles]);
 
-  const contextValue = useMemo(() => ({
-    currentMode,
-    isSeekerMode: currentMode === 'seeker',
-    isPosterMode: currentMode === 'poster',
-  }), [currentMode]);
+  const contextValue = useMemo(
+    () => ({
+      currentMode,
+      isSeekerMode: currentMode === 'seeker',
+      isPosterMode: currentMode === 'poster',
+    }),
+    [currentMode],
+  );
 
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

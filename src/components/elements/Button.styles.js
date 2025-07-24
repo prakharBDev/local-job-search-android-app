@@ -114,6 +114,8 @@ export const getStyles = theme =>
 
     textPrimary: {
       color: theme?.colors?.text?.white || '#FFFFFF',
+      textAlign: 'center',
+      fontWeight: '700',
     },
 
     textOutline: {

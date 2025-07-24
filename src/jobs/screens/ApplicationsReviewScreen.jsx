@@ -12,8 +12,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { applicationService } from '../../services/application.service';
-import { jobService } from '../../services/job.service';
+import { applicationService, jobService } from '../../services';
 
 // Import components
 import Card from '../../components/blocks/Card';
@@ -27,7 +26,7 @@ const ApplicationsReviewScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { user, userRoles } = useAuth();
-  
+
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,16 +45,16 @@ const ApplicationsReviewScreen = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Load job details if jobId is provided
       if (jobId) {
         const job = await jobService.getJobById(jobId);
         setSelectedJob(job);
       }
-      
+
       // Load applications
       if (userRoles?.isCompany && user?.id) {
-        const jobApplications = jobId 
+        const jobApplications = jobId
           ? await applicationService.getApplicationsByJob(jobId)
           : await applicationService.getApplicationsByCompany(user.id);
         setApplications(jobApplications || []);
@@ -74,7 +73,7 @@ const ApplicationsReviewScreen = () => {
     setRefreshing(false);
   };
 
-  const handleViewApplication = (application) => {
+  const handleViewApplication = application => {
     setSelectedApplication(application);
     setShowApplicationModal(true);
   };
@@ -82,30 +81,35 @@ const ApplicationsReviewScreen = () => {
   const handleUpdateStatus = async (applicationId, newStatus) => {
     try {
       setStatusUpdateLoading(true);
-      await applicationService.updateApplicationStatus(applicationId, newStatus);
-      
+      await applicationService.updateApplicationStatus(
+        applicationId,
+        newStatus,
+
       // Update local state
-      setApplications(prevApplications => 
-        prevApplications.map(app => 
-          app.id === applicationId ? { ...app, status: newStatus } : app
-        )
-      );
-      
+      setApplications(prevApplications =>
+        prevApplications.map(app =>
+          app.id === applicationId ? { ...app, status: newStatus } : app,
+        ),
+      ))
+
       // Update selected application if it's the one being updated
       if (selectedApplication?.id === applicationId) {
         setSelectedApplication(prev => ({ ...prev, status: newStatus }));
       }
-      
+
       Alert.alert('Success', `Application status updated to ${newStatus}.`);
     } catch (error) {
       console.error('Error updating application status:', error);
-      Alert.alert('Error', 'Failed to update application status. Please try again.');
+      Alert.alert(
+        'Error',
+        'Failed to update application status. Please try again.',
+      );
     } finally {
       setStatusUpdateLoading(false);
     }
   };
 
-  const getStatusBadgeColor = (status) => {
+  const getStatusBadgeColor = status => {
     switch (status) {
       case 'applied':
         return theme.colors.primary;
@@ -120,7 +124,7 @@ const ApplicationsReviewScreen = () => {
     }
   };
 
-  const getStatusText = (status) => {
+  const getStatusText = status => {
     switch (status) {
       case 'applied':
         return 'Applied';
@@ -136,41 +140,54 @@ const ApplicationsReviewScreen = () => {
   };
 
   const getFilteredApplications = () => {
+    if (!Array.isArray(applications)) {
+      return [];
+    }
     if (filterStatus === 'all') {
       return applications;
     }
     return applications.filter(app => app.status === filterStatus);
   };
 
-  const renderApplicationCard = (application) => (
+  const renderApplicationCard = application => (
     <Card key={application.id} style={styles.applicationCard}>
       <View style={styles.applicationHeader}>
         <View style={styles.applicantInfo}>
           <Text style={[styles.applicantName, { color: theme.colors.text }]}>
             {application.seeker_profile?.user?.name || 'Unknown Applicant'}
           </Text>
-          <Text style={[styles.applicantEmail, { color: theme.colors.textSecondary }]}>
+          <Text
+            style={[
+              styles.applicantEmail,
+              { color: theme.colors.textSecondary },
+            ]}
+          >
             {application.seeker_profile?.user?.email || 'No email'}
           </Text>
         </View>
-        <Badge 
+        <Badge
           text={getStatusText(application.status)}
           color={getStatusBadgeColor(application.status)}
           size="small"
         />
       </View>
-      
+
       {application.message && (
-        <Text style={[styles.applicationMessage, { color: theme.colors.textSecondary }]}>
+        <Text
+          style={[
+            styles.applicationMessage,
+            { color: theme.colors.textSecondary },
+          ]}
+        >
           "{application.message}"
         </Text>
       )}
-      
+
       <View style={styles.applicationFooter}>
         <Text style={[styles.applicationDate, { color: theme.colors.gray }]}>
           Applied: {new Date(application.created_at).toLocaleDateString()}
         </Text>
-        
+
         <TouchableOpacity
           style={[styles.viewButton, { backgroundColor: theme.colors.primary }]}
           onPress={() => handleViewApplication(application)}
@@ -192,7 +209,9 @@ const ApplicationsReviewScreen = () => {
       onRequestClose={() => setShowApplicationModal(false)}
     >
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: theme.colors.white }]}>
+        <View
+          style={[styles.modalContent, { backgroundColor: theme.colors.white }]}
+        >
           <View style={styles.modalHeader}>
             <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
               Application Details
@@ -204,7 +223,7 @@ const ApplicationsReviewScreen = () => {
               <Icon name="close" size={24} color={theme.colors.gray} />
             </TouchableOpacity>
           </View>
-          
+
           {selectedApplication && (
             <ScrollView style={styles.modalBody}>
               <View style={styles.applicantDetails}>
@@ -280,17 +299,39 @@ const ApplicationsReviewScreen = () => {
                   />
                   <Button
                     title="Hire"
-                    onPress={() => handleUpdateStatus(selectedApplication.id, 'hired')}
-                    style={[styles.statusButton, { backgroundColor: theme.colors.success }]}
-                    textStyle={[styles.statusButtonText, { color: theme.colors.white }]}
-                    disabled={statusUpdateLoading || selectedApplication.status === 'hired'}
+                    onPress={() =>
+                      handleUpdateStatus(selectedApplication.id, 'hired')
+                    }
+                    style={[
+                      styles.statusButton,
+                      { backgroundColor: theme.colors.success },
+                    ]}
+                    textStyle={[
+                      styles.statusButtonText,
+                      { color: theme.colors.white },
+                    ]}
+                    disabled={
+                      statusUpdateLoading ||
+                      selectedApplication.status === 'hired'
+                    }
                   />
                   <Button
                     title="Reject"
-                    onPress={() => handleUpdateStatus(selectedApplication.id, 'rejected')}
-                    style={[styles.statusButton, { backgroundColor: theme.colors.error }]}
-                    textStyle={[styles.statusButtonText, { color: theme.colors.white }]}
-                    disabled={statusUpdateLoading || selectedApplication.status === 'rejected'}
+                    onPress={() =>
+                      handleUpdateStatus(selectedApplication.id, 'rejected')
+                    }
+                    style={[
+                      styles.statusButton,
+                      { backgroundColor: theme.colors.error },
+                    ]}
+                    textStyle={[
+                      styles.statusButtonText,
+                      { color: theme.colors.white },
+                    ]}
+                    disabled={
+                      statusUpdateLoading ||
+                      selectedApplication.status === 'rejected'
+                    }
                   />
                 </View>
               </View>
@@ -303,25 +344,45 @@ const ApplicationsReviewScreen = () => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Icon name="people-outline" size={64} color={theme.colors.gray} />
+      <Icon name="users" size={64} color={theme.colors.gray} />
       <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
-        No Applications Yet
+        {jobId ? 'No Applications Yet' : 'Welcome to Applications Review! 👔'}
       </Text>
-      <Text style={[styles.emptyDescription, { color: theme.colors.textSecondary }]}>
-        {jobId 
-          ? 'This job hasn\'t received any applications yet.'
-          : 'Your jobs haven\'t received any applications yet.'
-        }
+      <Text
+        style={[styles.emptyDescription, { color: theme.colors.textSecondary }]}
+      >
+        {jobId
+          ? "This job hasn't received any applications yet. Share your job posting to attract more candidates."
+          : "You haven't received any job applications yet. Once candidates start applying to your jobs, you'll be able to review and manage them here."}
       </Text>
+      {!jobId && (
+        <Text style={[styles.emptyHint, { color: theme.colors.textSecondary }]}>
+          💡 Tip: Make sure you have active job postings to receive
+          applications!
+        </Text>
+      )}
     </View>
   );
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <View style={styles.loadingContainer}>
+          <Icon name="users" size={48} color={theme.colors.primary} />
           <Text style={[styles.loadingText, { color: theme.colors.text }]}>
             Loading applications...
+          </Text>
+          <Text
+            style={[
+              styles.loadingSubtext,
+              { color: theme.colors.textSecondary },
+            ]}
+          >
+            {jobId
+              ? 'Fetching applications for this job'
+              : 'Gathering all your job applications'}
           </Text>
         </View>
       </View>
@@ -331,7 +392,9 @@ const ApplicationsReviewScreen = () => {
   const filteredApplications = getFilteredApplications();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -345,19 +408,29 @@ const ApplicationsReviewScreen = () => {
               {jobId ? 'Job Applications' : 'All Applications'}
             </Text>
             {selectedJob && (
-              <Text style={[styles.headerSubtitle, { color: theme.colors.textSecondary }]}>
+              <Text
+                style={[
+                  styles.headerSubtitle,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
                 {selectedJob.title}
               </Text>
             )}
           </View>
         </View>
 
-        {applications.length === 0 ? (
+        {!Array.isArray(applications) || applications.length === 0 ? (
           renderEmptyState()
         ) : (
           <View style={styles.content}>
             <View style={styles.filterSection}>
-              <Text style={[styles.filterLabel, { color: theme.colors.textSecondary }]}>
+              <Text
+                style={[
+                  styles.filterLabel,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
                 Filter by status:
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -365,82 +438,149 @@ const ApplicationsReviewScreen = () => {
                   <TouchableOpacity
                     style={[
                       styles.filterButton,
-                      filterStatus === 'all' && { backgroundColor: theme.colors.primary }
+                      filterStatus === 'all' && {
+                        backgroundColor: theme.colors.primary,
+                      },
                     ]}
                     onPress={() => setFilterStatus('all')}
                   >
-                    <Text style={[
-                      styles.filterButtonText,
-                      { color: filterStatus === 'all' ? theme.colors.white : theme.colors.text }
-                    ]}>
-                      All ({applications.length})
+                    <Text
+                      style={[
+                        styles.filterButtonText,
+                        {
+                          color:
+                            filterStatus === 'all'
+                              ? theme.colors.white
+                              : theme.colors.text,
+                        },
+                      ]}
+                    >
+                      All (
+                      {Array.isArray(applications) ? applications.length : 0})
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.filterButton,
-                      filterStatus === 'applied' && { backgroundColor: theme.colors.primary }
+                      filterStatus === 'applied' && {
+                        backgroundColor: theme.colors.primary,
+                      },
                     ]}
                     onPress={() => setFilterStatus('applied')}
                   >
-                    <Text style={[
-                      styles.filterButtonText,
-                      { color: filterStatus === 'applied' ? theme.colors.white : theme.colors.text }
-                    ]}>
-                      Applied ({applications.filter(app => app.status === 'applied').length})
+                    <Text
+                      style={[
+                        styles.filterButtonText,
+                        {
+                          color:
+                            filterStatus === 'applied'
+                              ? theme.colors.white
+                              : theme.colors.text,
+                        },
+                      ]}
+                    >
+                      Applied (
+                      {Array.isArray(applications)
+                        ? applications.filter(app => app.status === 'applied')
+                            .length
+                        : 0}
+                      )
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.filterButton,
-                      filterStatus === 'under_review' && { backgroundColor: theme.colors.primary }
+                      filterStatus === 'under_review' && {
+                        backgroundColor: theme.colors.primary,
+                      },
                     ]}
                     onPress={() => setFilterStatus('under_review')}
                   >
-                    <Text style={[
-                      styles.filterButtonText,
-                      { color: filterStatus === 'under_review' ? theme.colors.white : theme.colors.text }
-                    ]}>
-                      Under Review ({applications.filter(app => app.status === 'under_review').length})
+                    <Text
+                      style={[
+                        styles.filterButtonText,
+                        {
+                          color:
+                            filterStatus === 'under_review'
+                              ? theme.colors.white
+                              : theme.colors.text,
+                        },
+                      ]}
+                    >
+                      Under Review (
+                      {Array.isArray(applications)
+                        ? applications.filter(
+                            app => app.status === 'under_review',
+                          ).length
+                        : 0}
+                      )
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.filterButton,
-                      filterStatus === 'hired' && { backgroundColor: theme.colors.primary }
+                      filterStatus === 'hired' && {
+                        backgroundColor: theme.colors.primary,
+                      },
                     ]}
                     onPress={() => setFilterStatus('hired')}
                   >
-                    <Text style={[
-                      styles.filterButtonText,
-                      { color: filterStatus === 'hired' ? theme.colors.white : theme.colors.text }
-                    ]}>
-                      Hired ({applications.filter(app => app.status === 'hired').length})
+                    <Text
+                      style={[
+                        styles.filterButtonText,
+                        {
+                          color:
+                            filterStatus === 'hired'
+                              ? theme.colors.white
+                              : theme.colors.text,
+                        },
+                      ]}
+                    >
+                      Hired (
+                      {Array.isArray(applications)
+                        ? applications.filter(app => app.status === 'hired')
+                            .length
+                        : 0}
+                      )
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.filterButton,
-                      filterStatus === 'rejected' && { backgroundColor: theme.colors.primary }
+                      filterStatus === 'rejected' && {
+                        backgroundColor: theme.colors.primary,
+                      },
                     ]}
                     onPress={() => setFilterStatus('rejected')}
                   >
-                    <Text style={[
-                      styles.filterButtonText,
-                      { color: filterStatus === 'rejected' ? theme.colors.white : theme.colors.text }
-                    ]}>
-                      Rejected ({applications.filter(app => app.status === 'rejected').length})
+                    <Text
+                      style={[
+                        styles.filterButtonText,
+                        {
+                          color:
+                            filterStatus === 'rejected'
+                              ? theme.colors.white
+                              : theme.colors.text,
+                        },
+                      ]}
+                    >
+                      Rejected (
+                      {Array.isArray(applications)
+                        ? applications.filter(app => app.status === 'rejected')
+                            .length
+                        : 0}
+                      )
                     </Text>
                   </TouchableOpacity>
                 </View>
               </ScrollView>
             </View>
-            
+
             {filteredApplications.map(renderApplicationCard)}
           </View>
         )}
       </ScrollView>
-      
+
       {renderApplicationModal()}
     </View>
   );
@@ -643,4 +783,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ApplicationsReviewScreen; 
+export default ApplicationsReviewScreen;

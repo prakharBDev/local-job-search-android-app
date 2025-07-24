@@ -59,13 +59,7 @@ export const buildJobQuery = (options = {}) => {
  * @returns {Promise<{data: any, error: Error|null}>}
  */
 export const buildProfileQuery = (userId, options = {}) => {
-  const {
-    includeSeeker = true,
-    includeCompany = true,
-    includeSkills = true,
-    includeCategories = true,
-    cache = true,
-  } = options;
+  const { includeSeeker = true, includeCompany = true, cache = true } = options;
 
   // Build select statement for user with profiles
   const select = `
@@ -136,18 +130,24 @@ export const buildCompanyProfileQuery = (userId, options = {}) => {
   const {
     includeJobs = true,
     includeApplications = false,
+    includeUser = true,
     cache = true,
   } = options;
 
   // Build select statement
   let select = '*';
-  
+
+  if (includeUser) {
+    select += ',users!user_id(id,name,email,phone_number,city)';
+  }
+
   if (includeJobs) {
     select += ',jobs(id,title,description,city,is_active,created_at)';
   }
-  
+
   if (includeApplications) {
-    select += ',jobs(applications(id,status,created_at,seeker_profiles(users(name))))';
+    select +=
+      ',jobs(applications(id,status,created_at,seeker_profiles(users(name))))';
   }
 
   return apiClient.query('company_profiles', {
@@ -168,7 +168,6 @@ export const buildApplicationQuery = (options = {}) => {
     filters = {},
     includeJob = true,
     includeSeeker = true,
-    includeCompany = true,
     limit = null,
     offset = null,
     orderBy = { column: 'created_at', ascending: false },
@@ -177,11 +176,12 @@ export const buildApplicationQuery = (options = {}) => {
 
   // Build select statement
   let select = '*';
-  
+
   if (includeJob) {
-    select += ',jobs(id,title,description,city,salary,job_categories(id,name),company_profiles(id,company_name,is_verified))';
+    select +=
+      ',jobs(id,title,description,city,salary,job_categories(id,name),company_profiles(id,company_name,is_verified))';
   }
-  
+
   if (includeSeeker) {
     select += ',seeker_profiles(experience_level,users(name,email))';
   }
@@ -206,7 +206,6 @@ export const buildApplicationQuery = (options = {}) => {
 export const buildSearchQuery = (searchTerm, options = {}) => {
   const {
     searchIn = ['jobs', 'skills', 'categories'],
-    filters = {},
     limit = 20,
     cache = false, // Don't cache search results
   } = options;

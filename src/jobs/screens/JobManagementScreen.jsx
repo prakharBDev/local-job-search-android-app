@@ -11,8 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { jobService } from '../../services/job.service';
-import { companyService } from '../../services/company.service';
+import { jobService, companyService } from '../../services';
 
 // Import components
 import Card from '../../components/blocks/Card';
@@ -24,7 +23,7 @@ const JobManagementScreen = () => {
   const { theme } = useTheme();
   const navigation = useNavigation();
   const { user, userRoles } = useAuth();
-  
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -37,13 +36,13 @@ const JobManagementScreen = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Load company profile
       if (user?.id) {
         const profile = await companyService.getCompanyProfile(user.id);
         setCompanyProfile(profile);
       }
-      
+
       // Load company's jobs
       if (userRoles?.isCompany && user?.id) {
         const companyJobs = await jobService.getJobsByCompany(user.id);
@@ -67,25 +66,25 @@ const JobManagementScreen = () => {
     navigation.navigate('CreateJob');
   };
 
-  const handleEditJob = (job) => {
+  const handleEditJob = job => {
     navigation.navigate('CreateJob', { jobId: job.id, editMode: true });
   };
 
-  const handleToggleJobStatus = async (job) => {
+  const handleToggleJobStatus = async job => {
     try {
       const newStatus = job.is_active ? false : true;
       await jobService.updateJob(job.id, { is_active: newStatus });
-      
+
       // Update local state
-      setJobs(prevJobs => 
-        prevJobs.map(j => 
-          j.id === job.id ? { ...j, is_active: newStatus } : j
-        )
+      setJobs(prevJobs =>
+        prevJobs.map(j =>
+          j.id === job.id ? { ...j, is_active: newStatus } : j,
+        ),
       );
-      
+
       Alert.alert(
-        'Success', 
-        `Job ${newStatus ? 'activated' : 'deactivated'} successfully.`
+        'Success',
+        `Job ${newStatus ? 'activated' : 'deactivated'} successfully.`,
       );
     } catch (error) {
       console.error('Error toggling job status:', error);
@@ -93,15 +92,15 @@ const JobManagementScreen = () => {
     }
   };
 
-  const handleViewApplications = (job) => {
+  const handleViewApplications = job => {
     navigation.navigate('ApplicationsReview', { jobId: job.id });
   };
 
-  const getStatusBadgeColor = (isActive) => {
+  const getStatusBadgeColor = isActive => {
     return isActive ? theme.colors.success : theme.colors.gray;
   };
 
-  const getStatusText = (isActive) => {
+  const getStatusText = isActive => {
     return isActive ? 'Active' : 'Inactive';
   };
 
@@ -128,15 +127,18 @@ const JobManagementScreen = () => {
       <Text style={[styles.jobDescription, { color: theme.colors.textSecondary }]}>
         {job.description?.substring(0, 100)}...
       </Text>
-      
+
       <View style={styles.jobFooter}>
         <Text style={[styles.jobDate, { color: theme.colors.gray }]}>
           Posted: {new Date(job.created_at).toLocaleDateString()}
         </Text>
-        
+
         <View style={styles.jobActions}>
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
+            style={[
+              styles.actionButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
             onPress={() => handleViewApplications(job)}
           >
             <Icon name="people" size={16} color={theme.colors.white} />
@@ -144,9 +146,12 @@ const JobManagementScreen = () => {
               View
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: theme.colors.secondary }]}
+            style={[
+              styles.actionButton,
+              { backgroundColor: theme.colors.secondary },
+            ]}
             onPress={() => handleEditJob(job)}
           >
             <Icon name="create" size={16} color={theme.colors.white} />
@@ -154,20 +159,22 @@ const JobManagementScreen = () => {
               Edit
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[
-              styles.actionButton, 
-              { 
-                backgroundColor: job.is_active ? theme.colors.warning : theme.colors.success 
-              }
+              styles.actionButton,
+              {
+                backgroundColor: job.is_active
+                  ? theme.colors.warning
+                  : theme.colors.success,
+              },
             ]}
             onPress={() => handleToggleJobStatus(job)}
           >
-            <Icon 
-              name={job.is_active ? 'pause' : 'play'} 
-              size={16} 
-              color={theme.colors.white} 
+            <Icon
+              name={job.is_active ? 'pause' : 'play'}
+              size={16}
+              color={theme.colors.white}
             />
             <Text style={[styles.actionText, { color: theme.colors.white }]}>
               {job.is_active ? 'Pause' : 'Activate'}
@@ -180,28 +187,62 @@ const JobManagementScreen = () => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Icon name="briefcase-outline" size={64} color={theme.colors.gray} />
+      <View
+        style={[
+          styles.emptyStateIcon,
+          {
+            backgroundColor: `${theme.colors.primary  }20`,
+            borderColor: theme.colors.primary,
+          },
+        ]}
+      >
+        <Text style={styles.emptyStateIconText}>💼</Text>
+      </View>
       <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
-        No Jobs Posted Yet
+        Welcome to Job Management! 👋
       </Text>
-      <Text style={[styles.emptyDescription, { color: theme.colors.textSecondary }]}>
-        Start by creating your first job posting to find great candidates.
+      <Text
+        style={[styles.emptyDescription, { color: theme.colors.textSecondary }]}
+      >
+        You haven't posted any jobs yet. Create your first job posting to start
+        finding great candidates for your company.
       </Text>
-      <Button
-        title="Create Your First Job"
+      <TouchableOpacity
+        style={[styles.createButton, { backgroundColor: theme.colors.primary }]}
         onPress={handleCreateJob}
-        style={styles.createButton}
-        textStyle={styles.createButtonText}
-      />
+        activeOpacity={0.8}
+      >
+        <Text style={[styles.createButtonText, { color: theme.colors.white }]}>
+          Create Your First Job
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <View style={styles.loadingContainer}>
+          <View
+            style={[
+              styles.loadingIcon,
+              { backgroundColor: theme.colors.primary + '20' },
+            ]}
+          >
+            <Text style={styles.loadingIconText}>💼</Text>
+          </View>
           <Text style={[styles.loadingText, { color: theme.colors.text }]}>
-            Loading your jobs...
+            Setting up your job management...
+          </Text>
+          <Text
+            style={[
+              styles.loadingSubtext,
+              { color: theme.colors.textSecondary },
+            ]}
+          >
+            Loading your company profile and job postings
           </Text>
         </View>
       </View>
@@ -209,7 +250,9 @@ const JobManagementScreen = () => {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -222,51 +265,90 @@ const JobManagementScreen = () => {
             <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
               My Jobs
             </Text>
-            <Text style={[styles.headerSubtitle, { color: theme.colors.textSecondary }]}>
+            <Text
+              style={[
+                styles.headerSubtitle,
+                { color: theme.colors.textSecondary },
+              ]}
+            >
               Manage your job postings and view applications
             </Text>
           </View>
-          
+
           <Button
             title="Create Job"
             onPress={handleCreateJob}
-            style={[styles.createJobButton, { backgroundColor: theme.colors.primary }]}
-            textStyle={[styles.createJobButtonText, { color: theme.colors.white }]}
+            style={[
+              styles.createJobButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
+            textStyle={[
+              styles.createJobButtonText,
+              { color: theme.colors.white },
+            ]}
           />
         </View>
 
-        {jobs.length === 0 ? (
+        {!Array.isArray(jobs) || jobs.length === 0 ? (
           renderEmptyState()
         ) : (
           <View style={styles.jobsContainer}>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: theme.colors.primary }]}>
-                  {jobs.length}
+                <Text
+                  style={[styles.statNumber, { color: theme.colors.primary }]}
+                >
+                  {Array.isArray(jobs) ? jobs.length : 0}
                 </Text>
-                <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
+                <Text
+                  style={[
+                    styles.statLabel,
+                    { color: theme.colors.textSecondary },
+                  ]}
+                >
                   Total Jobs
                 </Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: theme.colors.success }]}>
-                  {jobs.filter(job => job.is_active).length}
+                <Text
+                  style={[styles.statNumber, { color: theme.colors.success }]}
+                >
+                  {Array.isArray(jobs)
+                    ? jobs.filter(job => job.is_active).length
+                    : 0}
                 </Text>
-                <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
+                <Text
+                  style={[
+                    styles.statLabel,
+                    { color: theme.colors.textSecondary },
+                  ]}
+                >
                   Active Jobs
                 </Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: theme.colors.secondary }]}>
-                  {jobs.reduce((total, job) => total + (job.applications_count || 0), 0)}
+                <Text
+                  style={[styles.statNumber, { color: theme.colors.secondary }]}
+                >
+                  {Array.isArray(jobs)
+                    ? jobs.reduce(
+                        (total, job) => total + (job.applications_count || 0),
+                        0,
+                      )
+                    : 0}
                 </Text>
-                <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
+                <Text
+                  style={[
+                    styles.statLabel,
+                    { color: theme.colors.textSecondary },
+                  ]}
+                >
                   Total Applications
                 </Text>
               </View>
             </View>
-            
-            {jobs.map(renderJobCard)}
+
+            {Array.isArray(jobs) ? jobs.map(renderJobCard) : []}
           </View>
         )}
       </ScrollView>
@@ -313,8 +395,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  loadingIconText: {
+    fontSize: 40,
+  },
   loadingText: {
     fontSize: 16,
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 4,
+  },
+  loadingSubtext: {
+    fontSize: 14,
+    textAlign: 'center',
   },
   emptyState: {
     flex: 1,
@@ -322,6 +422,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 40,
     marginTop: 60,
+  },
+  emptyStateIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+  },
+  emptyStateIconText: {
+    fontSize: 48,
   },
   emptyTitle: {
     fontSize: 20,
@@ -424,4 +537,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default JobManagementScreen; 
+export default JobManagementScreen;

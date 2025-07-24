@@ -252,8 +252,6 @@ export const getStyles = theme =>
       fontFamily: 'System',
     },
 
-
-
     // Application Components Styles
     sectionSubtitle: {
       fontSize: 15,

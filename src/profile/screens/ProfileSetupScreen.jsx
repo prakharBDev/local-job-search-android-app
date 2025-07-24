@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -516,7 +516,7 @@ const ProfileSetupScreen = ({ navigation, route }) => {
                 onChangeText={text =>
                   setJobPosterData({ ...jobPosterData, companyName: text })
                 }
-                leftIcon={<Feather name="building" size={20} color="#94A3B8" />}
+                leftIcon={<Feather name="home" size={20} color="#94A3B8" />}
                 error={errors.companyName}
               />
 

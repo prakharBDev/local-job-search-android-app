@@ -14,7 +14,7 @@ import AboutScreen from './src/about/screens/AboutScreen';
 import CitySelectionScreen from './src/onboarding/screens/CitySelectionScreen';
 import OnboardingScreen from './src/onboarding/screens/OnboardingScreen';
 import OnboardingSuccessScreen from './src/onboarding/screens/OnboardingSuccessScreen';
-import ProfileSetupNavigator from './src/onboarding/navigation/ProfileSetupNavigator';
+
 import SeekerProfileSetupScreen from './src/profile/screens/SeekerProfileSetupScreen';
 import CompanyProfileSetupScreen from './src/profile/screens/CompanyProfileSetupScreen';
 import SkillsSelectionScreen from './src/profile/screens/SkillsSelectionScreen';
@@ -71,8 +71,8 @@ const AppNavigator = () => {
     isAuthenticated,
     isLoading,
     needsCitySelection,
-    needsProfileSetup,
     needsRoleSelection,
+    needsProfileSetup,
     userRecord,
   } = useAuth();
   const { theme } = useTheme();
@@ -91,7 +91,7 @@ const AppNavigator = () => {
           component={CitySelectionScreen}
           options={{}}
         />
-      ) : needsRoleSelection ? (
+      ) : needsRoleSelection || needsProfileSetup ? (
         <>
           <RootStack.Screen
             name="Onboarding"
@@ -125,12 +125,6 @@ const AppNavigator = () => {
             options={{ headerShown: false }}
           />
         </>
-      ) : needsProfileSetup ? (
-        <RootStack.Screen
-          name="ProfileSetup"
-          component={ProfileSetupNavigator}
-          options={{}}
-        />
       ) : (
         <>
           <RootStack.Screen
@@ -191,14 +185,7 @@ const linking = {
           MyJobs: 'my-jobs',
         },
       },
-      ProfileSetup: {
-        path: '/profile-setup',
-        screens: {
-          ProfileSetup: 'setup',
-          SeekerProfileSetup: 'seeker',
-          CompanyProfileSetup: 'company',
-        },
-      },
+
       Settings: 'settings',
       About: 'about',
       // Profile Setup Screens

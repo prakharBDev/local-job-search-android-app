@@ -6,7 +6,7 @@ export const getStyles = theme =>
       flex: 1,
       backgroundColor: '#F8FAFC',
     },
-    
+
     // Loading States
     loadingContainer: {
       flex: 1,
@@ -180,7 +180,7 @@ export const getStyles = theme =>
       width: 44,
       height: 44,
       borderRadius: 12,
-      backgroundColor: theme.colors.primary.light + '20',
+      backgroundColor: `${theme.colors.primary.light}20`,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: 12,
@@ -246,14 +246,14 @@ export const getStyles = theme =>
       marginBottom: 16,
     },
     skillTag: {
-      backgroundColor: theme.colors.primary.light + '20',
+      backgroundColor: `${theme.colors.primary.light}20`,
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 12,
       marginRight: 8,
       marginBottom: 6,
       borderWidth: 1,
-      borderColor: theme.colors.primary.light + '40',
+      borderColor: `${theme.colors.primary.light}40`,
     },
     skillText: {
       fontSize: 12,

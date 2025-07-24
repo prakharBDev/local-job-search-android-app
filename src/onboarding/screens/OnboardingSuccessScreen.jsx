@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,13 +15,47 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const OnboardingSuccessScreen = () => {
   const navigation = useNavigation();
-  const { user, userRecord, userRoles } = useAuth();
+  const { user, userRecord, userRoles, updateUserRecord } = useAuth();
 
   const userName =
     userRecord?.name ||
     user?.user_metadata?.full_name ||
     user?.email?.split('@')[0] ||
     'FRIEND';
+
+  // Ensure onboarding is marked as completed when this screen is reached
+  useEffect(() => {
+    const markOnboardingComplete = async () => {
+      console.log('🎉 [OnboardingSuccess] Screen loaded, checking completion status:', {
+        userId: user?.id,
+        onboardingCompleted: userRecord?.onboarding_completed,
+        userName: userName,
+        userRoles: {
+          isSeeker: userRoles.isSeeker,
+          isCompany: userRoles.isCompany
+        }
+      });
+
+      if (user?.id && !userRecord?.onboarding_completed) {
+        console.log('🎯 [OnboardingSuccess] Onboarding not marked complete, updating now');
+        try {
+          await updateUserRecord({
+            onboarding_completed: true,
+            last_onboarding_step: 'completed',
+          });
+          console.log('✅ [OnboardingSuccess] Successfully marked onboarding as completed');
+        } catch (error) {
+          console.error('❌ [OnboardingSuccess] Error marking onboarding as completed:', error);
+        }
+      } else if (userRecord?.onboarding_completed) {
+        console.log('✅ [OnboardingSuccess] Onboarding already marked as completed');
+      } else {
+        console.log('⚠️ [OnboardingSuccess] No user ID available, cannot mark completion');
+      }
+    };
+
+    markOnboardingComplete();
+  }, [user?.id, userRecord?.onboarding_completed, updateUserRecord]);
 
   const handleGetStarted = () => {
     // Navigate to the main app using replace to clear the navigation stack
@@ -47,6 +81,13 @@ const OnboardingSuccessScreen = () => {
           <Text style={styles.subtitle}>
             Your profile has been set up successfully
           </Text>
+          
+          {/* Profile Type Badge */}
+          <View style={styles.profileTypeContainer}>
+            <Text style={styles.profileTypeText}>
+              {userRoles.isSeeker ? '👤 Job Seeker Profile' : '🏢 Company Profile'}
+            </Text>
+          </View>
 
           {/* Profile Summary */}
           <View style={styles.summaryContainer}>
@@ -111,8 +152,12 @@ const OnboardingSuccessScreen = () => {
 
         {/* Action Buttons */}
         <View style={styles.actions}>
-          <Button onPress={handleGetStarted} style={styles.getStartedButton}>
-            <Text style={styles.buttonText}>Get Started</Text>
+          <Button 
+            onPress={handleGetStarted} 
+            style={styles.getStartedButton}
+            variant="cta"
+          >
+            Get Started
           </Button>
 
           <TouchableOpacity
@@ -158,20 +203,37 @@ const getStyles = () =>
     },
     content: {
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
+      paddingTop: 20,
     },
     title: {
-      fontSize: 28,
+      fontSize: 32,
       fontWeight: 'bold',
       color: '#1E293B',
       textAlign: 'center',
-      marginBottom: 8,
+      marginBottom: 12,
     },
     subtitle: {
-      fontSize: 16,
+      fontSize: 18,
       color: '#64748B',
       textAlign: 'center',
-      marginBottom: 32,
+      marginBottom: 20,
+    },
+    profileTypeContainer: {
+      backgroundColor: '#F0F9FF',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 20,
+      alignSelf: 'center',
+      marginBottom: 24,
+      borderWidth: 1,
+      borderColor: '#BAE6FD',
+    },
+    profileTypeText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#1E293B',
+      textAlign: 'center',
     },
     summaryContainer: {
       backgroundColor: '#F8FAFC',
@@ -182,10 +244,10 @@ const getStyles = () =>
       borderColor: '#E2E8F0',
     },
     summaryTitle: {
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: '600',
       color: '#1E293B',
-      marginBottom: 12,
+      marginBottom: 16,
     },
     summaryItem: {
       flexDirection: 'row',
@@ -194,7 +256,7 @@ const getStyles = () =>
       gap: 12,
     },
     summaryText: {
-      fontSize: 14,
+      fontSize: 16,
       color: '#475569',
       flex: 1,
     },
@@ -204,12 +266,13 @@ const getStyles = () =>
       borderRadius: 12,
       borderWidth: 1,
       borderColor: '#BAE6FD',
+      marginBottom: 32,
     },
     nextStepsTitle: {
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: '600',
       color: '#1E293B',
-      marginBottom: 12,
+      marginBottom: 16,
     },
     nextStepItem: {
       flexDirection: 'row',
@@ -218,28 +281,29 @@ const getStyles = () =>
       gap: 12,
     },
     nextStepText: {
-      fontSize: 14,
+      fontSize: 16,
       color: '#475569',
       flex: 1,
     },
     actions: {
       paddingBottom: 24,
-      gap: 12,
+      gap: 16,
     },
     getStartedButton: {
       minHeight: 56,
-    },
-    buttonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#FFFFFF',
+      borderRadius: 12,
+      shadowColor: '#3C4FE0',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 4,
     },
     profileButton: {
       paddingVertical: 16,
       alignItems: 'center',
     },
     profileButtonText: {
-      fontSize: 14,
+      fontSize: 16,
       color: '#3C4FE0',
       fontWeight: '500',
     },

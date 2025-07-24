@@ -10,7 +10,7 @@ import DashboardScreen from '../dashboard/screens/DashboardScreen';
 import MyJobsScreen from '../jobs/screens/MyJobsScreen';
 import CreateJobScreen from '../jobs/screens/CreateJobScreen';
 import ProfileScreen from '../profile/screens/ProfileScreen';
-import ProfileSetupScreen from '../profile/screens/ProfileSetupScreen';
+
 import EditProfileScreen from '../profile/screens/EditProfileScreen';
 import SwipeableJobDetailsScreen from '../jobs/screens/SwipeableJobDetailsScreen';
 import OnboardingScreen from '../onboarding/screens/OnboardingScreen';
@@ -222,11 +222,7 @@ const ProfileStack = () => {
         component={ProfileScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="ProfileSetup"
-        component={ProfileSetupScreen}
-        options={{ headerShown: false }}
-      />
+
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
@@ -266,7 +262,7 @@ const MainNavigator = () => {
   const auth = useAuth();
 
   // Safety check - return null if auth context is not ready
-  if (!auth || !auth.userRoles) {
+  if (!auth || auth.isLoading) {
     return null;
   }
 
@@ -297,13 +293,15 @@ const MainNavigator = () => {
             iconName = 'user';
           }
 
-          return <Icon name={iconName} size={focused ? 24 : 22} color={color} />;
+          return (
+            <Icon name={iconName} size={focused ? 24 : 22} color={color} />
+          );
         },
-        tabBarActiveTintColor: theme?.colors?.primary?.main || '#3C4FE0',
-        tabBarInactiveTintColor: theme?.colors?.text?.secondary || '#475569',
+        tabBarActiveTintColor: '#3C4FE0',
+        tabBarInactiveTintColor: '#475569',
         tabBarStyle: {
-          backgroundColor: theme?.colors?.background?.secondary || '#FFFFFF',
-          borderTopColor: theme?.colors?.interactive?.border?.primary || '#E2E8F0',
+          backgroundColor: '#FFFFFF',
+          borderTopColor: '#E2E8F0',
           borderTopWidth: 1,
           paddingTop: 12,
           paddingBottom: 12,
@@ -328,7 +326,7 @@ const MainNavigator = () => {
       })}
     >
       {isPoster ? (
-        // Poster Navigation (4 tabs) - Full functionality
+        // Poster Navigation (5 tabs) - Full functionality
         <>
           <Tab.Screen
             name="Dashboard"
@@ -342,6 +340,13 @@ const MainNavigator = () => {
             component={JobManagementStack}
             options={{
               tabBarLabel: 'Jobs',
+            }}
+          />
+          <Tab.Screen
+            name="CreateJob"
+            component={CreateJobStack}
+            options={{
+              tabBarLabel: 'Create',
             }}
           />
           <Tab.Screen

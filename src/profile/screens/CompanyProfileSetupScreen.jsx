@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/elements/Button';
 import Input from '../../components/elements/Input';
-import { companyService } from '../../services';
+import { companyService, onboardingService } from '../../services';
 import { supabase } from '../../utils/supabase';
 
 const CompanyProfileSetupScreen = ({ navigation, route }) => {
@@ -20,6 +20,7 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
   const { user, userRecord, updateUserRecord } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCity, setSelectedCity] = useState('');
+  const [userDataFromDB, setUserDataFromDB] = useState(null);
 
   // Get route params for navigation flow
   const { selectedRoles } = route.params || {};
@@ -38,6 +39,57 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
     'Food & Beverage',
     'Other',
   ];
+
+  // Get user data from Google login and database
+  const userEmail = user?.email || userRecord?.email || userDataFromDB?.email || '';
+  const userName = userRecord?.name || userDataFromDB?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
+  // Remove +91 prefix from phone number for display since Input component adds it
+  const userPhone = (userRecord?.phone_number || userDataFromDB?.phone_number) ? 
+    (userRecord?.phone_number || userDataFromDB?.phone_number).replace(/^\+91\s*/, '') : '';
+
+
+
+  // Fetch user data from database if not available in context
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (error) {
+          console.error('Error fetching user data:', error);
+          return;
+        }
+        
+        setUserDataFromDB(data);
+      } catch (error) {
+        console.error('Error in fetchUserData:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [user?.id]);
+
+  // Update profile data when user data is available
+  useEffect(() => {
+    if (userDataFromDB) {
+      const email = userDataFromDB.email || user?.email || '';
+      const name = userDataFromDB.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
+      const phone = userDataFromDB.phone_number ? userDataFromDB.phone_number.replace(/^\+91\s*/, '') : '';
+      
+      setProfileData(prev => ({
+        ...prev,
+        company_name: name ? `${name}'s Organisation` : '',
+        contact_email: email,
+        contact_phone: phone,
+      }));
+    }
+  }, [userDataFromDB, user]);
 
   const [profileData, setProfileData] = useState({
     company_name: '',
@@ -72,10 +124,14 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
   };
 
   const handleComplete = async () => {
+    console.log('🚀 [CompanyProfileSetup] Starting profile completion process');
+    
     if (!validateForm()) {
+      console.log('❌ [CompanyProfileSetup] Form validation failed');
       return;
     }
 
+    console.log('✅ [CompanyProfileSetup] Form validation passed');
     setIsLoading(true);
     try {
       // user.id comes from AuthContext, which is the single source of truth for authentication
@@ -83,6 +139,13 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
         userRecord?.phone_number ||
         user?.phone_number ||
         user?.user_metadata?.phone_number;
+
+      console.log('👤 [CompanyProfileSetup] Updating user record with:', {
+        userId: user.id,
+        city: selectedCity.toLowerCase(),
+        isSeeker: selectedRoles?.isSeeker || false,
+        hasPhone: !!phoneToSave
+      });
 
       await updateUserRecord({
         name:
@@ -94,20 +157,68 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
         is_seeker: selectedRoles?.isSeeker || false,
       });
 
+      console.log('✅ [CompanyProfileSetup] User record updated successfully');
+
       // Create company profile using user.id from AuthContext
+      // Only include fields that exist in the company_profiles table schema
       const profile = {
-        ...profileData,
         user_id: user.id,
+        company_name: profileData.company_name,
+        company_description: profileData.company_description,
+        contact_email: profileData.contact_email,
       };
 
-      const { data: createdProfile, error } =
-        await companyService.createCompanyProfile(profile);
+      console.log('🏢 [CompanyProfileSetup] Creating company profile:', {
+        userId: profile.user_id,
+        companyName: profile.company_name,
+        contactEmail: profile.contact_email,
+        hasDescription: !!profile.company_description
+      });
+
+      // Check if company profile already exists and update it instead of creating new
+      const { data: existingProfile } = await companyService.getCompanyProfile(user.id);
+      
+      let profileResult;
+      if (existingProfile) {
+        console.log('🔄 [CompanyProfileSetup] Updating existing company profile:', existingProfile.id);
+        profileResult = await companyService.updateCompanyProfile(existingProfile.id, {
+          company_name: profile.company_name,
+          company_description: profile.company_description,
+          contact_email: profile.contact_email,
+        });
+      } else {
+        console.log('➕ [CompanyProfileSetup] Creating new company profile');
+        profileResult = await companyService.createCompanyProfile(profile);
+      }
+
+      const { data: finalProfile, error } = profileResult;
 
       if (error) {
+        console.error('❌ [CompanyProfileSetup] Company profile operation failed:', error);
         throw error;
       }
 
+      console.log('✅ [CompanyProfileSetup] Company profile operation successful:', {
+        profileId: finalProfile?.id,
+        userId: finalProfile?.user_id,
+        action: existingProfile ? 'updated' : 'created'
+      });
+
+      // Clear onboarding cache to force fresh check
+      console.log('🧹 [CompanyProfileSetup] Clearing onboarding cache');
+      onboardingService.clearOnboardingCache(user.id);
+
+      // Mark onboarding as completed
+      console.log('🎯 [CompanyProfileSetup] Marking onboarding as completed');
+      await updateUserRecord({
+        onboarding_completed: true,
+        last_onboarding_step: 'completed',
+      });
+
+      console.log('✅ [CompanyProfileSetup] Onboarding marked as completed');
+
       // Navigate to success screen instead of directly to main
+      console.log('🧭 [CompanyProfileSetup] Navigating to OnboardingSuccess screen');
       navigation.replace('OnboardingSuccess');
     } catch (error) {
       console.error('Profile setup error:', error);
@@ -124,6 +235,9 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <Text style={styles.title}>Company Profile Setup</Text>
+          <Text style={styles.subtitle}>
+            Tell us about your company to get started
+          </Text>
 
           {/* City Selection */}
           <Text style={styles.label}>Select Your City *</Text>
@@ -226,23 +340,28 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
           <Input
             label="Contact Email *"
             value={profileData.contact_email}
-            onChangeText={text =>
-              setProfileData(prev => ({ ...prev, contact_email: text }))
-            }
             placeholder="contact@company.com"
             keyboardType="email-address"
             autoCapitalize="none"
+            style={styles.prefilledInput}
+            editable={false}
           />
+          <Text style={styles.helperText}>
+            Pre-filled from your Google account (read-only)
+          </Text>
 
           <Input
-            label="Contact Phone (Optional)"
+            label="Contact Phone"
             value={profileData.contact_phone}
-            onChangeText={text =>
-              setProfileData(prev => ({ ...prev, contact_phone: text }))
-            }
-            placeholder="+91 98765 43210"
+            placeholder="98765 43210"
             keyboardType="phone-pad"
+            prefix="+91 "
+            style={styles.prefilledInput}
+            editable={false}
           />
+          <Text style={styles.helperText}>
+            Pre-filled from your login details (read-only)
+          </Text>
 
           <Input
             label="Website (Optional)"
@@ -267,6 +386,7 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
           <Button
             onPress={handleComplete}
             loading={isLoading}
+            variant="cta"
             style={styles.completeButton}
           >
             Complete Setup
@@ -281,100 +401,155 @@ const getStyles = theme =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+      backgroundColor: theme?.colors?.background?.primary || '#F8FAFC',
     },
     content: {
-      padding: 20,
+      padding: 24,
+      paddingTop: 32,
     },
     title: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      marginBottom: 20,
-      color: theme?.colors?.text?.primary || '#1E293B',
+      fontSize: 32,
+      fontWeight: '700',
+      marginBottom: 8,
+      color: theme?.colors?.text?.primary || '#0F172A',
+      textAlign: 'center',
+      letterSpacing: -0.5,
+    },
+    subtitle: {
+      fontSize: 16,
+      fontWeight: '500',
+      marginBottom: 32,
+      color: theme?.colors?.text?.secondary || '#475569',
+      textAlign: 'center',
+      lineHeight: 24,
     },
     label: {
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: '600',
-      marginTop: 20,
-      marginBottom: 10,
-      color: theme?.colors?.text?.primary || '#1E293B',
+      marginTop: 24,
+      marginBottom: 12,
+      color: theme?.colors?.text?.primary || '#0F172A',
+      letterSpacing: -0.2,
     },
     cityContainer: {
       flexDirection: 'row',
-      gap: 12,
-      marginBottom: 20,
+      gap: 16,
+      marginBottom: 24,
     },
     cityButton: {
       flex: 1,
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      borderRadius: 8,
+      paddingVertical: 16,
+      paddingHorizontal: 20,
+      borderRadius: 12,
       borderWidth: 2,
-      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
-      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
+      borderColor: theme?.colors?.interactive?.border?.primary || '#E2E8F0',
+      backgroundColor: theme?.colors?.background?.secondary || '#FFFFFF',
       alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
     },
     cityButtonSelected: {
-      borderColor: theme?.colors?.primary?.main || '#3C4FE0',
-      backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
+      borderColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
+      backgroundColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
+      shadowColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 4,
     },
     cityButtonText: {
-      fontSize: 14,
-      fontWeight: '500',
+      fontSize: 16,
+      fontWeight: '600',
       color: theme?.colors?.text?.secondary || '#64748B',
     },
     cityButtonTextSelected: {
       color: '#FFFFFF',
-      fontWeight: '600',
+      fontWeight: '700',
     },
     optionsContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 8,
-      marginBottom: 20,
+      gap: 10,
+      marginBottom: 24,
     },
     optionButton: {
-      paddingVertical: 8,
-      paddingHorizontal: 12,
-      borderRadius: 6,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 10,
       borderWidth: 1,
-      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
-      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
+      borderColor: theme?.colors?.interactive?.border?.primary || '#E2E8F0',
+      backgroundColor: theme?.colors?.background?.secondary || '#FFFFFF',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
     },
     optionButtonSelected: {
-      borderColor: theme?.colors?.primary?.main || '#3C4FE0',
-      backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
+      borderColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
+      backgroundColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
+      shadowColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
     },
     optionButtonText: {
-      fontSize: 12,
-      fontWeight: '500',
+      fontSize: 14,
+      fontWeight: '600',
       color: theme?.colors?.text?.secondary || '#64748B',
     },
     optionButtonTextSelected: {
       color: '#FFFFFF',
-      fontWeight: '600',
+      fontWeight: '700',
     },
     verificationContainer: {
-      marginTop: 20,
-      padding: 16,
-      backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
-      borderRadius: 8,
+      marginTop: 24,
+      padding: 20,
+      backgroundColor: theme?.colors?.background?.secondary || '#FFFFFF',
+      borderRadius: 12,
       borderWidth: 1,
-      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
+      borderColor: theme?.colors?.interactive?.border?.primary || '#E2E8F0',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
     },
     verificationText: {
       fontStyle: 'italic',
       color: theme?.colors?.text?.secondary || '#64748B',
-      fontSize: 14,
-      fontWeight: '500',
-      marginBottom: 4,
+      fontSize: 16,
+      fontWeight: '600',
+      marginBottom: 6,
     },
     verificationSubtext: {
       color: theme?.colors?.text?.tertiary || '#94A3B8',
-      fontSize: 12,
+      fontSize: 14,
+      lineHeight: 20,
     },
     completeButton: {
-      marginTop: 20,
+      marginTop: 32,
+      marginBottom: 24,
+    },
+    prefilledInput: {
+      backgroundColor: theme?.colors?.background?.tertiary || '#F8FAFC',
+      borderColor: theme?.colors?.interactive?.border?.secondary || '#E2E8F0',
+      opacity: 1,
+      color: theme?.colors?.text?.primary || '#1E293B',
+      fontWeight: '500',
+    },
+    helperText: {
+      fontSize: 13,
+      color: theme?.colors?.text?.secondary || '#64748B',
+      marginTop: 6,
+      marginBottom: 12,
+      fontStyle: 'italic',
+      fontWeight: '400',
+      lineHeight: 18,
     },
   });
 

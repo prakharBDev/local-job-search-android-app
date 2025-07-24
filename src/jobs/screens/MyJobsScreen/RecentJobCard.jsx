@@ -24,7 +24,9 @@ const RecentJobCard = React.memo(({ item, index = 0 }) => {
 
   // Helper function to format salary - show database value directly
   const formatSalary = salary => {
-    if (!salary) {return 'Salary not specified';}
+    if (!salary) {
+      return 'Salary not specified';
+    }
 
     // If salary already has ₹ symbol, return as is
     if (salary.includes('₹')) {

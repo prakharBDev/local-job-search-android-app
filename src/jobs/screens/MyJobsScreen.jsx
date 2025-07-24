@@ -21,7 +21,13 @@ import {
   popularJobs as mockPopularJobs,
   recentJobs as mockRecentJobs,
 } from './MyJobsScreen/mockData';
-import { AppHeader, Icon, Card, Badge, Button } from '../../components/elements';
+import {
+  AppHeader,
+  Icon,
+  Card,
+  Badge,
+  Button,
+} from '../../components/elements';
 import JobCard from '../../components/blocks/JobCard';
 import seekerService from '../../services/seeker.service';
 import applicationService from '../../services/application.service';
@@ -43,7 +49,7 @@ const MyJobsScreen = () => {
     under_review: 0,
     hired: 0,
     rejected: 0,
-    total: 0
+    total: 0,
   });
   const [seekerProfile, setSeekerProfile] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
@@ -64,7 +70,7 @@ const MyJobsScreen = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        
+
         if (userRoles?.isCompany) {
           // Load mock data for companies
           await new Promise(resolve => setTimeout(resolve, 500));
@@ -73,49 +79,53 @@ const MyJobsScreen = () => {
         } else {
           // Load real application data for seekers
           if (user?.id) {
-            const { data: profile, error: profileError } = await seekerService.getSeekerProfile(user.id);
-            
+            const { data: profile, error: profileError } =
+              await seekerService.getSeekerProfile(user.id);
+
             if (profileError) {
               console.error('Error loading seeker profile:', profileError);
               return;
             }
-            
+
             setSeekerProfile(profile);
-            
+
             if (profile) {
               // Clear cache to ensure fresh data
               apiClient.clearCache(`applications_seeker_${profile.id}`);
-              
+
               // Load applications and stats in parallel
               const [applicationsResult, statsResult] = await Promise.all([
                 applicationService.getSeekerApplications(profile.id),
-                applicationService.getSeekerApplicationStats(profile.id)
+                applicationService.getSeekerApplicationStats(profile.id),
               ]);
-              
-              const { data: userApplications, error: applicationsError } = applicationsResult;
+
+              const { data: userApplications, error: applicationsError } =
+                applicationsResult;
               const { data: userStats, error: statsError } = statsResult;
-              
+
               if (applicationsError) {
                 console.error('Error loading applications:', applicationsError);
                 return;
               }
-              
+
               if (statsError) {
                 console.error('Error loading stats:', statsError);
               }
-              
+
               setApplications(userApplications || []);
-              setStats(userStats || {
-                applied: 0,
-                under_review: 0,
-                hired: 0,
-                rejected: 0,
-                total: 0
-              });
+              setStats(
+                userStats || {
+                  applied: 0,
+                  under_review: 0,
+                  hired: 0,
+                  rejected: 0,
+                  total: 0,
+                },
+              );
             }
           }
         }
-        
+
         setError(null);
       } catch (err) {
         console.error('Error loading data:', err);
@@ -173,12 +183,8 @@ const MyJobsScreen = () => {
   const filteredPopularJobs = popularJobs;
   const filteredRecentJobs = recentJobs;
 
-
-
-
-
   // Helper functions for application display
-  const getStatusBadgeColor = (status) => {
+  const getStatusBadgeColor = status => {
     switch (status) {
       case 'applied':
         return theme.colors.primary.main;
@@ -193,7 +199,7 @@ const MyJobsScreen = () => {
     }
   };
 
-  const getStatusText = (status) => {
+  const getStatusText = status => {
     switch (status) {
       case 'applied':
         return 'Applied';
@@ -208,7 +214,7 @@ const MyJobsScreen = () => {
     }
   };
 
-  const getStatusMessage = (status) => {
+  const getStatusMessage = status => {
     switch (status) {
       case 'hired':
         return 'Congratulations! You got the job!';
@@ -230,7 +236,7 @@ const MyJobsScreen = () => {
     return applications.filter(app => app.status === filterStatus);
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     return new Date(dateString).toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
@@ -238,9 +244,7 @@ const MyJobsScreen = () => {
     });
   };
 
-
-
-  const handleViewJob = (job) => {
+  const handleViewJob = job => {
     navigation.navigate('JobsSwipeableJobDetails', { jobData: job });
   };
 
@@ -250,27 +254,30 @@ const MyJobsScreen = () => {
       if (user?.id && seekerProfile) {
         // Clear cache and reload data
         apiClient.clearCache(`applications_seeker_${seekerProfile.id}`);
-        
+
         const [applicationsResult, statsResult] = await Promise.all([
           applicationService.getSeekerApplications(seekerProfile.id),
-          applicationService.getSeekerApplicationStats(seekerProfile.id)
+          applicationService.getSeekerApplicationStats(seekerProfile.id),
         ]);
-        
-        const { data: userApplications, error: applicationsError } = applicationsResult;
+
+        const { data: userApplications, error: applicationsError } =
+          applicationsResult;
         const { data: userStats, error: statsError } = statsResult;
-        
+
         if (!applicationsError) {
           setApplications(userApplications || []);
         }
-        
+
         if (!statsError) {
-          setStats(userStats || {
-            applied: 0,
-            under_review: 0,
-            hired: 0,
-            rejected: 0,
-            total: 0
-          });
+          setStats(
+            userStats || {
+              applied: 0,
+              under_review: 0,
+              hired: 0,
+              rejected: 0,
+              total: 0,
+            },
+          );
         }
       }
     } catch (error) {
@@ -280,9 +287,9 @@ const MyJobsScreen = () => {
     }
   };
 
-  const renderApplicationCard = (application) => {
+  const renderApplicationCard = application => {
     const job = application.jobs;
-    
+
     return (
       <JobCard
         key={application.id}
@@ -300,10 +307,20 @@ const MyJobsScreen = () => {
       return (
         <View style={getStyles(theme).emptyState}>
           <Icon name="user" size={64} color={theme.colors.text.secondary} />
-          <Text style={[getStyles(theme).emptyTitle, { color: theme.colors.text.primary }]}>
+          <Text
+            style={[
+              getStyles(theme).emptyTitle,
+              { color: theme.colors.text.primary },
+            ]}
+          >
             Profile Setup Required
           </Text>
-          <Text style={[getStyles(theme).emptyDescription, { color: theme.colors.text.secondary }]}>
+          <Text
+            style={[
+              getStyles(theme).emptyDescription,
+              { color: theme.colors.text.secondary },
+            ]}
+          >
             Please complete your seeker profile to view applications
           </Text>
           <Button
@@ -319,10 +336,20 @@ const MyJobsScreen = () => {
     return (
       <View style={getStyles(theme).emptyState}>
         <Icon name="file-text" size={64} color={theme.colors.text.secondary} />
-        <Text style={[getStyles(theme).emptyTitle, { color: theme.colors.text.primary }]}>
+        <Text
+          style={[
+            getStyles(theme).emptyTitle,
+            { color: theme.colors.text.primary },
+          ]}
+        >
           No Applications Yet
         </Text>
-        <Text style={[getStyles(theme).emptyDescription, { color: theme.colors.text.secondary }]}>
+        <Text
+          style={[
+            getStyles(theme).emptyDescription,
+            { color: theme.colors.text.secondary },
+          ]}
+        >
           Start applying to jobs to see your applications here
         </Text>
         <Button
@@ -373,7 +400,11 @@ const MyJobsScreen = () => {
             rightIcon={
               !userRoles?.isCompany ? (
                 <TouchableOpacity onPress={() => setShowFilterModal(true)}>
-                  <Icon name="filter" size={20} color={theme.colors.primary.main} />
+                  <Icon
+                    name="filter"
+                    size={20}
+                    color={theme.colors.primary.main}
+                  />
                 </TouchableOpacity>
               ) : (
                 <Icon name="log-out" size={20} color="#EF4444" />
@@ -385,8 +416,6 @@ const MyJobsScreen = () => {
             centered={true}
           />
         </Animated.View>
-
-
 
         {/* Error Message */}
         {error && (
@@ -463,32 +492,49 @@ const MyJobsScreen = () => {
                 <Text style={getStyles(theme).sectionTitle}>
                   Recent Applications
                 </Text>
-
               </View>
 
               {/* Quick Stats Cards */}
               <View style={getStyles(theme).statsContainer}>
                 <View style={getStyles(theme).statCard}>
                   <View style={getStyles(theme).statIcon}>
-                    <Feather name="send" size={24} color={theme.colors.primary.main} />
+                    <Feather
+                      name="send"
+                      size={24}
+                      color={theme.colors.primary.main}
+                    />
                   </View>
-                  <Text style={getStyles(theme).statNumber}>{stats.applied || 0}</Text>
+                  <Text style={getStyles(theme).statNumber}>
+                    {stats.applied || 0}
+                  </Text>
                   <Text style={getStyles(theme).statLabel}>Applied</Text>
                 </View>
 
                 <View style={getStyles(theme).statCard}>
                   <View style={getStyles(theme).statIcon}>
-                    <Feather name="eye" size={24} color={theme.colors.status.warning} />
+                    <Feather
+                      name="eye"
+                      size={24}
+                      color={theme.colors.status.warning}
+                    />
                   </View>
-                  <Text style={getStyles(theme).statNumber}>{stats.under_review || 0}</Text>
+                  <Text style={getStyles(theme).statNumber}>
+                    {stats.under_review || 0}
+                  </Text>
                   <Text style={getStyles(theme).statLabel}>Under Review</Text>
                 </View>
 
                 <View style={getStyles(theme).statCard}>
                   <View style={getStyles(theme).statIcon}>
-                    <Feather name="check-circle" size={24} color={theme.colors.status.success} />
+                    <Feather
+                      name="check-circle"
+                      size={24}
+                      color={theme.colors.status.success}
+                    />
                   </View>
-                  <Text style={getStyles(theme).statNumber}>{stats.hired || 0}</Text>
+                  <Text style={getStyles(theme).statNumber}>
+                    {stats.hired || 0}
+                  </Text>
                   <Text style={getStyles(theme).statLabel}>Hired</Text>
                 </View>
               </View>
@@ -502,12 +548,18 @@ const MyJobsScreen = () => {
                     Your Applications
                   </Text>
                   <Text style={getStyles(theme).sectionSubtitle}>
-                    {getFilteredApplications().length} of {applications.length} applications
+                    {getFilteredApplications().length} of {applications.length}{' '}
+                    applications
                   </Text>
                 </View>
-                
+
                 <View style={getStyles(theme).filterSection}>
-                  <Text style={[getStyles(theme).filterLabel, { color: theme.colors.text.secondary }]}>
+                  <Text
+                    style={[
+                      getStyles(theme).filterLabel,
+                      { color: theme.colors.text.secondary },
+                    ]}
+                  >
                     Filter by status:
                   </Text>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -515,57 +567,109 @@ const MyJobsScreen = () => {
                       <TouchableOpacity
                         style={[
                           getStyles(theme).filterButton,
-                          filterStatus === 'all' && { backgroundColor: theme.colors.primary.main }
+                          filterStatus === 'all' && {
+                            backgroundColor: theme.colors.primary.main,
+                          },
                         ]}
                         onPress={() => setFilterStatus('all')}
                       >
-                        <Text style={[
-                          getStyles(theme).filterButtonText,
-                          { color: filterStatus === 'all' ? theme.colors.text.white : theme.colors.text.primary }
-                        ]}>
+                        <Text
+                          style={[
+                            getStyles(theme).filterButtonText,
+                            {
+                              color:
+                                filterStatus === 'all'
+                                  ? theme.colors.text.white
+                                  : theme.colors.text.primary,
+                            },
+                          ]}
+                        >
                           All ({applications.length})
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[
                           getStyles(theme).filterButton,
-                          filterStatus === 'applied' && { backgroundColor: theme.colors.primary.main }
+                          filterStatus === 'applied' && {
+                            backgroundColor: theme.colors.primary.main,
+                          },
                         ]}
                         onPress={() => setFilterStatus('applied')}
                       >
-                        <Text style={[
-                          getStyles(theme).filterButtonText,
-                          { color: filterStatus === 'applied' ? theme.colors.text.white : theme.colors.text.primary }
-                        ]}>
-                          Applied ({applications.filter(app => app.status === 'applied').length})
+                        <Text
+                          style={[
+                            getStyles(theme).filterButtonText,
+                            {
+                              color:
+                                filterStatus === 'applied'
+                                  ? theme.colors.text.white
+                                  : theme.colors.text.primary,
+                            },
+                          ]}
+                        >
+                          Applied (
+                          {
+                            applications.filter(app => app.status === 'applied')
+                              .length
+                          }
+                          )
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[
                           getStyles(theme).filterButton,
-                          filterStatus === 'under_review' && { backgroundColor: theme.colors.primary.main }
+                          filterStatus === 'under_review' && {
+                            backgroundColor: theme.colors.primary.main,
+                          },
                         ]}
                         onPress={() => setFilterStatus('under_review')}
                       >
-                        <Text style={[
-                          getStyles(theme).filterButtonText,
-                          { color: filterStatus === 'under_review' ? theme.colors.text.white : theme.colors.text.primary }
-                        ]}>
-                          Under Review ({applications.filter(app => app.status === 'under_review').length})
+                        <Text
+                          style={[
+                            getStyles(theme).filterButtonText,
+                            {
+                              color:
+                                filterStatus === 'under_review'
+                                  ? theme.colors.text.white
+                                  : theme.colors.text.primary,
+                            },
+                          ]}
+                        >
+                          Under Review (
+                          {
+                            applications.filter(
+                              app => app.status === 'under_review',
+                            ).length
+                          }
+                          )
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[
                           getStyles(theme).filterButton,
-                          filterStatus === 'hired' && { backgroundColor: theme.colors.primary.main }
+                          filterStatus === 'hired' && {
+                            backgroundColor: theme.colors.primary.main,
+                          },
                         ]}
                         onPress={() => setFilterStatus('hired')}
                       >
-                        <Text style={[
-                          getStyles(theme).filterButtonText,
-                          { color: filterStatus === 'hired' ? theme.colors.text.white : theme.colors.text.primary }
-                        ]}>
-                          Hired ({applications.filter(app => app.status === 'hired').length})
+                        <Text
+                          style={[
+                            getStyles(theme).filterButtonText,
+                            {
+                              color:
+                                filterStatus === 'hired'
+                                  ? theme.colors.text.white
+                                  : theme.colors.text.primary,
+                            },
+                          ]}
+                        >
+                          Hired (
+                          {
+                            applications.filter(app => app.status === 'hired')
+                              .length
+                          }
+                          )
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -573,7 +677,9 @@ const MyJobsScreen = () => {
                 </View>
 
                 <View style={getStyles(theme).applicationsList}>
-                  {getFilteredApplications().map((application) => renderApplicationCard(application))}
+                  {getFilteredApplications().map(application =>
+                    renderApplicationCard(application),
+                  )}
                 </View>
               </View>
             )}
@@ -622,59 +728,94 @@ const MyJobsScreen = () => {
 
         {/* Filter Modal */}
         {showFilterModal && (
-          <View style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-          }}>
-            <View style={{
-              backgroundColor: 'white',
-              borderRadius: 12,
-              padding: 20,
-              margin: 20,
-              width: '90%',
-              maxHeight: '80%',
-            }}>
-              <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 20,
-              }}>
-                <Text style={{
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                  color: theme.colors.text.primary,
-                }}>
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1000,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: 'white',
+                borderRadius: 12,
+                padding: 20,
+                margin: 20,
+                width: '90%',
+                maxHeight: '80%',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 20,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    color: theme.colors.text.primary,
+                  }}
+                >
                   Filter Applications
                 </Text>
                 <TouchableOpacity onPress={() => setShowFilterModal(false)}>
-                  <Feather name="x" size={24} color={theme.colors.text.secondary} />
+                  <Feather
+                    name="x"
+                    size={24}
+                    color={theme.colors.text.secondary}
+                  />
                 </TouchableOpacity>
               </View>
-              
+
               <View style={{ marginBottom: 20 }}>
-                <Text style={{
-                  fontSize: 16,
-                  fontWeight: '600',
-                  color: theme.colors.text.primary,
-                  marginBottom: 12,
-                }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: theme.colors.text.primary,
+                    marginBottom: 12,
+                  }}
+                >
                   Application Status
                 </Text>
                 <View style={{ gap: 10 }}>
                   {[
-                    { label: 'All Applications', value: 'all', count: applications.length },
-                    { label: 'Applied', value: 'applied', count: applications.filter(app => app.status === 'applied').length },
-                    { label: 'Under Review', value: 'under_review', count: applications.filter(app => app.status === 'under_review').length },
-                    { label: 'Hired', value: 'hired', count: applications.filter(app => app.status === 'hired').length },
-                  ].map((option) => (
+                    {
+                      label: 'All Applications',
+                      value: 'all',
+                      count: applications.length,
+                    },
+                    {
+                      label: 'Applied',
+                      value: 'applied',
+                      count: applications.filter(
+                        app => app.status === 'applied',
+                      ).length,
+                    },
+                    {
+                      label: 'Under Review',
+                      value: 'under_review',
+                      count: applications.filter(
+                        app => app.status === 'under_review',
+                      ).length,
+                    },
+                    {
+                      label: 'Hired',
+                      value: 'hired',
+                      count: applications.filter(app => app.status === 'hired')
+                        .length,
+                    },
+                  ].map(option => (
                     <TouchableOpacity
                       key={option.value}
                       style={{
@@ -683,7 +824,10 @@ const MyJobsScreen = () => {
                         alignItems: 'center',
                         paddingVertical: 12,
                         paddingHorizontal: 16,
-                        backgroundColor: filterStatus === option.value ? theme.colors.primary.light : theme.colors.background.secondary,
+                        backgroundColor:
+                          filterStatus === option.value
+                            ? theme.colors.primary.light
+                            : theme.colors.background.secondary,
                         borderRadius: 8,
                       }}
                       onPress={() => {
@@ -691,16 +835,26 @@ const MyJobsScreen = () => {
                         setShowFilterModal(false);
                       }}
                     >
-                      <Text style={{
-                        fontSize: 16,
-                        color: filterStatus === option.value ? theme.colors.text.white : theme.colors.text.primary,
-                      }}>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color:
+                            filterStatus === option.value
+                              ? theme.colors.text.white
+                              : theme.colors.text.primary,
+                        }}
+                      >
                         {option.label}
                       </Text>
-                      <Text style={{
-                        fontSize: 14,
-                        color: filterStatus === option.value ? theme.colors.text.white : theme.colors.text.secondary,
-                      }}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          color:
+                            filterStatus === option.value
+                              ? theme.colors.text.white
+                              : theme.colors.text.secondary,
+                        }}
+                      >
                         {option.count}
                       </Text>
                     </TouchableOpacity>

@@ -11,14 +11,12 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import Feather from 'react-native-vector-icons/Feather';
-import Button from '../../components/elements/Button';
-import Card from '../../components/blocks/Card';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../contexts/UserContext';
 import { seekerService, companyService, userService } from '../../services';
 import { AppHeader, Icon } from '../../components/elements';
 import { theme } from '../../theme';
+
 
 const ProfileScreen = ({ navigation }) => {
   const { user, userRecord, updateUserRecord, checkAuthStatus, logout } = useAuth();
@@ -45,15 +43,33 @@ const ProfileScreen = ({ navigation }) => {
 
     try {
       setLoadingProfile(true);
-      let result;
+      
+      // First, fetch user data from users table to get is_seeker flag
+      const { data: userData, error: userError } = await userService.getUserById(user.id);
 
-      if (currentMode === 'seeker') {
+      if (userError) {
+        console.error('Error fetching user data:', userError);
+        setLoadingProfile(false);
+        return;
+      }
+
+      console.log('User data from users table:', userData);
+
+      // Determine user type based on is_seeker flag
+      const isSeeker = userData?.is_seeker ?? true; // Default to seeker if not specified
+      
+      console.log('User type determined:', isSeeker ? 'seeker' : 'company');
+
+      // Fetch appropriate profile data based on user type
+      let result;
+      if (isSeeker) {
         result = await seekerService.getSeekerProfile(user.id);
       } else {
         result = await companyService.getCompanyProfile(user.id);
       }
 
       if (result.data) {
+        console.log('Profile data loaded:', result.data);
         setProfileData(result.data);
       }
     } catch (error) {
@@ -77,6 +93,16 @@ const ProfileScreen = ({ navigation }) => {
     }
     if (profileData?.full_name) {
       return profileData.full_name;
+    }
+    if (profileData?.company_name) {
+      return profileData.company_name;
+    }
+    if (profileData?.users?.name) {
+      return profileData.users.name;
+    }
+    // Check userRecord from AuthContext (contains data from users table)
+    if (userRecord?.name) {
+      return userRecord.name;
     }
     if (user?.user_metadata?.full_name) {
       return user.user_metadata.full_name;
@@ -160,17 +186,54 @@ const ProfileScreen = ({ navigation }) => {
 
   // Get phone number from user record
   const getPhoneNumber = () => {
+    console.log('Getting phone number - profileData:', profileData);
+    console.log('Getting phone number - user:', user);
+    console.log('Getting phone number - userRecord:', userRecord);
+    
+    // Check profile data first (for both seekers and companies)
+    if (profileData?.phone_number) {
+      console.log('Found phone in profileData.phone_number:', profileData.phone_number);
+      return profileData.phone_number;
+    }
+    // Check nested user data from profile (for company profiles) - database field
+    if (profileData?.users?.phone_number) {
+      console.log('Found phone in profileData.users.phone_number:', profileData.users.phone_number);
+      return profileData.users.phone_number;
+    }
+    // Check userRecord from AuthContext (contains data from users table)
+    if (userRecord?.phone_number) {
+      console.log('Found phone in userRecord.phone_number:', userRecord.phone_number);
+      return userRecord.phone_number;
+    }
+    // Check user metadata
     if (user?.user_metadata?.phone_number) {
+      console.log('Found phone in user.user_metadata.phone_number:', user.user_metadata.phone_number);
       return user.user_metadata.phone_number;
     }
+    // Check user.phone (Supabase auth field)
     if (user?.phone) {
+      console.log('Found phone in user.phone:', user.phone);
       return user.phone;
     }
+    // Check user.phone_number (database field - should not exist in auth user)
+    if (user?.phone_number) {
+      console.log('Found phone in user.phone_number:', user.phone_number);
+      return user.phone_number;
+    }
+    console.log('No phone number found, returning "Not specified"');
     return 'Not specified';
   };
 
   // Get city from user record
   const getCity = () => {
+    // Check nested user data from profile (for company profiles)
+    if (profileData?.users?.city) {
+      return profileData.users.city;
+    }
+    // Check userRecord from AuthContext (contains data from users table)
+    if (userRecord?.city) {
+      return userRecord.city;
+    }
     if (user?.user_metadata?.city) {
       return user.user_metadata.city;
     }

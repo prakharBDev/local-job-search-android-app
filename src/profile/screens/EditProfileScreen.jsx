@@ -40,7 +40,12 @@ const EditProfileScreen = ({ navigation, route }) => {
     name: user?.user_metadata?.name || user?.email?.split('@')[0] || '',
     email: user?.email || '',
     phone: (() => {
-      const phoneValue = user?.user_metadata?.phone_number || user?.phone || '';
+      const phoneValue =
+        userRecord?.phone_number ||
+        user?.user_metadata?.phone_number ||
+        user?.phone_number ||
+        user?.phone ||
+        '';
       // Ensure phone number has +91 prefix
       if (phoneValue && !phoneValue.startsWith('+91')) {
         return `+91${phoneValue.replace(/[^0-9]/g, '')}`;
@@ -68,7 +73,11 @@ const EditProfileScreen = ({ navigation, route }) => {
     name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || '',
     email: user?.email || '',
     phone: (() => {
-      const phoneValue = user?.user_metadata?.phone_number || user?.phone || '';
+      const phoneValue =
+        userRecord?.phone_number ||
+        user?.user_metadata?.phone_number ||
+        user?.phone ||
+        '';
       // Ensure phone number has +91 prefix
       if (phoneValue && !phoneValue.startsWith('+91')) {
         return `+91${phoneValue.replace(/[^0-9]/g, '')}`;
@@ -210,7 +219,9 @@ const EditProfileScreen = ({ navigation, route }) => {
             email: user?.email || '',
             phone: (() => {
               const phoneValue =
+                userRecord?.phone_number ||
                 user?.user_metadata?.phone_number ||
+                user?.phone_number ||
                 user?.phone ||
                 seekerProfile.users?.phone_number ||
                 '';
@@ -253,21 +264,74 @@ const EditProfileScreen = ({ navigation, route }) => {
           return;
         }
 
-        // console.log('Loaded company data:', companyProfile);
+        console.log('Loaded company data:', companyProfile);
 
         if (companyProfile) {
+          console.log('Setting company data with:', {
+            company_name: companyProfile.company_name,
+            industry: companyProfile.industry,
+            company_size: companyProfile.company_size,
+            company_description: companyProfile.company_description,
+            website: companyProfile.website,
+            contact_email: companyProfile.contact_email,
+            users: companyProfile.users,
+          });
+
+          // Check if company profile is empty (all fields undefined/null)
+          const isProfileEmpty =
+            !companyProfile.company_name &&
+            !companyProfile.industry &&
+            !companyProfile.company_size &&
+            !companyProfile.company_description &&
+            !companyProfile.website &&
+            !companyProfile.contact_email;
+
+          if (isProfileEmpty) {
+            console.log(
+              'Company profile exists but is empty, populating with default data...',
+            );
+            // Update the existing company profile with default data
+            try {
+              const { data: updatedProfile, error: updateError } =
+                await companyService.updateCompanyProfile(companyProfile.id, {
+                  company_name: user?.user_metadata?.full_name || 'My Company',
+                  company_description: '',
+                  industry: '',
+                  company_size: '',
+                  website: '',
+                  contact_email: user?.email || '',
+                });
+
+              if (updateError) {
+                console.error('Error updating company profile:', updateError);
+              } else {
+                console.log(
+                  'Updated company profile with default data:',
+                  updatedProfile,
+                );
+                // Reload the profile data to get the updated information
+                loadUserProfileData();
+                return; // Exit early to avoid setting empty data
+              }
+            } catch (error) {
+              console.error('Error updating company profile:', error);
+            }
+          }
+
           setJobPosterData(prev => ({
             ...prev,
             name:
-              companyProfile.contact_name ||
               user?.user_metadata?.full_name ||
               user?.email?.split('@')[0] ||
               '',
             email: user?.email || '',
             phone: (() => {
               const phoneValue =
+                userRecord?.phone_number ||
                 user?.user_metadata?.phone_number ||
+                user?.phone_number ||
                 user?.phone ||
+                companyProfile.users?.phone_number ||
                 companyProfile.phone_number ||
                 '';
               // Ensure phone number has +91 prefix
@@ -279,8 +343,10 @@ const EditProfileScreen = ({ navigation, route }) => {
             companyName: companyProfile.company_name || '',
             city: (() => {
               const cityValue =
+                userRecord?.city ||
                 user?.user_metadata?.city ||
                 user?.city ||
+                companyProfile.users?.city ||
                 companyProfile.city ||
                 '';
               return cityValue
@@ -292,8 +358,29 @@ const EditProfileScreen = ({ navigation, route }) => {
             industry: companyProfile.industry || '',
             description: companyProfile.company_description || '',
             website: companyProfile.website || '',
-            bio: companyProfile.bio || '',
+            bio: '', // Bio field doesn't exist for company profiles
           }));
+        } else {
+          console.log('No company profile found, creating one...');
+          // Create a default company profile
+          try {
+            const { data: newProfile, error: createError } =
+              await companyService.createCompanyProfile({
+                user_id: user.id,
+                company_name: user?.user_metadata?.full_name || 'My Company',
+                company_description: '',
+              });
+
+            if (createError) {
+              console.error('Error creating company profile:', createError);
+            } else {
+              console.log('Created new company profile:', newProfile);
+              // Reload the profile data
+              loadUserProfileData();
+            }
+          } catch (error) {
+            console.error('Error creating company profile:', error);
+          }
         }
       }
     } catch (error) {
@@ -574,7 +661,7 @@ const EditProfileScreen = ({ navigation, route }) => {
               // Navigate back or refresh the profile
               navigation.goBack();
             },
-          }
+          },
         ],
       );
     } catch (error) {
@@ -867,7 +954,7 @@ const EditProfileScreen = ({ navigation, route }) => {
               onSubmitEditing={() => {
                 if (jobSeekerData.newSkill && jobSeekerData.newSkill.trim()) {
                   const currentSkills = jobSeekerData.skills
-                    ? jobSeekerData.skills + ', '
+                    ? `${jobSeekerData.skills}, `
                     : '';
                   setJobSeekerData({
                     ...jobSeekerData,
@@ -1062,11 +1149,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             setJobPosterData({ ...jobPosterData, companyName: text })
           }
           leftIcon={
-            <Feather
-              name="building"
-              size={20}
-              color={theme.colors.textSecondary}
-            />
+            <Feather name="home" size={20} color={theme.colors.textSecondary} />
           }
           error={errors.companyName}
         />

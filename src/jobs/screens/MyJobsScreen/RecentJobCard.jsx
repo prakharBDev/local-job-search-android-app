@@ -118,6 +118,7 @@ const RecentJobCard = React.memo(({ item, index = 0 }) => {
               </Text>
             </View>
 
+            <View
               style={[
                 styles.jobTypePill,
                 { backgroundColor: 'rgba(255, 255, 255, 0.2)' },

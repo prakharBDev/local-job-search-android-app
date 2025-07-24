@@ -462,6 +462,7 @@ const EditProfileScreen = ({ navigation, route }) => {
               for (const skillName of skillNames) {
                 let skill = allSkills.find(
                   s => s.name.toLowerCase() === skillName.toLowerCase(),
+                );
 
                 if (!skill) {
                   // Create new skill if it doesn't exist

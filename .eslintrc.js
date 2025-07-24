@@ -2,8 +2,8 @@ module.exports = {
   root: true,
   extends: ['@react-native'],
   rules: {
-    // Production code quality
-    'no-console': 'warn',
+    // Production code quality - allow console statements for debugging
+    'no-console': 'off',
     'no-debugger': 'error',
 
     // React/React Native specific

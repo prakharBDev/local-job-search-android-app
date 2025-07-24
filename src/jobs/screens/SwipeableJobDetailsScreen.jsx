@@ -8,16 +8,13 @@ import {
   Alert,
   ActivityIndicator,
   PanResponder,
+  Image,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import {
-  applicationService,
-  seekerService,
-  jobService, 
-} from '../../services';
+import { applicationService, seekerService, jobService } from '../../services';
 import { Icon } from '../../components/elements';
 import { getStyles } from './SwipeableJobDetailsScreen.styles';
 
@@ -52,18 +49,18 @@ const SwipeableJobDetailsScreen = () => {
       : [
           {
             ...jobData,
-            id: jobData?.id + '_test1',
-            title: 'Job 1 - ' + (jobData?.title || 'Test Job'),
+            id: `${jobData?.id}_test1`,
+            title: `Job 1 - ${jobData?.title || 'Test Job'}`,
           },
           {
             ...jobData,
-            id: jobData?.id + '_test2',
-            title: 'Job 2 - ' + (jobData?.title || 'Test Job'),
+            id: `${jobData?.id}_test2`,
+            title: `Job 2 - ${jobData?.title || 'Test Job'}`,
           },
           {
             ...jobData,
-            id: jobData?.id + '_test3',
-            title: 'Job 3 - ' + (jobData?.title || 'Test Job'),
+            id: `${jobData?.id}_test3`,
+            title: `Job 3 - ${jobData?.title || 'Test Job'}`,
           },
         ];
 
@@ -245,7 +242,9 @@ const SwipeableJobDetailsScreen = () => {
 
   // Helper function to format salary - show database value directly
   const formatSalary = salary => {
-    if (!salary) {return 'Salary not specified';}
+    if (!salary) {
+      return 'Salary not specified';
+    }
 
     // If salary already has ₹ symbol, return as is
     if (salary.includes('₹')) {
@@ -904,9 +903,7 @@ const SwipeableJobDetailsScreen = () => {
           ))}
         </View>
 
-        <ScrollView
-          style={{ flex: 1 }}
-          showsVerticalScrollIndicator={false}
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           {/* Job Header with curved design */}
           <View
             style={{
@@ -932,8 +929,9 @@ const SwipeableJobDetailsScreen = () => {
                 width: 60,
                 height: 60,
                 borderRadius: 15,
-                backgroundColor:
-                  `${theme?.colors?.primary?.main || '#6475f8'  }20`,
+                backgroundColor: `${
+                  theme?.colors?.primary?.main || '#6475f8'
+                }20`,
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: 16,

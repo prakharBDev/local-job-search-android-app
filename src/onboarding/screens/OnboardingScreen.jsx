@@ -189,8 +189,7 @@ const OnboardingScreen = () => {
             <Text style={styles.helperText}>
               {selectedRoles.isSeeker && selectedRoles.isPoster
                 ? "You'll set up both profiles in sequence"
-                : 'You can add the other role later in your profile settings'
-              }
+                : 'You can add the other role later in your profile settings'}
             </Text>
           </View>
         </View>

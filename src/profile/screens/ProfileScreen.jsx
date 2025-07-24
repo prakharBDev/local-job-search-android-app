@@ -22,7 +22,7 @@ import { theme } from '../../theme';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, userRecord, updateUserRecord, checkAuthStatus } = useAuth();
-  const { currentMode, toggleMode } = useUser();
+  const { currentMode } = useUser();
   const [profileData, setProfileData] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -277,41 +277,7 @@ const ProfileScreen = ({ navigation }) => {
     // TODO: Navigate to resume screen
   };
 
-  const handleModeSwitch = async () => {
-    const newMode = currentMode === 'seeker' ? 'poster' : 'seeker';
 
-    Alert.alert(
-      'Switch User Mode',
-      `Are you sure you want to switch to ${
-        newMode === 'seeker' ? 'Job Seeker' : 'Job Poster'
-      } mode?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Switch',
-          onPress: async () => {
-            await toggleMode();
-            // Check if profile exists for the new mode
-            const { data: seekerProfile } =
-              await seekerService.getSeekerProfile(user.id);
-            const { data: companyProfile } =
-              await companyService.getCompanyProfile(user.id);
-
-            if (newMode === 'seeker' && !seekerProfile) {
-              navigation.navigate('SeekerProfileSetup');
-            } else if (newMode === 'poster' && !companyProfile) {
-              navigation.navigate('CompanyProfileSetup');
-            } else {
-              navigation.navigate('Dashboard');
-            }
-          },
-        },
-      ],
-    );
-  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -696,29 +662,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Mode Switch */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>User Mode</Text>
-          <TouchableOpacity
-            style={styles.modeSwitchCard}
-            onPress={handleModeSwitch}
-          >
-            <View style={styles.modeSwitchContent}>
-              <Text style={styles.modeSwitchTitle}>
-                Switch to{' '}
-                {currentMode === 'seeker' ? 'Job Poster' : 'Job Seeker'}
-              </Text>
-              <Text style={styles.modeSwitchSubtitle}>
-                {currentMode === 'seeker'
-                  ? 'Start posting jobs for your company'
-                  : 'Start searching for your next opportunity'}
-              </Text>
-            </View>
-            <View style={styles.modeSwitchIcon}>
-              <Text style={styles.modeSwitchEmoji}>🔄</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+
 
         {/* Support Section */}
         <View style={styles.sectionContainer}>
@@ -1109,55 +1053,7 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
 
-  // Mode Switch Styles
-  modeSwitchCard: {
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: 20,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: theme.colors.interactive.border.primary,
-  },
-  modeSwitchContent: {
-    flex: 1,
-  },
-  modeSwitchTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.text.primary,
-    marginBottom: 4,
-    fontFamily: 'System',
-    letterSpacing: -0.2,
-  },
-  modeSwitchSubtitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: theme.colors.text.secondary,
-    fontFamily: 'System',
-    lineHeight: 20,
-  },
-  modeSwitchIcon: {
-    backgroundColor: theme.colors.primary.light,
-    borderRadius: 16,
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: theme.colors.primary.main,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  modeSwitchEmoji: {
-    fontSize: 24,
-  },
+
 
   // Support Grid Styles
   supportGrid: {

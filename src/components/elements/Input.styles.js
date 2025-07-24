@@ -13,7 +13,7 @@ const getStyles = theme => StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     borderWidth: 1,
-    borderRadius: theme?.borderRadius?.lg || 12,
+    borderRadius: theme?.borderRadius?.['2xl'] || 20, // Updated to rounded-2xl
     paddingHorizontal: theme?.spacing?.[4] || 16,
     paddingVertical: theme?.spacing?.[3] || 12,
     minHeight: 48,

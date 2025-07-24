@@ -4,7 +4,7 @@ export const getStyles = theme =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background?.primary || '#FFFFFF',
+      backgroundColor: theme.colors.background?.primary || '#F3F4F6', // Off-white for depth contrast
     },
     scrollView: {
       flex: 1,
@@ -48,11 +48,11 @@ export const getStyles = theme =>
     },
     headerTitle: {
       fontSize: theme.typography?.h2?.fontSize || 26,
-      fontWeight: '600',
-      color: theme.colors.text?.primary || '#212121',
+      fontWeight: '700', // font-bold for section headings
+      color: theme.colors.text?.primary || '#111827', // High contrast black
       marginBottom: theme.spacing[1] || 6,
       textAlign: 'center',
-      fontFamily: 'System',
+      fontFamily: 'Inter',
       letterSpacing: -0.5,
     },
     headerSubtitle: {
@@ -171,11 +171,12 @@ export const getStyles = theme =>
       marginBottom: theme.spacing[5] || 22,
     },
     sectionTitle: {
-      fontSize: theme.typography?.h3?.fontSize || 24,
-      fontWeight: '600',
-      color: theme.colors.text?.primary || '#212121',
-      fontFamily: 'System',
+      fontSize: 20, // text-xl equivalent
+      fontWeight: '700', // font-bold as requested
+      color: theme.colors.text?.primary || '#111827', // High contrast black
+      fontFamily: 'Inter',
       letterSpacing: -0.5,
+      marginTop: 24, // mt-6 spacing for sections
     },
     seeAllText: {
       fontSize: theme.typography?.body?.fontSize || 16,

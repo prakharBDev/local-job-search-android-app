@@ -225,11 +225,19 @@ const MainNavigator = () => {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: theme?.colors?.primary?.main || '#3C4FE0',
-        tabBarInactiveTintColor: theme?.colors?.text?.secondary || '#475569',
+        tabBarActiveTintColor: theme?.colors?.primary?.main || '#6475f8', // New purple for active tab
+        tabBarInactiveTintColor: theme?.colors?.secondary?.main || '#6B7280', // Gray for inactive
         tabBarStyle: {
-          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+          backgroundColor: theme?.colors?.background?.secondary || '#FFFFFF',
           borderTopColor: theme?.colors?.border?.primary || '#E2E8F0',
+          paddingTop: 8,
+          paddingBottom: 8,
+          height: 60, // Slightly taller for better visual balance
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600', // Bold for active tabs
+          fontFamily: 'Inter',
         },
         headerShown: false,
       })}

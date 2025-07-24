@@ -129,6 +129,34 @@ const ApplicationDetailsScreen = () => {
     });
   };
 
+  // Helper function to format salary as monthly amount
+  const formatSalary = (salary) => {
+    if (!salary) return 'Salary not specified';
+    
+    // Handle salary ranges like "₹12,00,000 – ₹18,00,000/year"
+    if (salary.includes('–') || salary.includes('-')) {
+      // Extract the first number (lower range) and convert to monthly
+      const firstNumber = salary.match(/₹([\d,]+)/);
+      if (firstNumber) {
+        const numericSalary = firstNumber[1].replace(/,/g, '');
+        const yearlySalary = parseInt(numericSalary);
+        const monthlySalary = Math.round(yearlySalary / 12);
+        return `₹${monthlySalary.toLocaleString()}/month`;
+      }
+    }
+    
+    // Handle single salary values
+    const numericSalary = salary.replace(/[^\d]/g, '');
+    if (!numericSalary) return salary;
+    
+    // Assume yearly salary, convert to monthly (divide by 12)
+    const yearlySalary = parseInt(numericSalary);
+    const monthlySalary = Math.round(yearlySalary / 12);
+    
+    // Format with commas
+    return `₹${monthlySalary.toLocaleString()}/month`;
+  };
+
   const handleViewJob = () => {
     navigation.navigate('JobDetails', { jobData: job });
   };
@@ -238,7 +266,7 @@ const ApplicationDetailsScreen = () => {
                 </View>
                 {job?.salary && (
                   <View style={styles.metaItem}>
-                    <Text style={styles.metaText}>₹{job.salary}</Text>
+                    <Text style={styles.metaText}>{formatSalary(job.salary)}</Text>
                   </View>
                 )}
                 {job?.job_categories && (

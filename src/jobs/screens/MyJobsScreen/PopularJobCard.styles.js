@@ -2,50 +2,61 @@ import { StyleSheet } from 'react-native';
 
 export const getStyles = theme =>
   StyleSheet.create({
-    // Main container
+    // Main container - Updated for better width and visibility
     cardContainer: {
-      width: 240,
-      marginRight: theme.spacing[4],
-      borderRadius: theme.borderRadius?.xl || 20,
-      padding: theme.spacing[5],
-      borderWidth: 1,
-      borderColor:
-        theme.colors.interactive?.border?.primary ||
-        theme.colors.border?.primary,
-      ...theme.shadows?.lg,
+      backgroundColor: theme.colors.background?.secondary || '#FFFFFF',
+      borderRadius: 16, // Increased for better visual appeal
+      paddingHorizontal: 20, // Increased padding for better spacing
+      paddingVertical: 20, // Increased padding for better spacing
+      marginRight: theme.spacing[4], // Space between cards
+      marginBottom: theme.spacing[2],
+      borderWidth: 0,
+      width: 280, // Fixed width for consistent card size
+      minHeight: 200, // Minimum height to ensure content fits
+      ...{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+      },
     },
 
-    // Header section
+    // Header container
     headerContainer: {
       flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: theme.spacing[4],
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing[3],
+      width: '100%',
     },
 
+    // Logo container
     logoContainer: {
       width: 48,
       height: 48,
-      borderRadius: 24,
-      backgroundColor:
-        theme.colors.surface?.glass || 'rgba(255, 255, 255, 0.8)',
+      borderRadius: theme.borderRadius?.lg || 16,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: theme.spacing[3],
-      borderWidth: 1,
-      borderColor: theme.colors.surface?.overlay || 'rgba(255, 255, 255, 0.9)',
+      flexShrink: 0, // Prevent logo from shrinking
     },
 
+    // Company info container
     companyInfoContainer: {
       flex: 1,
+      minWidth: 0, // Allow text to wrap properly
     },
 
+    // Company name
     companyName: {
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: '600',
-      color: theme.colors.text?.primary || '#212121',
+      color: theme.colors.text?.primary || '#1F2937',
       marginBottom: theme.spacing[1],
+      flexWrap: 'wrap', // Allow text to wrap
     },
 
+    // Featured container
     featuredContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -53,94 +64,113 @@ export const getStyles = theme =>
     },
 
     featuredText: {
-      fontSize: 12,
-      color: theme.colors.text?.tertiary || '#9E9E9E',
+      fontSize: 11,
       fontWeight: '500',
+      fontFamily: 'Inter',
     },
 
-    // Job title
+    // Job title - Updated for high contrast with better spacing
     jobTitle: {
-      fontSize: theme.typography?.h5?.fontSize || 18,
-      fontWeight: '700',
-      color: theme.colors.text?.primary || '#212121',
-      marginBottom: theme.spacing[2],
-      lineHeight: theme.typography?.h5?.lineHeight || 24,
+      fontSize: theme.typography?.jobTitle?.fontSize || 16, // Slightly smaller as requested
+      fontWeight: theme.typography?.jobTitle?.fontWeight || '600', // font-semibold
+      color: theme.colors.text?.primary || '#1F2937', // High contrast black
+      marginBottom: theme.spacing[2], // Better vertical spacing
+      lineHeight: theme.typography?.jobTitle?.lineHeight || 24,
+      fontFamily: theme.typography?.jobTitle?.fontFamily || 'Inter',
+      flexWrap: 'wrap', // Allow text to wrap
     },
 
-    // Salary section
+    // Salary section - Updated styling
     salaryContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: theme.spacing[4],
-      gap: theme.spacing[1],
+      marginBottom: theme.spacing[3], // Better vertical spacing between pay and tags
+      width: '100%',
     },
 
     salaryText: {
-      fontSize: 16,
-      color: theme.colors.accent?.green || '#388E3C',
-      fontWeight: '600',
+      fontSize: 16, // Increased from 14 for better visibility
+      color: theme.colors.text?.primary || '#1F2937', // Dark gray as specified
+      fontWeight: '700', // Made bold for better visibility
+      fontFamily: 'Inter',
+      flexWrap: 'wrap', // Allow text to wrap
     },
 
-    // Tags section
-    tagsContainer: {
+    // Meta information section (salary, job type, days left)
+    metaContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing[2],
       flexWrap: 'wrap',
+      marginBottom: theme.spacing[4],
     },
 
-    jobTypeTag: {
-      backgroundColor:
-        theme.colors.surface?.overlay || 'rgba(255, 255, 255, 0.9)',
-      paddingHorizontal: theme.spacing[3],
-      paddingVertical: theme.spacing[2],
-      borderRadius: theme.borderRadius?.md || 12,
-      borderWidth: 1,
-      borderColor: theme.colors.surface?.glass || 'rgba(255, 255, 255, 0.95)',
+    // Salary pill
+    salaryPill: {
+      backgroundColor: theme.colors.buttonTags?.salary?.background || '#F3F4F6',
+      paddingHorizontal: 12, // px-3
+      paddingVertical: 4, // py-1
+      borderRadius: 9999, // rounded-full
     },
 
-    jobTypeText: {
-      color: theme.colors.primary?.main || '#3949AB',
-      fontWeight: '600',
+    salaryPillText: {
+      color: theme.colors.buttonTags?.salary?.text || '#374151',
+      fontSize: 12, // text-xs
+      fontWeight: '500', // font-medium
+      fontFamily: 'Inter',
+    },
+
+    // Job type pill
+    jobTypePill: {
+      backgroundColor: theme.colors.buttonTags?.fullTime?.background || '#F3F4F6',
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 9999,
+    },
+
+    jobTypePillText: {
+      color: theme.colors.buttonTags?.fullTime?.text || '#374151',
       fontSize: 12,
-    },
-
-    timeTag: {
-      backgroundColor:
-        theme.colors.surface?.glass || 'rgba(255, 255, 255, 0.7)',
-      paddingHorizontal: theme.spacing[3],
-      paddingVertical: theme.spacing[2],
-      borderRadius: theme.borderRadius?.md || 12,
-      borderWidth: 1,
-      borderColor: theme.colors.surface?.elevated || 'rgba(255, 255, 255, 0.8)',
-    },
-
-    timeText: {
-      color: theme.colors.text?.tertiary || '#9E9E9E',
       fontWeight: '500',
-      fontSize: 12,
+      fontFamily: 'Inter',
     },
+
+    // Days left pill
+    daysLeftPill: {
+      backgroundColor: theme.colors.buttonTags?.daysLeft?.background || '#FEF3C7',
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 9999,
+    },
+
+    daysLeftPillText: {
+      color: theme.colors.buttonTags?.daysLeft?.text || '#92400E',
+      fontSize: 12,
+      fontWeight: '500',
+      fontFamily: 'Inter',
+    },
+
   });
 
-// Theme-based gradient colors for job types
-export const getJobTypeGradients = theme => ({
-  'Full Time': [
-    `${theme.colors.accent?.blue}40` || '#E3F2FD',
-    `${theme.colors.accent?.blue}60` || '#BBDEFB',
-  ],
-  'Part Time': [
-    `${theme.colors.accent?.green}40` || '#E8F5E9',
-    `${theme.colors.accent?.green}60` || '#C8E6C9',
-  ],
-  Contract: [
-    `${theme.colors.accent?.purple}40` || '#F3E5F5',
-    `${theme.colors.accent?.purple}60` || '#E1BEE7',
-  ],
-  Freelance: [
-    `${theme.colors.accent?.orange}40` || '#FFF3E0',
-    `${theme.colors.accent?.orange}60` || '#FFCC02',
-  ],
-});
+// Function to get alternating purple/green colors for job cards
+export const getJobCategoryColors = (theme, jobType, company, index = 0) => {
+  // Define the two alternating color schemes
+  const colorSchemes = [
+    {
+      background: theme.colors.jobCategories?.primary?.background || '#6475f8', // User requested purple
+      text: theme.colors.jobCategories?.primary?.text || '#1F2937',
+      accent: '#8B5CF6', // Purple accent for icons
+      iconBg: 'rgba(139, 92, 246, 0.1)',
+    },
+    {
+      background: theme.colors.jobCategories?.secondary?.background || '#E4FCE5', // Light parrot green
+      text: theme.colors.jobCategories?.secondary?.text || '#1F2937',
+      accent: '#22C55E', // Green accent for icons
+      iconBg: 'rgba(34, 197, 94, 0.1)',
+    }
+  ];
+
+  // Alternate between the two color schemes based on index
+  return colorSchemes[index % 2];
+};
 
 // Theme-based icon colors for job types
 export const getJobTypeIconColors = theme => ({

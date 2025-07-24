@@ -162,7 +162,7 @@ const MyJobsScreen = () => {
             style={getStyles(theme).filterButton}
             accessibilityLabel="Filter jobs"
           >
-            <Feather name="filter" size={20} color="#3B82F6" />
+            <Feather name="filter" size={20} color="#6475f8" />
           </TouchableOpacity>
         </Animated.View>
 
@@ -193,8 +193,8 @@ const MyJobsScreen = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={getStyles(theme).popularJobsScroll}
             >
-              {filteredPopularJobs.map(job => (
-                <PopularJobCard key={job.id} job={job} />
+              {filteredPopularJobs.map((job, index) => (
+                <PopularJobCard key={job.id} job={job} index={index} />
               ))}
             </ScrollView>
           </Animated.View>
@@ -212,8 +212,8 @@ const MyJobsScreen = () => {
               </TouchableOpacity>
             </View>
             <View style={getStyles(theme).recentJobsList}>
-              {filteredRecentJobs.map(job => (
-                <RecentJobCard key={job.id} item={job} />
+              {filteredRecentJobs.map((job, index) => (
+                <RecentJobCard key={job.id} item={job} index={index} />
               ))}
             </View>
           </View>

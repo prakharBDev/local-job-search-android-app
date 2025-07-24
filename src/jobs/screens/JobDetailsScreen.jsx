@@ -82,53 +82,59 @@ const JobDetailsScreen = () => {
 
   // Handle job application
   const handleApplyJob = async () => {
-    if (!seekerProfile) {
-      Alert.alert(
-        'Profile Required',
-        'Please complete your seeker profile to apply for jobs.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Complete Profile', 
-            onPress: () => navigation.navigate('SeekerProfileSetup') 
-          }
-        ]
-      );
-      return;
-    }
-
-    if (hasApplied) {
-      Alert.alert('Already Applied', 'You have already applied for this job.');
+    if (!user) {
+      Alert.alert('Error', 'Please log in to apply for jobs');
       return;
     }
 
     try {
       setApplying(true);
-      
-      const { data, error } = await applicationService.applyForJob(
-        jobDetails.id,
-        seekerProfile.id,
-        null // Can add message input later
-      );
+      const { data, error } = await applicationService.createApplication({
+        job_id: jobDetails.id,
+        seeker_id: seekerProfile.id,
+        message: '', // No message input for now
+      });
 
       if (error) {
         throw error;
       }
 
+      Alert.alert('Success', 'Application submitted successfully!');
       setHasApplied(true);
-      
-      Alert.alert(
-        'Application Sent!',
-        `Your application for ${jobDetails.title} has been submitted successfully.`,
-        [{ text: 'OK', style: 'default' }]
-      );
-
     } catch (error) {
       console.error('Error applying for job:', error);
-      Alert.alert('Error', 'Failed to apply for job. Please try again.');
+      Alert.alert('Error', 'Failed to submit application. Please try again.');
     } finally {
       setApplying(false);
     }
+  };
+
+  // Helper function to format salary as monthly amount
+  const formatSalary = (salary) => {
+    if (!salary) return 'Salary not specified';
+    
+    // Handle salary ranges like "₹12,00,000 – ₹18,00,000/year"
+    if (salary.includes('–') || salary.includes('-')) {
+      // Extract the first number (lower range) and convert to monthly
+      const firstNumber = salary.match(/₹([\d,]+)/);
+      if (firstNumber) {
+        const numericSalary = firstNumber[1].replace(/,/g, '');
+        const yearlySalary = parseInt(numericSalary);
+        const monthlySalary = Math.round(yearlySalary / 12);
+        return `₹${monthlySalary.toLocaleString()}/month`;
+      }
+    }
+    
+    // Handle single salary values
+    const numericSalary = salary.replace(/[^\d]/g, '');
+    if (!numericSalary) return salary;
+    
+    // Assume yearly salary, convert to monthly (divide by 12)
+    const yearlySalary = parseInt(numericSalary);
+    const monthlySalary = Math.round(yearlySalary / 12);
+    
+    // Format with commas
+    return `₹${monthlySalary.toLocaleString()}/month`;
   };
 
   // Mock job data based on the image with proper fallbacks
@@ -372,7 +378,7 @@ We're looking for someone who is passionate about user-centered design and has e
                     width: 6,
                     height: 6,
                     borderRadius: 3,
-                    backgroundColor: '#4D8CFF',
+                    backgroundColor: '#6475f8',
                     marginTop: 8,
                     marginRight: 12,
                   }}
@@ -835,7 +841,7 @@ We're looking for someone who is passionate about user-centered design and has e
                 letterSpacing: -0.1,
               }}
             >
-              ₹{safeJob.salary}
+              {formatSalary(safeJob.salary)}
             </Text>
           </View>
 
@@ -907,7 +913,7 @@ We're looking for someone who is passionate about user-centered design and has e
                   <Text
                     style={{
                       fontSize: 10,
-                      color: '#3B82F6',
+                      color: '#6475f8',
                       fontWeight: '600',
                     }}
                   >
@@ -931,20 +937,20 @@ We're looking for someone who is passionate about user-centered design and has e
           </View>
         </View>
 
-        {/* Tabs */}
+        {/* Tabs - Updated to match reference design */}
         <View
           style={{
             flexDirection: 'row',
-            backgroundColor: '#FFFFFF',
+            backgroundColor: '#F3F4F6',
             marginHorizontal: 20,
-            borderRadius: 16,
-            padding: 4,
+            borderRadius: 8, // More subtle rounded corners
+            padding: 2, // Reduced padding
             marginBottom: 20,
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 4,
-            elevation: 2,
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.03,
+            shadowRadius: 2,
+            elevation: 1,
           }}
         >
           {tabs.map(tab => (
@@ -953,18 +959,18 @@ We're looking for someone who is passionate about user-centered design and has e
               onPress={() => setActiveTab(tab)}
               style={{
                 flex: 1,
-                paddingVertical: 12,
-                borderRadius: 12,
-                backgroundColor: activeTab === tab ? '#4D8CFF' : 'transparent',
+                paddingVertical: 8, // Reduced height (36px equivalent)
+                borderRadius: 6, // More subtle
+                backgroundColor: activeTab === tab ? '#6475f8' : 'transparent', // Using new purple color
                 alignItems: 'center',
               }}
             >
               <Text
                 style={{
-                  fontSize: 14,
-                  fontWeight: '500',
-                  color: activeTab === tab ? '#FFFFFF' : '#64748B',
-                  fontFamily: 'System',
+                  fontSize: 13,
+                  fontWeight: activeTab === tab ? '600' : '500', // Bold for selected
+                  color: activeTab === tab ? '#FFFFFF' : '#6B7280',
+                  fontFamily: 'Inter',
                   letterSpacing: -0.1,
                 }}
               >
@@ -1015,16 +1021,16 @@ We're looking for someone who is passionate about user-centered design and has e
       >
         <TouchableOpacity
           style={{
-            backgroundColor: hasApplied ? '#10B981' : '#4D8CFF',
+            backgroundColor: hasApplied ? '#6B7280' : '#2ECC71', // Success green as specified
             paddingVertical: 16,
-            borderRadius: 16,
+            borderRadius: 12, // More subtle rounded corners
             alignItems: 'center',
             justifyContent: 'center',
-            shadowColor: hasApplied ? '#10B981' : '#1E88E5',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.25,
-            shadowRadius: 12,
-            elevation: 6,
+            shadowColor: hasApplied ? '#6B7280' : '#2ECC71',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+            elevation: 4,
             opacity: applying ? 0.7 : 1,
           }}
           onPress={handleApplyJob}

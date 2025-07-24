@@ -23,8 +23,6 @@ const ProfileSetupScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(0.95));
 
-  
-
   React.useEffect(() => {
     Animated.spring(scaleAnim, {
       toValue: 1,
@@ -50,8 +48,6 @@ const ProfileSetupScreen = ({ navigation }) => {
       color: ['#10B981', '#059669'],
     },
   ];
-
-  
 
   const handleRoleSelect = roleId => {
     setSelectedRole(roleId);
@@ -156,8 +152,6 @@ const ProfileSetupScreen = ({ navigation }) => {
                 </TouchableOpacity>
               ))}
             </View>
-
-            
 
             {/* Complete Button */}
             <View style={styles.buttonContainer}>

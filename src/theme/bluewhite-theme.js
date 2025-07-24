@@ -14,7 +14,7 @@ export const bluewhiteTheme = {
     // Text colors - Updated for high contrast design matching reference
     text: {
       primary: '#1F2937', // text-dark as specified in action plan
-      secondary: '#6B7280', // text-muted as specified 
+      secondary: '#6B7280', // text-muted as specified
       tertiary: '#4B4B4B', // At least #4B4B4B for better contrast as requested
       muted: '#6B7280', // Using the same as secondary for consistency
       inverse: '#FFFFFF', // White text for dark backgrounds
@@ -302,7 +302,7 @@ export const bluewhiteTheme = {
       lineHeight: 24,
       fontFamily: 'Inter',
     },
-    // Company subtitle styles  
+    // Company subtitle styles
     companyName: {
       fontSize: 14, // 14px medium as specified
       fontWeight: '500', // font-medium for subtitles

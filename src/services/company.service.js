@@ -16,21 +16,23 @@ const companyService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('company_profiles')
-            .insert([{
-              ...profileData,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            }])
+            .insert([
+              {
+                ...profileData,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+            ])
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'createCompanyProfile'
-        }
+          context: 'createCompanyProfile',
+        },
       );
 
       if (error) {
@@ -67,14 +69,14 @@ const companyService = {
             .eq('id', companyId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'updateCompanyProfile'
-        }
+          context: 'updateCompanyProfile',
+        },
       );
 
       if (error) {
@@ -104,7 +106,7 @@ const companyService = {
         includeJobs: false,
         includeApplications: false,
         cache: true,
-        cacheKey: `company_profile_${userId}`
+        cacheKey: `company_profile_${userId}`,
       });
 
       if (error) {
@@ -113,7 +115,7 @@ const companyService = {
 
       // Handle array response - return first item or null if no profile exists
       const profile = Array.isArray(data) ? data[0] || null : data;
-      
+
       return { data: profile, error: null };
     } catch (error) {
       const apiError = handleApiError(error, 'getCompanyProfile');
@@ -135,7 +137,7 @@ const companyService = {
         `,
         filters: { id: companyId },
         cache: true,
-        cacheKey: `company_${companyId}`
+        cacheKey: `company_${companyId}`,
       });
 
       if (error) {
@@ -163,7 +165,7 @@ const companyService = {
         filters: { is_verified: true },
         orderBy: { column: 'company_name', ascending: true },
         cache: true,
-        cacheKey: 'verified_companies'
+        cacheKey: 'verified_companies',
       });
 
       if (error) {
@@ -188,20 +190,22 @@ const companyService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('company_profiles')
-            .select(`
+            .select(
+              `
               *,
               users(city)
-            `)
+            `,
+            )
             .eq('users.city', city)
             .order('company_name');
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `companies_city_${city}`,
-          context: 'getCompaniesByCity'
-        }
+          context: 'getCompaniesByCity',
+        },
       );
 
       if (error) {
@@ -227,21 +231,21 @@ const companyService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('company_profiles')
-            .update({ 
+            .update({
               is_verified: isVerified,
               updated_at: new Date().toISOString(),
             })
             .eq('id', companyId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'updateVerificationStatus'
-        }
+          context: 'updateVerificationStatus',
+        },
       );
 
       if (error) {
@@ -272,21 +276,23 @@ const companyService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('company_profiles')
-            .select(`
+            .select(
+              `
               *,
               users(name, email, city)
-            `)
+            `,
+            )
             .ilike('company_name', `%${searchTerm}%`)
             .order('company_name')
             .limit(limit);
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `search_companies_${searchTerm}_${limit}`,
-          context: 'searchCompanies'
-        }
+          context: 'searchCompanies',
+        },
       );
 
       if (error) {
@@ -311,7 +317,8 @@ const companyService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('company_profiles')
-            .select(`
+            .select(
+              `
               *,
               users(name, email, city),
               jobs(
@@ -321,17 +328,18 @@ const companyService = {
                 created_at,
                 applications(id, status)
               )
-            `)
+            `,
+            )
             .eq('id', companyId)
             .single();
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `company_stats_${companyId}`,
-          context: 'getCompanyWithStats'
-        }
+          context: 'getCompanyWithStats',
+        },
       );
 
       if (error) {
@@ -344,7 +352,10 @@ const companyService = {
         const stats = {
           totalJobs: jobs.length,
           activeJobs: jobs.filter(job => job.is_active).length,
-          totalApplications: jobs.reduce((sum, job) => sum + (job.applications?.length || 0), 0),
+          totalApplications: jobs.reduce(
+            (sum, job) => sum + (job.applications?.length || 0),
+            0,
+          ),
           recentJobs: jobs.filter(job => {
             const jobDate = new Date(job.created_at);
             const thirtyDaysAgo = new Date();
@@ -377,14 +388,14 @@ const companyService = {
             .eq('id', companyId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'deleteCompanyProfile'
-        }
+          context: 'deleteCompanyProfile',
+        },
       );
 
       if (error) {

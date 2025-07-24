@@ -6,27 +6,52 @@ const { width: screenWidth } = Dimensions.get('window');
 const AnimatedBackground = () => {
   // Animation values for 10 elements
   const backgroundAnimations = useRef(
-    Array.from({ length: 10 }, () => new Animated.Value(0))
+    Array.from({ length: 10 }, () => new Animated.Value(0)),
   ).current;
   const backgroundRotations = useRef(
-    Array.from({ length: 10 }, () => new Animated.Value(0))
+    Array.from({ length: 10 }, () => new Animated.Value(0)),
   ).current;
   const backgroundScales = useRef(
-    Array.from({ length: 10 }, () => new Animated.Value(1))
+    Array.from({ length: 10 }, () => new Animated.Value(1)),
   ).current;
 
   // Element definitions
   const elements = [
     { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
-    { type: 'small', color: '#10B981', size: 40, style: 'floatingElementSmall' },
+    {
+      type: 'small',
+      color: '#10B981',
+      size: 40,
+      style: 'floatingElementSmall',
+    },
     { type: 'tiny', color: '#F59E0B', size: 20, style: 'floatingElementTiny' },
-    { type: 'square', color: '#EC4899', size: 60, style: 'floatingElementSquare' },
+    {
+      type: 'square',
+      color: '#EC4899',
+      size: 60,
+      style: 'floatingElementSquare',
+    },
     { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
-    { type: 'small', color: '#10B981', size: 40, style: 'floatingElementSmall' },
+    {
+      type: 'small',
+      color: '#10B981',
+      size: 40,
+      style: 'floatingElementSmall',
+    },
     { type: 'tiny', color: '#F59E0B', size: 20, style: 'floatingElementTiny' },
-    { type: 'square', color: '#EC4899', size: 60, style: 'floatingElementSquare' },
+    {
+      type: 'square',
+      color: '#EC4899',
+      size: 60,
+      style: 'floatingElementSquare',
+    },
     { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
-    { type: 'small', color: '#10B981', size: 40, style: 'floatingElementSmall' },
+    {
+      type: 'small',
+      color: '#10B981',
+      size: 40,
+      style: 'floatingElementSmall',
+    },
   ];
 
   const positions = [
@@ -57,7 +82,7 @@ const AnimatedBackground = () => {
             duration: 4000 + index * 800,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start();
     });
     // Rotation animation
@@ -67,7 +92,7 @@ const AnimatedBackground = () => {
           toValue: 1,
           duration: 10000 + index * 1500,
           useNativeDriver: true,
-        })
+        }),
       ).start();
     });
     // Scale animation
@@ -84,7 +109,7 @@ const AnimatedBackground = () => {
             duration: 2000 + index * 300,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start();
     });
   }, [backgroundAnimations, backgroundRotations, backgroundScales]);

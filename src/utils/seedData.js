@@ -60,10 +60,6 @@ const initialSkills = [
 
 export const seedDatabase = async () => {
   try {
-    console.log('Starting database seeding...');
-
-    // Seed categories
-    console.log('Seeding job categories...');
     const { data: existingCategories, error: categoriesCheckError } =
       await supabase.from('job_categories').select('name');
 

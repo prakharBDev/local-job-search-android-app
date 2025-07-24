@@ -17,14 +17,18 @@ class OnboardingService {
         filters: { google_id: googleId },
         limit: 1,
         cache: true,
-        cacheKey: `user_google_${googleId}`
+        cacheKey: `user_google_${googleId}`,
       });
 
       if (error) {
         throw error;
       }
 
-      return { exists: !!userRecord?.[0], userRecord: userRecord?.[0] || null, error: null };
+      return {
+        exists: !!userRecord?.[0],
+        userRecord: userRecord?.[0] || null,
+        error: null,
+      };
     } catch (error) {
       const apiError = handleApiError(error, 'checkUserExists');
       return { exists: false, userRecord: null, error: apiError };
@@ -41,13 +45,16 @@ class OnboardingService {
       const missingSteps = [];
 
       // Check if user has city selected and onboarding status
-      const { data: userRecord, error: userError } = await apiClient.query('users', {
-        select: 'city, onboarding_completed, last_onboarding_step',
-        filters: { id: userId },
-        limit: 1,
-        cache: true,
-        cacheKey: `user_onboarding_${userId}`
-      });
+      const { data: userRecord, error: userError } = await apiClient.query(
+        'users',
+        {
+          select: 'city, onboarding_completed, last_onboarding_step',
+          filters: { id: userId },
+          limit: 1,
+          cache: true,
+          cacheKey: `user_onboarding_${userId}`,
+        },
+      );
 
       if (userError) {
         throw userError;
@@ -65,25 +72,29 @@ class OnboardingService {
       }
 
       // Check if user has roles selected
-      const { data: seekerProfile, error: seekerError } = await apiClient.query('seeker_profiles', {
-        select: 'id',
-        filters: { user_id: userId },
-        limit: 1,
-        cache: true,
-        cacheKey: `seeker_profile_${userId}`
-      });
+      const { data: seekerProfile, error: seekerError } = await apiClient.query(
+        'seeker_profiles',
+        {
+          select: 'id',
+          filters: { user_id: userId },
+          limit: 1,
+          cache: true,
+          cacheKey: `seeker_profile_${userId}`,
+        },
+      );
 
       if (seekerError) {
         throw seekerError;
       }
 
-      const { data: companyProfile, error: companyError } = await apiClient.query('company_profiles', {
-        select: 'id',
-        filters: { user_id: userId },
-        limit: 1,
-        cache: true,
-        cacheKey: `company_profile_${userId}`
-      });
+      const { data: companyProfile, error: companyError } =
+        await apiClient.query('company_profiles', {
+          select: 'id',
+          filters: { user_id: userId },
+          limit: 1,
+          cache: true,
+          cacheKey: `company_profile_${userId}`,
+        });
 
       if (companyError) {
         throw companyError;
@@ -97,42 +108,49 @@ class OnboardingService {
       if (seekerProfile?.[0]) {
         const seekerId = seekerProfile[0].id;
 
-        const { data: seekerSkills, error: skillsError } = await apiClient.query('seeker_skills', {
-          select: 'skill_id',
-          filters: { seeker_id: seekerId },
-          cache: true,
-          cacheKey: `seeker_skills_${seekerId}`
-        });
+        const { data: seekerSkills, error: skillsError } =
+          await apiClient.query('seeker_skills', {
+            select: 'skill_id',
+            filters: { seeker_id: seekerId },
+            cache: true,
+            cacheKey: `seeker_skills_${seekerId}`,
+          });
 
         if (skillsError) {
           throw skillsError;
         }
 
-        const { data: seekerCategories, error: categoriesError } = await apiClient.query('seeker_categories', {
-          select: 'category_id',
-          filters: { seeker_id: seekerId },
-          cache: true,
-          cacheKey: `seeker_categories_${seekerId}`
-        });
+        const { data: seekerCategories, error: categoriesError } =
+          await apiClient.query('seeker_categories', {
+            select: 'category_id',
+            filters: { seeker_id: seekerId },
+            cache: true,
+            cacheKey: `seeker_categories_${seekerId}`,
+          });
 
         if (categoriesError) {
           throw categoriesError;
         }
 
         // Check if profile has required fields
-        const { data: seekerRecord, error: seekerRecordError } = await apiClient.query('seeker_profiles', {
-          select: 'experience_level',
-          filters: { id: seekerId },
-          limit: 1,
-          cache: true,
-          cacheKey: `seeker_record_${seekerId}`
-        });
+        const { data: seekerRecord, error: seekerRecordError } =
+          await apiClient.query('seeker_profiles', {
+            select: 'experience_level',
+            filters: { id: seekerId },
+            limit: 1,
+            cache: true,
+            cacheKey: `seeker_record_${seekerId}`,
+          });
 
         if (seekerRecordError) {
           throw seekerRecordError;
         }
 
-        if (!seekerSkills?.length || !seekerCategories?.length || !seekerRecord?.[0]?.experience_level) {
+        if (
+          !seekerSkills?.length ||
+          !seekerCategories?.length ||
+          !seekerRecord?.[0]?.experience_level
+        ) {
           missingSteps.push('seeker_profile_incomplete');
         }
       }
@@ -141,19 +159,23 @@ class OnboardingService {
         const companyId = companyProfile[0].id;
 
         // Check if company profile has required fields
-        const { data: companyRecord, error: companyRecordError } = await apiClient.query('company_profiles', {
-          select: 'company_name, contact_email',
-          filters: { id: companyId },
-          limit: 1,
-          cache: true,
-          cacheKey: `company_record_${companyId}`
-        });
+        const { data: companyRecord, error: companyRecordError } =
+          await apiClient.query('company_profiles', {
+            select: 'company_name, contact_email',
+            filters: { id: companyId },
+            limit: 1,
+            cache: true,
+            cacheKey: `company_record_${companyId}`,
+          });
 
         if (companyRecordError) {
           throw companyRecordError;
         }
 
-        if (!companyRecord?.[0]?.company_name || !companyRecord?.[0]?.contact_email) {
+        if (
+          !companyRecord?.[0]?.company_name ||
+          !companyRecord?.[0]?.contact_email
+        ) {
           missingSteps.push('company_profile_incomplete');
         }
       }
@@ -209,7 +231,9 @@ class OnboardingService {
             .upsert({
               id: userData.id,
               email: userData.email,
-              name: userData.user_metadata?.full_name || userData.email?.split('@')[0],
+              name:
+                userData.user_metadata?.full_name ||
+                userData.email?.split('@')[0],
               phone_number: phoneNumber,
               google_id: userData.id,
               created_at: new Date().toISOString(),
@@ -217,14 +241,14 @@ class OnboardingService {
             })
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'createInitialUserRecord'
-        }
+          context: 'createInitialUserRecord',
+        },
       );
 
       if (error) {
@@ -261,14 +285,14 @@ class OnboardingService {
             .eq('id', userId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'updateOnboardingProgress'
-        }
+          context: 'updateOnboardingProgress',
+        },
       );
 
       if (error) {
@@ -293,19 +317,26 @@ class OnboardingService {
    */
   async getOnboardingStatus(userId) {
     try {
-      const { isComplete, missingSteps, error: completionError } = await this.checkProfileCompletion(userId);
-      
+      const {
+        isComplete,
+        missingSteps,
+        error: completionError,
+      } = await this.checkProfileCompletion(userId);
+
       if (completionError) {
         throw completionError;
       }
 
-      const { data: userRecord, error: userError } = await apiClient.query('users', {
-        select: '*',
-        filters: { id: userId },
-        limit: 1,
-        cache: true,
-        cacheKey: `user_full_${userId}`
-      });
+      const { data: userRecord, error: userError } = await apiClient.query(
+        'users',
+        {
+          select: '*',
+          filters: { id: userId },
+          limit: 1,
+          cache: true,
+          cacheKey: `user_full_${userId}`,
+        },
+      );
 
       if (userError) {
         throw userError;
@@ -322,9 +353,11 @@ class OnboardingService {
           userRecord: user,
           needsCitySelection: missingSteps.includes('city_selection'),
           needsRoleSelection: missingSteps.includes('role_selection'),
-          needsProfileSetup: missingSteps.includes('seeker_profile_incomplete') || missingSteps.includes('company_profile_incomplete'),
+          needsProfileSetup:
+            missingSteps.includes('seeker_profile_incomplete') ||
+            missingSteps.includes('company_profile_incomplete'),
         },
-        error: null
+        error: null,
       };
     } catch (error) {
       const apiError = handleApiError(error, 'getOnboardingStatus');
@@ -334,4 +367,4 @@ class OnboardingService {
 }
 
 export const onboardingService = new OnboardingService();
-export default onboardingService; 
+export default onboardingService;

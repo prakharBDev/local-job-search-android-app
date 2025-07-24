@@ -143,7 +143,7 @@ class QualityReporter {
     try {
       // Check if test files exist first
       const testFiles = this.getTestFiles();
-      
+
       if (testFiles.length === 0) {
         console.log('⚠️  No test files found');
         this.report.metrics.testCoverage = { percentage: 0, hasTests: false };
@@ -283,7 +283,10 @@ class QualityReporter {
     // Score based on performance issues and optimizations
     const baseScore = 100 - performanceIssues.length * 3;
     const optimizationBonus = Math.min(20, optimizationsFound.length * 2);
-    const performanceScore = Math.max(0, Math.min(100, baseScore + optimizationBonus));
+    const performanceScore = Math.max(
+      0,
+      Math.min(100, baseScore + optimizationBonus),
+    );
     this.report.scores.performance = performanceScore;
 
     if (performanceIssues.length > 10) {
@@ -297,7 +300,9 @@ class QualityReporter {
     }
 
     if (optimizationsFound.length > 0) {
-      console.log(`✅ Found ${optimizationsFound.length} performance optimizations`);
+      console.log(
+        `✅ Found ${optimizationsFound.length} performance optimizations`,
+      );
     }
   }
 
@@ -374,9 +379,7 @@ ${this.getScoreBadge(scores.overall)}
 
 | Metric | Score | Status |
 |--------|-------|--------|
-| File Size | ${scores.fileSize}/100 | ${this.getStatus(
-      scores.fileSize,
-    )} |
+| File Size | ${scores.fileSize}/100 | ${this.getStatus(scores.fileSize)} |
 | Code Duplication | ${scores.duplication}/100 | ${this.getStatus(
       scores.duplication,
     )} |
@@ -476,8 +479,10 @@ ${recommendations.map(rec => `- ${rec}`).join('\n')}
     const files = [];
 
     function walkDir(dir) {
-      if (!fs.existsSync(dir)) return;
-      
+      if (!fs.existsSync(dir)) {
+        return;
+      }
+
       const items = fs.readdirSync(dir);
       items.forEach(item => {
         const fullPath = path.join(dir, item);
@@ -505,16 +510,25 @@ ${recommendations.map(rec => `- ${rec}`).join('\n')}
     const testFiles = [];
 
     function walkDir(dir) {
-      if (!fs.existsSync(dir)) return;
-      
+      if (!fs.existsSync(dir)) {
+        return;
+      }
+
       const items = fs.readdirSync(dir);
       items.forEach(item => {
         const fullPath = path.join(dir, item);
         const stat = fs.statSync(fullPath);
 
-        if (stat.isDirectory() && !item.startsWith('.') && item !== 'node_modules') {
+        if (
+          stat.isDirectory() &&
+          !item.startsWith('.') &&
+          item !== 'node_modules'
+        ) {
           walkDir(fullPath);
-        } else if (stat.isFile() && /\.(test|spec)\.(js|jsx|ts|tsx)$/.test(item)) {
+        } else if (
+          stat.isFile() &&
+          /\.(test|spec)\.(js|jsx|ts|tsx)$/.test(item)
+        ) {
           testFiles.push(fullPath);
         }
       });

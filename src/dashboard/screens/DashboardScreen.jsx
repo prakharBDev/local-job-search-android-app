@@ -21,9 +21,13 @@ const DashboardScreen = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Use actual user data from auth context - prioritize userRecord name
-  const userName = useMemo(() => 
-    userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User',
-    [userRecord?.name, user?.user_metadata?.full_name, user?.email]
+  const userName = useMemo(
+    () =>
+      userRecord?.name ||
+      user?.user_metadata?.full_name ||
+      user?.email?.split('@')[0] ||
+      'User',
+    [userRecord?.name, user?.user_metadata?.full_name, user?.email],
   );
 
   const handleProfilePress = useCallback(() => {
@@ -31,47 +35,43 @@ const DashboardScreen = () => {
   }, []);
 
   const handleLogout = useCallback(async () => {
-    Alert.alert(
-      'Confirm Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
+    Alert.alert('Confirm Logout', 'Are you sure you want to logout?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            setIsLoggingOut(true);
+            await logout();
+
+            // Reset navigation to ensure clean state
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Auth' }],
+            });
+          } catch (error) {
+            console.error('Logout error:', error);
+            Alert.alert(
+              'Logout Failed',
+              'There was an error logging out. Please try again.',
+              [{ text: 'OK' }],
+            );
+          } finally {
+            setIsLoggingOut(false);
+          }
         },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setIsLoggingOut(true);
-              await logout();
-              
-              // Reset navigation to ensure clean state
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Auth' }],
-              });
-            } catch (error) {
-              console.error('Logout error:', error);
-              Alert.alert(
-                'Logout Failed',
-                'There was an error logging out. Please try again.',
-                [{ text: 'OK' }]
-              );
-            } finally {
-              setIsLoggingOut(false);
-            }
-          },
-        },
-      ]
-    );
+      },
+    ]);
   }, [logout, navigation]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
-      
+
       {/* App Header */}
       <AppHeader
         title="Dashboard"
@@ -80,12 +80,11 @@ const DashboardScreen = () => {
         onRightPress={handleProfilePress}
         background="#F7F9FC"
       />
-      
+
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-
         {/* Tabs Section */}
         <View style={styles.tabsContainer}>
           <View style={styles.tabsWrapper}>
@@ -127,7 +126,9 @@ const DashboardScreen = () => {
                 <View style={styles.iconContainer}>
                   <Text style={styles.cardIcon}>✈️</Text>
                 </View>
-                <Text style={styles.cardLabel}>Applied to Senior Developer</Text>
+                <Text style={styles.cardLabel}>
+                  Applied to Senior Developer
+                </Text>
               </View>
               <View style={styles.cardValueSection}>
                 <Text style={styles.cardValue}>24</Text>
@@ -174,7 +175,9 @@ const DashboardScreen = () => {
             {/* Card 4: Job Matches */}
             <View style={styles.activityCard}>
               <View style={styles.cardTopSection}>
-                <View style={[styles.iconContainer, styles.iconContainerPurple]}>
+                <View
+                  style={[styles.iconContainer, styles.iconContainerPurple]}
+                >
                   <Text style={styles.cardIcon}>🎯</Text>
                 </View>
                 <Text style={styles.cardLabel}>Job Matches</Text>
@@ -423,7 +426,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5EAF1',
     justifyContent: 'space-between',
   },
-  
+
   // Card Top Section - Icon + Label
   cardTopSection: {
     flexDirection: 'row',
@@ -460,7 +463,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.1,
     lineHeight: 18,
   },
-  
+
   // Card Value Section - Main Number
   cardValueSection: {
     marginBottom: 8,
@@ -478,7 +481,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'System',
   },
-  
+
   // Card Bottom Section - Subtext
   cardBottomSection: {
     marginTop: 'auto',

@@ -12,12 +12,15 @@ const analyticsService = {
    */
   async getSeekerDashboardStats(seekerId) {
     try {
-      const { data: applications, error: appError } = await apiClient.query('applications', {
-        select: 'status',
-        filters: { seeker_id: seekerId },
-        cache: true,
-        cacheKey: `seeker_stats_${seekerId}`
-      });
+      const { data: applications, error: appError } = await apiClient.query(
+        'applications',
+        {
+          select: 'status',
+          filters: { seeker_id: seekerId },
+          cache: true,
+          cacheKey: `seeker_stats_${seekerId}`,
+        },
+      );
 
       if (appError) {
         throw appError;
@@ -27,9 +30,11 @@ const analyticsService = {
         totalApplications: applications.length,
         applied: applications.filter(app => app.status === 'applied').length,
         reviewed: applications.filter(app => app.status === 'reviewed').length,
-        shortlisted: applications.filter(app => app.status === 'shortlisted').length,
+        shortlisted: applications.filter(app => app.status === 'shortlisted')
+          .length,
         rejected: applications.filter(app => app.status === 'rejected').length,
-        withdrawn: applications.filter(app => app.status === 'withdrawn').length,
+        withdrawn: applications.filter(app => app.status === 'withdrawn')
+          .length,
       };
 
       return { data: stats, error: null };
@@ -50,7 +55,7 @@ const analyticsService = {
         select: 'id, is_active',
         filters: { company_id: companyId },
         cache: true,
-        cacheKey: `company_jobs_${companyId}`
+        cacheKey: `company_jobs_${companyId}`,
       });
 
       if (jobsError) {
@@ -63,14 +68,14 @@ const analyticsService = {
             .from('applications')
             .select('status, jobs!inner(company_id)')
             .eq('jobs.company_id', companyId);
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `company_applications_${companyId}`,
-          context: 'getCompanyDashboardStats'
-        }
+          context: 'getCompanyDashboardStats',
+        },
       );
 
       if (appError) {
@@ -82,9 +87,12 @@ const analyticsService = {
         activeJobs: jobs.filter(job => job.is_active).length,
         inactiveJobs: jobs.filter(job => !job.is_active).length,
         totalApplications: applications.length,
-        pendingApplications: applications.filter(app => app.status === 'applied').length,
+        pendingApplications: applications.filter(
+          app => app.status === 'applied',
+        ).length,
         reviewed: applications.filter(app => app.status === 'reviewed').length,
-        shortlisted: applications.filter(app => app.status === 'shortlisted').length,
+        shortlisted: applications.filter(app => app.status === 'shortlisted')
+          .length,
         rejected: applications.filter(app => app.status === 'rejected').length,
       };
 
@@ -104,12 +112,12 @@ const analyticsService = {
     try {
       const { data: jobs, error: jobsError } = await apiClient.query('jobs', {
         select: 'id, is_active, salary_min, salary_max',
-        filters: { 
-          city: city,
-          is_active: true 
+        filters: {
+          city,
+          is_active: true,
         },
         cache: true,
-        cacheKey: `market_jobs_${city}`
+        cacheKey: `market_jobs_${city}`,
       });
 
       if (jobsError) {
@@ -122,30 +130,35 @@ const analyticsService = {
             .from('applications')
             .select('status, jobs!inner(city)')
             .eq('jobs.city', city);
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `market_applications_${city}`,
-          context: 'getJobMarketStats'
-        }
+          context: 'getJobMarketStats',
+        },
       );
 
       if (appError) {
         throw appError;
       }
 
-      const avgSalary = jobs.length > 0 
-        ? jobs.reduce((sum, job) => sum + ((job.salary_min + job.salary_max) / 2), 0) / jobs.length
-        : 0;
+      const avgSalary =
+        jobs.length > 0
+          ? jobs.reduce(
+              (sum, job) => sum + (job.salary_min + job.salary_max) / 2,
+              0,
+            ) / jobs.length
+          : 0;
 
       const stats = {
         totalActiveJobs: jobs.length,
         totalApplications: applications.length,
         averageSalary: Math.round(avgSalary),
-        applicationsPerJob: jobs.length > 0 ? applications.length / jobs.length : 0,
-        city: city,
+        applicationsPerJob:
+          jobs.length > 0 ? applications.length / jobs.length : 0,
+        city,
       };
 
       return { data: stats, error: null };
@@ -165,20 +178,22 @@ const analyticsService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('job_skills')
-            .select(`
+            .select(
+              `
               skill_id,
               skills(id, name),
               jobs!inner(is_active)
-            `)
+            `,
+            )
             .eq('jobs.is_active', true);
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: 'skill_demand_stats',
-          context: 'getSkillDemandStats'
-        }
+          context: 'getSkillDemandStats',
+        },
       );
 
       if (error) {
@@ -215,20 +230,22 @@ const analyticsService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('job_categories')
-            .select(`
+            .select(
+              `
               id,
               name,
               jobs(count)
-            `)
+            `,
+            )
             .order('name');
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: 'category_stats',
-          context: 'getCategoryStats'
-        }
+          context: 'getCategoryStats',
+        },
       );
 
       if (error) {

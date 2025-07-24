@@ -25,7 +25,6 @@ import {
 } from '../../services';
 import { getStyles } from './JobBrowseScreen.styles';
 import PopularJobCard from './MyJobsScreen/PopularJobCard';
-import { popularJobs } from './MyJobsScreen/mockData';
 
 const JobBrowseScreen = () => {
   const navigation = useNavigation();
@@ -35,6 +34,7 @@ const JobBrowseScreen = () => {
 
   // State management
   const [jobs, setJobs] = useState([]);
+  const [popularJobs, setPopularJobs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -45,6 +45,7 @@ const JobBrowseScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [appliedJobs, setAppliedJobs] = useState(new Set());
   const [seekerProfile, setSeekerProfile] = useState(null);
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -86,6 +87,23 @@ const JobBrowseScreen = () => {
     }
   }, [searchQuery, selectedCity, selectedCategory]);
 
+  const loadPopularJobs = async () => {
+    try {
+      // Load recent jobs as popular jobs (limit to 3)
+      const { data: popularJobsData, error: popularJobsError } =
+        await jobService.getJobs(
+          {}, // no filters
+          { limit: 3, orderBy: { column: 'created_at', ascending: false } },
+        );
+
+      if (popularJobsData && !popularJobsError) {
+        setPopularJobs(popularJobsData);
+      }
+    } catch (error) {
+      console.error('Error loading popular jobs:', error);
+    }
+  };
+
   const loadInitialData = async () => {
     try {
       setLoading(true);
@@ -96,6 +114,9 @@ const JobBrowseScreen = () => {
       if (categoriesData && !categoriesError) {
         setCategories(categoriesData);
       }
+
+      // Load popular jobs
+      await loadPopularJobs();
 
       // Load initial jobs
       await loadJobs();
@@ -207,36 +228,19 @@ const JobBrowseScreen = () => {
     setRefreshing(false);
   };
 
-  // Helper function to format salary as monthly amount
+  // Helper function to format salary - show database value directly
   const formatSalary = salary => {
     if (!salary) {
       return 'Salary not specified';
     }
 
-    // Handle salary ranges like "₹12,00,000 – ₹18,00,000/year"
-    if (salary.includes('–') || salary.includes('-')) {
-      // Extract the first number (lower range) and convert to monthly
-      const firstNumber = salary.match(/₹([\d,]+)/);
-      if (firstNumber) {
-        const numericSalary = firstNumber[1].replace(/,/g, '');
-        const yearlySalary = parseInt(numericSalary, 10);
-        const monthlySalary = Math.round(yearlySalary / 12);
-        return `₹${monthlySalary.toLocaleString()}/month`;
-      }
-    }
-
-    // Handle single salary values
-    const numericSalary = salary.replace(/[^\d]/g, '');
-    if (!numericSalary) {
+    // If salary already has ₹ symbol, return as is
+    if (salary.includes('₹')) {
       return salary;
     }
 
-    // Assume yearly salary, convert to monthly (divide by 12)
-    const yearlySalary = parseInt(numericSalary, 10);
-    const monthlySalary = Math.round(yearlySalary / 12);
-
-    // Format with commas
-    return `₹${monthlySalary.toLocaleString()}/month`;
+    // Add ₹ symbol to the database value
+    return `₹${salary}`;
   };
 
   const renderJobCard = job => {
@@ -345,23 +349,7 @@ const JobBrowseScreen = () => {
     );
   };
 
-  const renderFilterPill = (label, value, onPress, isSelected) => (
-    <TouchableOpacity
-      key={value}
-      style={[styles.filterPill, isSelected && styles.filterPillSelected]}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <Text
-        style={[
-          styles.filterPillText,
-          isSelected && styles.filterPillTextSelected,
-        ]}
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
+  // Filter pill component moved to inline usage
 
   if (loading && jobs.length === 0) {
     return (
@@ -382,96 +370,22 @@ const JobBrowseScreen = () => {
           title="Find Jobs"
           subtitle={`Discover opportunities in ${selectedCity}`}
           rightIcon={
-            <Icon name="filter" size={20} color={theme.colors.primary.main} />
+            <TouchableOpacity onPress={() => setShowFilterModal(true)}>
+              <Icon name="filter" size={20} color={theme.colors.primary.main} />
+            </TouchableOpacity>
           }
           background="#F7F9FC"
+          centered={true}
         />
 
-        {/* Search and Filters */}
-        <View style={styles.searchSection}>
-          {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <Feather
-              name="search"
-              size={20}
-              color="#6B7280"
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search jobs..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor="#9CA3AF"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity
-                onPress={() => setSearchQuery('')}
-                style={styles.clearButton}
-              >
-                <Feather name="x" size={16} color="#6B7280" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Filter Pills */}
+        {/* Filter Pills */}
+        <View style={styles.filtersSection}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.filtersContainer}
             contentContainerStyle={styles.filtersContent}
-          >
-            {/* City Filter */}
-            {renderFilterPill(
-              'Morena',
-              'morena',
-              () => setSelectedCity('morena'),
-              selectedCity === 'morena',
-            )}
-            {renderFilterPill(
-              'Gwalior',
-              'gwalior',
-              () => setSelectedCity('gwalior'),
-              selectedCity === 'gwalior',
-            )}
-
-            {/* Category Filters */}
-            {renderFilterPill(
-              'All Categories',
-              '',
-              () => setSelectedCategory(''),
-              selectedCategory === '',
-            )}
-            {categories.map(category =>
-              renderFilterPill(
-                category.name,
-                category.id,
-                () => setSelectedCategory(category.id),
-                selectedCategory === category.id,
-              ),
-            )}
-          </ScrollView>
-        </View>
-
-        {/* Popular Jobs Section */}
-        <View style={styles.popularJobsSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Popular Jobs</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.popularJobsContainer}
-          >
-            {popularJobs.slice(0, 3).map((job, index) => (
-              <View key={job.id} style={styles.popularJobWrapper}>
-                <PopularJobCard job={job} index={index} />
-              </View>
-            ))}
-          </ScrollView>
+          />
         </View>
 
         {/* Jobs List */}
@@ -488,6 +402,25 @@ const JobBrowseScreen = () => {
           }
           showsVerticalScrollIndicator={false}
         >
+          {/* Popular Jobs Section */}
+          <View style={styles.popularJobsSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Popular Jobs</Text>
+              <TouchableOpacity>
+                <Text style={styles.seeAllText}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.popularJobsContainer}
+            >
+              {popularJobs.map((job, index) => (
+                <PopularJobCard key={job.id} job={job} index={index} />
+              ))}
+            </ScrollView>
+          </View>
+
           {jobs.length === 0 ? (
             <View style={styles.emptyState}>
               <Feather name="briefcase" size={48} color="#D1D5DB" />
@@ -501,6 +434,146 @@ const JobBrowseScreen = () => {
             jobs.map(renderJobCard)
           )}
         </ScrollView>
+
+        {/* Filter Modal */}
+        {showFilterModal && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Filters</Text>
+                <TouchableOpacity onPress={() => setShowFilterModal(false)}>
+                  <Feather name="x" size={24} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Search Section */}
+              <View style={styles.modalSearchSection}>
+                <Text style={styles.modalSectionTitle}>Search</Text>
+                <View style={styles.modalSearchContainer}>
+                  <Feather name="search" size={20} color="#6B7280" />
+                  <TextInput
+                    style={styles.modalSearchInput}
+                    placeholder="Search jobs..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholderTextColor="#9CA3AF"
+                  />
+                  {searchQuery.length > 0 && (
+                    <TouchableOpacity onPress={() => setSearchQuery('')}>
+                      <Feather name="x" size={16} color="#6B7280" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+
+              {/* City Section */}
+              <View style={styles.modalSection}>
+                <Text style={styles.modalSectionTitle}>City</Text>
+                <View style={styles.modalOptions}>
+                  <TouchableOpacity
+                    style={[
+                      styles.modalOption,
+                      selectedCity === 'morena' && styles.modalOptionSelected,
+                    ]}
+                    onPress={() => setSelectedCity('morena')}
+                  >
+                    <Text
+                      style={[
+                        styles.modalOptionText,
+                        selectedCity === 'morena' &&
+                          styles.modalOptionTextSelected,
+                      ]}
+                    >
+                      Morena
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.modalOption,
+                      selectedCity === 'gwalior' && styles.modalOptionSelected,
+                    ]}
+                    onPress={() => setSelectedCity('gwalior')}
+                  >
+                    <Text
+                      style={[
+                        styles.modalOptionText,
+                        selectedCity === 'gwalior' &&
+                          styles.modalOptionTextSelected,
+                      ]}
+                    >
+                      Gwalior
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Category Section */}
+              <View style={styles.modalSection}>
+                <Text style={styles.modalSectionTitle}>Category</Text>
+                <View style={styles.modalOptions}>
+                  <TouchableOpacity
+                    style={[
+                      styles.modalOption,
+                      selectedCategory === '' && styles.modalOptionSelected,
+                    ]}
+                    onPress={() => setSelectedCategory('')}
+                  >
+                    <Text
+                      style={[
+                        styles.modalOptionText,
+                        selectedCategory === '' &&
+                          styles.modalOptionTextSelected,
+                      ]}
+                    >
+                      All Categories
+                    </Text>
+                  </TouchableOpacity>
+                  {categories.map(category => (
+                    <TouchableOpacity
+                      key={category.id}
+                      style={[
+                        styles.modalOption,
+                        selectedCategory === category.id &&
+                          styles.modalOptionSelected,
+                      ]}
+                      onPress={() => setSelectedCategory(category.id)}
+                    >
+                      <Text
+                        style={[
+                          styles.modalOptionText,
+                          selectedCategory === category.id &&
+                            styles.modalOptionTextSelected,
+                        ]}
+                      >
+                        {category.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Action Buttons */}
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={styles.modalClearButton}
+                  onPress={() => {
+                    setSearchQuery('');
+                    setSelectedCity(userRecord?.city || 'morena');
+                    setSelectedCategory('');
+                  }}
+                >
+                  <Text style={styles.modalClearButtonText}>Clear All</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalApplyButton}
+                  onPress={() => setShowFilterModal(false)}
+                >
+                  <Text style={styles.modalApplyButtonText}>Apply Filters</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
       </Animated.View>
     </SafeAreaView>
   );

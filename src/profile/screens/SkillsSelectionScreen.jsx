@@ -17,7 +17,9 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
   const { theme } = useTheme();
   const [skills, setSkills] = useState([]);
   const [filteredSkills, setFilteredSkills] = useState([]);
-  const [selectedSkills, setSelectedSkills] = useState(route.params.selectedSkills || []);
+  const [selectedSkills, setSelectedSkills] = useState(
+    route.params.selectedSkills || [],
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [newSkillName, setNewSkillName] = useState('');
 
@@ -25,7 +27,9 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
     const fetchSkills = async () => {
       try {
         const { data, error } = await skillsService.getAllSkills();
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
         setSkills(data || []);
         setFilteredSkills(data || []);
       } catch (err) {
@@ -39,8 +43,8 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
     if (searchQuery) {
       setFilteredSkills(
         skills.filter(skill =>
-          skill.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+          skill.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
       );
     } else {
       setFilteredSkills(skills);
@@ -56,10 +60,14 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
   };
 
   const handleAddNewSkill = async () => {
-    if (!newSkillName.trim()) return;
+    if (!newSkillName.trim()) {
+      return;
+    }
     try {
       const { data, error } = await skillsService.createSkill(newSkillName);
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       const newSkill = data;
       setSkills([...skills, newSkill]);
       setSelectedSkills([...selectedSkills, newSkill]);
@@ -73,7 +81,7 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
     // Navigate back with all the form data preserved
     navigation.navigate({
       name: 'SeekerProfileSetup',
-      params: { 
+      params: {
         updatedSkills: selectedSkills,
         // Preserve all other form data
         selectedCity: route.params?.selectedCity,
@@ -101,7 +109,10 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
           onChangeText={setSearchQuery}
         />
       </View>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.skillsGrid}>
           {filteredSkills.map(skill => {
             const isSelected = selectedSkills.find(s => s.id === skill.id);
@@ -110,14 +121,16 @@ const SkillsSelectionScreen = ({ navigation, route }) => {
                 key={skill.id}
                 style={[
                   styles.skillButton,
-                  isSelected && styles.skillButtonSelected
+                  isSelected && styles.skillButtonSelected,
                 ]}
                 onPress={() => handleToggleSkill(skill)}
               >
-                <Text style={[
-                  styles.skillButtonText,
-                  isSelected && styles.skillButtonTextSelected
-                ]}>
+                <Text
+                  style={[
+                    styles.skillButtonText,
+                    isSelected && styles.skillButtonTextSelected,
+                  ]}
+                >
                   {skill.name}
                 </Text>
               </TouchableOpacity>

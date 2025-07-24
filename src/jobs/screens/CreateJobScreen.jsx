@@ -22,11 +22,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AppHeader, Icon } from '../../components/elements';
 import { getStyles } from './CreateJobScreen.styles.js';
 import { useAuth } from '../../contexts/AuthContext';
-import {
-  jobService,
-  categoriesService,
-  companyService,
-} from '../../services';
+import { jobService, categoriesService, companyService } from '../../services';
 import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 
 const CreateJobScreen = () => {
@@ -46,7 +42,7 @@ const CreateJobScreen = () => {
               text: 'OK',
               onPress: () => navigation.goBack(),
             },
-          ]
+          ],
         );
       }
     }
@@ -403,7 +399,9 @@ const CreateJobScreen = () => {
   if (isCheckingRole) {
     return (
       <SafeAreaView style={getStyles(theme).container}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
           <ActivityIndicator size="large" color={theme.colors.primary.main} />
           <Text style={{ marginTop: 16, color: theme.colors.text.primary }}>
             Checking permissions...

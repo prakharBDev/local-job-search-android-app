@@ -224,7 +224,7 @@ const ProfileSetupScreen = ({ navigation, route }) => {
         city: profileData.city?.toLowerCase(),
         profileCompleted: true,
       };
-      
+
       await updateUserRecord(updates);
 
       Alert.alert(
@@ -374,32 +374,44 @@ const ProfileSetupScreen = ({ navigation, route }) => {
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Skills</Text>
                 <View style={styles.skillsGrid}>
-                  {jobSeekerData.skills.split(',').filter(skill => skill.trim()).map((skill, index) => (
-                    <View key={index} style={styles.skillChip}>
-                      <Text style={styles.skillChipText}>{skill.trim()}</Text>
-                      <TouchableOpacity
-                        style={styles.removeSkillButton}
-                        onPress={() => {
-                          const skillsArray = jobSeekerData.skills.split(',').filter(s => s.trim() !== skill.trim());
-                          setJobSeekerData({ ...jobSeekerData, skills: skillsArray.join(', ') });
-                        }}
-                      >
-                        <Feather name="x" size={16} color="#94A3B8" />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+                  {jobSeekerData.skills
+                    .split(',')
+                    .filter(skill => skill.trim())
+                    .map((skill, index) => (
+                      <View key={index} style={styles.skillChip}>
+                        <Text style={styles.skillChipText}>{skill.trim()}</Text>
+                        <TouchableOpacity
+                          style={styles.removeSkillButton}
+                          onPress={() => {
+                            const skillsArray = jobSeekerData.skills
+                              .split(',')
+                              .filter(s => s.trim() !== skill.trim());
+                            setJobSeekerData({
+                              ...jobSeekerData,
+                              skills: skillsArray.join(', '),
+                            });
+                          }}
+                        >
+                          <Feather name="x" size={16} color="#94A3B8" />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
                 </View>
                 <Input
                   placeholder="Add a skill and press Enter"
                   value={jobSeekerData.newSkill}
-                  onChangeText={text => setJobSeekerData({ ...jobSeekerData, newSkill: text })}
+                  onChangeText={text =>
+                    setJobSeekerData({ ...jobSeekerData, newSkill: text })
+                  }
                   onSubmitEditing={() => {
                     if (jobSeekerData.newSkill.trim()) {
-                      const currentSkills = jobSeekerData.skills ? jobSeekerData.skills + ', ' : '';
-                      setJobSeekerData({ 
-                        ...jobSeekerData, 
+                      const currentSkills = jobSeekerData.skills
+                        ? `${jobSeekerData.skills}, `
+                        : '';
+                      setJobSeekerData({
+                        ...jobSeekerData,
                         skills: currentSkills + jobSeekerData.newSkill.trim(),
-                        newSkill: ''
+                        newSkill: '',
                       });
                     }
                   }}
@@ -667,9 +679,13 @@ const ProfileSetupScreen = ({ navigation, route }) => {
         >
           <AppHeader
             title="Profile Setup"
-            subtitle={`${currentMode === 'seeker' ? 'Job Seeker' : 'Job Poster'} Profile`}
+            subtitle={`${
+              currentMode === 'seeker' ? 'Job Seeker' : 'Job Poster'
+            } Profile`}
             leftIcon={<Icon name="arrow-left" size={20} color="#3B82F6" />}
-            onLeftPress={currentStep === 1 ? () => navigation.goBack() : handleBack}
+            onLeftPress={
+              currentStep === 1 ? () => navigation.goBack() : handleBack
+            }
             background="#F8FAFC"
           />
         </Animated.View>

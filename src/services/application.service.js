@@ -16,14 +16,17 @@ const applicationService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('applications')
-            .insert([{
-              ...applicationData,
-              status: 'applied', // Default status
-              applied_at: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            }])
-            .select(`
+            .insert([
+              {
+                ...applicationData,
+                status: 'applied', // Default status
+                applied_at: new Date().toISOString(),
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+            ])
+            .select(
+              `
               *,
               jobs(
                 id,
@@ -41,16 +44,16 @@ const applicationService = {
                 experience_level,
                 users(name, email)
               )
-            `)
-            .single();
-          
+            `,
+            );
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'applyForJob'
-        }
+          context: 'applyForJob',
+        },
       );
 
       if (error) {
@@ -80,7 +83,7 @@ const applicationService = {
       const { data, error } = await buildApplicationQuery({
         filters: {
           seeker_id: seekerId,
-          ...(status && { status })
+          ...(status && { status }),
         },
         includeJob: true,
         includeSeeker: false,
@@ -88,7 +91,7 @@ const applicationService = {
         includeCategory: true,
         orderBy: { column: 'created_at', ascending: false },
         cache: true,
-        cacheKey: `applications_seeker_${seekerId}_${status || 'all'}`
+        cacheKey: `applications_seeker_${seekerId}_${status || 'all'}`,
       });
 
       if (error) {
@@ -113,7 +116,7 @@ const applicationService = {
       const { data, error } = await buildApplicationQuery({
         filters: {
           job_id: jobId,
-          ...(status && { status })
+          ...(status && { status }),
         },
         includeJob: false,
         includeSeeker: true,
@@ -121,7 +124,7 @@ const applicationService = {
         includeCategory: false,
         orderBy: { column: 'created_at', ascending: false },
         cache: true,
-        cacheKey: `applications_job_${jobId}_${status || 'all'}`
+        cacheKey: `applications_job_${jobId}_${status || 'all'}`,
       });
 
       if (error) {
@@ -149,7 +152,7 @@ const applicationService = {
         includeCompany: true,
         includeCategory: true,
         cache: true,
-        cacheKey: `application_${applicationId}`
+        cacheKey: `application_${applicationId}`,
       });
 
       if (error) {
@@ -184,14 +187,14 @@ const applicationService = {
             .eq('id', applicationId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'updateApplicationStatus'
-        }
+          context: 'updateApplicationStatus',
+        },
       );
 
       if (error) {
@@ -227,11 +230,11 @@ const applicationService = {
         select: 'id',
         filters: {
           seeker_id: seekerId,
-          job_id: jobId
+          job_id: jobId,
         },
         limit: 1,
         cache: true,
-        cacheKey: `has_applied_${seekerId}_${jobId}`
+        cacheKey: `has_applied_${seekerId}_${jobId}`,
       });
 
       if (error) {
@@ -263,14 +266,14 @@ const applicationService = {
             .eq('id', applicationId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'withdrawApplication'
-        }
+          context: 'withdrawApplication',
+        },
       );
 
       if (error) {
@@ -306,7 +309,8 @@ const applicationService = {
         async () => {
           let query = apiClient.supabase
             .from('applications')
-            .select(`
+            .select(
+              `
               *,
               jobs(
                 id,
@@ -321,7 +325,8 @@ const applicationService = {
                 expected_salary,
                 users(name, email, city)
               )
-            `)
+            `,
+            )
             .eq('jobs.company_id', companyId)
             .order('created_at', { ascending: false });
 
@@ -339,11 +344,13 @@ const applicationService = {
           const { data, error } = await query;
           return { data, error };
         },
-        { 
+        {
           cache: true,
-          cacheKey: `applications_company_${companyId}_${JSON.stringify(filters)}`,
-          context: 'getCompanyApplications'
-        }
+          cacheKey: `applications_company_${companyId}_${JSON.stringify(
+            filters,
+          )}`,
+          context: 'getCompanyApplications',
+        },
       );
 
       if (error) {
@@ -370,14 +377,14 @@ const applicationService = {
             .from('applications')
             .select('status')
             .eq('job_id', jobId);
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `job_stats_${jobId}`,
-          context: 'getJobApplicationStats'
-        }
+          context: 'getJobApplicationStats',
+        },
       );
 
       if (error) {
@@ -414,14 +421,14 @@ const applicationService = {
             .from('applications')
             .select('status, created_at')
             .eq('seeker_id', seekerId);
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `seeker_stats_${seekerId}`,
-          context: 'getSeekerApplicationStats'
-        }
+          context: 'getSeekerApplicationStats',
+        },
       );
 
       if (error) {
@@ -439,7 +446,8 @@ const applicationService = {
         shortlisted: data.filter(app => app.status === 'shortlisted').length,
         rejected: data.filter(app => app.status === 'rejected').length,
         withdrawn: data.filter(app => app.status === 'withdrawn').length,
-        recent: data.filter(app => new Date(app.created_at) >= thirtyDaysAgo).length,
+        recent: data.filter(app => new Date(app.created_at) >= thirtyDaysAgo)
+          .length,
       };
 
       return { data: stats, error: null };
@@ -461,7 +469,8 @@ const applicationService = {
         async () => {
           let query = apiClient.supabase
             .from('applications')
-            .select(`
+            .select(
+              `
               *,
               jobs(
                 id,
@@ -472,7 +481,8 @@ const applicationService = {
               seeker_profiles(
                 users(name)
               )
-            `)
+            `,
+            )
             .order('created_at', { ascending: false })
             .limit(limit);
 
@@ -483,11 +493,11 @@ const applicationService = {
           const { data, error } = await query;
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `recent_applications_${limit}_${city || 'all'}`,
-          context: 'getRecentApplications'
-        }
+          context: 'getRecentApplications',
+        },
       );
 
       if (error) {
@@ -516,14 +526,14 @@ const applicationService = {
             .eq('id', applicationId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'deleteApplication'
-        }
+          context: 'deleteApplication',
+        },
       );
 
       if (error) {

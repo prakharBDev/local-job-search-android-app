@@ -15,7 +15,7 @@ const skillsService = {
         select: '*',
         orderBy: { column: 'name', ascending: true },
         cache: true,
-        cacheKey: 'all_skills'
+        cacheKey: 'all_skills',
       });
 
       if (error) {
@@ -39,19 +39,21 @@ const skillsService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('skills')
-            .insert([{ 
-              name: name.trim(),
-              created_at: new Date().toISOString(),
-            }])
+            .insert([
+              {
+                name: name.trim(),
+                created_at: new Date().toISOString(),
+              },
+            ])
             .select();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'createSkill'
-        }
+          context: 'createSkill',
+        },
       );
 
       if (error) {
@@ -84,14 +86,14 @@ const skillsService = {
             .ilike('name', `%${searchTerm}%`)
             .order('name')
             .limit(20);
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: `search_skills_${searchTerm}`,
-          context: 'searchSkills'
-        }
+          context: 'searchSkills',
+        },
       );
 
       if (error) {
@@ -116,7 +118,7 @@ const skillsService = {
         filters: { id: skillId },
         limit: 1,
         cache: true,
-        cacheKey: `skill_${skillId}`
+        cacheKey: `skill_${skillId}`,
       });
 
       if (error) {
@@ -148,14 +150,14 @@ const skillsService = {
             .eq('id', skillId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'updateSkill'
-        }
+          context: 'updateSkill',
+        },
       );
 
       if (error) {
@@ -187,14 +189,14 @@ const skillsService = {
             .from('skills')
             .delete()
             .eq('id', skillId);
-          
+
           return { error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'deleteSkill'
-        }
+          context: 'deleteSkill',
+        },
       );
 
       if (error) {

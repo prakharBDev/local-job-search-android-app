@@ -11,9 +11,7 @@ const ProfileRoleSelector = React.memo(({ selectedRole, onRoleChange }) => {
 
   return (
     <View style={styles.inputGroup}>
-      <Text style={styles.label}>
-        Role
-      </Text>
+      <Text style={styles.label}>Role</Text>
       <View style={styles.roleContainer}>
         {PROFILE_ROLES.map(role => (
           <TouchableOpacity

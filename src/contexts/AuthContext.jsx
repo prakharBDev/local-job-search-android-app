@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  useMemo,
+  useEffect,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../utils/supabase';
 import { onboardingService } from '../services';
@@ -41,39 +48,39 @@ const authReducer = (state, action) => {
   switch (action.type) {
     case AUTH_ACTIONS.SET_LOADING:
       return { ...state, isLoading: action.payload };
-    
+
     case AUTH_ACTIONS.SET_USER:
-      return { 
-        ...state, 
+      return {
+        ...state,
         user: action.payload.user,
         userRecord: action.payload.userRecord,
-        isAuthenticated: !!action.payload.user 
+        isAuthenticated: !!action.payload.user,
       };
-    
+
     case AUTH_ACTIONS.SET_SESSION:
       return { ...state, session: action.payload };
-    
+
     case AUTH_ACTIONS.SET_ERROR:
       return { ...state, error: action.payload, isLoading: false };
-    
+
     case AUTH_ACTIONS.CLEAR_ERROR:
       return { ...state, error: null };
-    
+
     case AUTH_ACTIONS.SET_ONBOARDING_STATUS:
-      return { 
-        ...state, 
+      return {
+        ...state,
         needsCitySelection: action.payload.needsCitySelection,
         needsProfileSetup: action.payload.needsProfileSetup,
         needsRoleSelection: action.payload.needsRoleSelection,
-        userRoles: action.payload.userRoles || []
+        userRoles: action.payload.userRoles || [],
       };
-    
+
     case AUTH_ACTIONS.LOGOUT:
-      return { 
-        ...initialState, 
-        isLoading: false 
+      return {
+        ...initialState,
+        isLoading: false,
       };
-    
+
     default:
       return state;
   }
@@ -121,17 +128,17 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
-      
+
       // Clear AsyncStorage
       await AsyncStorage.multiRemove([
         'user_session',
         'user_data',
         'onboarding_status',
       ]);
-      
+
       // Sign out from Supabase
       await supabase.auth.signOut();
-      
+
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     } catch (error) {
       console.error('Logout error:', error);
@@ -142,53 +149,56 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Add updateUserRecord function
-  const updateUserRecord = useCallback(async (updates) => {
-    try {
-      if (!state.user?.id) {
-        throw new Error('No user found');
-      }
-
-      // Update user metadata in Supabase
-      const { data, error } = await supabase.auth.updateUser({
-        data: updates
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      // Update local state
-      dispatch({
-        type: AUTH_ACTIONS.SET_USER,
-        payload: {
-          user: data.user,
-          userRecord: { ...state.userRecord, ...updates }
+  const updateUserRecord = useCallback(
+    async updates => {
+      try {
+        if (!state.user?.id) {
+          throw new Error('No user found');
         }
-      });
 
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error updating user record:', error);
-      return { data: null, error };
-    }
-  }, [state.user?.id, state.userRecord]);
+        // Update user metadata in Supabase
+        const { data, error } = await supabase.auth.updateUser({
+          data: updates,
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        // Update local state
+        dispatch({
+          type: AUTH_ACTIONS.SET_USER,
+          payload: {
+            user: data.user,
+            userRecord: { ...state.userRecord, ...updates },
+          },
+        });
+
+        return { data, error: null };
+      } catch (error) {
+        console.error('Error updating user record:', error);
+        return { data: null, error };
+      }
+    },
+    [state.user?.id, state.userRecord],
+  );
 
   // Memoize the updateUserProfile function
-  const updateUserProfile = useCallback(async (profileData) => {
+  const updateUserProfile = useCallback(async profileData => {
     try {
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
       const { data, error } = await supabase.auth.updateUser(profileData);
-      
+
       if (error) {
         dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
         return { error: error.message };
       }
 
       if (data.user) {
-        dispatch({ 
-          type: AUTH_ACTIONS.SET_USER, 
-          payload: { user: data.user, userRecord: data.user } 
+        dispatch({
+          type: AUTH_ACTIONS.SET_USER,
+          payload: { user: data.user, userRecord: data.user },
         });
       }
 
@@ -210,28 +220,32 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error) {
         dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
         return;
       }
 
       if (session?.user) {
-        dispatch({ 
-          type: AUTH_ACTIONS.SET_USER, 
-          payload: { user: session.user, userRecord: session.user } 
+        dispatch({
+          type: AUTH_ACTIONS.SET_USER,
+          payload: { user: session.user, userRecord: session.user },
         });
         dispatch({ type: AUTH_ACTIONS.SET_SESSION, payload: session });
 
         // Check onboarding status
         try {
-          const { status: onboardingStatus, error: onboardingError } = await onboardingService.getOnboardingStatus(session.user.id);
-          
+          const { status: onboardingStatus, error: onboardingError } =
+            await onboardingService.getOnboardingStatus(session.user.id);
+
           if (onboardingError) {
             throw onboardingError;
           }
-          
+
           dispatch({
             type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
             payload: {
@@ -265,49 +279,50 @@ export const AuthProvider = ({ children }) => {
 
   // Set up auth state listener
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-          dispatch({ 
-            type: AUTH_ACTIONS.SET_USER, 
-            payload: { user: session.user, userRecord: session.user } 
-          });
-          dispatch({ type: AUTH_ACTIONS.SET_SESSION, payload: session });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        dispatch({
+          type: AUTH_ACTIONS.SET_USER,
+          payload: { user: session.user, userRecord: session.user },
+        });
+        dispatch({ type: AUTH_ACTIONS.SET_SESSION, payload: session });
 
-          // Check onboarding status for new sign-ins
-          try {
-            const { status: onboardingStatus, error: onboardingError } = await onboardingService.getOnboardingStatus(session.user.id);
-            
-            if (onboardingError) {
-              throw onboardingError;
-            }
-            
-            dispatch({
-              type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
-              payload: {
-                needsCitySelection: onboardingStatus.needsCitySelection,
-                needsProfileSetup: onboardingStatus.needsProfileSetup,
-                needsRoleSelection: onboardingStatus.needsRoleSelection,
-                userRoles: onboardingStatus.userRoles || [],
-              },
-            });
-          } catch (onboardingError) {
-            console.warn('Failed to get onboarding status:', onboardingError);
-            dispatch({
-              type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
-              payload: {
-                needsCitySelection: true,
-                needsProfileSetup: true,
-                needsRoleSelection: true,
-                userRoles: [],
-              },
-            });
+        // Check onboarding status for new sign-ins
+        try {
+          const { status: onboardingStatus, error: onboardingError } =
+            await onboardingService.getOnboardingStatus(session.user.id);
+
+          if (onboardingError) {
+            throw onboardingError;
           }
-        } else if (event === 'SIGNED_OUT') {
-          dispatch({ type: AUTH_ACTIONS.LOGOUT });
+
+          dispatch({
+            type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
+            payload: {
+              needsCitySelection: onboardingStatus.needsCitySelection,
+              needsProfileSetup: onboardingStatus.needsProfileSetup,
+              needsRoleSelection: onboardingStatus.needsRoleSelection,
+              userRoles: onboardingStatus.userRoles || [],
+            },
+          });
+        } catch (onboardingError) {
+          console.warn('Failed to get onboarding status:', onboardingError);
+          dispatch({
+            type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
+            payload: {
+              needsCitySelection: true,
+              needsProfileSetup: true,
+              needsRoleSelection: true,
+              userRoles: [],
+            },
+          });
         }
+      } else if (event === 'SIGNED_OUT') {
+        dispatch({ type: AUTH_ACTIONS.LOGOUT });
       }
-    );
+    });
 
     // Initial auth check
     checkAuthStatus();
@@ -316,31 +331,32 @@ export const AuthProvider = ({ children }) => {
   }, [checkAuthStatus]);
 
   // Memoize the context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
-    // State
-    ...state,
-    
-    // Actions
-    signInWithGoogle,
-    logout,
-    updateUserRecord,
-    updateUserProfile,
-    clearError,
-    checkAuthStatus,
-  }), [
-    state,
-    signInWithGoogle,
-    logout,
-    updateUserRecord,
-    updateUserProfile,
-    clearError,
-    checkAuthStatus,
-  ]);
+  const contextValue = useMemo(
+    () => ({
+      // State
+      ...state,
+
+      // Actions
+      signInWithGoogle,
+      logout,
+      updateUserRecord,
+      updateUserProfile,
+      clearError,
+      checkAuthStatus,
+    }),
+    [
+      state,
+      signInWithGoogle,
+      logout,
+      updateUserRecord,
+      updateUserProfile,
+      clearError,
+      checkAuthStatus,
+    ],
+  );
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
@@ -374,4 +390,4 @@ export const useUser = () => {
   return { user, userRecord };
 };
 
-export default AuthContext; 
+export default AuthContext;

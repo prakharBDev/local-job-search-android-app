@@ -20,37 +20,40 @@ export const ERROR_MESSAGES = {
   // Authentication errors
   AUTH_INVALID_CREDENTIALS: 'Invalid email or password. Please try again.',
   AUTH_USER_NOT_FOUND: 'User not found. Please check your credentials.',
-  AUTH_EMAIL_NOT_CONFIRMED: 'Please verify your email address before signing in.',
+  AUTH_EMAIL_NOT_CONFIRMED:
+    'Please verify your email address before signing in.',
   AUTH_TOO_MANY_REQUESTS: 'Too many login attempts. Please try again later.',
-  AUTH_WEAK_PASSWORD: 'Password is too weak. Please choose a stronger password.',
-  
+  AUTH_WEAK_PASSWORD:
+    'Password is too weak. Please choose a stronger password.',
+
   // Network errors
-  NETWORK_ERROR: 'Network connection error. Please check your internet connection.',
+  NETWORK_ERROR:
+    'Network connection error. Please check your internet connection.',
   NETWORK_TIMEOUT: 'Request timed out. Please try again.',
   NETWORK_OFFLINE: 'You appear to be offline. Please check your connection.',
-  
+
   // Database errors
   DB_CONSTRAINT_VIOLATION: 'This information conflicts with existing data.',
   DB_FOREIGN_KEY_VIOLATION: 'Related data not found.',
   DB_UNIQUE_VIOLATION: 'This information already exists.',
   DB_NOT_NULL_VIOLATION: 'Required information is missing.',
-  
+
   // Permission errors
-  PERMISSION_DENIED: 'You don\'t have permission to perform this action.',
+  PERMISSION_DENIED: "You don't have permission to perform this action.",
   UNAUTHORIZED: 'Please sign in to continue.',
   FORBIDDEN: 'Access denied.',
-  
+
   // Validation errors
   VALIDATION_ERROR: 'Please check your input and try again.',
   INVALID_EMAIL: 'Please enter a valid email address.',
   INVALID_PHONE: 'Please enter a valid phone number.',
   INVALID_FORMAT: 'Please check the format of your input.',
-  
+
   // File upload errors
   FILE_TOO_LARGE: 'File is too large. Please choose a smaller file.',
   INVALID_FILE_TYPE: 'File type not supported. Please choose a different file.',
   UPLOAD_FAILED: 'File upload failed. Please try again.',
-  
+
   // Generic errors
   UNKNOWN_ERROR: 'Something went wrong. Please try again.',
   SERVER_ERROR: 'Server error. Please try again later.',
@@ -61,16 +64,16 @@ export const ERROR_MESSAGES = {
  * Map Supabase error codes to user-friendly messages
  */
 export const SUPABASE_ERROR_MAP = {
-  'PGRST116': ERROR_MESSAGES.AUTH_USER_NOT_FOUND,
-  'PGRST301': ERROR_MESSAGES.DB_CONSTRAINT_VIOLATION,
-  'PGRST302': ERROR_MESSAGES.DB_FOREIGN_KEY_VIOLATION,
-  'PGRST303': ERROR_MESSAGES.DB_UNIQUE_VIOLATION,
-  'PGRST304': ERROR_MESSAGES.DB_NOT_NULL_VIOLATION,
-  'PGRST401': ERROR_MESSAGES.UNAUTHORIZED,
-  'PGRST403': ERROR_MESSAGES.FORBIDDEN,
-  'PGRST404': ERROR_MESSAGES.AUTH_USER_NOT_FOUND,
-  'PGRST422': ERROR_MESSAGES.VALIDATION_ERROR,
-  'PGRST500': ERROR_MESSAGES.SERVER_ERROR,
+  PGRST116: ERROR_MESSAGES.AUTH_USER_NOT_FOUND,
+  PGRST301: ERROR_MESSAGES.DB_CONSTRAINT_VIOLATION,
+  PGRST302: ERROR_MESSAGES.DB_FOREIGN_KEY_VIOLATION,
+  PGRST303: ERROR_MESSAGES.DB_UNIQUE_VIOLATION,
+  PGRST304: ERROR_MESSAGES.DB_NOT_NULL_VIOLATION,
+  PGRST401: ERROR_MESSAGES.UNAUTHORIZED,
+  PGRST403: ERROR_MESSAGES.FORBIDDEN,
+  PGRST404: ERROR_MESSAGES.AUTH_USER_NOT_FOUND,
+  PGRST422: ERROR_MESSAGES.VALIDATION_ERROR,
+  PGRST500: ERROR_MESSAGES.SERVER_ERROR,
 };
 
 /**
@@ -106,29 +109,21 @@ export const handleApiError = (error, context = '') => {
   // Check for specific error patterns
   else if (message.includes('network') || message.includes('fetch')) {
     userMessage = ERROR_MESSAGES.NETWORK_ERROR;
-  }
-  else if (message.includes('timeout')) {
+  } else if (message.includes('timeout')) {
     userMessage = ERROR_MESSAGES.NETWORK_TIMEOUT;
-  }
-  else if (message.includes('authentication') || message.includes('auth')) {
+  } else if (message.includes('authentication') || message.includes('auth')) {
     userMessage = ERROR_MESSAGES.AUTH_INVALID_CREDENTIALS;
-  }
-  else if (message.includes('validation')) {
+  } else if (message.includes('validation')) {
     userMessage = ERROR_MESSAGES.VALIDATION_ERROR;
-  }
-  else if (message.includes('permission') || message.includes('forbidden')) {
+  } else if (message.includes('permission') || message.includes('forbidden')) {
     userMessage = ERROR_MESSAGES.PERMISSION_DENIED;
-  }
-  else if (message.includes('unique') || message.includes('duplicate')) {
+  } else if (message.includes('unique') || message.includes('duplicate')) {
     userMessage = ERROR_MESSAGES.DB_UNIQUE_VIOLATION;
-  }
-  else if (message.includes('constraint')) {
+  } else if (message.includes('constraint')) {
     userMessage = ERROR_MESSAGES.DB_CONSTRAINT_VIOLATION;
-  }
-  else if (message.includes('foreign key')) {
+  } else if (message.includes('foreign key')) {
     userMessage = ERROR_MESSAGES.DB_FOREIGN_KEY_VIOLATION;
-  }
-  else if (message.includes('not null')) {
+  } else if (message.includes('not null')) {
     userMessage = ERROR_MESSAGES.DB_NOT_NULL_VIOLATION;
   }
 
@@ -140,7 +135,7 @@ export const handleApiError = (error, context = '') => {
  * @param {Error} error - Error to check
  * @returns {boolean} Whether error should be retried
  */
-export const isRetryableError = (error) => {
+export const isRetryableError = error => {
   const nonRetryableCodes = [400, 401, 403, 404, 422];
   const nonRetryableMessages = [
     'validation',
@@ -149,7 +144,7 @@ export const isRetryableError = (error) => {
     'unique',
     'constraint',
     'not null',
-    'foreign key'
+    'foreign key',
   ];
 
   // Check error code
@@ -167,7 +162,7 @@ export const isRetryableError = (error) => {
  * @param {Error} error - Error to analyze
  * @returns {string} Severity level ('low', 'medium', 'high', 'critical')
  */
-export const getErrorSeverity = (error) => {
+export const getErrorSeverity = error => {
   const criticalCodes = [500, 502, 503, 504];
   const highCodes = [401, 403, 404];
   const mediumCodes = [400, 422];
@@ -214,4 +209,4 @@ export const logError = (error, context = '') => {
     default:
       console.log('ℹ️ LOW SEVERITY ERROR:', logData);
   }
-}; 
+};

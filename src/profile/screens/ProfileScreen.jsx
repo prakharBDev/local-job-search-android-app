@@ -67,33 +67,46 @@ const ProfileScreen = ({ navigation }) => {
     React.useCallback(() => {
       // Removed checkAuthStatus() as it was causing navigation reset
       loadProfileData();
-    }, [user?.id, currentMode])
+    }, [user?.id, currentMode]),
   );
 
   // Get display name with proper fallback chain
   const getDisplayName = () => {
-    if (profileData?.name) return profileData.name;
-    if (profileData?.full_name) return profileData.full_name;
-    if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
-    if (user?.email) return user.email.split('@')[0];
+    if (profileData?.name) {
+      return profileData.name;
+    }
+    if (profileData?.full_name) {
+      return profileData.full_name;
+    }
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
     return 'User';
   };
 
   // Get skills from profile data
   const getSkills = () => {
     // Check for nested seeker_skills structure
-    if (profileData?.seeker_skills && Array.isArray(profileData.seeker_skills)) {
-      const skills = profileData.seeker_skills.map(skillObj => {
-        // Handle both direct skill objects and nested skill objects
-        if (skillObj.skills && skillObj.skills.name) {
-          return skillObj.skills.name;
-        }
-        if (skillObj.name) {
-          return skillObj.name;
-        }
-        return null;
-      }).filter(Boolean);
-      
+    if (
+      profileData?.seeker_skills &&
+      Array.isArray(profileData.seeker_skills)
+    ) {
+      const skills = profileData.seeker_skills
+        .map(skillObj => {
+          // Handle both direct skill objects and nested skill objects
+          if (skillObj.skills && skillObj.skills.name) {
+            return skillObj.skills.name;
+          }
+          if (skillObj.name) {
+            return skillObj.name;
+          }
+          return null;
+        })
+        .filter(Boolean);
+
       return skills;
     }
     // Fallback to direct skills array
@@ -101,27 +114,23 @@ const ProfileScreen = ({ navigation }) => {
       const skills = profileData.skills.map(skill => skill.name || skill);
       return skills;
     }
-    
+
     return [];
   };
 
   // Render skills as buttons
   const renderSkills = () => {
     const skills = getSkills();
-    
+
     if (skills.length === 0) {
-      return (
-        <Text style={styles.noSkillsText}>No skills added yet</Text>
-      );
+      return <Text style={styles.noSkillsText}>No skills added yet</Text>;
     }
 
     return (
       <View style={styles.skillsGrid}>
         {skills.map((skill, index) => (
           <View key={index} style={styles.skillButton}>
-            <Text style={styles.skillButtonText}>
-              {skill}
-            </Text>
+            <Text style={styles.skillButtonText}>{skill}</Text>
           </View>
         ))}
       </View>
@@ -130,12 +139,20 @@ const ProfileScreen = ({ navigation }) => {
 
   // Get experience level from profile data
   const getExperienceLevel = () => {
-    if (profileData?.experience_level) return profileData.experience_level;
+    if (profileData?.experience_level) {
+      return profileData.experience_level;
+    }
     if (profileData?.years_of_experience) {
       const years = profileData.years_of_experience;
-      if (years <= 1) return 'Fresher (0-1 years)';
-      if (years <= 3) return 'Junior (1-3 years)';
-      if (years <= 5) return 'Mid-level (3-5 years)';
+      if (years <= 1) {
+        return 'Fresher (0-1 years)';
+      }
+      if (years <= 3) {
+        return 'Junior (1-3 years)';
+      }
+      if (years <= 5) {
+        return 'Mid-level (3-5 years)';
+      }
       return 'Senior (5+ years)';
     }
     return 'Not specified';
@@ -165,21 +182,30 @@ const ProfileScreen = ({ navigation }) => {
 
   // Get percentage values from profile data
   const getTenthPercentage = () => {
-    if (profileData?.tenth_percentage !== null && profileData?.tenth_percentage !== undefined) {
+    if (
+      profileData?.tenth_percentage !== null &&
+      profileData?.tenth_percentage !== undefined
+    ) {
       return `${profileData.tenth_percentage}%`;
     }
     return 'Not specified';
   };
 
   const getTwelfthPercentage = () => {
-    if (profileData?.twelfth_percentage !== null && profileData?.twelfth_percentage !== undefined) {
+    if (
+      profileData?.twelfth_percentage !== null &&
+      profileData?.twelfth_percentage !== undefined
+    ) {
       return `${profileData.twelfth_percentage}%`;
     }
     return 'Not specified';
   };
 
   const getGraduationPercentage = () => {
-    if (profileData?.graduation_percentage !== null && profileData?.graduation_percentage !== undefined) {
+    if (
+      profileData?.graduation_percentage !== null &&
+      profileData?.graduation_percentage !== undefined
+    ) {
       return `${profileData.graduation_percentage}%`;
     }
     return 'Not specified';
@@ -187,47 +213,48 @@ const ProfileScreen = ({ navigation }) => {
 
   // Check if percentage data exists to show/hide sections
   const hasPercentageData = () => {
-    return profileData?.tenth_percentage !== null && profileData?.tenth_percentage !== undefined ||
-           profileData?.twelfth_percentage !== null && profileData?.twelfth_percentage !== undefined ||
-           profileData?.graduation_percentage !== null && profileData?.graduation_percentage !== undefined;
+    return (
+      (profileData?.tenth_percentage !== null &&
+        profileData?.tenth_percentage !== undefined) ||
+      (profileData?.twelfth_percentage !== null &&
+        profileData?.twelfth_percentage !== undefined) ||
+      (profileData?.graduation_percentage !== null &&
+        profileData?.graduation_percentage !== undefined)
+    );
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Confirm Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
+    Alert.alert('Confirm Logout', 'Are you sure you want to logout?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            setIsLoggingOut(true);
+            await logout();
+
+            // Reset navigation to ensure clean state
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Auth' }],
+            });
+          } catch (error) {
+            console.error('Logout error:', error);
+            Alert.alert(
+              'Logout Failed',
+              'There was an error logging out. Please try again.',
+              [{ text: 'OK' }],
+            );
+          } finally {
+            setIsLoggingOut(false);
+          }
         },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setIsLoggingOut(true);
-              await logout();
-              
-              // Reset navigation to ensure clean state
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Auth' }],
-              });
-            } catch (error) {
-              console.error('Logout error:', error);
-              Alert.alert(
-                'Logout Failed',
-                'There was an error logging out. Please try again.',
-                [{ text: 'OK' }]
-              );
-            } finally {
-              setIsLoggingOut(false);
-            }
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleSettings = () => {
@@ -252,7 +279,7 @@ const ProfileScreen = ({ navigation }) => {
 
   const handleModeSwitch = async () => {
     const newMode = currentMode === 'seeker' ? 'poster' : 'seeker';
-    
+
     Alert.alert(
       'Switch User Mode',
       `Are you sure you want to switch to ${
@@ -268,8 +295,10 @@ const ProfileScreen = ({ navigation }) => {
           onPress: async () => {
             await toggleMode();
             // Check if profile exists for the new mode
-            const { data: seekerProfile } = await seekerService.getSeekerProfile(user.id);
-            const { data: companyProfile } = await companyService.getCompanyProfile(user.id);
+            const { data: seekerProfile } =
+              await seekerService.getSeekerProfile(user.id);
+            const { data: companyProfile } =
+              await companyService.getCompanyProfile(user.id);
 
             if (newMode === 'seeker' && !seekerProfile) {
               navigation.navigate('SeekerProfileSetup');
@@ -286,20 +315,28 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.background.secondary} />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={theme.colors.background.secondary}
+      />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh.current} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh.current}
+          />
         }
       >
         {/* App Header */}
         <AppHeader
           title="Profile"
           subtitle="Manage your account & preferences"
-          rightIcon={<Icon name="settings" size={20} color={theme.colors.primary.main} />}
+          rightIcon={
+            <Icon name="settings" size={20} color={theme.colors.primary.main} />
+          }
           onRightPress={handleSettings}
           background={theme.colors.background.secondary}
         />
@@ -313,9 +350,7 @@ const ProfileScreen = ({ navigation }) => {
               </Text>
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.userName}>
-                {getDisplayName()}
-              </Text>
+              <Text style={styles.userName}>{getDisplayName()}</Text>
               <View style={styles.modeContainer}>
                 <View style={styles.modeBadge}>
                   <Text style={styles.modeText}>
@@ -338,7 +373,7 @@ const ProfileScreen = ({ navigation }) => {
         {/* Contact Information Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
-          
+
           {/* Email Section */}
           <View style={styles.detailCard}>
             <View style={styles.detailHeader}>
@@ -356,9 +391,7 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.detailIcon}>📞</Text>
               <Text style={styles.detailTitle}>Phone Number</Text>
             </View>
-            <Text style={styles.detailValue}>
-              {getPhoneNumber()}
-            </Text>
+            <Text style={styles.detailValue}>{getPhoneNumber()}</Text>
           </View>
 
           {/* City Section */}
@@ -367,9 +400,7 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.detailIcon}>📍</Text>
               <Text style={styles.detailTitle}>City</Text>
             </View>
-            <Text style={styles.detailValue}>
-              {getCity()}
-            </Text>
+            <Text style={styles.detailValue}>{getCity()}</Text>
           </View>
         </View>
 
@@ -377,7 +408,7 @@ const ProfileScreen = ({ navigation }) => {
         {currentMode === 'seeker' && profileData && (
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>Profile Details</Text>
-            
+
             {/* Skills Section */}
             <View style={styles.detailCard}>
               <View style={styles.detailHeader}>
@@ -402,10 +433,13 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.detailTitle}>Experience Level</Text>
               </View>
               <View style={styles.experienceContainer}>
-                <Text style={[
-                  styles.detailValue, 
-                  getExperienceLevel() !== 'Not specified' && styles.experienceValue
-                ]}>
+                <Text
+                  style={[
+                    styles.detailValue,
+                    getExperienceLevel() !== 'Not specified' &&
+                      styles.experienceValue,
+                  ]}
+                >
                   {getExperienceLevel()}
                 </Text>
                 {getExperienceLevel() !== 'Not specified' && (
@@ -423,10 +457,13 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.detailTitle}>10th Standard</Text>
               </View>
               <View style={styles.percentageContainer}>
-                <Text style={[
-                  styles.detailValue, 
-                  getTenthPercentage() !== 'Not specified' && styles.percentageValue
-                ]}>
+                <Text
+                  style={[
+                    styles.detailValue,
+                    getTenthPercentage() !== 'Not specified' &&
+                      styles.percentageValue,
+                  ]}
+                >
                   {getTenthPercentage()}
                 </Text>
                 {getTenthPercentage() !== 'Not specified' && (
@@ -444,10 +481,13 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.detailTitle}>12th Standard</Text>
               </View>
               <View style={styles.percentageContainer}>
-                <Text style={[
-                  styles.detailValue, 
-                  getTwelfthPercentage() !== 'Not specified' && styles.percentageValue
-                ]}>
+                <Text
+                  style={[
+                    styles.detailValue,
+                    getTwelfthPercentage() !== 'Not specified' &&
+                      styles.percentageValue,
+                  ]}
+                >
                   {getTwelfthPercentage()}
                 </Text>
                 {getTwelfthPercentage() !== 'Not specified' && (
@@ -465,10 +505,13 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.detailTitle}>Graduation</Text>
               </View>
               <View style={styles.percentageContainer}>
-                <Text style={[
-                  styles.detailValue, 
-                  getGraduationPercentage() !== 'Not specified' && styles.percentageValue
-                ]}>
+                <Text
+                  style={[
+                    styles.detailValue,
+                    getGraduationPercentage() !== 'Not specified' &&
+                      styles.percentageValue,
+                  ]}
+                >
                   {getGraduationPercentage()}
                 </Text>
                 {getGraduationPercentage() !== 'Not specified' && (
@@ -704,11 +747,8 @@ const ProfileScreen = ({ navigation }) => {
 
         {/* Logout Button */}
         <View style={styles.logoutContainer}>
-          <TouchableOpacity 
-            style={[
-              styles.logoutButton,
-              isLoggingOut && { opacity: 0.6 }
-            ]} 
+          <TouchableOpacity
+            style={[styles.logoutButton, isLoggingOut && { opacity: 0.6 }]}
             onPress={handleLogout}
             disabled={isLoggingOut}
           >

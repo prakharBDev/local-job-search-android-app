@@ -96,13 +96,13 @@ export const UserProvider = ({ children }) => {
       }
 
       await AsyncStorage.setItem(USER_MODE_STORAGE_KEY, mode);
-      
+
       // Refresh user data to get the latest profile status
-      await checkAuthStatus(); 
+      await checkAuthStatus();
 
       dispatch({ type: 'SET_MODE_SUCCESS', payload: mode });
     } catch (error) {
-      console.error("Failed to switch mode:", error);
+      console.error('Failed to switch mode:', error);
       dispatch({
         type: 'SET_MODE_ERROR',
         payload: 'Failed to switch mode. Please try again.',

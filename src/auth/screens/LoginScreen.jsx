@@ -120,17 +120,17 @@ const LoginScreen = ({ onLogin }) => {
   const { theme } = useTheme();
   const { login } = useAuth();
   const styles = getStyles(theme || {});
-  
+
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   // Phone validation function (reusing pattern from IndexScreen)
-  const validatePhone = (phone) => {
+  const validatePhone = phone => {
     // Remove +91 prefix for validation
     const phoneWithoutPrefix = phone.replace(/^\+91\s*/, '');
     const phoneRegex = /^[1-9][\d]{9}$/; // 10 digits for Indian mobile numbers
-    
+
     if (!phoneWithoutPrefix.trim()) {
       return 'Phone number is required';
     }
@@ -140,30 +140,34 @@ const LoginScreen = ({ onLogin }) => {
     return '';
   };
 
-  const handlePhoneChange = (text) => {
+  const handlePhoneChange = text => {
     // Remove +91 prefix if user tries to type it
     const cleanText = text.replace(/^\+91\s*/, '');
     // Limit to 10 digits
     const limitedText = cleanText.replace(/\D/g, '').slice(0, 10);
     setPhoneNumber(limitedText);
-    
+
     // Clear error when user starts typing
     if (phoneError) {
-      setPhoneError(validatePhone('+91 ' + limitedText));
+      setPhoneError(validatePhone(`+91 ${limitedText}`));
     }
   };
 
   const handlePhoneBlur = () => {
-    const error = validatePhone('+91 ' + phoneNumber);
+    const error = validatePhone(`+91 ${phoneNumber}`);
     setPhoneError(error);
   };
 
   const isPhoneValid = () => {
     // Check if phone number is exactly 10 digits and no validation errors
-    return phoneNumber.length === 10 && !phoneError && /^[1-9][\d]{9}$/.test(phoneNumber);
+    return (
+      phoneNumber.length === 10 &&
+      !phoneError &&
+      /^[1-9][\d]{9}$/.test(phoneNumber)
+    );
   };
 
-  const handleGoogleSignInSuccess = async (result) => {
+  const handleGoogleSignInSuccess = async result => {
     if (result.error) {
       Alert.alert('Sign In Error', result.error);
       return;
@@ -171,40 +175,47 @@ const LoginScreen = ({ onLogin }) => {
 
     // Double-check phone validation before proceeding
     if (!isPhoneValid()) {
-      const error = validatePhone('+91 ' + phoneNumber);
+      const error = validatePhone(`+91 ${phoneNumber}`);
       setPhoneError(error);
-      Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit phone number before signing in.');
+      Alert.alert(
+        'Invalid Phone Number',
+        'Please enter a valid 10-digit phone number before signing in.',
+      );
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       const { data, userInfo } = result;
-      
+
       if (data?.session && data?.user) {
         // Use onboarding service to check if user exists
-        const { exists, userRecord, error: userCheckError } = await onboardingService.checkUserExists(data.user.id);
-        
+        const {
+          exists,
+          userRecord,
+          error: userCheckError,
+        } = await onboardingService.checkUserExists(data.user.id);
+
         if (userCheckError) {
           console.error('Error checking user existence:', userCheckError);
           // Continue as new user if check fails
         }
 
         const isNewUser = !exists;
-        
+
         // Call the login method with phone number
         await login({
           session: data.session,
           user: data.user,
           userRecord: userRecord || null,
           isNewUser,
-          phoneNumber: '+91 ' + phoneNumber,
+          phoneNumber: `+91 ${phoneNumber}`,
         });
 
         // Call the original onLogin callback
         if (onLogin) {
-          onLogin({ phoneNumber: '+91 ' + phoneNumber });
+          onLogin({ phoneNumber: `+91 ${phoneNumber}` });
         }
       }
     } catch (error) {
@@ -249,7 +260,7 @@ const LoginScreen = ({ onLogin }) => {
             maxLength={10}
           />
 
-          <GoogleSignInButton 
+          <GoogleSignInButton
             onSuccess={handleGoogleSignInSuccess}
             disabled={!isPhoneValid() || isLoading}
           />

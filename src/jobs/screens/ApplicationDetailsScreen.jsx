@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  ActivityIndicator,
   Animated,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
@@ -14,21 +13,17 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Card from '../../components/blocks/Card';
 import Button from '../../components/elements/Button';
 import { AppHeader, Icon } from '../../components/elements';
-import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { applicationService } from '../../services';
 import { getStyles } from './ApplicationDetailsScreen.styles';
 
 const ApplicationDetailsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { applicationData } = route.params || {};
-  const { theme } = useTheme();  
-  const { user } = useAuth();
+  const { theme } = useTheme();
   const styles = getStyles(theme);
 
-  const [application, setApplication] = useState(applicationData);  
-  const [loading, setLoading] = useState(false);
+  const [application] = useState(applicationData);
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -74,7 +69,7 @@ const ApplicationDetailsScreen = () => {
   const job = application.jobs;
   const company = job?.company_profiles;
 
-  const getStatusColor = (status) => {
+  const getStatusColor = status => {
     switch (status) {
       case 'applied':
         return '#3B82F6';
@@ -89,7 +84,7 @@ const ApplicationDetailsScreen = () => {
     }
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = status => {
     switch (status) {
       case 'applied':
         return 'send';
@@ -104,14 +99,14 @@ const ApplicationDetailsScreen = () => {
     }
   };
 
-  const getStatusText = (status) => {
+  const getStatusText = status => {
     switch (status) {
       case 'applied':
         return 'Application Submitted';
       case 'under_review':
         return 'Under Review';
       case 'hired':
-        return 'Congratulations! You\'re Hired';
+        return "Congratulations! You're Hired";
       case 'rejected':
         return 'Application Not Selected';
       default:
@@ -119,7 +114,7 @@ const ApplicationDetailsScreen = () => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -129,32 +124,19 @@ const ApplicationDetailsScreen = () => {
     });
   };
 
-  // Helper function to format salary as monthly amount
-  const formatSalary = (salary) => {
-    if (!salary) return 'Salary not specified';
-    
-    // Handle salary ranges like "₹12,00,000 – ₹18,00,000/year"
-    if (salary.includes('–') || salary.includes('-')) {
-      // Extract the first number (lower range) and convert to monthly
-      const firstNumber = salary.match(/₹([\d,]+)/);
-      if (firstNumber) {
-        const numericSalary = firstNumber[1].replace(/,/g, '');
-        const yearlySalary = parseInt(numericSalary);
-        const monthlySalary = Math.round(yearlySalary / 12);
-        return `₹${monthlySalary.toLocaleString()}/month`;
-      }
+  // Helper function to format salary - show database value directly
+  const formatSalary = salary => {
+    if (!salary) {
+      return 'Salary not specified';
     }
-    
-    // Handle single salary values
-    const numericSalary = salary.replace(/[^\d]/g, '');
-    if (!numericSalary) return salary;
-    
-    // Assume yearly salary, convert to monthly (divide by 12)
-    const yearlySalary = parseInt(numericSalary);
-    const monthlySalary = Math.round(yearlySalary / 12);
-    
-    // Format with commas
-    return `₹${monthlySalary.toLocaleString()}/month`;
+
+    // If salary already has ₹ symbol, return as is
+    if (salary.includes('₹')) {
+      return salary;
+    }
+
+    // Add ₹ symbol to the database value
+    return `₹${salary}`;
   };
 
   const handleViewJob = () => {
@@ -168,13 +150,13 @@ const ApplicationDetailsScreen = () => {
         `You can reach out to ${company.company_name} at:\n\n${company.users.email}`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'OK', style: 'default' }
-        ]
+          { text: 'OK', style: 'default' },
+        ],
       );
     } else {
       Alert.alert(
         'Contact Information',
-        'Company contact information is not available at this time.'
+        'Company contact information is not available at this time.',
       );
     }
   };
@@ -200,21 +182,29 @@ const ApplicationDetailsScreen = () => {
             {/* Status Card */}
             <Card style={styles.statusCard}>
               <View style={styles.statusHeader}>
-                <View style={[
-                  styles.statusIcon,
-                  { backgroundColor: `${getStatusColor(application.status)}20` }
-                ]}>
-                  <Feather 
-                    name={getStatusIcon(application.status)} 
-                    size={24} 
-                    color={getStatusColor(application.status)} 
+                <View
+                  style={[
+                    styles.statusIcon,
+                    {
+                      backgroundColor: `${getStatusColor(
+                        application.status,
+                      )}20`,
+                    },
+                  ]}
+                >
+                  <Feather
+                    name={getStatusIcon(application.status)}
+                    size={24}
+                    color={getStatusColor(application.status)}
                   />
                 </View>
                 <View style={styles.statusInfo}>
-                  <Text style={[
-                    styles.statusText,
-                    { color: getStatusColor(application.status) }
-                  ]}>
+                  <Text
+                    style={[
+                      styles.statusText,
+                      { color: getStatusColor(application.status) },
+                    ]}
+                  >
                     {getStatusText(application.status)}
                   </Text>
                   <Text style={styles.statusDate}>
@@ -226,7 +216,7 @@ const ApplicationDetailsScreen = () => {
               {application.status === 'hired' && (
                 <View style={styles.congratsSection}>
                   <Text style={styles.congratsText}>
-                    🎉 Congratulations! You've been selected for this position. 
+                    🎉 Congratulations! You've been selected for this position.
                     The company will contact you soon with next steps.
                   </Text>
                 </View>
@@ -235,8 +225,8 @@ const ApplicationDetailsScreen = () => {
               {application.status === 'rejected' && (
                 <View style={styles.rejectionSection}>
                   <Text style={styles.rejectionText}>
-                    Thank you for your interest. While this position wasn't a match, 
-                    keep applying to other opportunities!
+                    Thank you for your interest. While this position wasn't a
+                    match, keep applying to other opportunities!
                   </Text>
                 </View>
               )}
@@ -253,7 +243,12 @@ const ApplicationDetailsScreen = () => {
                   <Text style={styles.companyName}>
                     {company?.company_name}
                     {company?.is_verified && (
-                      <Feather name="check-circle" size={14} color="#10B981" style={{ marginLeft: 6 }} />
+                      <Feather
+                        name="check-circle"
+                        size={14}
+                        color="#10B981"
+                        style={{ marginLeft: 6 }}
+                      />
                     )}
                   </Text>
                 </View>
@@ -266,13 +261,17 @@ const ApplicationDetailsScreen = () => {
                 </View>
                 {job?.salary && (
                   <View style={styles.metaItem}>
-                    <Text style={styles.metaText}>{formatSalary(job.salary)}</Text>
+                    <Text style={styles.metaText}>
+                      {formatSalary(job.salary)}
+                    </Text>
                   </View>
                 )}
                 {job?.job_categories && (
                   <View style={styles.metaItem}>
                     <Feather name="tag" size={16} color="#6B7280" />
-                    <Text style={styles.metaText}>{job.job_categories.name}</Text>
+                    <Text style={styles.metaText}>
+                      {job.job_categories.name}
+                    </Text>
                   </View>
                 )}
               </View>
@@ -289,7 +288,9 @@ const ApplicationDetailsScreen = () => {
             {/* Application Message */}
             {application.message && (
               <Card style={styles.messageCard}>
-                <Text style={styles.messageTitle}>Your Application Message</Text>
+                <Text style={styles.messageTitle}>
+                  Your Application Message
+                </Text>
                 <Text style={styles.messageText}>{application.message}</Text>
               </Card>
             )}
@@ -297,32 +298,37 @@ const ApplicationDetailsScreen = () => {
             {/* Timeline */}
             <Card style={styles.timelineCard}>
               <Text style={styles.timelineTitle}>Application Timeline</Text>
-              
+
               <View style={styles.timelineItem}>
                 <View style={styles.timelineDot}>
                   <Feather name="send" size={12} color="#FFFFFF" />
                 </View>
                 <View style={styles.timelineContent}>
-                  <Text style={styles.timelineEventTitle}>Application Submitted</Text>
+                  <Text style={styles.timelineEventTitle}>
+                    Application Submitted
+                  </Text>
                   <Text style={styles.timelineEventDate}>
                     {formatDate(application.created_at)}
                   </Text>
                   <Text style={styles.timelineEventDesc}>
-                    Your application was successfully submitted to {company?.company_name}
+                    Your application was successfully submitted to{' '}
+                    {company?.company_name}
                   </Text>
                 </View>
               </View>
 
               {application.status !== 'applied' && (
                 <View style={styles.timelineItem}>
-                  <View style={[
-                    styles.timelineDot,
-                    { backgroundColor: getStatusColor(application.status) }
-                  ]}>
-                    <Feather 
-                      name={getStatusIcon(application.status)} 
-                      size={12} 
-                      color="#FFFFFF" 
+                  <View
+                    style={[
+                      styles.timelineDot,
+                      { backgroundColor: getStatusColor(application.status) },
+                    ]}
+                  >
+                    <Feather
+                      name={getStatusIcon(application.status)}
+                      size={12}
+                      color="#FFFFFF"
                     />
                   </View>
                   <View style={styles.timelineContent}>
@@ -333,7 +339,8 @@ const ApplicationDetailsScreen = () => {
                       {formatDate(application.updated_at)}
                     </Text>
                     <Text style={styles.timelineEventDesc}>
-                      Application status changed to "{getStatusText(application.status)}"
+                      Application status changed to "
+                      {getStatusText(application.status)}"
                     </Text>
                   </View>
                 </View>
@@ -354,7 +361,8 @@ const ApplicationDetailsScreen = () => {
                 </View>
               </Button>
 
-              {(application.status === 'hired' || application.status === 'under_review') && (
+              {(application.status === 'hired' ||
+                application.status === 'under_review') && (
                 <Button
                   variant="default"
                   size="lg"
@@ -363,7 +371,9 @@ const ApplicationDetailsScreen = () => {
                 >
                   <View style={styles.buttonContent}>
                     <Feather name="mail" size={20} color="#FFFFFF" />
-                    <Text style={[styles.actionButtonText, { color: '#FFFFFF' }]}>
+                    <Text
+                      style={[styles.actionButtonText, { color: '#FFFFFF' }]}
+                    >
                       Contact Company
                     </Text>
                   </View>

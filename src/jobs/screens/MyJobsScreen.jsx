@@ -16,7 +16,10 @@ import { useNavigation } from '@react-navigation/native';
 import PopularJobCard from './MyJobsScreen/PopularJobCard';
 import RecentJobCard from './MyJobsScreen/RecentJobCard';
 import { getStyles } from './MyJobsScreen.styles';
-import { popularJobs as mockPopularJobs, recentJobs as mockRecentJobs } from './MyJobsScreen/mockData';
+import {
+  popularJobs as mockPopularJobs,
+  recentJobs as mockRecentJobs,
+} from './MyJobsScreen/mockData';
 import { AppHeader, Icon } from '../../components/elements';
 
 const MyJobsScreen = () => {
@@ -46,7 +49,7 @@ const MyJobsScreen = () => {
         setLoading(true);
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         setPopularJobs(mockPopularJobs);
         setRecentJobs(mockRecentJobs);
         setError(null);
@@ -66,52 +69,50 @@ const MyJobsScreen = () => {
 
   // Handle logout with confirmation and error handling
   const handleLogout = async () => {
-    Alert.alert(
-      'Confirm Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
+    Alert.alert('Confirm Logout', 'Are you sure you want to logout?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            setIsLoggingOut(true);
+            await logout();
+
+            // Reset navigation to ensure clean state
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Auth' }],
+            });
+          } catch (error) {
+            console.error('Logout error:', error);
+            Alert.alert(
+              'Logout Failed',
+              'There was an error logging out. Please try again.',
+              [{ text: 'OK' }],
+            );
+          } finally {
+            setIsLoggingOut(false);
+          }
         },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setIsLoggingOut(true);
-              await logout();
-              
-              // Reset navigation to ensure clean state
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Auth' }],
-              });
-            } catch (error) {
-              console.error('Logout error:', error);
-              Alert.alert(
-                'Logout Failed',
-                'There was an error logging out. Please try again.',
-                [{ text: 'OK' }]
-              );
-            } finally {
-              setIsLoggingOut(false);
-            }
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
 
   // Filter jobs based on search term
-  const filteredPopularJobs = popularJobs.filter(job =>
-    job.title.toLowerCase().includes(search.toLowerCase()) ||
-    job.company.toLowerCase().includes(search.toLowerCase())
+  const filteredPopularJobs = popularJobs.filter(
+    job =>
+      job.title.toLowerCase().includes(search.toLowerCase()) ||
+      job.company.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const filteredRecentJobs = recentJobs.filter(job =>
-    job.title.toLowerCase().includes(search.toLowerCase()) ||
-    job.company.toLowerCase().includes(search.toLowerCase())
+  const filteredRecentJobs = recentJobs.filter(
+    job =>
+      job.title.toLowerCase().includes(search.toLowerCase()) ||
+      job.company.toLowerCase().includes(search.toLowerCase()),
   );
 
   // Handle navigation to applications for seekers
@@ -127,7 +128,12 @@ const MyJobsScreen = () => {
   if (loading) {
     return (
       <SafeAreaView style={getStyles(theme).container}>
-        <View style={[getStyles(theme).scrollView, { justifyContent: 'center', alignItems: 'center' }]}>
+        <View
+          style={[
+            getStyles(theme).scrollView,
+            { justifyContent: 'center', alignItems: 'center' },
+          ]}
+        >
           <Text style={getStyles(theme).headerTitle}>Loading jobs...</Text>
         </View>
       </SafeAreaView>
@@ -144,8 +150,12 @@ const MyJobsScreen = () => {
         {/* App Header */}
         <Animated.View style={{ opacity: fadeAnim }}>
           <AppHeader
-            title={userRoles?.isCompany ? "My Job Postings" : "My Applications"}
-            subtitle={userRoles?.isCompany ? "Manage your job postings" : "Track your job applications"}
+            title={userRoles?.isCompany ? 'My Job Postings' : 'My Applications'}
+            subtitle={
+              userRoles?.isCompany
+                ? 'Manage your job postings'
+                : 'Track your job applications'
+            }
             leftIcon={<Icon name="arrow-left" size={20} color="#1E293B" />}
             rightIcon={<Icon name="log-out" size={20} color="#EF4444" />}
             onLeftPress={() => navigation.goBack()}
@@ -161,7 +171,11 @@ const MyJobsScreen = () => {
           <View style={getStyles(theme).searchInputContainer}>
             <Feather name="search" size={20} color="#9CA3AF" />
             <TextInput
-              placeholder={userRoles?.isCompany ? "Search job postings..." : "Search applications..."}
+              placeholder={
+                userRoles?.isCompany
+                  ? 'Search job postings...'
+                  : 'Search applications...'
+              }
               placeholderTextColor="#9CA3AF"
               style={getStyles(theme).searchInput}
               value={search}
@@ -191,7 +205,10 @@ const MyJobsScreen = () => {
             {/* Active Job Postings Section */}
             {filteredPopularJobs.length > 0 && (
               <Animated.View
-                style={[getStyles(theme).popularJobsContainer, { opacity: fadeAnim }]}
+                style={[
+                  getStyles(theme).popularJobsContainer,
+                  { opacity: fadeAnim },
+                ]}
               >
                 <View style={getStyles(theme).sectionHeader}>
                   <Text style={getStyles(theme).sectionTitle}>
@@ -239,7 +256,10 @@ const MyJobsScreen = () => {
           <>
             {/* Recent Applications Section */}
             <Animated.View
-              style={[getStyles(theme).popularJobsContainer, { opacity: fadeAnim }]}
+              style={[
+                getStyles(theme).popularJobsContainer,
+                { opacity: fadeAnim },
+              ]}
             >
               <View style={getStyles(theme).sectionHeader}>
                 <Text style={getStyles(theme).sectionTitle}>
@@ -249,10 +269,10 @@ const MyJobsScreen = () => {
                   <Text style={getStyles(theme).seeAllText}>View all</Text>
                 </TouchableOpacity>
               </View>
-              
+
               {/* Quick Stats Cards */}
               <View style={getStyles(theme).statsContainer}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={getStyles(theme).statCard}
                   onPress={handleViewApplications}
                 >
@@ -263,7 +283,7 @@ const MyJobsScreen = () => {
                   <Text style={getStyles(theme).statLabel}>Applied</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={getStyles(theme).statCard}
                   onPress={handleViewApplications}
                 >
@@ -274,7 +294,7 @@ const MyJobsScreen = () => {
                   <Text style={getStyles(theme).statLabel}>Under Review</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={getStyles(theme).statCard}
                   onPress={handleViewApplications}
                 >
@@ -290,13 +310,11 @@ const MyJobsScreen = () => {
             {/* Quick Actions Section */}
             <View style={getStyles(theme).recentJobsContainer}>
               <View style={getStyles(theme).sectionHeader}>
-                <Text style={getStyles(theme).sectionTitle}>
-                  Quick Actions
-                </Text>
+                <Text style={getStyles(theme).sectionTitle}>Quick Actions</Text>
               </View>
-              
+
               <View style={getStyles(theme).actionsContainer}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={getStyles(theme).actionCard}
                   onPress={handleBrowseJobs}
                 >
@@ -304,18 +322,24 @@ const MyJobsScreen = () => {
                     <Feather name="search" size={24} color="#6475f8" />
                   </View>
                   <Text style={getStyles(theme).actionTitle}>Browse Jobs</Text>
-                  <Text style={getStyles(theme).actionSubtitle}>Find new opportunities</Text>
+                  <Text style={getStyles(theme).actionSubtitle}>
+                    Find new opportunities
+                  </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={getStyles(theme).actionCard}
                   onPress={handleViewApplications}
                 >
                   <View style={getStyles(theme).actionIcon}>
                     <Feather name="list" size={24} color="#10B981" />
                   </View>
-                  <Text style={getStyles(theme).actionTitle}>View Applications</Text>
-                  <Text style={getStyles(theme).actionSubtitle}>Track your progress</Text>
+                  <Text style={getStyles(theme).actionTitle}>
+                    View Applications
+                  </Text>
+                  <Text style={getStyles(theme).actionSubtitle}>
+                    Track your progress
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -323,29 +347,41 @@ const MyJobsScreen = () => {
         )}
 
         {/* No Results Message */}
-        {!loading && !error && 
-         ((userRoles?.isCompany && filteredPopularJobs.length === 0 && filteredRecentJobs.length === 0) ||
-          (!userRoles?.isCompany && filteredPopularJobs.length === 0)) && (
-          <Animated.View
-            style={[getStyles(theme).noResultsContainer, { opacity: fadeAnim }]}
-          >
-            <Feather name="search" size={48} color="#9CA3AF" />
-            <Text style={getStyles(theme).noResultsText}>
-              {userRoles?.isCompany ? "No job postings found" : "No applications found"}
-            </Text>
-            <Text style={getStyles(theme).noResultsSubtext}>
-              {userRoles?.isCompany ? "Try creating a new job posting" : "Start applying to jobs to see them here"}
-            </Text>
-            {!userRoles?.isCompany && (
-              <TouchableOpacity 
-                style={getStyles(theme).browseButton}
-                onPress={handleBrowseJobs}
-              >
-                <Text style={getStyles(theme).browseButtonText}>Browse Jobs</Text>
-              </TouchableOpacity>
-            )}
-          </Animated.View>
-        )}
+        {!loading &&
+          !error &&
+          ((userRoles?.isCompany &&
+            filteredPopularJobs.length === 0 &&
+            filteredRecentJobs.length === 0) ||
+            (!userRoles?.isCompany && filteredPopularJobs.length === 0)) && (
+            <Animated.View
+              style={[
+                getStyles(theme).noResultsContainer,
+                { opacity: fadeAnim },
+              ]}
+            >
+              <Feather name="search" size={48} color="#9CA3AF" />
+              <Text style={getStyles(theme).noResultsText}>
+                {userRoles?.isCompany
+                  ? 'No job postings found'
+                  : 'No applications found'}
+              </Text>
+              <Text style={getStyles(theme).noResultsSubtext}>
+                {userRoles?.isCompany
+                  ? 'Try creating a new job posting'
+                  : 'Start applying to jobs to see them here'}
+              </Text>
+              {!userRoles?.isCompany && (
+                <TouchableOpacity
+                  style={getStyles(theme).browseButton}
+                  onPress={handleBrowseJobs}
+                >
+                  <Text style={getStyles(theme).browseButtonText}>
+                    Browse Jobs
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </Animated.View>
+          )}
       </ScrollView>
     </SafeAreaView>
   );

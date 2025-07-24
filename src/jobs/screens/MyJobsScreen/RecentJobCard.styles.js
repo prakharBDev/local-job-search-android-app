@@ -210,11 +210,12 @@ export const getRecentJobColors = (theme, index = 0) => {
       iconBg: 'rgba(255, 255, 255, 0.2)',
     },
     {
-      background: theme.colors.jobCategories?.secondary?.background || '#75ce9b', // User requested green
+      background:
+        theme.colors.jobCategories?.secondary?.background || '#75ce9b', // User requested green
       text: theme.colors.jobCategories?.secondary?.text || '#FFFFFF',
       accent: '#059669', // Darker green accent for icons
       iconBg: 'rgba(255, 255, 255, 0.2)',
-    }
+    },
   ];
 
   return colorSchemes[index % 2];

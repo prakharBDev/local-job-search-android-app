@@ -63,7 +63,7 @@ const CitySelectionScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-              await updateUserRecord({ city: selectedCity.toLowerCase() });
+      await updateUserRecord({ city: selectedCity.toLowerCase() });
       // Navigation will be handled automatically by the auth state change
     } catch (error) {
       console.error('City update error:', error);

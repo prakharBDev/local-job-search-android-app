@@ -5,14 +5,14 @@
 
 // Core API client and utilities
 export { apiClient } from './client';
-export { 
-  ApiError, 
-  ERROR_MESSAGES, 
+export {
+  ApiError,
+  ERROR_MESSAGES,
   SUPABASE_ERROR_MAP,
-  handleApiError, 
-  isRetryableError, 
-  getErrorSeverity, 
-  logError 
+  handleApiError,
+  isRetryableError,
+  getErrorSeverity,
+  logError,
 } from './errors';
 
 // Query builders
@@ -28,4 +28,4 @@ export {
 } from './queryBuilders';
 
 // Re-export Supabase client for direct access when needed
-export { supabase } from '../../utils/supabase'; 
+export { supabase } from '../../utils/supabase';

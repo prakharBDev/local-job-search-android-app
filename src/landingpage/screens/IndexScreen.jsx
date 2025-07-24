@@ -122,7 +122,7 @@ const IndexScreen = () => {
     // Remove +91 prefix for validation
     const phoneWithoutPrefix = phone.replace(/^\+91\s*/, '');
     const phoneRegex = /^[1-9][\d]{9}$/; // 10 digits for Indian mobile numbers
-    
+
     if (!phoneWithoutPrefix.trim()) {
       return 'Phone number is required';
     }
@@ -147,7 +147,7 @@ const IndexScreen = () => {
     const limitedText = cleanText.replace(/\D/g, '').slice(0, 10);
     setPhone(limitedText);
     if (phoneError) {
-      setPhoneError(validatePhone('+91 ' + limitedText));
+      setPhoneError(validatePhone(`+91 ${limitedText}`));
     }
   };
 
@@ -174,7 +174,7 @@ const IndexScreen = () => {
 
     // Validate inputs
     const emailErr = validateEmail(email);
-    const phoneErr = isLogin ? validatePhone('+91 ' + phone) : '';
+    const phoneErr = isLogin ? validatePhone(`+91 ${phone}`) : '';
 
     setEmailError(emailErr);
     setPhoneError(phoneErr);
@@ -197,7 +197,7 @@ const IndexScreen = () => {
         id: `demo-user-${Date.now()}`,
         name: 'Demo User',
         email: email.trim(),
-        phone: phone.trim() ? '+91 ' + phone.trim() : '+91 9876543210',
+        phone: phone.trim() ? `+91 ${phone.trim()}` : '+91 9876543210',
         mode: userRole,
       };
 
@@ -222,23 +222,31 @@ const IndexScreen = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    if (isLoading) return;
-    
-    // Validate phone number before proceeding with Google Sign-In
-    const phoneErr = validatePhone('+91 ' + phone);
-    if (phoneErr) {
-      setPhoneError(phoneErr);
-      Alert.alert('Phone Number Required', 'Please enter a valid phone number before signing in with Google.');
+    if (isLoading) {
       return;
     }
-    
+
+    // Validate phone number before proceeding with Google Sign-In
+    const phoneErr = validatePhone(`+91 ${phone}`);
+    if (phoneErr) {
+      setPhoneError(phoneErr);
+      Alert.alert(
+        'Phone Number Required',
+        'Please enter a valid phone number before signing in with Google.',
+      );
+      return;
+    }
+
     // Check if phone number is exactly 10 digits
     if (phone.length !== 10 || !/^[1-9][\d]{9}$/.test(phone)) {
       setPhoneError('Please enter a valid 10-digit phone number');
-      Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit phone number before signing in with Google.');
+      Alert.alert(
+        'Invalid Phone Number',
+        'Please enter a valid 10-digit phone number before signing in with Google.',
+      );
       return;
     }
-    
+
     try {
       setIsLoading(true);
       await GoogleSignin.hasPlayServices();
@@ -282,12 +290,12 @@ const IndexScreen = () => {
           id: user.id,
           email: user.email,
           name: user.user_metadata?.full_name || user.email?.split('@')[0],
-          phone_number: '+91 ' + phone, // Add phone number to new user
+          phone_number: `+91 ${phone}`, // Add phone number to new user
           provider: 'google',
           google_id: user.id || user.user_metadata?.sub,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          city: "morena"
+          city: 'morena',
         };
         const { data: createdUser, error: createError } = await supabase
           .from('users')
@@ -306,9 +314,9 @@ const IndexScreen = () => {
         // Update last login and phone number for existing user
         const { error: updateError } = await supabase
           .from('users')
-          .update({ 
+          .update({
             updated_at: new Date().toISOString(),
-            phone_number: '+91 ' + phone // Update phone number if it changed
+            phone_number: `+91 ${phone}`, // Update phone number if it changed
           })
           .eq('id', user.id);
         if (updateError) {
@@ -316,18 +324,18 @@ const IndexScreen = () => {
         }
       }
       // Log in the user in AuthContext with phone number
-      await login({ 
-        session, 
-        user, 
-        userRecord, 
+      await login({
+        session,
+        user,
+        userRecord,
         isNewUser,
-        phoneNumber: '+91 ' + phone 
+        phoneNumber: `+91 ${phone}`,
       });
       console.log('Google sign-in successful for:', user.email);
       Alert.alert(
         'Welcome!',
         isNewUser
-          ? 'Account created successfully! Let\'s set up your profile.'
+          ? "Account created successfully! Let's set up your profile."
           : `Welcome back, ${userRecord.name || 'User'}!`,
         [{ text: 'Continue', style: 'default' }],
       );
@@ -360,9 +368,12 @@ const IndexScreen = () => {
     if (provider === 'Google') {
       // Validate phone number before Google Sign-In
       if (!isPhoneValidForGoogleSignIn()) {
-        const phoneErr = validatePhone('+91 ' + phone);
+        const phoneErr = validatePhone(`+91 ${phone}`);
         setPhoneError(phoneErr || 'Please enter a valid 10-digit phone number');
-        Alert.alert('Phone Number Required', 'Please enter a valid phone number before signing in with Google.');
+        Alert.alert(
+          'Phone Number Required',
+          'Please enter a valid phone number before signing in with Google.',
+        );
         return;
       }
       handleGoogleSignIn();
@@ -506,7 +517,9 @@ const IndexScreen = () => {
                         placeholder="XXXXX XXXXX"
                         value={phone}
                         onChangeText={handlePhoneChange}
-                        onBlur={() => setPhoneError(validatePhone('+91 ' + phone))}
+                        onBlur={() =>
+                          setPhoneError(validatePhone(`+91 ${phone}`))
+                        }
                         keyboardType="phone-pad"
                         leftIcon={
                           <Feather name="phone" size={20} color="#94A3B8" />
@@ -527,7 +540,8 @@ const IndexScreen = () => {
                     <TouchableOpacity
                       style={[
                         styles.socialButton,
-                        (isLoading || !isPhoneValidForGoogleSignIn()) && styles.socialButtonDisabled,
+                        (isLoading || !isPhoneValidForGoogleSignIn()) &&
+                          styles.socialButtonDisabled,
                       ]}
                       onPress={() => handleSocialLogin('Google', 0)}
                       activeOpacity={0.8}
@@ -536,33 +550,51 @@ const IndexScreen = () => {
                     >
                       {isLoading ? (
                         <>
-                          <FontAwesome name="google" size={20} color="#94A3B8" />
-                          <Text style={[styles.socialButtonText, { color: '#94A3B8' }]}>
+                          <FontAwesome
+                            name="google"
+                            size={20}
+                            color="#94A3B8"
+                          />
+                          <Text
+                            style={[
+                              styles.socialButtonText,
+                              { color: '#94A3B8' },
+                            ]}
+                          >
                             Signing in...
                           </Text>
                         </>
                       ) : (
                         <>
-                          <FontAwesome 
-                            name="google" 
-                            size={20} 
-                            color={isPhoneValidForGoogleSignIn() ? "#4285F4" : "#94A3B8"} 
+                          <FontAwesome
+                            name="google"
+                            size={20}
+                            color={
+                              isPhoneValidForGoogleSignIn()
+                                ? '#4285F4'
+                                : '#94A3B8'
+                            }
                           />
-                          <Text style={[
-                            styles.socialButtonText,
-                            !isPhoneValidForGoogleSignIn() && { color: '#94A3B8' }
-                          ]}>
+                          <Text
+                            style={[
+                              styles.socialButtonText,
+                              !isPhoneValidForGoogleSignIn() && {
+                                color: '#94A3B8',
+                              },
+                            ]}
+                          >
                             Google
                           </Text>
                         </>
                       )}
                     </TouchableOpacity>
                   </Animated.View>
-                  
+
                   {/* Phone validation message */}
                   {!isPhoneValidForGoogleSignIn() && phone.length > 0 && (
                     <Text style={styles.validationText}>
-                      Please enter a valid 10-digit phone number to continue with Google Sign-In
+                      Please enter a valid 10-digit phone number to continue
+                      with Google Sign-In
                     </Text>
                   )}
                 </View>

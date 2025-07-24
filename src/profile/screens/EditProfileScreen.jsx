@@ -16,7 +16,12 @@ import Input from '../../components/elements/Input';
 import Card from '../../components/blocks/Card';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../contexts/UserContext';
-import { seekerService, companyService, categoriesService, skillsService } from '../../services';
+import {
+  seekerService,
+  companyService,
+  categoriesService,
+  skillsService,
+} from '../../services';
 import { apiClient } from '../../services/api';
 import { theme } from '../../theme';
 
@@ -44,7 +49,9 @@ const EditProfileScreen = ({ navigation, route }) => {
     })(),
     city: (() => {
       const cityValue = user?.user_metadata?.city || user?.city || '';
-      return cityValue ? cityValue.charAt(0).toUpperCase() + cityValue.slice(1).toLowerCase() : '';
+      return cityValue
+        ? cityValue.charAt(0).toUpperCase() + cityValue.slice(1).toLowerCase()
+        : '';
     })(),
     education10th: user?.user_metadata?.education10th || '',
     education12th: user?.user_metadata?.education12th || '',
@@ -71,7 +78,9 @@ const EditProfileScreen = ({ navigation, route }) => {
     companyName: '',
     city: (() => {
       const cityValue = user?.user_metadata?.city || user?.city || '';
-      return cityValue ? cityValue.charAt(0).toUpperCase() + cityValue.slice(1).toLowerCase() : '';
+      return cityValue
+        ? cityValue.charAt(0).toUpperCase() + cityValue.slice(1).toLowerCase()
+        : '';
     })(),
     companySize: '',
     industry: '',
@@ -129,8 +138,9 @@ const EditProfileScreen = ({ navigation, route }) => {
   const loadCategories = async () => {
     try {
       setIsLoadingCategories(true);
-      const { data: categories, error } = await categoriesService.getAllCategories();
-      
+      const { data: categories, error } =
+        await categoriesService.getAllCategories();
+
       if (error) {
         console.error('Error loading categories:', error);
         return;
@@ -148,7 +158,7 @@ const EditProfileScreen = ({ navigation, route }) => {
     try {
       setIsLoadingSkills(true);
       const { data: skills, error } = await skillsService.getAllSkills();
-      
+
       if (error) {
         console.error('Error loading skills:', error);
         return;
@@ -171,8 +181,9 @@ const EditProfileScreen = ({ navigation, route }) => {
     try {
       if (currentMode === 'seeker') {
         // Load seeker profile data
-        const { data: seekerProfile, error: seekerError } = await seekerService.getSeekerProfile(user.id);
-        
+        const { data: seekerProfile, error: seekerError } =
+          await seekerService.getSeekerProfile(user.id);
+
         if (seekerError && seekerError.code !== 'PGRST116') {
           console.error('Error loading seeker profile:', seekerError);
           return;
@@ -183,14 +194,26 @@ const EditProfileScreen = ({ navigation, route }) => {
           const skills = seekerProfile.seeker_skills || [];
           const categories = seekerProfile.seeker_categories || [];
 
-          const skillsString = skills?.map(s => s.skills?.name).filter(Boolean).join(', ') || '';
-          
+          const skillsString =
+            skills
+              ?.map(s => s.skills?.name)
+              .filter(Boolean)
+              .join(', ') || '';
+
           setJobSeekerData(prev => ({
             ...prev,
-            name: seekerProfile.users?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '',
+            name:
+              seekerProfile.users?.name ||
+              user?.user_metadata?.full_name ||
+              user?.email?.split('@')[0] ||
+              '',
             email: user?.email || '',
             phone: (() => {
-              const phoneValue = user?.user_metadata?.phone_number || user?.phone || seekerProfile.users?.phone_number || '';
+              const phoneValue =
+                user?.user_metadata?.phone_number ||
+                user?.phone ||
+                seekerProfile.users?.phone_number ||
+                '';
               // Ensure phone number has +91 prefix
               if (phoneValue && !phoneValue.startsWith('+91')) {
                 return `+91${phoneValue.replace(/[^0-9]/g, '')}`;
@@ -198,22 +221,33 @@ const EditProfileScreen = ({ navigation, route }) => {
               return phoneValue;
             })(),
             city: (() => {
-              const cityValue = user?.user_metadata?.city || user?.city || seekerProfile.users?.city || '';
-              return cityValue ? cityValue.charAt(0).toUpperCase() + cityValue.slice(1).toLowerCase() : '';
+              const cityValue =
+                user?.user_metadata?.city ||
+                user?.city ||
+                seekerProfile.users?.city ||
+                '';
+              return cityValue
+                ? cityValue.charAt(0).toUpperCase() +
+                    cityValue.slice(1).toLowerCase()
+                : '';
             })(),
             education10th: seekerProfile.tenth_percentage?.toString() || '',
             education12th: seekerProfile.twelfth_percentage?.toString() || '',
-            graduationPercentage: seekerProfile.graduation_percentage?.toString() || '',
+            graduationPercentage:
+              seekerProfile.graduation_percentage?.toString() || '',
             experienceLevel: seekerProfile.experience_level || 'fresher',
             skills: skillsString,
-            jobCategories: categories?.map(c => c.job_categories?.name).filter(Boolean) || [],
+            jobCategories:
+              categories?.map(c => c.job_categories?.name).filter(Boolean) ||
+              [],
             bio: seekerProfile.bio || '',
           }));
         }
       } else {
         // Load company profile data
-        const { data: companyProfile, error: companyError } = await companyService.getCompanyProfile(user.id);
-        
+        const { data: companyProfile, error: companyError } =
+          await companyService.getCompanyProfile(user.id);
+
         if (companyError && companyError.code !== 'PGRST116') {
           console.error('Error loading company profile:', companyError);
           return;
@@ -224,10 +258,18 @@ const EditProfileScreen = ({ navigation, route }) => {
         if (companyProfile) {
           setJobPosterData(prev => ({
             ...prev,
-            name: companyProfile.contact_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '',
+            name:
+              companyProfile.contact_name ||
+              user?.user_metadata?.full_name ||
+              user?.email?.split('@')[0] ||
+              '',
             email: user?.email || '',
             phone: (() => {
-              const phoneValue = user?.user_metadata?.phone_number || user?.phone || companyProfile.phone_number || '';
+              const phoneValue =
+                user?.user_metadata?.phone_number ||
+                user?.phone ||
+                companyProfile.phone_number ||
+                '';
               // Ensure phone number has +91 prefix
               if (phoneValue && !phoneValue.startsWith('+91')) {
                 return `+91${phoneValue.replace(/[^0-9]/g, '')}`;
@@ -236,8 +278,15 @@ const EditProfileScreen = ({ navigation, route }) => {
             })(),
             companyName: companyProfile.company_name || '',
             city: (() => {
-              const cityValue = user?.user_metadata?.city || user?.city || companyProfile.city || '';
-              return cityValue ? cityValue.charAt(0).toUpperCase() + cityValue.slice(1).toLowerCase() : '';
+              const cityValue =
+                user?.user_metadata?.city ||
+                user?.city ||
+                companyProfile.city ||
+                '';
+              return cityValue
+                ? cityValue.charAt(0).toUpperCase() +
+                    cityValue.slice(1).toLowerCase()
+                : '';
             })(),
             companySize: companyProfile.company_size || '',
             industry: companyProfile.industry || '',
@@ -338,7 +387,7 @@ const EditProfileScreen = ({ navigation, route }) => {
       // Update user metadata if there are changes
       if (Object.keys(userUpdates).length > 0) {
         await updateUserRecord(userUpdates);
-        
+
         // Refresh user data to ensure ProfileScreen gets updated metadata
         await checkAuthStatus();
       }
@@ -346,13 +395,20 @@ const EditProfileScreen = ({ navigation, route }) => {
       // Update profile-specific data
       if (currentMode === 'seeker') {
         // Get existing seeker profile
-        const { data: existingProfile, error: profileError } = await seekerService.getSeekerProfile(user.id);
+        const { data: existingProfile, error: profileError } =
+          await seekerService.getSeekerProfile(user.id);
 
         // Prepare seeker profile updates
         const seekerUpdates = {
-          tenth_percentage: jobSeekerData.education10th ? parseInt(jobSeekerData.education10th) : null,
-          twelfth_percentage: jobSeekerData.education12th ? parseInt(jobSeekerData.education12th) : null,
-          graduation_percentage: jobSeekerData.graduationPercentage ? parseInt(jobSeekerData.graduationPercentage) : null,
+          tenth_percentage: jobSeekerData.education10th
+            ? parseInt(jobSeekerData.education10th)
+            : null,
+          twelfth_percentage: jobSeekerData.education12th
+            ? parseInt(jobSeekerData.education12th)
+            : null,
+          graduation_percentage: jobSeekerData.graduationPercentage
+            ? parseInt(jobSeekerData.graduationPercentage)
+            : null,
           experience_level: jobSeekerData.experienceLevel,
           bio: jobSeekerData.bio,
         };
@@ -360,22 +416,24 @@ const EditProfileScreen = ({ navigation, route }) => {
         let seekerProfileId;
         if (existingProfile && !profileError) {
           // Update existing profile
-          const { data: updatedProfile, error: updateError } = await seekerService.updateSeekerProfile(user.id, seekerUpdates);
+          const { data: updatedProfile, error: updateError } =
+            await seekerService.updateSeekerProfile(user.id, seekerUpdates);
           if (updateError) {
             throw updateError;
           }
           seekerProfileId = updatedProfile.id;
-          
+
           // Clear profile cache to ensure fresh data is loaded
           apiClient.clearCache(`seeker_profile_${user.id}`);
         } else {
           // Create new profile
-          const { data: newProfile, error: createError } = await seekerService.createSeekerProfile(user.id, seekerUpdates);
+          const { data: newProfile, error: createError } =
+            await seekerService.createSeekerProfile(user.id, seekerUpdates);
           if (createError) {
             throw createError;
           }
           seekerProfileId = newProfile.id;
-          
+
           // Clear profile cache to ensure fresh data is loaded
           apiClient.clearCache(`seeker_profile_${user.id}`);
         }
@@ -383,7 +441,9 @@ const EditProfileScreen = ({ navigation, route }) => {
         // Save skills
         if (seekerProfileId) {
           // First remove all existing skills
-          const { data: existingSkills } = await seekerService.getSeekerSkills(user.id);
+          const { data: existingSkills } = await seekerService.getSeekerSkills(
+            user.id,
+          );
           if (existingSkills && existingSkills.length > 0) {
             const existingSkillIds = existingSkills.map(s => s.skill_id);
             await seekerService.removeSeekerSkills(user.id, existingSkillIds);
@@ -391,24 +451,29 @@ const EditProfileScreen = ({ navigation, route }) => {
 
           // Then add new skills if any
           if (jobSeekerData.skills && jobSeekerData.skills.trim()) {
-            const skillNames = jobSeekerData.skills.split(',').map(s => s.trim()).filter(Boolean);
-            
+            const skillNames = jobSeekerData.skills
+              .split(',')
+              .map(s => s.trim())
+              .filter(Boolean);
+
             if (skillNames.length > 0) {
               const skillIds = [];
-              
+
               for (const skillName of skillNames) {
-                let skill = allSkills.find(s => s.name.toLowerCase() === skillName.toLowerCase());
-                
+                let skill = allSkills.find(
+                  s => s.name.toLowerCase() === skillName.toLowerCase(),
+
                 if (!skill) {
                   // Create new skill if it doesn't exist
-                  const { data: newSkill, error: createError } = await skillsService.createSkill(skillName);
+                  const { data: newSkill, error: createError } =
+                    await skillsService.createSkill(skillName);
                   if (createError) {
                     console.error('Error creating skill:', createError);
                     continue; // Skip this skill if creation fails
                   }
                   skill = newSkill;
                 }
-                
+
                 if (skill?.id) {
                   skillIds.push(skill.id);
                 }
@@ -416,14 +481,15 @@ const EditProfileScreen = ({ navigation, route }) => {
 
               if (skillIds.length > 0) {
                 // Add the new skills
-                const { error: addSkillsError } = await seekerService.addSeekerSkills(user.id, skillIds);
+                const { error: addSkillsError } =
+                  await seekerService.addSeekerSkills(user.id, skillIds);
                 if (addSkillsError) {
                   console.error('Error adding skills:', addSkillsError);
                 }
               }
             }
           }
-          
+
           // Clear skills cache to ensure fresh data is loaded
           apiClient.clearCache(`seeker_skills_${user.id}`);
         }
@@ -433,30 +499,39 @@ const EditProfileScreen = ({ navigation, route }) => {
           // Get category IDs from category names
           const categoryIds = jobSeekerData.jobCategories
             .map(categoryName => {
-              const category = jobCategories.find(cat => cat.name === categoryName);
+              const category = jobCategories.find(
+                cat => cat.name === categoryName,
+              );
               return category?.id;
             })
             .filter(Boolean);
 
           if (categoryIds.length > 0) {
             // First remove all existing categories
-            const { data: existingCategories } = await seekerService.getSeekerCategories(user.id);
+            const { data: existingCategories } =
+              await seekerService.getSeekerCategories(user.id);
             if (existingCategories && existingCategories.length > 0) {
-              const existingCategoryIds = existingCategories.map(c => c.category_id);
-              await seekerService.removeSeekerCategories(user.id, existingCategoryIds);
+              const existingCategoryIds = existingCategories.map(
+                c => c.category_id,
+              );
+              await seekerService.removeSeekerCategories(
+                user.id,
+                existingCategoryIds,
+              );
             }
 
             // Then add the new categories
             await seekerService.addSeekerCategories(user.id, categoryIds);
-            
+
             // Clear categories cache to ensure fresh data is loaded
             apiClient.clearCache(`seeker_categories_${user.id}`);
           }
         }
       } else {
         // Get existing company profile
-        const { data: existingProfile } = await companyService.getCompanyProfile(user.id);
-        
+        const { data: existingProfile } =
+          await companyService.getCompanyProfile(user.id);
+
         // Only include fields that exist in the current database schema
         const companyUpdates = {
           company_name: jobPosterData.companyName,
@@ -475,7 +550,10 @@ const EditProfileScreen = ({ navigation, route }) => {
         }
 
         if (existingProfile) {
-          await companyService.updateCompanyProfile(existingProfile.id, companyUpdates);
+          await companyService.updateCompanyProfile(
+            existingProfile.id,
+            companyUpdates,
+          );
         } else {
           await companyService.createCompanyProfile({
             ...companyUpdates,
@@ -494,27 +572,30 @@ const EditProfileScreen = ({ navigation, route }) => {
             onPress: () => {
               // Navigate back or refresh the profile
               navigation.goBack();
-            }
+            },
           }
-        ]
+        ],
       );
-
     } catch (error) {
       console.error('Error saving profile:', error);
-      
+
       // Show user-friendly error message
       let errorMessage = 'Failed to update profile. Please try again.';
-      
+
       if (error.message) {
         if (error.message.includes('Seeker profile not found')) {
           errorMessage = 'Profile not found. Please try again.';
         } else if (error.message.includes('validation')) {
           errorMessage = 'Please check your input and try again.';
-        } else if (error.message.includes('network') || error.message.includes('connection')) {
-          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (
+          error.message.includes('network') ||
+          error.message.includes('connection')
+        ) {
+          errorMessage =
+            'Network error. Please check your connection and try again.';
         }
       }
-      
+
       Alert.alert('Error', errorMessage);
     } finally {
       setIsLoading(false);
@@ -531,7 +612,10 @@ const EditProfileScreen = ({ navigation, route }) => {
   };
 
   const toggleSkill = skillName => {
-    const currentSkills = (jobSeekerData.skills || '').split(',').map(s => s.trim()).filter(Boolean);
+    const currentSkills = (jobSeekerData.skills || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
     const updatedSkills = currentSkills.includes(skillName)
       ? currentSkills.filter(s => s !== skillName)
       : [...currentSkills, skillName];
@@ -551,7 +635,9 @@ const EditProfileScreen = ({ navigation, route }) => {
           onChangeText={text =>
             setJobSeekerData({ ...jobSeekerData, name: text })
           }
-          leftIcon={<Feather name="user" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather name="user" size={20} color={theme.colors.textSecondary} />
+          }
           error={errors.name}
         />
 
@@ -564,7 +650,9 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           keyboardType="email-address"
           autoCapitalize="none"
-          leftIcon={<Feather name="mail" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather name="mail" size={20} color={theme.colors.textSecondary} />
+          }
           error={errors.email}
           editable={false}
           style={{ opacity: 0.6 }}
@@ -579,7 +667,9 @@ const EditProfileScreen = ({ navigation, route }) => {
             <TextInput
               placeholder="Enter phone number"
               value={(() => {
-                const displayValue = jobSeekerData.phone ? jobSeekerData.phone.replace('+91', '').trim() : '';
+                const displayValue = jobSeekerData.phone
+                  ? jobSeekerData.phone.replace('+91', '').trim()
+                  : '';
                 return displayValue;
               })()}
               onChangeText={text => {
@@ -591,7 +681,15 @@ const EditProfileScreen = ({ navigation, route }) => {
                 setJobSeekerData({ ...jobSeekerData, phone: newPhone });
               }}
               keyboardType="phone-pad"
-              style={[styles.phoneInput, { flex: 1, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16 }]}
+              style={[
+                styles.phoneInput,
+                {
+                  flex: 1,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  fontSize: 16,
+                },
+              ]}
               placeholderTextColor={theme.colors.textSecondary}
             />
           </View>
@@ -606,9 +704,10 @@ const EditProfileScreen = ({ navigation, route }) => {
           >
             {cities.map(city => {
               // Case-insensitive comparison
-              const isSelected = jobSeekerData.city && 
+              const isSelected =
+                jobSeekerData.city &&
                 jobSeekerData.city.toLowerCase() === city.toLowerCase();
-              
+
               return (
                 <TouchableOpacity
                   key={city}
@@ -642,7 +741,13 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           multiline
           numberOfLines={3}
-          leftIcon={<Feather name="edit-3" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather
+              name="edit-3"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
         />
       </View>
 
@@ -657,7 +762,9 @@ const EditProfileScreen = ({ navigation, route }) => {
             setJobSeekerData({ ...jobSeekerData, education10th: text })
           }
           keyboardType="numeric"
-          leftIcon={<Feather name="book" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather name="book" size={20} color={theme.colors.textSecondary} />
+          }
         />
 
         <Input
@@ -668,7 +775,9 @@ const EditProfileScreen = ({ navigation, route }) => {
             setJobSeekerData({ ...jobSeekerData, education12th: text })
           }
           keyboardType="numeric"
-          leftIcon={<Feather name="book" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather name="book" size={20} color={theme.colors.textSecondary} />
+          }
         />
 
         <Input
@@ -679,7 +788,13 @@ const EditProfileScreen = ({ navigation, route }) => {
             setJobSeekerData({ ...jobSeekerData, graduationPercentage: text })
           }
           keyboardType="numeric"
-          leftIcon={<Feather name="award" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather
+              name="award"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
         />
       </View>
 
@@ -690,14 +805,21 @@ const EditProfileScreen = ({ navigation, route }) => {
           <Text style={styles.inputLabel}>Skills</Text>
           {isLoadingSkills ? (
             <View style={styles.loadingContainer}>
-              <Feather name="loader" size={20} color={theme.colors.primary.main} />
+              <Feather
+                name="loader"
+                size={20}
+                color={theme.colors.primary.main}
+              />
               <Text style={styles.loadingText}>Loading skills...</Text>
             </View>
           ) : (
             <View style={styles.skillsGrid}>
               {allSkills.map(skill => {
-                const isSelected = (jobSeekerData.skills || '').split(',').some(s => s.trim().toLowerCase() === skill.name.toLowerCase());
-                
+                const isSelected = (jobSeekerData.skills || '')
+                  .split(',')
+                  .some(
+                    s => s.trim().toLowerCase() === skill.name.toLowerCase(),
+
                 return (
                   <TouchableOpacity
                     key={skill.id}
@@ -716,32 +838,48 @@ const EditProfileScreen = ({ navigation, route }) => {
                       {skill.name}
                     </Text>
                     {isSelected && (
-                      <Feather name="check" size={16} color={theme.colors.white} style={styles.checkIcon} />
+                      <Feather
+                        name="check"
+                        size={16}
+                        color={theme.colors.white}
+                        style={styles.checkIcon}
+                      />
                     )}
                   </TouchableOpacity>
                 );
               })}
             </View>
           )}
-          {errors.skills && <Text style={styles.errorText}>{errors.skills}</Text>}
-          
+          {errors.skills && (
+            <Text style={styles.errorText}>{errors.skills}</Text>
+
           {/* Add custom skill input */}
           <View style={styles.customSkillContainer}>
             <Input
               placeholder="Add a custom skill and press Enter"
               value={jobSeekerData.newSkill || ''}
-              onChangeText={text => setJobSeekerData({ ...jobSeekerData, newSkill: text })}
+              onChangeText={text =>
+                setJobSeekerData({ ...jobSeekerData, newSkill: text })
+              }
               onSubmitEditing={() => {
                 if (jobSeekerData.newSkill && jobSeekerData.newSkill.trim()) {
-                  const currentSkills = jobSeekerData.skills ? jobSeekerData.skills + ', ' : '';
-                  setJobSeekerData({ 
-                    ...jobSeekerData, 
+                  const currentSkills = jobSeekerData.skills
+                    ? jobSeekerData.skills + ', '
+                    : '';
+                  setJobSeekerData({
+                    ...jobSeekerData,
                     skills: currentSkills + jobSeekerData.newSkill.trim(),
-                    newSkill: ''
+                    newSkill: '',
                   });
                 }
               }}
-              leftIcon={<Feather name="plus" size={20} color={theme.colors.textSecondary} />}
+              leftIcon={
+                <Feather
+                  name="plus"
+                  size={20}
+                  color={theme.colors.textSecondary}
+                />
+              }
             />
           </View>
         </View>
@@ -783,7 +921,11 @@ const EditProfileScreen = ({ navigation, route }) => {
           <Text style={styles.inputLabel}>Job Categories</Text>
           {isLoadingCategories ? (
             <View style={styles.loadingContainer}>
-              <Feather name="loader" size={20} color={theme.colors.primary.main} />
+              <Feather
+                name="loader"
+                size={20}
+                color={theme.colors.primary.main}
+              />
               <Text style={styles.loadingText}>Loading categories...</Text>
             </View>
           ) : (
@@ -828,7 +970,9 @@ const EditProfileScreen = ({ navigation, route }) => {
           onChangeText={text =>
             setJobPosterData({ ...jobPosterData, name: text })
           }
-          leftIcon={<Feather name="user" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather name="user" size={20} color={theme.colors.textSecondary} />
+          }
           error={errors.name}
         />
 
@@ -841,7 +985,9 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           keyboardType="email-address"
           autoCapitalize="none"
-          leftIcon={<Feather name="mail" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather name="mail" size={20} color={theme.colors.textSecondary} />
+          }
           error={errors.email}
         />
 
@@ -853,16 +999,31 @@ const EditProfileScreen = ({ navigation, route }) => {
             </View>
             <TextInput
               placeholder="Enter phone number"
-              value={jobPosterData.phone ? jobPosterData.phone.replace('+91', '').trim() : ''}
+              value={
+                jobPosterData.phone
+                  ? jobPosterData.phone.replace('+91', '').trim()
+                  : ''
+              }
               onChangeText={text => {
                 // Only allow digits
                 const digitsOnly = text.replace(/[^0-9]/g, '');
                 // Limit to 10 digits
                 const limitedDigits = digitsOnly.slice(0, 10);
-                setJobPosterData({ ...jobPosterData, phone: `+91${limitedDigits}` });
+                setJobPosterData({
+                  ...jobPosterData,
+                  phone: `+91${limitedDigits}`,
+                });
               }}
               keyboardType="phone-pad"
-              style={[styles.phoneInput, { flex: 1, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16 }]}
+              style={[
+                styles.phoneInput,
+                {
+                  flex: 1,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  fontSize: 16,
+                },
+              ]}
               placeholderTextColor={theme.colors.textSecondary}
             />
           </View>
@@ -877,7 +1038,13 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           multiline
           numberOfLines={3}
-          leftIcon={<Feather name="edit-3" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather
+              name="edit-3"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
         />
       </View>
 
@@ -891,7 +1058,13 @@ const EditProfileScreen = ({ navigation, route }) => {
           onChangeText={text =>
             setJobPosterData({ ...jobPosterData, companyName: text })
           }
-          leftIcon={<Feather name="building" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather
+              name="building"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
           error={errors.companyName}
         />
 
@@ -932,7 +1105,13 @@ const EditProfileScreen = ({ navigation, route }) => {
           onChangeText={text =>
             setJobPosterData({ ...jobPosterData, industry: text })
           }
-          leftIcon={<Feather name="briefcase" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather
+              name="briefcase"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
           error={errors.industry}
         />
 
@@ -975,7 +1154,13 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           multiline
           numberOfLines={4}
-          leftIcon={<Feather name="file-text" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather
+              name="file-text"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
         />
 
         <Input
@@ -987,7 +1172,13 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           keyboardType="url"
           autoCapitalize="none"
-          leftIcon={<Feather name="globe" size={20} color={theme.colors.textSecondary} />}
+          leftIcon={
+            <Feather
+              name="globe"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
         />
       </View>
     </View>
@@ -995,88 +1186,101 @@ const EditProfileScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.backgroundLight} />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={theme.colors.backgroundLight}
+      />
 
       {/* <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoid}
       > */}
-        {/* App Header */}
-        <View
-          style={styles.header}
+      {/* App Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
         >
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Feather name="arrow-left" size={24} color={theme.colors.text.white} />
-          </TouchableOpacity>
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>Edit Profile</Text>
-            <Text style={styles.headerSubtitle}>
-              Update your {currentMode === 'seeker' ? 'job seeker' : 'job poster'} information
-            </Text>
-          </View>
-          <View style={styles.modeBadge}>
-            <Text style={styles.modeText}>{currentMode === 'seeker' ? '👤' : '💼'}</Text>
-          </View>
+          <Feather
+            name="arrow-left"
+            size={24}
+            color={theme.colors.text.white}
+          />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Edit Profile</Text>
+          <Text style={styles.headerSubtitle}>
+            Update your {currentMode === 'seeker' ? 'job seeker' : 'job poster'}{' '}
+            information
+          </Text>
         </View>
-
-        {/* Content */}
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View
-            style={styles.content}
-          >
-            <Card style={styles.formCard}>
-              {isLoadingProfile ? (
-                <View style={styles.loadingContainer}>
-                  <Feather name="loader" size={24} color={theme.colors.primary.main} />
-                  <Text style={styles.loadingText}>Loading profile data...</Text>
-                </View>
-              ) : (
-                currentMode === 'seeker'
-                  ? renderJobSeekerForm()
-                  : renderJobPosterForm()
-              )}
-            </Card>
-          </View>
-        </ScrollView>
-
-        {/* Save Button */}
-        <View
-          style={styles.navigationContainer}
-        >
-          <Button
-            variant="primary"
-            size="lg"
-            onPress={handleSave}
-            disabled={isLoading || isLoadingProfile || isLoadingCategories || isLoadingSkills}
-          >
-            <View style={styles.buttonContent}>
-              {isLoading ? (
-                <>
-                  <Feather name="loader" size={20} color={theme.colors.white} />
-                  <Text style={styles.buttonText}>Saving...</Text>
-                </>
-              ) : isLoadingProfile || isLoadingCategories || isLoadingSkills ? (
-                <>
-                  <Feather name="loader" size={20} color={theme.colors.white} />
-                  <Text style={styles.buttonText}>Loading...</Text>
-                </>
-              ) : (
-                <>
-                  <Feather name="check" size={20} color={theme.colors.white} />
-                  <Text style={styles.buttonText}>Save Changes</Text>
-                </>
-              )}
-            </View>
-          </Button>
+        <View style={styles.modeBadge}>
+          <Text style={styles.modeText}>
+            {currentMode === 'seeker' ? '👤' : '💼'}
+          </Text>
         </View>
+      </View>
+
+      {/* Content */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          <Card style={styles.formCard}>
+            {isLoadingProfile ? (
+              <View style={styles.loadingContainer}>
+                <Feather
+                  name="loader"
+                  size={24}
+                  color={theme.colors.primary.main}
+                />
+                <Text style={styles.loadingText}>Loading profile data...</Text>
+              </View>
+            ) : currentMode === 'seeker' ? (
+              renderJobSeekerForm()
+            ) : (
+              renderJobPosterForm()
+            )}
+          </Card>
+        </View>
+      </ScrollView>
+
+      {/* Save Button */}
+      <View style={styles.navigationContainer}>
+        <Button
+          variant="primary"
+          size="lg"
+          onPress={handleSave}
+          disabled={
+            isLoading ||
+            isLoadingProfile ||
+            isLoadingCategories ||
+            isLoadingSkills
+          }
+        >
+          <View style={styles.buttonContent}>
+            {isLoading ? (
+              <>
+                <Feather name="loader" size={20} color={theme.colors.white} />
+                <Text style={styles.buttonText}>Saving...</Text>
+              </>
+            ) : isLoadingProfile || isLoadingCategories || isLoadingSkills ? (
+              <>
+                <Feather name="loader" size={20} color={theme.colors.white} />
+                <Text style={styles.buttonText}>Loading...</Text>
+              </>
+            ) : (
+              <>
+                <Feather name="check" size={20} color={theme.colors.white} />
+                <Text style={styles.buttonText}>Save Changes</Text>
+              </>
+            )}
+          </View>
+        </Button>
+      </View>
       {/* </KeyboardAvoidingView> */}
     </SafeAreaView>
   );

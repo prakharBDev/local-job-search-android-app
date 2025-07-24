@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import { bluewhiteTheme } from '../theme/bluewhite-theme';
 
 // Create context
@@ -14,7 +20,7 @@ export const ThemeProvider = ({ children, initialTheme = 'bluewhite' }) => {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
 
   // Memoize the setTheme function for performance
-  const setTheme = useCallback((themeName) => {
+  const setTheme = useCallback(themeName => {
     if (themes[themeName]) {
       setCurrentTheme(themeName);
     } else {

@@ -18,25 +18,32 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 const OnboardingScreen = () => {
   const navigation = useNavigation();
   const { user, userRecord, updateUserRecord } = useAuth();
-  
+
   // Get user name from authentication data
-  const userName = userRecord?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'FRIEND';
+  const userName =
+    userRecord?.name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split('@')[0] ||
+    'FRIEND';
 
   const [selectedRoles, setSelectedRoles] = useState({
     isSeeker: false,
     isPoster: false,
   });
 
-  const toggleRole = (role) => {
+  const toggleRole = role => {
     setSelectedRoles(prev => ({
       ...prev,
-      [role]: !prev[role]
+      [role]: !prev[role],
     }));
   };
 
   const handleContinue = async () => {
     if (!selectedRoles.isSeeker && !selectedRoles.isPoster) {
-      Alert.alert('Selection Required', 'Please select at least one role to continue.');
+      Alert.alert(
+        'Selection Required',
+        'Please select at least one role to continue.',
+      );
       return;
     }
 
@@ -59,7 +66,10 @@ const OnboardingScreen = () => {
       }
     } catch (error) {
       console.error('Error updating user roles:', error);
-      Alert.alert('Error', 'Failed to save your role selection. Please try again.');
+      Alert.alert(
+        'Error',
+        'Failed to save your role selection. Please try again.',
+      );
     }
   };
 
@@ -88,14 +98,16 @@ const OnboardingScreen = () => {
         {/* Role Selection Section */}
         <View style={styles.selectionSection}>
           <Text style={styles.sectionTitle}>What would you like to do?</Text>
-          <Text style={styles.sectionSubtitle}>You can select both options</Text>
-          
+          <Text style={styles.sectionSubtitle}>
+            You can select both options
+          </Text>
+
           {/* Role Cards */}
           <View style={styles.roleCardsContainer}>
             <TouchableOpacity
               style={[
                 styles.roleCard,
-                selectedRoles.isSeeker && styles.roleCardSelected
+                selectedRoles.isSeeker && styles.roleCardSelected,
               ]}
               onPress={() => toggleRole('isSeeker')}
               activeOpacity={0.7}
@@ -105,10 +117,12 @@ const OnboardingScreen = () => {
                   <FontAwesome name="search" size={24} color="#FFFFFF" />
                 </View>
                 <View style={styles.roleCheckbox}>
-                  <View style={[
-                    styles.checkbox,
-                    selectedRoles.isSeeker && styles.checkboxSelected
-                  ]}>
+                  <View
+                    style={[
+                      styles.checkbox,
+                      selectedRoles.isSeeker && styles.checkboxSelected,
+                    ]}
+                  >
                     {selectedRoles.isSeeker && (
                       <FontAwesome name="check" size={14} color="#FFFFFF" />
                     )}
@@ -126,7 +140,7 @@ const OnboardingScreen = () => {
             <TouchableOpacity
               style={[
                 styles.roleCard,
-                selectedRoles.isPoster && styles.roleCardSelected
+                selectedRoles.isPoster && styles.roleCardSelected,
               ]}
               onPress={() => toggleRole('isPoster')}
               activeOpacity={0.7}
@@ -136,10 +150,12 @@ const OnboardingScreen = () => {
                   <FontAwesome name="briefcase" size={24} color="#FFFFFF" />
                 </View>
                 <View style={styles.roleCheckbox}>
-                  <View style={[
-                    styles.checkbox,
-                    selectedRoles.isPoster && styles.checkboxSelected
-                  ]}>
+                  <View
+                    style={[
+                      styles.checkbox,
+                      selectedRoles.isPoster && styles.checkboxSelected,
+                    ]}
+                  >
                     {selectedRoles.isPoster && (
                       <FontAwesome name="check" size={14} color="#FFFFFF" />
                     )}
@@ -162,16 +178,18 @@ const OnboardingScreen = () => {
               disabled={!selectedRoles.isSeeker && !selectedRoles.isPoster}
               style={[
                 styles.continueButton,
-                (!selectedRoles.isSeeker && !selectedRoles.isPoster) && styles.continueButtonDisabled
+                !selectedRoles.isSeeker &&
+                  !selectedRoles.isPoster &&
+                  styles.continueButtonDisabled,
               ]}
             >
               <Text style={styles.buttonText}>Continue</Text>
             </Button>
-            
+
             <Text style={styles.helperText}>
-              {selectedRoles.isSeeker && selectedRoles.isPoster 
+              {selectedRoles.isSeeker && selectedRoles.isPoster
                 ? "You'll set up both profiles in sequence"
-                : "You can add the other role later in your profile settings"
+                : 'You can add the other role later in your profile settings'
               }
             </Text>
           </View>
@@ -181,152 +199,153 @@ const OnboardingScreen = () => {
   );
 };
 
-const getStyles = () => StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  heroSection: {
-    alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 30,
-    paddingHorizontal: 24,
-  },
-  heroImage: {
-    width: '100%',
-    height: 200,
-    marginBottom: 20,
-  },
-  heroContent: {
-    alignItems: 'center',
-  },
-  welcomeText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  heroTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  heroSubtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  selectionSection: {
-    paddingHorizontal: 24,
-    paddingBottom: 40,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  sectionSubtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 32,
-  },
-  roleCardsContainer: {
-    gap: 16,
-    marginBottom: 32,
-  },
-  roleCard: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-  },
-  roleCardSelected: {
-    borderColor: '#3B82F6',
-    backgroundColor: '#EFF6FF',
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  roleCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  roleIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  roleCheckbox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkbox: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  checkboxSelected: {
-    borderColor: '#3B82F6',
-    backgroundColor: '#3B82F6',
-  },
-  roleCardContent: {
-    flex: 1,
-  },
-  roleTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  roleDescription: {
-    fontSize: 16,
-    color: '#6B7280',
-    lineHeight: 24,
-  },
-  buttonContainer: {
-    alignItems: 'center',
-  },
-  continueButton: {
-    minHeight: 56,
-    width: '100%',
-    marginBottom: 16,
-  },
-  continueButtonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  helperText: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-});
+const getStyles = () =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: '#FFFFFF',
+    },
+    container: {
+      flex: 1,
+      backgroundColor: '#FFFFFF',
+    },
+    heroSection: {
+      alignItems: 'center',
+      paddingTop: 40,
+      paddingBottom: 30,
+      paddingHorizontal: 24,
+    },
+    heroImage: {
+      width: '100%',
+      height: 200,
+      marginBottom: 20,
+    },
+    heroContent: {
+      alignItems: 'center',
+    },
+    welcomeText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#6B7280',
+      marginBottom: 8,
+    },
+    heroTitle: {
+      fontSize: 32,
+      fontWeight: 'bold',
+      color: '#1F2937',
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    heroSubtitle: {
+      fontSize: 16,
+      color: '#6B7280',
+      textAlign: 'center',
+      lineHeight: 24,
+    },
+    selectionSection: {
+      paddingHorizontal: 24,
+      paddingBottom: 40,
+    },
+    sectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: '#1F2937',
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    sectionSubtitle: {
+      fontSize: 16,
+      color: '#6B7280',
+      textAlign: 'center',
+      marginBottom: 32,
+    },
+    roleCardsContainer: {
+      gap: 16,
+      marginBottom: 32,
+    },
+    roleCard: {
+      backgroundColor: '#F9FAFB',
+      borderRadius: 16,
+      padding: 20,
+      borderWidth: 2,
+      borderColor: '#E5E7EB',
+    },
+    roleCardSelected: {
+      borderColor: '#3B82F6',
+      backgroundColor: '#EFF6FF',
+      shadowColor: '#3B82F6',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    roleCardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    roleIcon: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    roleCheckbox: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkbox: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      borderWidth: 2,
+      borderColor: '#D1D5DB',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#FFFFFF',
+    },
+    checkboxSelected: {
+      borderColor: '#3B82F6',
+      backgroundColor: '#3B82F6',
+    },
+    roleCardContent: {
+      flex: 1,
+    },
+    roleTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: '#1F2937',
+      marginBottom: 8,
+    },
+    roleDescription: {
+      fontSize: 16,
+      color: '#6B7280',
+      lineHeight: 24,
+    },
+    buttonContainer: {
+      alignItems: 'center',
+    },
+    continueButton: {
+      minHeight: 56,
+      width: '100%',
+      marginBottom: 16,
+    },
+    continueButtonDisabled: {
+      opacity: 0.6,
+    },
+    buttonText: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
+    helperText: {
+      fontSize: 14,
+      color: '#9CA3AF',
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+  });
 
 export default OnboardingScreen;

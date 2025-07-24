@@ -14,15 +14,17 @@ const seekerService = {
    */
   async createSeekerProfile(userId, profileData) {
     try {
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         return await supabase
           .from('seeker_profiles')
-          .insert([{
-            user_id: userId,
-            ...profileData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }])
+          .insert([
+            {
+              user_id: userId,
+              ...profileData,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+          ])
           .select()
           .single();
       };
@@ -54,7 +56,7 @@ const seekerService = {
    */
   async updateSeekerProfile(userId, updates) {
     try {
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         return await supabase
           .from('seeker_profiles')
           .update({
@@ -97,7 +99,7 @@ const seekerService = {
         includeSkills: true,
         includeCategories: true,
         cache: true,
-        ...options
+        ...options,
       });
 
       if (error) {
@@ -106,7 +108,7 @@ const seekerService = {
 
       // Handle array response - return first item or null if no profile exists
       const profile = Array.isArray(data) ? data[0] || null : data;
-      
+
       return { data: profile, error: null };
     } catch (error) {
       const normalizedError = handleApiError(error, 'getSeekerProfile');
@@ -127,7 +129,7 @@ const seekerService = {
         includeCategories: true,
         includeApplications: options.includeApplications || false,
         cache: true,
-        ...options
+        ...options,
       });
 
       if (error) {
@@ -136,10 +138,13 @@ const seekerService = {
 
       // Handle array response - return first item or null if no profile exists
       const profile = Array.isArray(data) ? data[0] || null : data;
-      
+
       return { data: profile, error: null };
     } catch (error) {
-      const normalizedError = handleApiError(error, 'getSeekerProfileWithRelations');
+      const normalizedError = handleApiError(
+        error,
+        'getSeekerProfileWithRelations',
+      );
       return { data: null, error: normalizedError };
     }
   },
@@ -154,20 +159,18 @@ const seekerService = {
     try {
       // First get the seeker profile ID
       const { data: profile } = await this.getSeekerProfile(userId);
-      
+
       if (!profile) {
         throw new Error('Seeker profile not found');
       }
 
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         const skillData = skillIds.map(skillId => ({
           seeker_id: profile.id,
           skill_id: skillId,
         }));
 
-        return await supabase
-          .from('seeker_skills')
-          .insert(skillData);
+        return await supabase.from('seeker_skills').insert(skillData);
       };
 
       const { error } = await apiClient.request(operation, {
@@ -199,12 +202,12 @@ const seekerService = {
     try {
       // First get the seeker profile ID
       const { data: profile } = await this.getSeekerProfile(userId);
-      
+
       if (!profile) {
         throw new Error('Seeker profile not found');
       }
 
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         return await supabase
           .from('seeker_skills')
           .delete()
@@ -241,20 +244,18 @@ const seekerService = {
     try {
       // First get the seeker profile ID
       const { data: profile } = await this.getSeekerProfile(userId);
-      
+
       if (!profile) {
         throw new Error('Seeker profile not found');
       }
 
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         const categoryData = categoryIds.map(categoryId => ({
           seeker_id: profile.id,
           category_id: categoryId,
         }));
 
-        return await supabase
-          .from('seeker_categories')
-          .insert(categoryData);
+        return await supabase.from('seeker_categories').insert(categoryData);
       };
 
       const { error } = await apiClient.request(operation, {
@@ -286,12 +287,12 @@ const seekerService = {
     try {
       // First get the seeker profile ID
       const { data: profile } = await this.getSeekerProfile(userId);
-      
+
       if (!profile) {
         throw new Error('Seeker profile not found');
       }
 
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         return await supabase
           .from('seeker_categories')
           .delete()
@@ -326,7 +327,7 @@ const seekerService = {
   async getSeekerSkills(userId) {
     try {
       const { data: profile } = await this.getSeekerProfile(userId);
-      
+
       if (!profile) {
         return { data: [], error: null };
       }
@@ -335,7 +336,7 @@ const seekerService = {
         select: 'skill_id, skills(id, name)',
         filters: { seeker_id: profile.id },
         cache: true,
-        cacheKey: `seeker_skills_${userId}`
+        cacheKey: `seeker_skills_${userId}`,
       });
 
       if (error) {
@@ -357,7 +358,7 @@ const seekerService = {
   async getSeekerCategories(userId) {
     try {
       const { data: profile } = await this.getSeekerProfile(userId);
-      
+
       if (!profile) {
         return { data: [], error: null };
       }
@@ -366,7 +367,7 @@ const seekerService = {
         select: 'category_id, job_categories(id, name)',
         filters: { seeker_id: profile.id },
         cache: true,
-        cacheKey: `seeker_categories_${userId}`
+        cacheKey: `seeker_categories_${userId}`,
       });
 
       if (error) {
@@ -400,7 +401,7 @@ const seekerService = {
         limit: options.limit || 20,
         offset: options.offset || 0,
         cache: options.cache !== false,
-        cacheKey: `seekers_search_${JSON.stringify({ filters, options })}`
+        cacheKey: `seekers_search_${JSON.stringify({ filters, options })}`,
       });
 
       if (error) {
@@ -421,7 +422,7 @@ const seekerService = {
    */
   async getSeekerStats(userId) {
     try {
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         const stats = {};
 
         // Get basic profile info
@@ -434,7 +435,9 @@ const seekerService = {
         if (profile) {
           stats.createdAt = profile.created_at;
           stats.experienceLevel = profile.experience_level;
-          stats.daysSinceCreation = Math.floor((Date.now() - new Date(profile.created_at)) / (1000 * 60 * 60 * 24));
+          stats.daysSinceCreation = Math.floor(
+            (Date.now() - new Date(profile.created_at)) / (1000 * 60 * 60 * 24),
+          );
         }
 
         // Get applications stats
@@ -444,10 +447,11 @@ const seekerService = {
           .eq('seeker_id', userId);
 
         stats.totalApplications = applications?.length || 0;
-        stats.applicationsByStatus = applications?.reduce((acc, app) => {
-          acc[app.status] = (acc[app.status] || 0) + 1;
-          return acc;
-        }, {}) || {};
+        stats.applicationsByStatus =
+          applications?.reduce((acc, app) => {
+            acc[app.status] = (acc[app.status] || 0) + 1;
+            return acc;
+          }, {}) || {};
 
         // Get skills count
         const { data: skills } = await supabase
@@ -470,7 +474,7 @@ const seekerService = {
 
       const { data, error } = await apiClient.request(operation, {
         cache: true,
-        cacheKey: `seeker_stats_${userId}`
+        cacheKey: `seeker_stats_${userId}`,
       });
 
       if (error) {

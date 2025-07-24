@@ -21,12 +21,12 @@ class ApiClient {
    * @returns {Promise<{data: any, error: Error|null}>}
    */
   async request(operation, options = {}) {
-    const { 
-      retry = true, 
-      cache = false, 
+    const {
+      retry = true,
+      cache = false,
       cacheKey = null,
       defer = false,
-      ...operationOptions 
+      ...operationOptions
     } = options;
 
     try {
@@ -41,22 +41,26 @@ class ApiClient {
 
       // Execute operation with retry logic
       let lastError;
-      for (let attempt = 1; attempt <= (retry ? this.retryAttempts : 1); attempt++) {
+      for (
+        let attempt = 1;
+        attempt <= (retry ? this.retryAttempts : 1);
+        attempt++
+      ) {
         try {
           const result = await operation(this.supabase, operationOptions);
-          
+
           // Cache result if enabled
           if (cache && cacheKey && result.data) {
             this.cache.set(cacheKey, {
               data: result.data,
-              timestamp: Date.now()
+              timestamp: Date.now(),
             });
           }
 
           return result;
         } catch (error) {
           lastError = error;
-          
+
           // Don't retry on certain errors
           if (this.shouldNotRetry(error)) {
             break;
@@ -81,9 +85,12 @@ class ApiClient {
    * @param {Object} options - Request options
    */
   async requestAfterInteractions(operation, options = {}) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       InteractionManager.runAfterInteractions(async () => {
-        const result = await this.request(operation, { ...options, defer: true });
+        const result = await this.request(operation, {
+          ...options,
+          defer: true,
+        });
         resolve(result);
       });
     });
@@ -108,7 +115,7 @@ class ApiClient {
       ...otherOptions
     } = options;
 
-    const operation = async (supabase) => {
+    const operation = async supabase => {
       let query = supabase.from(table).select(select);
 
       // Apply filters
@@ -124,7 +131,9 @@ class ApiClient {
 
       // Apply ordering
       if (orderBy) {
-        query = query.order(orderBy.column, { ascending: orderBy.ascending !== false });
+        query = query.order(orderBy.column, {
+          ascending: orderBy.ascending !== false,
+        });
       }
 
       // Apply pagination
@@ -144,7 +153,11 @@ class ApiClient {
     };
 
     const finalCacheKey = cacheKey || `${table}_${JSON.stringify(options)}`;
-    return this.request(operation, { cache, cacheKey: finalCacheKey, ...otherOptions });
+    return this.request(operation, {
+      cache,
+      cacheKey: finalCacheKey,
+      ...otherOptions,
+    });
   }
 
   /**
@@ -167,9 +180,11 @@ class ApiClient {
   shouldNotRetry(error) {
     // Don't retry authentication errors, validation errors, or 4xx errors
     const nonRetryableCodes = [400, 401, 403, 404, 422];
-    return nonRetryableCodes.includes(error.code) || 
-           error.message?.includes('validation') ||
-           error.message?.includes('authentication');
+    return (
+      nonRetryableCodes.includes(error.code) ||
+      error.message?.includes('validation') ||
+      error.message?.includes('authentication')
+    );
   }
 
   /**
@@ -179,12 +194,14 @@ class ApiClient {
    */
   normalizeError(error) {
     // Add context and user-friendly messages
-    const normalizedError = new Error(error.message || 'An unexpected error occurred');
+    const normalizedError = new Error(
+      error.message || 'An unexpected error occurred',
+    );
     normalizedError.code = error.code;
     normalizedError.details = error.details;
     normalizedError.hint = error.hint;
     normalizedError.originalError = error;
-    
+
     return normalizedError;
   }
 
@@ -199,4 +216,4 @@ class ApiClient {
 }
 
 // Export singleton instance
-export const apiClient = new ApiClient(); 
+export const apiClient = new ApiClient();

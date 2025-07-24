@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  TouchableOpacity, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
   RefreshControl,
   ActivityIndicator,
   Animated,
-  Alert
+  Alert,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -24,7 +24,7 @@ const AppliedJobsScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
   const { theme } = useTheme();
-  
+
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -57,14 +57,14 @@ const AppliedJobsScreen = () => {
       if (seekerProfile) {
         loadApplications();
       }
-    }, [seekerProfile])
+    }, [seekerProfile]),
   );
 
   // Initial load
   useEffect(() => {
     if (seekerProfile) {
       loadApplications();
-      
+
       // Entrance animation
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -75,12 +75,13 @@ const AppliedJobsScreen = () => {
   }, [seekerProfile]);
 
   const loadApplications = async () => {
-    if (!seekerProfile) return;
+    if (!seekerProfile) {return;}
 
     try {
       setLoading(true);
-      const { data, error } = await applicationService.getSeekerApplications(seekerProfile.id);
-      
+      const { data, error } = await applicationService.getSeekerApplications(
+        seekerProfile.id,
+
       if (error) {
         throw error;
       }
@@ -100,7 +101,7 @@ const AppliedJobsScreen = () => {
     setRefreshing(false);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = status => {
     switch (status) {
       case 'applied':
         return 'default';
@@ -115,7 +116,7 @@ const AppliedJobsScreen = () => {
     }
   };
 
-  const getStatusLabel = (status) => {
+  const getStatusLabel = status => {
     switch (status) {
       case 'applied':
         return 'Application Sent';
@@ -130,7 +131,7 @@ const AppliedJobsScreen = () => {
     }
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = status => {
     switch (status) {
       case 'applied':
         return 'send';
@@ -145,7 +146,7 @@ const AppliedJobsScreen = () => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     return new Date(dateString).toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
@@ -153,39 +154,26 @@ const AppliedJobsScreen = () => {
     });
   };
 
-  // Helper function to format salary as monthly amount
-  const formatSalary = (salary) => {
-    if (!salary) return 'Salary not specified';
-    
-    // Handle salary ranges like "₹12,00,000 – ₹18,00,000/year"
-    if (salary.includes('–') || salary.includes('-')) {
-      // Extract the first number (lower range) and convert to monthly
-      const firstNumber = salary.match(/₹([\d,]+)/);
-      if (firstNumber) {
-        const numericSalary = firstNumber[1].replace(/,/g, '');
-        const yearlySalary = parseInt(numericSalary);
-        const monthlySalary = Math.round(yearlySalary / 12);
-        return `₹${monthlySalary.toLocaleString()}/month`;
-      }
+  // Helper function to format salary - show database value directly
+  const formatSalary = salary => {
+    if (!salary) {
+      return 'Salary not specified';
     }
-    
-    // Handle single salary values
-    const numericSalary = salary.replace(/[^\d]/g, '');
-    if (!numericSalary) return salary;
-    
-    // Assume yearly salary, convert to monthly (divide by 12)
-    const yearlySalary = parseInt(numericSalary);
-    const monthlySalary = Math.round(yearlySalary / 12);
-    
-    // Format with commas
-    return `₹${monthlySalary.toLocaleString()}/month`;
+
+    // If salary already has ₹ symbol, return as is
+    if (salary.includes('₹')) {
+      return salary;
+    }
+
+    // Add ₹ symbol to the database value
+    return `₹${salary}`;
   };
 
-  const handleViewDetails = (application) => {
+  const handleViewDetails = application => {
     navigation.navigate('ApplicationDetails', { applicationData: application });
   };
 
-  const handleViewJob = (job) => {
+  const handleViewJob = job => {
     navigation.navigate('JobDetails', { jobData: job });
   };
 
@@ -254,7 +242,9 @@ const AppliedJobsScreen = () => {
       {/* App Header */}
       <AppHeader
         title="Applied Jobs"
-        subtitle={`${applications.length} application${applications.length !== 1 ? 's' : ''}`}
+        subtitle={`${applications.length} application${
+          applications.length !== 1 ? 's' : ''
+        }`}
         leftIcon={<Icon name="arrow-left" size={20} color="#64748B" />}
         onLeftPress={() => navigation.goBack()}
         background="#FFFFFF"
@@ -274,7 +264,7 @@ const AppliedJobsScreen = () => {
         }
         showsVerticalScrollIndicator={false}
       >
-        {applications.map((application) => {
+        {applications.map(application => {
           const job = application.jobs;
           const company = job?.company_profiles;
 
@@ -283,7 +273,9 @@ const AppliedJobsScreen = () => {
               {/* Job Info Header */}
               <View style={styles.cardHeader}>
                 <View style={styles.jobInfo}>
-                  <Text style={styles.jobTitle}>{job?.title || 'Job Title'}</Text>
+                  <Text style={styles.jobTitle}>
+                    {job?.title || 'Job Title'}
+                  </Text>
                   <View style={styles.companyRow}>
                     <Text style={styles.companyName}>
                       {company?.company_name || 'Company'}
@@ -309,47 +301,71 @@ const AppliedJobsScreen = () => {
 
                 <View style={styles.detailRow}>
                   <Feather name="map-pin" size={14} color="#E2E8F0" />
-                  <Text style={styles.detailText}>{job?.city || 'Location'}</Text>
+                  <Text style={styles.detailText}>
+                    {job?.city || 'Location'}
+                  </Text>
                 </View>
 
                 {job?.salary && (
                   <View style={styles.detailRow}>
                     <Feather name="dollar-sign" size={14} color="#E2E8F0" />
-                    <Text style={styles.detailText}>{formatSalary(job.salary)}</Text>
+                    <Text style={styles.detailText}>
+                      {formatSalary(job.salary)}
+                    </Text>
                   </View>
                 )}
 
                 {job?.job_categories && (
                   <View style={styles.detailRow}>
                     <Feather name="tag" size={14} color="#E2E8F0" />
-                    <Text style={styles.detailText}>{job.job_categories.name}</Text>
+                    <Text style={styles.detailText}>
+                      {job.job_categories.name}
+                    </Text>
                   </View>
                 )}
               </View>
 
               {/* Status Indicator */}
               <View style={styles.statusRow}>
-                <View style={[
-                  styles.statusIndicator,
-                  { backgroundColor: `${getStatusColor(application.status) === 'success' ? '#10B981' : 
-                     getStatusColor(application.status) === 'warning' ? '#F59E0B' :
-                     getStatusColor(application.status) === 'error' ? '#EF4444' : '#3B82F6'}20` }
-                ]}>
-                  <Feather 
-                    name={getStatusIcon(application.status)} 
-                    size={16} 
+                <View
+                  style={[
+                    styles.statusIndicator,
+                    {
+                      backgroundColor: `${
+                        getStatusColor(application.status) === 'success'
+                          ? '#10B981'
+                          : getStatusColor(application.status) === 'warning'
+                          ? '#F59E0B'
+                          : getStatusColor(application.status) === 'error'
+                          ? '#EF4444'
+                          : '#3B82F6'
+                      }20`,
+                    },
+                  ]}
+                >
+                  <Feather
+                    name={getStatusIcon(application.status)}
+                    size={16}
                     color={
-                      getStatusColor(application.status) === 'success' ? '#10B981' : 
-                      getStatusColor(application.status) === 'warning' ? '#F59E0B' :
-                      getStatusColor(application.status) === 'error' ? '#EF4444' : '#3B82F6'
-                    } 
+                      getStatusColor(application.status) === 'success'
+                        ? '#10B981'
+                        : getStatusColor(application.status) === 'warning'
+                        ? '#F59E0B'
+                        : getStatusColor(application.status) === 'error'
+                        ? '#EF4444'
+                        : '#3B82F6'
+                    }
                   />
                 </View>
                 <Text style={styles.statusText}>
-                  {application.status === 'hired' && 'Congratulations! You got the job!'}
-                  {application.status === 'under_review' && 'Your application is being reviewed'}
-                  {application.status === 'applied' && 'Application submitted successfully'}
-                  {application.status === 'rejected' && 'Keep applying to other opportunities'}
+                  {application.status === 'hired' &&
+                    'Congratulations! You got the job!'}
+                  {application.status === 'under_review' &&
+                    'Your application is being reviewed'}
+                  {application.status === 'applied' &&
+                    'Application submitted successfully'}
+                  {application.status === 'rejected' &&
+                    'Keep applying to other opportunities'}
                 </Text>
               </View>
 

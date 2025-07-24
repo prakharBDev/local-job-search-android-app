@@ -15,7 +15,7 @@ const categoriesService = {
         select: '*',
         orderBy: { column: 'name', ascending: true },
         cache: true,
-        cacheKey: 'all_categories'
+        cacheKey: 'all_categories',
       });
 
       if (error) {
@@ -39,21 +39,23 @@ const categoriesService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('job_categories')
-            .insert([{ 
-              name: name.trim(),
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            }])
+            .insert([
+              {
+                name: name.trim(),
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+            ])
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'createCategory'
-        }
+          context: 'createCategory',
+        },
       );
 
       if (error) {
@@ -83,7 +85,7 @@ const categoriesService = {
         filters: { id: categoryId },
         limit: 1,
         cache: true,
-        cacheKey: `category_${categoryId}`
+        cacheKey: `category_${categoryId}`,
       });
 
       if (error) {
@@ -115,14 +117,14 @@ const categoriesService = {
             .eq('id', categoryId)
             .select()
             .single();
-          
+
           return { data, error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'updateCategory'
-        }
+          context: 'updateCategory',
+        },
       );
 
       if (error) {
@@ -154,14 +156,14 @@ const categoriesService = {
             .from('job_categories')
             .delete()
             .eq('id', categoryId);
-          
+
           return { error };
         },
-        { 
-          cache: false, 
+        {
+          cache: false,
           retries: false,
-          context: 'deleteCategory'
-        }
+          context: 'deleteCategory',
+        },
       );
 
       if (error) {
@@ -190,19 +192,21 @@ const categoriesService = {
         async () => {
           const { data, error } = await apiClient.supabase
             .from('job_categories')
-            .select(`
+            .select(
+              `
               *,
               jobs(count)
-            `)
+            `,
+            )
             .order('name');
-          
+
           return { data, error };
         },
-        { 
+        {
           cache: true,
           cacheKey: 'categories_with_job_count',
-          context: 'getCategoriesWithJobCount'
-        }
+          context: 'getCategoriesWithJobCount',
+        },
       );
 
       if (error) {

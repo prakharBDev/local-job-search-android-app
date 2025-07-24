@@ -6,7 +6,7 @@ export const getStyles = theme =>
       flex: 1,
       backgroundColor: '#F8FAFC',
     },
-    
+
     // Loading States
     loadingContainer: {
       flex: 1,
@@ -111,6 +111,15 @@ export const getStyles = theme =>
       color: '#FFFFFF',
     },
 
+    // Filters Section
+    filtersSection: {
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: '#FFFFFF',
+      borderBottomWidth: 1,
+      borderBottomColor: '#F3F4F6',
+    },
+
     // Popular Jobs Section
     popularJobsSection: {
       paddingHorizontal: 20,
@@ -136,11 +145,7 @@ export const getStyles = theme =>
       color: theme.colors.primary.main,
     },
     popularJobsContainer: {
-      paddingRight: 20,
-    },
-    popularJobWrapper: {
-      marginRight: 12,
-      width: 280,
+      paddingRight: 0,
     },
 
     // Jobs List
@@ -148,13 +153,13 @@ export const getStyles = theme =>
       flex: 1,
     },
     jobsListContent: {
-      padding: 20,
       paddingBottom: 100,
     },
 
     // Job Card
     jobCard: {
       marginBottom: 16,
+      marginHorizontal: 20,
       padding: 20,
       backgroundColor: '#FFFFFF',
       borderRadius: 16,
@@ -175,7 +180,7 @@ export const getStyles = theme =>
       width: 44,
       height: 44,
       borderRadius: 12,
-      backgroundColor: theme.colors.primary.light + '20',
+      backgroundColor: `${theme.colors.primary.light}20`,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: 12,
@@ -241,14 +246,14 @@ export const getStyles = theme =>
       marginBottom: 16,
     },
     skillTag: {
-      backgroundColor: theme.colors.primary.light + '20',
+      backgroundColor: `${theme.colors.primary.light}20`,
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 12,
       marginRight: 8,
       marginBottom: 6,
       borderWidth: 1,
-      borderColor: theme.colors.primary.light + '40',
+      borderColor: `${theme.colors.primary.light}40`,
     },
     skillText: {
       fontSize: 12,
@@ -326,5 +331,117 @@ export const getStyles = theme =>
       color: '#6B7280',
       textAlign: 'center',
       lineHeight: 24,
+    },
+
+    // Filter Modal Styles
+    modalOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+      zIndex: 1000,
+    },
+    modalContent: {
+      backgroundColor: '#FFFFFF',
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 20,
+      maxHeight: '80%',
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: '#1F2937',
+    },
+    modalSearchSection: {
+      marginBottom: 24,
+    },
+    modalSection: {
+      marginBottom: 24,
+    },
+    modalSectionTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#1F2937',
+      marginBottom: 12,
+    },
+    modalSearchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#F9FAFB',
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderWidth: 1,
+      borderColor: '#E5E7EB',
+    },
+    modalSearchInput: {
+      flex: 1,
+      fontSize: 16,
+      color: '#1F2937',
+      marginLeft: 12,
+    },
+    modalOptions: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    modalOption: {
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 20,
+      backgroundColor: '#F3F4F6',
+      borderWidth: 1,
+      borderColor: '#E5E7EB',
+    },
+    modalOptionSelected: {
+      backgroundColor: theme.colors.primary.main,
+      borderColor: theme.colors.primary.main,
+    },
+    modalOptionText: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: '#6B7280',
+    },
+    modalOptionTextSelected: {
+      color: '#FFFFFF',
+    },
+    modalActions: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 24,
+    },
+    modalClearButton: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 12,
+      backgroundColor: '#F3F4F6',
+      alignItems: 'center',
+    },
+    modalClearButtonText: {
+      fontSize: 16,
+      fontWeight: '500',
+      color: '#6B7280',
+    },
+    modalApplyButton: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 12,
+      backgroundColor: theme.colors.primary.main,
+      alignItems: 'center',
+    },
+    modalApplyButtonText: {
+      fontSize: 16,
+      fontWeight: '500',
+      color: '#FFFFFF',
     },
   });

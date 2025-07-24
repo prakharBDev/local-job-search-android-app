@@ -67,17 +67,15 @@ const IndexScreenContainer = () => {
 
 // Main App Navigator
 const AppNavigator = () => {
-  const { 
-    isAuthenticated, 
-    isLoading, 
-    needsCitySelection, 
+  const {
+    isAuthenticated,
+    isLoading,
+    needsCitySelection,
     needsProfileSetup,
     needsRoleSelection,
-    userRecord 
+    userRecord,
   } = useAuth();
   const { theme } = useTheme();
-
-
 
   return (
     <RootStack.Navigator
@@ -230,7 +228,7 @@ const InnerApp = ({ initialState, onStateChange }) => {
       linking={linking}
       initialState={initialState}
       onStateChange={onStateChange}
-      onUnhandledAction={(action) => {
+      onUnhandledAction={action => {
         console.warn('Unhandled navigation action:', action);
       }}
       theme={{

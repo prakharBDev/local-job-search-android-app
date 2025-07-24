@@ -12,7 +12,12 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/elements/Button';
 import Input from '../../components/elements/Input';
-import { seekerService, skillsService, categoriesService, onboardingService } from '../../services';
+import {
+  seekerService,
+  skillsService,
+  categoriesService,
+  onboardingService,
+} from '../../services';
 import { supabase } from '../../utils/supabase';
 
 const SeekerProfileSetupScreen = ({ navigation, route }) => {
@@ -22,9 +27,15 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
   const [skills, setSkills] = useState([]);
   const [categories, setCategories] = useState([]);
   // Initialize state from route params or defaults
-  const [selectedSkills, setSelectedSkills] = useState(route.params?.selectedSkills || []);
-  const [selectedCategories, setSelectedCategories] = useState(route.params?.selectedCategories || []);
-  const [selectedCity, setSelectedCity] = useState(route.params?.selectedCity || '');
+  const [selectedSkills, setSelectedSkills] = useState(
+    route.params?.selectedSkills || [],
+  );
+  const [selectedCategories, setSelectedCategories] = useState(
+    route.params?.selectedCategories || [],
+  );
+  const [selectedCity, setSelectedCity] = useState(
+    route.params?.selectedCity || '',
+  );
 
   // Get route params for navigation flow
   const { nextScreen, selectedRoles } = route.params || {};
@@ -43,7 +54,8 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
     const fetchData = async () => {
       try {
         const { data: skillsData } = await skillsService.getAllSkills();
-        const { data: categoriesData } = await categoriesService.getAllCategories();
+        const { data: categoriesData } =
+          await categoriesService.getAllCategories();
         setSkills(skillsData || []);
         setCategories(categoriesData || []);
       } catch (error) {
@@ -67,23 +79,33 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
         setSelectedCity(route.params.selectedCity);
       }
       if (route.params?.experience_level) {
-        setProfileData(prev => ({ ...prev, experience_level: route.params.experience_level }));
+        setProfileData(prev => ({
+          ...prev,
+          experience_level: route.params.experience_level,
+        }));
       }
       if (route.params?.tenth_percentage) {
-        setProfileData(prev => ({ ...prev, tenth_percentage: route.params.tenth_percentage }));
+        setProfileData(prev => ({
+          ...prev,
+          tenth_percentage: route.params.tenth_percentage,
+        }));
       }
       if (route.params?.twelfth_percentage) {
-        setProfileData(prev => ({ ...prev, twelfth_percentage: route.params.twelfth_percentage }));
+        setProfileData(prev => ({
+          ...prev,
+          twelfth_percentage: route.params.twelfth_percentage,
+        }));
       }
       if (route.params?.graduation_percentage) {
-        setProfileData(prev => ({ ...prev, graduation_percentage: route.params.graduation_percentage }));
+        setProfileData(prev => ({
+          ...prev,
+          graduation_percentage: route.params.graduation_percentage,
+        }));
       }
     });
 
     return unsubscribe;
   }, [navigation, route.params]);
-
-
 
   const validateForm = () => {
     if (!selectedCity) {
@@ -95,7 +117,10 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
       return false;
     }
     if (selectedCategories.length === 0) {
-      Alert.alert('Categories Required', 'Please select at least one job category.');
+      Alert.alert(
+        'Categories Required',
+        'Please select at least one job category.',
+      );
       return false;
     }
     return true;
@@ -109,22 +134,35 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
     setIsLoading(true);
     try {
       // user.id comes from AuthContext, which is the single source of truth for authentication
-      const phoneToSave = userRecord?.phone_number || user?.phone_number || user?.user_metadata?.phone_number;
-      
+      const phoneToSave =
+        userRecord?.phone_number ||
+        user?.phone_number ||
+        user?.user_metadata?.phone_number;
+
       await updateUserRecord({
-        name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || user?.name,
+        name:
+          user?.user_metadata?.full_name ||
+          user?.email?.split('@')[0] ||
+          user?.name,
         phone_number: phoneToSave,
         city: selectedCity.toLowerCase(),
         is_seeker: true,
       });
 
       // Check if seeker profile already exists
-      const { data: existingProfile, error: checkError } = await seekerService.getSeekerProfile(user.id);
-      
+      const { data: existingProfile, error: checkError } =
+        await seekerService.getSeekerProfile(user.id);
+
       let createdProfile;
       if (existingProfile) {
-        const { data: updatedProfile, error: updateError } = await seekerService.updateSeekerProfile(existingProfile.id, profileData);
-        if (updateError) throw updateError;
+        const { data: updatedProfile, error: updateError } =
+          await seekerService.updateSeekerProfile(
+            existingProfile.id,
+            profileData,
+          );
+        if (updateError) {
+          throw updateError;
+        }
         createdProfile = updatedProfile;
       } else {
         // Create seeker profile using user.id from AuthContext
@@ -133,26 +171,41 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
           user_id: user.id,
         };
 
-        const { data: newProfile, error } = await seekerService.createSeekerProfile(profile);
-        if (error) throw error;
+        const { data: newProfile, error } =
+          await seekerService.createSeekerProfile(profile);
+        if (error) {
+          throw error;
+        }
         createdProfile = newProfile;
       }
 
       // Add skills and categories (these methods now handle duplicates)
-      const skillsResult = await seekerService.addSeekerSkills(createdProfile.id, selectedSkills.map(s => s.id));
+      const skillsResult = await seekerService.addSeekerSkills(
+        createdProfile.id,
+        selectedSkills.map(s => s.id),
+      );
       if (skillsResult.error) {
-        console.warn('Warning: Some skills may not have been added:', skillsResult.error);
+        console.warn(
+          'Warning: Some skills may not have been added:',
+          skillsResult.error,
+        );
       }
 
-      const categoriesResult = await seekerService.addSeekerCategories(createdProfile.id, selectedCategories.map(c => c.id));
+      const categoriesResult = await seekerService.addSeekerCategories(
+        createdProfile.id,
+        selectedCategories.map(c => c.id),
+      );
       if (categoriesResult.error) {
-        console.warn('Warning: Some categories may not have been added:', categoriesResult.error);
+        console.warn(
+          'Warning: Some categories may not have been added:',
+          categoriesResult.error,
+        );
       }
 
       // Update onboarding status to mark this step as complete
       await onboardingService.updateOnboardingProgress(user.id, {
         onboarding_completed: true,
-        last_onboarding_step: 'seeker_profile_complete'
+        last_onboarding_step: 'seeker_profile_complete',
       });
 
       if (nextScreen && selectedRoles?.isPoster) {
@@ -176,23 +229,25 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <Text style={styles.title}>Seeker Profile Setup</Text>
-          
+
           {/* City Selection */}
           <Text style={styles.label}>Select Your City *</Text>
           <View style={styles.cityContainer}>
-            {cities.map((city) => (
+            {cities.map(city => (
               <TouchableOpacity
                 key={city}
                 style={[
                   styles.cityButton,
-                  selectedCity === city && styles.cityButtonSelected
+                  selectedCity === city && styles.cityButtonSelected,
                 ]}
                 onPress={() => setSelectedCity(city)}
               >
-                <Text style={[
-                  styles.cityButtonText,
-                  selectedCity === city && styles.cityButtonTextSelected
-                ]}>
+                <Text
+                  style={[
+                    styles.cityButtonText,
+                    selectedCity === city && styles.cityButtonTextSelected,
+                  ]}
+                >
                   {city}
                 </Text>
               </TouchableOpacity>
@@ -202,19 +257,25 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
           {/* Experience Level */}
           <Text style={styles.label}>Experience Level *</Text>
           <View style={styles.experienceContainer}>
-            {experienceLevels.map((level) => (
+            {experienceLevels.map(level => (
               <TouchableOpacity
                 key={level}
                 style={[
                   styles.experienceButton,
-                  profileData.experience_level === level && styles.experienceButtonSelected
+                  profileData.experience_level === level &&
+                    styles.experienceButtonSelected,
                 ]}
-                onPress={() => setProfileData(prev => ({ ...prev, experience_level: level }))}
+                onPress={() =>
+                  setProfileData(prev => ({ ...prev, experience_level: level }))
+                }
               >
-                <Text style={[
-                  styles.experienceButtonText,
-                  profileData.experience_level === level && styles.experienceButtonTextSelected
-                ]}>
+                <Text
+                  style={[
+                    styles.experienceButtonText,
+                    profileData.experience_level === level &&
+                      styles.experienceButtonTextSelected,
+                  ]}
+                >
                   {level.charAt(0).toUpperCase() + level.slice(1)}
                 </Text>
               </TouchableOpacity>
@@ -270,10 +331,9 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
             }
           >
             <Text style={styles.selectionButtonText}>
-              {selectedSkills.length > 0 
-                ? `${selectedSkills.length} skills selected` 
-                : 'Select your skills'
-              }
+              {selectedSkills.length > 0
+                ? `${selectedSkills.length} skills selected`
+                : 'Select your skills'}
             </Text>
           </TouchableOpacity>
 
@@ -297,10 +357,9 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
             }
           >
             <Text style={styles.selectionButtonText}>
-              {selectedCategories.length > 0 
-                ? `${selectedCategories.length} categories selected` 
-                : 'Select job categories'
-              }
+              {selectedCategories.length > 0
+                ? `${selectedCategories.length} categories selected`
+                : 'Select job categories'}
             </Text>
           </TouchableOpacity>
 

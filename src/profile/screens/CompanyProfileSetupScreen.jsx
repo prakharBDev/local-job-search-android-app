@@ -36,7 +36,7 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
     'Real Estate',
     'Transportation',
     'Food & Beverage',
-    'Other'
+    'Other',
   ];
 
   const [profileData, setProfileData] = useState({
@@ -79,10 +79,16 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
     setIsLoading(true);
     try {
       // user.id comes from AuthContext, which is the single source of truth for authentication
-      const phoneToSave = userRecord?.phone_number || user?.phone_number || user?.user_metadata?.phone_number;
-      
+      const phoneToSave =
+        userRecord?.phone_number ||
+        user?.phone_number ||
+        user?.user_metadata?.phone_number;
+
       await updateUserRecord({
-        name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || user?.name,
+        name:
+          user?.user_metadata?.full_name ||
+          user?.email?.split('@')[0] ||
+          user?.name,
         phone_number: phoneToSave,
         city: selectedCity.toLowerCase(),
         is_seeker: selectedRoles?.isSeeker || false,
@@ -94,7 +100,8 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
         user_id: user.id,
       };
 
-      const { data: createdProfile, error } = await companyService.createCompanyProfile(profile);
+      const { data: createdProfile, error } =
+        await companyService.createCompanyProfile(profile);
 
       if (error) {
         throw error;
@@ -117,23 +124,25 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <Text style={styles.title}>Company Profile Setup</Text>
-          
+
           {/* City Selection */}
           <Text style={styles.label}>Select Your City *</Text>
           <View style={styles.cityContainer}>
-            {cities.map((city) => (
+            {cities.map(city => (
               <TouchableOpacity
                 key={city}
                 style={[
                   styles.cityButton,
-                  selectedCity === city && styles.cityButtonSelected
+                  selectedCity === city && styles.cityButtonSelected,
                 ]}
                 onPress={() => setSelectedCity(city)}
               >
-                <Text style={[
-                  styles.cityButtonText,
-                  selectedCity === city && styles.cityButtonTextSelected
-                ]}>
+                <Text
+                  style={[
+                    styles.cityButtonText,
+                    selectedCity === city && styles.cityButtonTextSelected,
+                  ]}
+                >
                   {city}
                 </Text>
               </TouchableOpacity>
@@ -163,19 +172,25 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
           {/* Company Size Selection */}
           <Text style={styles.label}>Company Size (Optional)</Text>
           <View style={styles.optionsContainer}>
-            {companySizes.map((size) => (
+            {companySizes.map(size => (
               <TouchableOpacity
                 key={size}
                 style={[
                   styles.optionButton,
-                  profileData.company_size === size && styles.optionButtonSelected
+                  profileData.company_size === size &&
+                    styles.optionButtonSelected,
                 ]}
-                onPress={() => setProfileData(prev => ({ ...prev, company_size: size }))}
+                onPress={() =>
+                  setProfileData(prev => ({ ...prev, company_size: size }))
+                }
               >
-                <Text style={[
-                  styles.optionButtonText,
-                  profileData.company_size === size && styles.optionButtonTextSelected
-                ]}>
+                <Text
+                  style={[
+                    styles.optionButtonText,
+                    profileData.company_size === size &&
+                      styles.optionButtonTextSelected,
+                  ]}
+                >
                   {size}
                 </Text>
               </TouchableOpacity>
@@ -185,19 +200,23 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
           {/* Industry Selection */}
           <Text style={styles.label}>Industry (Optional)</Text>
           <View style={styles.optionsContainer}>
-            {industries.map((industry) => (
+            {industries.map(industry => (
               <TouchableOpacity
                 key={industry}
                 style={[
                   styles.optionButton,
-                  profileData.industry === industry && styles.optionButtonSelected
+                  profileData.industry === industry &&
+                    styles.optionButtonSelected,
                 ]}
-                onPress={() => setProfileData(prev => ({ ...prev, industry: industry }))}
+                onPress={() => setProfileData(prev => ({ ...prev, industry }))}
               >
-                <Text style={[
-                  styles.optionButtonText,
-                  profileData.industry === industry && styles.optionButtonTextSelected
-                ]}>
+                <Text
+                  style={[
+                    styles.optionButtonText,
+                    profileData.industry === industry &&
+                      styles.optionButtonTextSelected,
+                  ]}
+                >
                   {industry}
                 </Text>
               </TouchableOpacity>
@@ -235,14 +254,16 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
             keyboardType="url"
             autoCapitalize="none"
           />
-          
+
           <View style={styles.verificationContainer}>
-            <Text style={styles.verificationText}>Verification Status: Not Verified</Text>
+            <Text style={styles.verificationText}>
+              Verification Status: Not Verified
+            </Text>
             <Text style={styles.verificationSubtext}>
               Your company will be verified by our team within 24-48 hours
             </Text>
           </View>
-          
+
           <Button
             onPress={handleComplete}
             loading={isLoading}

@@ -18,7 +18,7 @@ const userService = {
         includeSeeker: true,
         includeCompany: true,
         cache: true,
-        ...options
+        ...options,
       });
 
       if (error) {
@@ -40,7 +40,7 @@ const userService = {
    */
   async updateUser(userId, updates) {
     try {
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         return await supabase
           .from('users')
           .update({
@@ -78,7 +78,7 @@ const userService = {
    */
   async updateLastLogin(userId) {
     try {
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         return await supabase
           .from('users')
           .update({ last_login_at: new Date().toISOString() })
@@ -112,7 +112,7 @@ const userService = {
         select: '*',
         filters: { email },
         cache: true,
-        cacheKey: `user_email_${email}`
+        cacheKey: `user_email_${email}`,
       });
 
       if (error) {
@@ -137,7 +137,7 @@ const userService = {
         select: '*',
         filters: { google_id: googleId },
         cache: true,
-        cacheKey: `user_google_${googleId}`
+        cacheKey: `user_google_${googleId}`,
       });
 
       if (error) {
@@ -158,14 +158,16 @@ const userService = {
    */
   async createUser(userData) {
     try {
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         return await supabase
           .from('users')
-          .insert([{
-            ...userData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }])
+          .insert([
+            {
+              ...userData,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+          ])
           .select()
           .single();
       };
@@ -193,10 +195,10 @@ const userService = {
    */
   async deleteUser(userId) {
     try {
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         return await supabase
           .from('users')
-          .update({ 
+          .update({
             is_active: false,
             updated_at: new Date().toISOString(),
           })
@@ -237,7 +239,7 @@ const userService = {
         limit: options.limit || 50,
         offset: options.offset || 0,
         cache: options.cache !== false,
-        cacheKey: `users_search_${JSON.stringify({ filters, options })}`
+        cacheKey: `users_search_${JSON.stringify({ filters, options })}`,
       });
 
       if (error) {
@@ -258,7 +260,7 @@ const userService = {
    */
   async getUserStats(userId) {
     try {
-      const operation = async (supabase) => {
+      const operation = async supabase => {
         const stats = {};
 
         // Get basic user info
@@ -271,7 +273,9 @@ const userService = {
         if (user) {
           stats.createdAt = user.created_at;
           stats.lastLoginAt = user.last_login_at;
-          stats.daysSinceCreation = Math.floor((Date.now() - new Date(user.created_at)) / (1000 * 60 * 60 * 24));
+          stats.daysSinceCreation = Math.floor(
+            (Date.now() - new Date(user.created_at)) / (1000 * 60 * 60 * 24),
+          );
         }
 
         // Get seeker profile stats if exists
@@ -288,10 +292,11 @@ const userService = {
             .eq('seeker_id', seekerProfile.id);
 
           stats.totalApplications = applications?.length || 0;
-          stats.applicationsByStatus = applications?.reduce((acc, app) => {
-            acc[app.status] = (acc[app.status] || 0) + 1;
-            return acc;
-          }, {}) || {};
+          stats.applicationsByStatus =
+            applications?.reduce((acc, app) => {
+              acc[app.status] = (acc[app.status] || 0) + 1;
+              return acc;
+            }, {}) || {};
         }
 
         // Get company profile stats if exists
@@ -316,7 +321,7 @@ const userService = {
 
       const { data, error } = await apiClient.request(operation, {
         cache: true,
-        cacheKey: `user_stats_${userId}`
+        cacheKey: `user_stats_${userId}`,
       });
 
       if (error) {

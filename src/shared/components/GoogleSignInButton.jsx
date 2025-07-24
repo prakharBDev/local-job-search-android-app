@@ -50,7 +50,8 @@ export default function GoogleSignInButton({ onSuccess, disabled = false }) {
         if (onSuccess) {
           onSuccess({
             data: null,
-            error: 'Google Play Services not available. Please update your Google Play Services.',
+            error:
+              'Google Play Services not available. Please update your Google Play Services.',
             userInfo: null,
           });
         }

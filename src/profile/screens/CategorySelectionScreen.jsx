@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -18,7 +17,9 @@ const CategorySelectionScreen = ({ navigation, route }) => {
   const { theme } = useTheme();
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState(route.params.selectedCategories || []);
+  const [selectedCategories, setSelectedCategories] = useState(
+    route.params.selectedCategories || [],
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
 
@@ -26,7 +27,9 @@ const CategorySelectionScreen = ({ navigation, route }) => {
     const fetchCategories = async () => {
       try {
         const { data, error } = await categoriesService.getAllCategories();
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
         setCategories(data || []);
         setFilteredCategories(data || []);
       } catch (err) {
@@ -40,8 +43,8 @@ const CategorySelectionScreen = ({ navigation, route }) => {
     if (searchQuery) {
       setFilteredCategories(
         categories.filter(category =>
-          category.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+          category.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
       );
     } else {
       setFilteredCategories(categories);
@@ -50,17 +53,25 @@ const CategorySelectionScreen = ({ navigation, route }) => {
 
   const handleToggleCategory = category => {
     if (selectedCategories.find(c => c.id === category.id)) {
-      setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
+      setSelectedCategories(
+        selectedCategories.filter(c => c.id !== category.id),
+      );
     } else {
       setSelectedCategories([...selectedCategories, category]);
     }
   };
 
   const handleAddNewCategory = async () => {
-    if (!newCategoryName.trim()) return;
+    if (!newCategoryName.trim()) {
+      return;
+    }
     try {
-      const { data, error } = await categoriesService.createCategory(newCategoryName);
-      if (error) throw error;
+      const { data, error } = await categoriesService.createCategory(
+        newCategoryName,
+      );
+      if (error) {
+        throw error;
+      }
       const newCategory = data;
       setCategories([...categories, newCategory]);
       setSelectedCategories([...selectedCategories, newCategory]);
@@ -74,7 +85,7 @@ const CategorySelectionScreen = ({ navigation, route }) => {
     // Navigate back with all the form data preserved
     navigation.navigate({
       name: 'SeekerProfileSetup',
-      params: { 
+      params: {
         updatedCategories: selectedCategories,
         // Preserve all other form data
         selectedCity: route.params?.selectedCity,

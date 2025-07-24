@@ -12,7 +12,6 @@ import CreateJobScreen from '../jobs/screens/CreateJobScreen';
 import ProfileScreen from '../profile/screens/ProfileScreen';
 import ProfileSetupScreen from '../profile/screens/ProfileSetupScreen';
 import EditProfileScreen from '../profile/screens/EditProfileScreen';
-import JobDetailsScreen from '../jobs/screens/JobDetailsScreen';
 import SwipeableJobDetailsScreen from '../jobs/screens/SwipeableJobDetailsScreen';
 import AppliedJobsScreen from '../jobs/screens/AppliedJobsScreen';
 import OnboardingScreen from '../onboarding/screens/OnboardingScreen';
@@ -73,7 +72,7 @@ const JobsStack = () => {
       />
       <Stack.Screen
         name="JobDetails"
-        component={JobDetailsScreen}
+        component={SwipeableJobDetailsScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

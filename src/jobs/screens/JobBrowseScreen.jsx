@@ -14,7 +14,6 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 import Card from '../../components/blocks/Card';
-import Button from '../../components/elements/Button';
 import { AppHeader, Icon } from '../../components/elements';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -25,6 +24,8 @@ import {
   seekerService,
 } from '../../services';
 import { getStyles } from './JobBrowseScreen.styles';
+import PopularJobCard from './MyJobsScreen/PopularJobCard';
+import { popularJobs } from './MyJobsScreen/mockData';
 
 const JobBrowseScreen = () => {
   const navigation = useNavigation();
@@ -38,7 +39,9 @@ const JobBrowseScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCity, setSelectedCity] = useState(userRecord?.city || 'morena');
+  const [selectedCity, setSelectedCity] = useState(
+    userRecord?.city || 'morena',
+  );
   const [selectedCategory, setSelectedCategory] = useState('');
   const [appliedJobs, setAppliedJobs] = useState(new Set());
   const [seekerProfile, setSeekerProfile] = useState(null);
@@ -67,7 +70,7 @@ const JobBrowseScreen = () => {
   // Load initial data
   useEffect(() => {
     loadInitialData();
-    
+
     // Entrance animation
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -86,16 +89,16 @@ const JobBrowseScreen = () => {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      
+
       // Load categories
-      const { data: categoriesData, error: categoriesError } = await categoriesService.getAllCategories();
+      const { data: categoriesData, error: categoriesError } =
+        await categoriesService.getAllCategories();
       if (categoriesData && !categoriesError) {
         setCategories(categoriesData);
       }
 
       // Load initial jobs
       await loadJobs();
-      
     } catch (error) {
       console.error('Error loading initial data:', error);
       Alert.alert('Error', 'Failed to load job data. Please try again.');
@@ -113,38 +116,42 @@ const JobBrowseScreen = () => {
       };
 
       const { data: jobsData, error } = await jobService.getJobs(filters);
-      
+
       if (error) {
         throw error;
       }
 
       setJobs(jobsData || []);
-      
+
       // Check which jobs user has already applied to
       if (seekerProfile && jobsData) {
         await checkAppliedJobs(jobsData);
       }
-
     } catch (error) {
       console.error('Error loading jobs:', error);
       Alert.alert('Error', 'Failed to load jobs. Please try again.');
     }
   };
 
-  const checkAppliedJobs = async (jobsList) => {
-    if (!seekerProfile) return;
+  const checkAppliedJobs = async jobsList => {
+    if (!seekerProfile) {
+      return;
+    }
 
     try {
       const appliedJobIds = new Set();
-      
+
       // Check each job for existing applications
       await Promise.all(
-        jobsList.map(async (job) => {
-          const { data } = await applicationService.hasApplied(job.id, seekerProfile.id);
+        jobsList.map(async job => {
+          const { data } = await applicationService.hasApplied(
+            job.id,
+            seekerProfile.id,
+          );
           if (data) {
             appliedJobIds.add(job.id);
           }
-        })
+        }),
       );
 
       setAppliedJobs(appliedJobIds);
@@ -153,27 +160,27 @@ const JobBrowseScreen = () => {
     }
   };
 
-  const handleApplyJob = async (job) => {
+  const handleApplyJob = async job => {
     if (!seekerProfile) {
       Alert.alert(
         'Profile Required',
         'Please complete your seeker profile to apply for jobs.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Complete Profile', 
-            onPress: () => navigation.navigate('ProfileSetup') 
-          }
-        ]
+          {
+            text: 'Complete Profile',
+            onPress: () => navigation.navigate('ProfileSetup'),
+          },
+        ],
       );
       return;
     }
 
     try {
-      const { data, error } = await applicationService.applyForJob(
+      const { error } = await applicationService.applyForJob(
         job.id,
         seekerProfile.id,
-        null // Optional message - can be enhanced later
+        null, // Optional message - can be enhanced later
       );
 
       if (error) {
@@ -186,9 +193,8 @@ const JobBrowseScreen = () => {
       Alert.alert(
         'Application Sent!',
         `Your application for ${job.title} at ${job.company_profiles?.company_name} has been submitted.`,
-        [{ text: 'OK', style: 'default' }]
+        [{ text: 'OK', style: 'default' }],
       );
-
     } catch (error) {
       console.error('Error applying for job:', error);
       Alert.alert('Error', 'Failed to apply for job. Please try again.');
@@ -202,34 +208,38 @@ const JobBrowseScreen = () => {
   };
 
   // Helper function to format salary as monthly amount
-  const formatSalary = (salary) => {
-    if (!salary) return 'Salary not specified';
-    
+  const formatSalary = salary => {
+    if (!salary) {
+      return 'Salary not specified';
+    }
+
     // Handle salary ranges like "₹12,00,000 – ₹18,00,000/year"
     if (salary.includes('–') || salary.includes('-')) {
       // Extract the first number (lower range) and convert to monthly
       const firstNumber = salary.match(/₹([\d,]+)/);
       if (firstNumber) {
         const numericSalary = firstNumber[1].replace(/,/g, '');
-        const yearlySalary = parseInt(numericSalary);
+        const yearlySalary = parseInt(numericSalary, 10);
         const monthlySalary = Math.round(yearlySalary / 12);
         return `₹${monthlySalary.toLocaleString()}/month`;
       }
     }
-    
+
     // Handle single salary values
     const numericSalary = salary.replace(/[^\d]/g, '');
-    if (!numericSalary) return salary;
-    
+    if (!numericSalary) {
+      return salary;
+    }
+
     // Assume yearly salary, convert to monthly (divide by 12)
-    const yearlySalary = parseInt(numericSalary);
+    const yearlySalary = parseInt(numericSalary, 10);
     const monthlySalary = Math.round(yearlySalary / 12);
-    
+
     // Format with commas
     return `₹${monthlySalary.toLocaleString()}/month`;
   };
 
-  const renderJobCard = (job) => {
+  const renderJobCard = job => {
     const isApplied = appliedJobs.has(job.id);
     const company = job.company_profiles;
     const category = job.job_categories;
@@ -237,13 +247,25 @@ const JobBrowseScreen = () => {
     return (
       <Card key={job.id} style={styles.jobCard}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('JobDetails', { jobData: job })}
+          onPress={() => {
+            // Navigate to swipeable job details with full job list
+            const currentIndex = jobs.findIndex(j => j.id === job.id);
+            navigation.navigate('SwipeableJobDetails', {
+              jobData: job,
+              jobList: jobs,
+              currentIndex: currentIndex >= 0 ? currentIndex : 0,
+            });
+          }}
           activeOpacity={0.7}
         >
           {/* Company Header */}
           <View style={styles.companyHeader}>
             <View style={styles.companyIcon}>
-              <Feather name="briefcase" size={20} color={theme.colors.primary.main} />
+              <Feather
+                name="briefcase"
+                size={20}
+                color={theme.colors.primary.main}
+              />
             </View>
             <View style={styles.companyInfo}>
               <Text style={styles.companyName}>
@@ -260,7 +282,7 @@ const JobBrowseScreen = () => {
 
           {/* Job Details */}
           <Text style={styles.jobTitle}>{job.title}</Text>
-          
+
           {/* Job Meta */}
           <View style={styles.jobMeta}>
             <View style={styles.metaItem}>
@@ -281,55 +303,44 @@ const JobBrowseScreen = () => {
           </View>
 
           {/* Job Description Preview */}
-          <Text style={styles.jobDescription} numberOfLines={2}>
-            {job.description}
+          <Text style={styles.jobDescription} numberOfLines={3}>
+            {job.description || 'No description available'}
           </Text>
 
-          {/* Skills Tags */}
-          {job.job_skills && job.job_skills.length > 0 && (
-            <View style={styles.skillsContainer}>
-              {job.job_skills.slice(0, 3).map((jobSkill, index) => (
-                <View key={index} style={styles.skillTag}>
-                  <Text style={styles.skillText}>
-                    {jobSkill.skills?.name}
-                  </Text>
-                </View>
-              ))}
-              {job.job_skills.length > 3 && (
-                <View style={styles.skillTag}>
-                  <Text style={styles.skillText}>
-                    +{job.job_skills.length - 3} more
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
-        </TouchableOpacity>
+          {/* Action Buttons */}
+          <View style={styles.cardActions}>
+            {isApplied ? (
+              <View style={styles.appliedBadge}>
+                <Feather name="check-circle" size={16} color="#10B981" />
+                <Text style={styles.appliedText}>Applied</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.applyButton}
+                onPress={e => {
+                  e.stopPropagation();
+                  handleApplyJob(job);
+                }}
+              >
+                <Text style={styles.applyButtonText}>Apply Now</Text>
+              </TouchableOpacity>
+            )}
 
-        {/* Apply Button */}
-        <View style={styles.applySection}>
-          <Button
-            variant={isApplied ? "outline" : "default"}
-            size="sm"
-            onPress={() => handleApplyJob(job)}
-            disabled={isApplied}
-            style={styles.applyButton}
-          >
-            <View style={styles.buttonContent}>
-              <Feather 
-                name={isApplied ? "check" : "send"} 
-                size={16} 
-                color={isApplied ? "#6B7280" : "#FFFFFF"} 
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={e => {
+                e.stopPropagation();
+                // TODO: Implement save job functionality
+              }}
+            >
+              <Feather
+                name={job.bookmarked ? 'bookmark' : 'bookmark'}
+                size={16}
+                color={job.bookmarked ? '#6475f8' : '#6B7280'}
               />
-              <Text style={[
-                styles.applyButtonText,
-                isApplied && styles.appliedButtonText
-              ]}>
-                {isApplied ? "Applied" : "Apply Now"}
-              </Text>
-            </View>
-          </Button>
-        </View>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
       </Card>
     );
   };
@@ -341,10 +352,12 @@ const JobBrowseScreen = () => {
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <Text style={[
-        styles.filterPillText,
-        isSelected && styles.filterPillTextSelected
-      ]}>
+      <Text
+        style={[
+          styles.filterPillText,
+          isSelected && styles.filterPillTextSelected,
+        ]}
+      >
         {label}
       </Text>
     </TouchableOpacity>
@@ -368,7 +381,9 @@ const JobBrowseScreen = () => {
         <AppHeader
           title="Find Jobs"
           subtitle={`Discover opportunities in ${selectedCity}`}
-          rightIcon={<Icon name="filter" size={20} color={theme.colors.primary.main} />}
+          rightIcon={
+            <Icon name="filter" size={20} color={theme.colors.primary.main} />
+          }
           background="#F7F9FC"
         />
 
@@ -376,7 +391,12 @@ const JobBrowseScreen = () => {
         <View style={styles.searchSection}>
           {/* Search Bar */}
           <View style={styles.searchContainer}>
-            <Feather name="search" size={20} color="#6B7280" style={styles.searchIcon} />
+            <Feather
+              name="search"
+              size={20}
+              color="#6B7280"
+              style={styles.searchIcon}
+            />
             <TextInput
               style={styles.searchInput}
               placeholder="Search jobs..."
@@ -395,8 +415,8 @@ const JobBrowseScreen = () => {
           </View>
 
           {/* Filter Pills */}
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.filtersContainer}
             contentContainerStyle={styles.filtersContent}
@@ -406,13 +426,13 @@ const JobBrowseScreen = () => {
               'Morena',
               'morena',
               () => setSelectedCity('morena'),
-              selectedCity === 'morena'
+              selectedCity === 'morena',
             )}
             {renderFilterPill(
               'Gwalior',
               'gwalior',
               () => setSelectedCity('gwalior'),
-              selectedCity === 'gwalior'
+              selectedCity === 'gwalior',
             )}
 
             {/* Category Filters */}
@@ -420,13 +440,36 @@ const JobBrowseScreen = () => {
               'All Categories',
               '',
               () => setSelectedCategory(''),
-              selectedCategory === ''
+              selectedCategory === '',
             )}
-            {categories.map(category => renderFilterPill(
-              category.name,
-              category.id,
-              () => setSelectedCategory(category.id),
-              selectedCategory === category.id
+            {categories.map(category =>
+              renderFilterPill(
+                category.name,
+                category.id,
+                () => setSelectedCategory(category.id),
+                selectedCategory === category.id,
+              ),
+            )}
+          </ScrollView>
+        </View>
+
+        {/* Popular Jobs Section */}
+        <View style={styles.popularJobsSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Popular Jobs</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.popularJobsContainer}
+          >
+            {popularJobs.slice(0, 3).map((job, index) => (
+              <View key={job.id} style={styles.popularJobWrapper}>
+                <PopularJobCard job={job} index={index} />
+              </View>
             ))}
           </ScrollView>
         </View>
@@ -450,7 +493,8 @@ const JobBrowseScreen = () => {
               <Feather name="briefcase" size={48} color="#D1D5DB" />
               <Text style={styles.emptyStateTitle}>No Jobs Found</Text>
               <Text style={styles.emptyStateText}>
-                Try adjusting your search criteria or check back later for new opportunities.
+                Try adjusting your search criteria or check back later for new
+                opportunities.
               </Text>
             </View>
           ) : (

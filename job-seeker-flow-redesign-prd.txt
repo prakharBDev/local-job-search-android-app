@@ -1,0 +1,179 @@
+# Job Seeker Flow Redesign - Product Requirements Document
+
+## Project Overview
+Redesign the Job Seeker experience to improve usability, structure, and navigation. Ensure component responsibilities are clearly separated, add Instagram-style vertical navigation for job details, and revamp the application screen to reflect accurate user application data.
+
+## Current State Analysis
+The current implementation has several issues:
+- PopularJobCard component is being misused across different screens
+- Job browsing lacks proper vertical navigation
+- Application screen shows job listings instead of application data
+- Component responsibilities are not clearly separated
+- Navigation flow between screens needs improvement
+
+## Phase 1: Codebase Audit & Planning
+
+### 1.1 Component and Screen Audit
+**Objective**: Understand current implementation and identify issues
+
+**Requirements**:
+- Audit PopularJobCard implementation and usage across codebase
+- Document all screens where PopularJobCard appears
+- Analyze JobBrowserScreen structure (vertical vs horizontal orientation)
+- Review JobDetailsScreen current UI layout and navigation
+- Examine ApplicationScreen data display and component usage
+- Identify improper reuse of job listing UI components
+
+**Deliverables**:
+- Complete audit report of current component usage
+- Identification of misused components
+- Documentation of current screen structures
+
+### 1.2 Navigation & Data Flow Review
+**Objective**: Map current navigation and data handling
+
+**Requirements**:
+- Map navigation flow between Job Listing → Job Details → Apply Flow
+- Document how job data and application data are fetched, stored, and passed
+- Identify global state management usage (Redux, Context API, Zustand)
+- Understand loading states, cache, and pagination handling
+
+**Deliverables**:
+- Navigation flow diagram
+- Data flow documentation
+- State management analysis
+
+## Phase 2: Redesign & Component Refactor
+
+### 2.1 Job Listing Screen Redesign
+**Objective**: Improve job browsing experience
+
+**Requirements**:
+- Retain horizontal layout for featured/popular jobs section
+- Implement or confirm vertical scrolling for all jobs
+- Ensure proper navigation to job detail screen
+- Optimize loading performance for long job lists
+- Improve UX for job browsing
+
+**Deliverables**:
+- Redesigned job listing screen
+- Optimized performance for large job lists
+- Clear separation between featured and regular jobs
+
+### 2.2 Job Details Screen Enhancement
+**Objective**: Implement Instagram-style vertical navigation
+
+**Requirements**:
+- Replace/enhance existing detail screen for vertical scrolling
+- Implement swipe up for next job, swipe down for previous job
+- Maintain current job interaction functionality (Apply, Save)
+- Ensure smooth transitions and performance
+- Define job preloading/fetching strategy for swipe navigation
+
+**Deliverables**:
+- Vertical swipeable job details screen
+- Smooth transition animations
+- Efficient job preloading system
+
+### 2.3 Application Screen Redesign
+**Objective**: Create dedicated application management interface
+
+**Requirements**:
+- Remove all job listing components from application screen
+- Create dedicated application-specific UI components
+- Display active applications with statuses
+- Show application history (past jobs and outcomes)
+- Implement tabbed navigation or clear distinction between current/past applications
+
+**Deliverables**:
+- Dedicated application management screen
+- Application status tracking UI
+- Historical application view
+
+## Phase 3: Navigation & Integration
+
+### 3.1 Navigation Structure
+**Objective**: Ensure seamless navigation flow
+
+**Requirements**:
+- Update stack-based navigation for clean transitions
+- Ensure correct data context for each screen
+- Integrate swipeable navigation with navigation stack
+- Maintain consistent navigation patterns
+
+**Deliverables**:
+- Updated navigation structure
+- Seamless integration of swipe navigation
+- Consistent navigation patterns
+
+### 3.2 Data Flow Optimization
+**Objective**: Centralize and optimize state management
+
+**Requirements**:
+- Organize state handling for job listings and selected job
+- Centralize application statuses and metadata
+- Manage user progress and scroll/swipe position
+- Implement efficient data loading and caching strategy
+
+**Deliverables**:
+- Optimized state management
+- Efficient data loading strategy
+- Improved caching system
+
+## Phase 4: Testing & Validation
+
+### 4.1 Completion Criteria
+**Requirements**:
+- PopularJobCard used only on job listing screen for featured jobs
+- Application screen shows only applied jobs with relevant data
+- Vertical swipe navigation fully functional
+- Seamless job browsing → details → apply flow
+- All existing functionality preserved
+- Clear component separation and modularity
+- Clean and consistent navigation structure
+
+**Deliverables**:
+- Fully tested and validated implementation
+- Documentation of navigation and data flows
+- Performance validation
+
+## Technical Requirements
+
+### Frontend Framework
+- React Native with JavaScript (no TypeScript conversion)
+- Maintain existing component structure where possible
+- Use existing styling system and theme
+
+### Performance Requirements
+- Smooth 60fps animations for swipe navigation
+- Efficient job preloading for seamless swiping
+- Optimized rendering for large job lists
+- Minimal memory usage for cached job data
+
+### User Experience Requirements
+- Intuitive swipe gestures (up/down for job navigation)
+- Clear visual feedback for all interactions
+- Consistent loading states and error handling
+- Responsive design across different screen sizes
+
+### Code Quality Requirements
+- Clear component separation and responsibilities
+- Modular and reusable components
+- Comprehensive error handling
+- Maintainable and well-documented code
+- Follow existing code patterns and conventions
+
+## Success Metrics
+- Improved user engagement with job browsing
+- Reduced time to find and apply to jobs
+- Better application tracking and management
+- Enhanced overall user satisfaction
+- Maintained or improved app performance
+
+## Timeline
+- Phase 1: 2-3 days (Audit and Planning)
+- Phase 2: 5-7 days (Redesign and Refactor)
+- Phase 3: 3-4 days (Navigation and Integration)
+- Phase 4: 2-3 days (Testing and Validation)
+
+Total estimated timeline: 12-17 days

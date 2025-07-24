@@ -111,6 +111,38 @@ export const getStyles = theme =>
       color: '#FFFFFF',
     },
 
+    // Popular Jobs Section
+    popularJobsSection: {
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: '#FFFFFF',
+      borderBottomWidth: 1,
+      borderBottomColor: '#F3F4F6',
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: '#1F2937',
+    },
+    seeAllText: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme.colors.primary.main,
+    },
+    popularJobsContainer: {
+      paddingRight: 20,
+    },
+    popularJobWrapper: {
+      marginRight: 12,
+      width: 280,
+    },
+
     // Jobs List
     jobsList: {
       flex: 1,
@@ -233,6 +265,32 @@ export const getStyles = theme =>
     },
     applyButton: {
       minWidth: 120,
+    },
+    saveButton: {
+      padding: 8,
+      borderRadius: 8,
+      backgroundColor: '#F3F4F6',
+      marginLeft: 8,
+    },
+    cardActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 16,
+    },
+    appliedBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#D1FAE5',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+    },
+    appliedText: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: '#065F46',
+      marginLeft: 4,
     },
     buttonContent: {
       flexDirection: 'row',

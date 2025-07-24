@@ -114,6 +114,16 @@ const MyJobsScreen = () => {
     job.company.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Handle navigation to applications for seekers
+  const handleViewApplications = () => {
+    navigation.navigate('AppliedJobs');
+  };
+
+  // Handle navigation to browse jobs for seekers
+  const handleBrowseJobs = () => {
+    navigation.navigate('Jobs');
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={getStyles(theme).container}>
@@ -151,7 +161,7 @@ const MyJobsScreen = () => {
           <View style={getStyles(theme).searchInputContainer}>
             <Feather name="search" size={20} color="#9CA3AF" />
             <TextInput
-              placeholder="Search jobs, companies, or skills..."
+              placeholder={userRoles?.isCompany ? "Search job postings..." : "Search applications..."}
               placeholderTextColor="#9CA3AF"
               style={getStyles(theme).searchInput}
               value={search}
@@ -175,62 +185,165 @@ const MyJobsScreen = () => {
           </Animated.View>
         )}
 
-        {/* Popular Jobs Section */}
-        {filteredPopularJobs.length > 0 && (
-          <Animated.View
-            style={[getStyles(theme).popularJobsContainer, { opacity: fadeAnim }]}
-          >
-            <View style={getStyles(theme).sectionHeader}>
-              <Text style={getStyles(theme).sectionTitle}>
-                {userRoles?.isCompany ? "Active Job Postings" : "Recent Applications"}
-              </Text>
-              <TouchableOpacity>
-                <Text style={getStyles(theme).seeAllText}>See all</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={getStyles(theme).popularJobsScroll}
-            >
-              {filteredPopularJobs.map((job, index) => (
-                <PopularJobCard key={job.id} job={job} index={index} />
-              ))}
-            </ScrollView>
-          </Animated.View>
+        {/* Company View - Job Postings */}
+        {userRoles?.isCompany && (
+          <>
+            {/* Active Job Postings Section */}
+            {filteredPopularJobs.length > 0 && (
+              <Animated.View
+                style={[getStyles(theme).popularJobsContainer, { opacity: fadeAnim }]}
+              >
+                <View style={getStyles(theme).sectionHeader}>
+                  <Text style={getStyles(theme).sectionTitle}>
+                    Active Job Postings
+                  </Text>
+                  <TouchableOpacity>
+                    <Text style={getStyles(theme).seeAllText}>See all</Text>
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={getStyles(theme).popularJobsScroll}
+                >
+                  {filteredPopularJobs.map((job, index) => (
+                    <PopularJobCard key={job.id} job={job} index={index} />
+                  ))}
+                </ScrollView>
+              </Animated.View>
+            )}
+
+            {/* Draft Job Postings Section */}
+            {filteredRecentJobs.length > 0 && (
+              <View style={getStyles(theme).recentJobsContainer}>
+                <View style={getStyles(theme).sectionHeader}>
+                  <Text style={getStyles(theme).sectionTitle}>
+                    Draft Job Postings
+                  </Text>
+                  <TouchableOpacity>
+                    <Text style={getStyles(theme).seeAllText}>See all</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={getStyles(theme).recentJobsList}>
+                  {filteredRecentJobs.map((job, index) => (
+                    <RecentJobCard key={job.id} item={job} index={index} />
+                  ))}
+                </View>
+              </View>
+            )}
+          </>
         )}
 
-        {/* Recent Jobs */}
-        {filteredRecentJobs.length > 0 && (
-          <View style={getStyles(theme).recentJobsContainer}>
-            <View style={getStyles(theme).sectionHeader}>
-              <Text style={getStyles(theme).sectionTitle}>
-                {userRoles?.isCompany ? "Draft Job Postings" : "Saved Jobs"}
-              </Text>
-              <TouchableOpacity>
-                <Text style={getStyles(theme).seeAllText}>See all</Text>
-              </TouchableOpacity>
+        {/* Seeker View - Applications */}
+        {!userRoles?.isCompany && (
+          <>
+            {/* Recent Applications Section */}
+            <Animated.View
+              style={[getStyles(theme).popularJobsContainer, { opacity: fadeAnim }]}
+            >
+              <View style={getStyles(theme).sectionHeader}>
+                <Text style={getStyles(theme).sectionTitle}>
+                  Recent Applications
+                </Text>
+                <TouchableOpacity onPress={handleViewApplications}>
+                  <Text style={getStyles(theme).seeAllText}>View all</Text>
+                </TouchableOpacity>
+              </View>
+              
+              {/* Quick Stats Cards */}
+              <View style={getStyles(theme).statsContainer}>
+                <TouchableOpacity 
+                  style={getStyles(theme).statCard}
+                  onPress={handleViewApplications}
+                >
+                  <View style={getStyles(theme).statIcon}>
+                    <Feather name="send" size={24} color="#3B82F6" />
+                  </View>
+                  <Text style={getStyles(theme).statNumber}>12</Text>
+                  <Text style={getStyles(theme).statLabel}>Applied</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={getStyles(theme).statCard}
+                  onPress={handleViewApplications}
+                >
+                  <View style={getStyles(theme).statIcon}>
+                    <Feather name="eye" size={24} color="#F59E0B" />
+                  </View>
+                  <Text style={getStyles(theme).statNumber}>5</Text>
+                  <Text style={getStyles(theme).statLabel}>Under Review</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={getStyles(theme).statCard}
+                  onPress={handleViewApplications}
+                >
+                  <View style={getStyles(theme).statIcon}>
+                    <Feather name="check-circle" size={24} color="#10B981" />
+                  </View>
+                  <Text style={getStyles(theme).statNumber}>2</Text>
+                  <Text style={getStyles(theme).statLabel}>Interviews</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+
+            {/* Quick Actions Section */}
+            <View style={getStyles(theme).recentJobsContainer}>
+              <View style={getStyles(theme).sectionHeader}>
+                <Text style={getStyles(theme).sectionTitle}>
+                  Quick Actions
+                </Text>
+              </View>
+              
+              <View style={getStyles(theme).actionsContainer}>
+                <TouchableOpacity 
+                  style={getStyles(theme).actionCard}
+                  onPress={handleBrowseJobs}
+                >
+                  <View style={getStyles(theme).actionIcon}>
+                    <Feather name="search" size={24} color="#6475f8" />
+                  </View>
+                  <Text style={getStyles(theme).actionTitle}>Browse Jobs</Text>
+                  <Text style={getStyles(theme).actionSubtitle}>Find new opportunities</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={getStyles(theme).actionCard}
+                  onPress={handleViewApplications}
+                >
+                  <View style={getStyles(theme).actionIcon}>
+                    <Feather name="list" size={24} color="#10B981" />
+                  </View>
+                  <Text style={getStyles(theme).actionTitle}>View Applications</Text>
+                  <Text style={getStyles(theme).actionSubtitle}>Track your progress</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <View style={getStyles(theme).recentJobsList}>
-              {filteredRecentJobs.map((job, index) => (
-                <RecentJobCard key={job.id} item={job} index={index} />
-              ))}
-            </View>
-          </View>
+          </>
         )}
 
         {/* No Results Message */}
-        {!loading && !error && filteredPopularJobs.length === 0 && filteredRecentJobs.length === 0 && (
+        {!loading && !error && 
+         ((userRoles?.isCompany && filteredPopularJobs.length === 0 && filteredRecentJobs.length === 0) ||
+          (!userRoles?.isCompany && filteredPopularJobs.length === 0)) && (
           <Animated.View
             style={[getStyles(theme).noResultsContainer, { opacity: fadeAnim }]}
           >
             <Feather name="search" size={48} color="#9CA3AF" />
             <Text style={getStyles(theme).noResultsText}>
-              No jobs found matching "{search}"
+              {userRoles?.isCompany ? "No job postings found" : "No applications found"}
             </Text>
             <Text style={getStyles(theme).noResultsSubtext}>
-              Try adjusting your search terms
+              {userRoles?.isCompany ? "Try creating a new job posting" : "Start applying to jobs to see them here"}
             </Text>
+            {!userRoles?.isCompany && (
+              <TouchableOpacity 
+                style={getStyles(theme).browseButton}
+                onPress={handleBrowseJobs}
+              >
+                <Text style={getStyles(theme).browseButtonText}>Browse Jobs</Text>
+              </TouchableOpacity>
+            )}
           </Animated.View>
         )}
       </ScrollView>

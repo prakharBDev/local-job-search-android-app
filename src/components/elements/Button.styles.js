@@ -43,6 +43,17 @@ export const getStyles = theme => StyleSheet.create({
     },
   },
   
+  buttonPrimary: {
+    backgroundColor: theme?.colors?.jobCategories?.secondary?.background || '#75ce9b',
+    ...theme?.shadows?.md || {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+  },
+  
   buttonOutline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
@@ -97,6 +108,10 @@ export const getStyles = theme => StyleSheet.create({
   // Text color variants
   textDefault: {
     color: theme?.colors?.primary?.foreground || '#3949AB',
+  },
+  
+  textPrimary: {
+    color: theme?.colors?.text?.white || '#FFFFFF',
   },
   
   textOutline: {

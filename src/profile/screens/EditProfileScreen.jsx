@@ -18,6 +18,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../contexts/UserContext';
 import { seekerService, companyService, categoriesService, skillsService } from '../../services';
 import { apiClient } from '../../services/api';
+import { theme } from '../../theme';
 
 const EditProfileScreen = ({ navigation, route }) => {
   const { user, userRecord, updateUserRecord, checkAuthStatus } = useAuth();
@@ -550,7 +551,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           onChangeText={text =>
             setJobSeekerData({ ...jobSeekerData, name: text })
           }
-          leftIcon={<Feather name="user" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="user" size={20} color={theme.colors.textSecondary} />}
           error={errors.name}
         />
 
@@ -563,7 +564,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           keyboardType="email-address"
           autoCapitalize="none"
-          leftIcon={<Feather name="mail" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="mail" size={20} color={theme.colors.textSecondary} />}
           error={errors.email}
           editable={false}
           style={{ opacity: 0.6 }}
@@ -591,7 +592,7 @@ const EditProfileScreen = ({ navigation, route }) => {
               }}
               keyboardType="phone-pad"
               style={[styles.phoneInput, { flex: 1, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16 }]}
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={theme.colors.textSecondary}
             />
           </View>
         </View>
@@ -641,7 +642,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           multiline
           numberOfLines={3}
-          leftIcon={<Feather name="edit-3" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="edit-3" size={20} color={theme.colors.textSecondary} />}
         />
       </View>
 
@@ -656,7 +657,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             setJobSeekerData({ ...jobSeekerData, education10th: text })
           }
           keyboardType="numeric"
-          leftIcon={<Feather name="book" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="book" size={20} color={theme.colors.textSecondary} />}
         />
 
         <Input
@@ -667,7 +668,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             setJobSeekerData({ ...jobSeekerData, education12th: text })
           }
           keyboardType="numeric"
-          leftIcon={<Feather name="book" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="book" size={20} color={theme.colors.textSecondary} />}
         />
 
         <Input
@@ -678,7 +679,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             setJobSeekerData({ ...jobSeekerData, graduationPercentage: text })
           }
           keyboardType="numeric"
-          leftIcon={<Feather name="award" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="award" size={20} color={theme.colors.textSecondary} />}
         />
       </View>
 
@@ -689,7 +690,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           <Text style={styles.inputLabel}>Skills</Text>
           {isLoadingSkills ? (
             <View style={styles.loadingContainer}>
-              <Feather name="loader" size={20} color="#3B82F6" />
+              <Feather name="loader" size={20} color={theme.colors.primary.main} />
               <Text style={styles.loadingText}>Loading skills...</Text>
             </View>
           ) : (
@@ -715,7 +716,7 @@ const EditProfileScreen = ({ navigation, route }) => {
                       {skill.name}
                     </Text>
                     {isSelected && (
-                      <Feather name="check" size={16} color="#FFFFFF" style={styles.checkIcon} />
+                      <Feather name="check" size={16} color={theme.colors.white} style={styles.checkIcon} />
                     )}
                   </TouchableOpacity>
                 );
@@ -740,7 +741,7 @@ const EditProfileScreen = ({ navigation, route }) => {
                   });
                 }
               }}
-              leftIcon={<Feather name="plus" size={20} color="#94A3B8" />}
+              leftIcon={<Feather name="plus" size={20} color={theme.colors.textSecondary} />}
             />
           </View>
         </View>
@@ -782,7 +783,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           <Text style={styles.inputLabel}>Job Categories</Text>
           {isLoadingCategories ? (
             <View style={styles.loadingContainer}>
-              <Feather name="loader" size={20} color="#3B82F6" />
+              <Feather name="loader" size={20} color={theme.colors.primary.main} />
               <Text style={styles.loadingText}>Loading categories...</Text>
             </View>
           ) : (
@@ -827,7 +828,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           onChangeText={text =>
             setJobPosterData({ ...jobPosterData, name: text })
           }
-          leftIcon={<Feather name="user" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="user" size={20} color={theme.colors.textSecondary} />}
           error={errors.name}
         />
 
@@ -840,7 +841,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           keyboardType="email-address"
           autoCapitalize="none"
-          leftIcon={<Feather name="mail" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="mail" size={20} color={theme.colors.textSecondary} />}
           error={errors.email}
         />
 
@@ -862,7 +863,7 @@ const EditProfileScreen = ({ navigation, route }) => {
               }}
               keyboardType="phone-pad"
               style={[styles.phoneInput, { flex: 1, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16 }]}
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={theme.colors.textSecondary}
             />
           </View>
         </View>
@@ -876,7 +877,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           multiline
           numberOfLines={3}
-          leftIcon={<Feather name="edit-3" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="edit-3" size={20} color={theme.colors.textSecondary} />}
         />
       </View>
 
@@ -890,7 +891,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           onChangeText={text =>
             setJobPosterData({ ...jobPosterData, companyName: text })
           }
-          leftIcon={<Feather name="building" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="building" size={20} color={theme.colors.textSecondary} />}
           error={errors.companyName}
         />
 
@@ -931,7 +932,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           onChangeText={text =>
             setJobPosterData({ ...jobPosterData, industry: text })
           }
-          leftIcon={<Feather name="briefcase" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="briefcase" size={20} color={theme.colors.textSecondary} />}
           error={errors.industry}
         />
 
@@ -974,7 +975,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           multiline
           numberOfLines={4}
-          leftIcon={<Feather name="file-text" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="file-text" size={20} color={theme.colors.textSecondary} />}
         />
 
         <Input
@@ -986,7 +987,7 @@ const EditProfileScreen = ({ navigation, route }) => {
           }
           keyboardType="url"
           autoCapitalize="none"
-          leftIcon={<Feather name="globe" size={20} color="#94A3B8" />}
+          leftIcon={<Feather name="globe" size={20} color={theme.colors.textSecondary} />}
         />
       </View>
     </View>
@@ -994,7 +995,7 @@ const EditProfileScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.backgroundLight} />
 
       {/* <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1008,7 +1009,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Feather name="arrow-left" size={24} color="#3B82F6" />
+            <Feather name="arrow-left" size={24} color={theme.colors.text.white} />
           </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Edit Profile</Text>
@@ -1034,7 +1035,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             <Card style={styles.formCard}>
               {isLoadingProfile ? (
                 <View style={styles.loadingContainer}>
-                  <Feather name="loader" size={24} color="#3B82F6" />
+                  <Feather name="loader" size={24} color={theme.colors.primary.main} />
                   <Text style={styles.loadingText}>Loading profile data...</Text>
                 </View>
               ) : (
@@ -1055,22 +1056,21 @@ const EditProfileScreen = ({ navigation, route }) => {
             size="lg"
             onPress={handleSave}
             disabled={isLoading || isLoadingProfile || isLoadingCategories || isLoadingSkills}
-            style={styles.saveButton}
           >
             <View style={styles.buttonContent}>
               {isLoading ? (
                 <>
-                  <Feather name="loader" size={20} color="#FFFFFF" />
+                  <Feather name="loader" size={20} color={theme.colors.white} />
                   <Text style={styles.buttonText}>Saving...</Text>
                 </>
               ) : isLoadingProfile || isLoadingCategories || isLoadingSkills ? (
                 <>
-                  <Feather name="loader" size={20} color="#FFFFFF" />
+                  <Feather name="loader" size={20} color={theme.colors.white} />
                   <Text style={styles.buttonText}>Loading...</Text>
                 </>
               ) : (
                 <>
-                  <Feather name="check" size={20} color="#FFFFFF" />
+                  <Feather name="check" size={20} color={theme.colors.white} />
                   <Text style={styles.buttonText}>Save Changes</Text>
                 </>
               )}
@@ -1085,7 +1085,7 @@ const EditProfileScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background.primary,
   },
   header: {
     flexDirection: 'row',
@@ -1093,17 +1093,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.background.secondary,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: theme.colors.interactive.border.primary,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+    zIndex: 1000,
+    position: 'relative',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#EBF4FF',
+    backgroundColor: theme.colors.primary.light,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   headerContent: {
     flex: 1,
@@ -1112,24 +1124,30 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1E293B',
+    color: theme.colors.text.primary,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#64748B',
+    color: theme.colors.text.secondary,
     textAlign: 'center',
   },
   modeBadge: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#EBF4FF',
+    backgroundColor: theme.colors.primary.light,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   modeText: {
     fontSize: 18,
+    color: theme.colors.text.white,
   },
   keyboardAvoid: {
     flex: 1,
@@ -1145,16 +1163,16 @@ const styles = StyleSheet.create({
     paddingTop: 28,
   },
   formCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.background.secondary,
     borderRadius: 32,
     padding: 32,
-    shadowColor: '#8B9DC3',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.15,
     shadowRadius: 28,
     elevation: 15,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: theme.colors.interactive.border.primary,
   },
   formContainer: {
     gap: 32,
@@ -1162,7 +1180,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1E293B',
+    color: theme.colors.text.primary,
     fontFamily: 'System',
     letterSpacing: -0.3,
     marginBottom: 8,
@@ -1176,14 +1194,14 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1E293B',
+    color: theme.colors.text.primary,
     marginBottom: 16,
     fontFamily: 'System',
     letterSpacing: -0.3,
   },
   errorText: {
     fontSize: 13,
-    color: '#EF4444',
+    color: theme.colors.status.error,
     marginTop: 8,
     marginLeft: 8,
     fontWeight: '500',
@@ -1194,23 +1212,23 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   optionChip: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background.tertiary,
     borderRadius: 18,
     paddingHorizontal: 20,
     paddingVertical: 12,
     marginRight: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#CBD5E1',
+    borderColor: theme.colors.interactive.border.primary,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
   },
   optionChipActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
-    shadowColor: '#3B82F6',
+    backgroundColor: theme.colors.primary.main,
+    borderColor: theme.colors.primary.main,
+    shadowColor: theme.colors.primary.main,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -1219,35 +1237,35 @@ const styles = StyleSheet.create({
   optionChipText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#64748B',
+    color: theme.colors.text.secondary,
     fontFamily: 'System',
     letterSpacing: -0.1,
   },
   optionChipTextActive: {
-    color: '#FFFFFF',
+    color: theme.colors.text.white,
     fontWeight: '600',
   },
   experienceGrid: {
     gap: 16,
   },
   experienceCard: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background.tertiary,
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: theme.colors.interactive.border.primary,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#CBD5E1',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
   },
   experienceCardActive: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#3B82F6',
-    shadowColor: '#3B82F6',
+    backgroundColor: theme.colors.primary.light,
+    borderColor: theme.colors.primary.main,
+    shadowColor: theme.colors.primary.main,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -1260,13 +1278,13 @@ const styles = StyleSheet.create({
   experienceText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#64748B',
+    color: theme.colors.text.secondary,
     fontFamily: 'System',
     flex: 1,
     letterSpacing: -0.1,
   },
   experienceTextActive: {
-    color: '#3B82F6',
+    color: theme.colors.text.white,
     fontWeight: '600',
   },
   categoryGrid: {
@@ -1275,22 +1293,22 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   categoryChip: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background.tertiary,
     borderRadius: 16,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#CBD5E1',
+    borderColor: theme.colors.interactive.border.primary,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
     elevation: 2,
   },
   categoryChipActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
-    shadowColor: '#3B82F6',
+    backgroundColor: theme.colors.primary.main,
+    borderColor: theme.colors.primary.main,
+    shadowColor: theme.colors.primary.main,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -1299,12 +1317,12 @@ const styles = StyleSheet.create({
   categoryChipText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#64748B',
+    color: theme.colors.text.secondary,
     fontFamily: 'System',
     letterSpacing: -0.1,
   },
   categoryChipTextActive: {
-    color: '#FFFFFF',
+    color: theme.colors.text.white,
     fontWeight: '600',
   },
   loadingContainer: {
@@ -1315,28 +1333,28 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#64748B',
+    color: theme.colors.text.secondary,
     fontWeight: '500',
   },
   navigationContainer: {
     paddingHorizontal: 24,
     paddingVertical: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.background.secondary,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    shadowColor: '#8B9DC3',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 8,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: theme.colors.interactive.border.primary,
   },
   saveButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: theme.colors.status.success,
     borderRadius: 18,
     height: 56,
-    shadowColor: '#10B981',
+    shadowColor: theme.colors.status.success,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 16,
@@ -1351,7 +1369,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: theme.colors.text.white,
     fontFamily: 'System',
     letterSpacing: -0.3,
   },
@@ -1363,22 +1381,22 @@ const styles = StyleSheet.create({
   skillChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background.tertiary,
     borderRadius: 16,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#CBD5E1',
+    borderColor: theme.colors.interactive.border.primary,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
     elevation: 2,
   },
   skillChipActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
-    shadowColor: '#3B82F6',
+    backgroundColor: theme.colors.primary.main,
+    borderColor: theme.colors.primary.main,
+    shadowColor: theme.colors.primary.main,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -1387,12 +1405,12 @@ const styles = StyleSheet.create({
   skillChipText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#64748B',
+    color: theme.colors.text.secondary,
     fontFamily: 'System',
     letterSpacing: -0.1,
   },
   skillChipTextActive: {
-    color: '#FFFFFF',
+    color: theme.colors.text.white,
     fontWeight: '600',
   },
   removeSkillButton: {
@@ -1407,20 +1425,20 @@ const styles = StyleSheet.create({
   phoneInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background.tertiary,
     borderRadius: 16,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#CBD5E1',
+    borderColor: theme.colors.interactive.border.primary,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
     elevation: 2,
   },
   countryCodeContainer: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: theme.colors.interactive.border.primary,
     borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -1429,7 +1447,7 @@ const styles = StyleSheet.create({
   countryCodeText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#64748B',
+    color: theme.colors.text.secondary,
     fontFamily: 'System',
     letterSpacing: -0.1,
   },

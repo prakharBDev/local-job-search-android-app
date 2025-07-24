@@ -1,30 +1,25 @@
-import React, { memo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-} from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
 import { bluewhiteTheme } from '../../theme/bluewhite-theme';
+import getStyles from './AppHeader.styles';
 
-const AppHeader = memo(({
+const AppHeader = React.memo(({
   title,
   subtitle,
   leftIcon,
   rightIcon,
   onLeftPress,
   onRightPress,
-  background = bluewhiteTheme.colors.background.primary,
-  centered = true,
-  style,
+  centered = false,
 }) => {
   const { theme } = useTheme();
+  const styles = getStyles(theme);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: background }]}>
-      <View style={[styles.container, { backgroundColor: background }, style]}>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
         {/* Left Icon */}
         <View style={styles.leftSection}>
           {leftIcon && (
@@ -40,11 +35,11 @@ const AppHeader = memo(({
 
         {/* Center Content */}
         <View style={[styles.centerSection, centered && styles.centered]}>
-          <Text style={[styles.title, { color: theme?.colors?.text?.primary || bluewhiteTheme.colors.text.primary }]}>
+          <Text style={styles.title}>
             {title}
           </Text>
           {subtitle && (
-            <Text style={[styles.subtitle, { color: theme?.colors?.text?.secondary || bluewhiteTheme.colors.text.secondary }]}>
+            <Text style={styles.subtitle}>
               {subtitle}
             </Text>
           )}
@@ -67,66 +62,6 @@ const AppHeader = memo(({
   );
 });
 
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: bluewhiteTheme.colors.background.primary,
-  },
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: bluewhiteTheme.colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: bluewhiteTheme.colors.background.tertiary,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  leftSection: {
-    flex: 1,
-    alignItems: 'flex-start',
-  },
-  centerSection: {
-    flex: 2,
-    alignItems: 'flex-start',
-  },
-  centered: {
-    alignItems: 'center',
-  },
-  rightSection: {
-    flex: 1,
-    alignItems: 'flex-end',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: bluewhiteTheme.colors.text.primary,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 14,
-    fontWeight: 'normal',
-    color: bluewhiteTheme.colors.text.secondary,
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: bluewhiteTheme.colors.background.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-});
+AppHeader.displayName = 'AppHeader';
 
 export default AppHeader; 

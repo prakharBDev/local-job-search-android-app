@@ -1,22 +1,13 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { ThemedText, ThemedCard, ThemedButton } from '../../components/themed';
+import getStyles from './HomeCard.styles';
 
 const HomeCard = () => {
   const { theme } = useTheme();
-  const styles = StyleSheet.create({
-    card: {
-      marginBottom: theme.spacing.lg,
-      width: '100%',
-      maxWidth: 400,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      gap: theme.spacing.sm,
-      marginTop: theme.spacing.md,
-    },
-  });
+  const styles = getStyles(theme);
+
   return (
     <ThemedCard variant="elevated" style={styles.card}>
       <ThemedText variant="h2" align="center" color="primary">

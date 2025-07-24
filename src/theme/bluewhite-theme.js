@@ -5,8 +5,8 @@ export const bluewhiteTheme = {
   colors: {
     // Background colors
     background: {
-      primary: '#FFFFFF', // Pure white main background
-      secondary: '#F8FAFC', // Very light gray for cards/sections
+      primary: '#F9FAFB', // Updated to soft background as requested
+      secondary: '#FFFFFF', // Pure white for cards/sections
       tertiary: '#F1F5F9', // Slightly darker for subtle contrast
       overlay: 'rgba(255, 255, 255, 0.95)', // Semi-transparent white overlay
     },

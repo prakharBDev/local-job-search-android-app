@@ -4,10 +4,10 @@ import {
   TextInput,
   Text,
   TouchableOpacity,
-  StyleSheet,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { bluewhiteTheme } from '../../theme/bluewhite-theme';
+import getStyles from './Input.styles';
 
 const Input = forwardRef(({
   label,
@@ -31,6 +31,7 @@ const Input = forwardRef(({
 }, ref) => {
   const { theme } = useTheme();
   const safeTheme = theme || bluewhiteTheme;
+  const styles = getStyles(safeTheme);
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -126,10 +127,8 @@ const Input = forwardRef(({
       <View
         style={[
           styles.inputContainer,
+          multiline ? styles.inputContainerMultiline : styles.inputContainerSingle,
           inputStyle,
-          multiline
-            ? styles.inputContainerMultiline
-            : styles.inputContainerSingle,
         ]}
       >
         {leftIcon && (
@@ -148,10 +147,7 @@ const Input = forwardRef(({
           <Text
             style={[
               styles.prefixText,
-              { 
-                color: safeTheme.colors.text.secondary || '#475569',
-                fontWeight: '600',
-              },
+              { color: safeTheme.colors.text.secondary || '#475569' },
             ]}
           >
             {prefix}
@@ -161,12 +157,6 @@ const Input = forwardRef(({
           ref={ref}
           style={[
             styles.input,
-            {
-              color: safeTheme.colors.text.primary || '#1E293B',
-              flex: 1,
-              textAlignVertical: multiline ? 'top' : 'center',
-              paddingLeft: (leftIcon ? 8 : 0) + (prefix ? 0 : 0),
-            },
             multiline && styles.inputMultiline,
             style,
           ]}
@@ -199,69 +189,6 @@ const Input = forwardRef(({
   );
 });
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minHeight: 48,
-  },
-  inputContainerSingle: {
-    alignItems: 'center',
-  },
-  inputContainerMultiline: {
-    alignItems: 'flex-start',
-  },
-  input: {
-    fontSize: 16,
-    fontWeight: '400',
-    flex: 1,
-  },
-  inputMultiline: {
-    textAlignVertical: 'top',
-  },
-  leftIconContainer: {
-    marginRight: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  leftIconContainerSingle: {
-    // Icon will be centered by parent alignItems: 'center'
-  },
-  leftIconContainerMultiline: {
-    alignSelf: 'flex-start',
-    marginTop: 9,
-    paddingTop: 2,
-  },
-  iconContainer: {
-    marginLeft: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconText: {
-    fontSize: 16,
-  },
-  errorText: {
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 4,
-  },
-  prefixText: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginRight: 8,
-    color: '#475569',
-  },
-});
+Input.displayName = 'Input';
 
 export default Input;

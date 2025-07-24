@@ -1,25 +1,19 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
+import getStyles from './SettingItem.styles';
 
-const SettingItem = React.memo(({ title }) => (
-  <TouchableOpacity style={styles.settingItem}>
-    <Text style={styles.settingText}>{title}</Text>
-  </TouchableOpacity>
-));
+const SettingItem = React.memo(({ title }) => {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
+  return (
+    <TouchableOpacity style={styles.settingItem}>
+      <Text style={styles.settingText}>{title}</Text>
+    </TouchableOpacity>
+  );
+});
 
 SettingItem.displayName = 'SettingItem';
-
-const styles = StyleSheet.create({
-  settingItem: {
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  settingText: {
-    fontSize: 16,
-    color: '#222',
-  },
-});
 
 export default SettingItem;

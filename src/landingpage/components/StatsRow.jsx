@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useTheme } from '../../contexts/ThemeContext';
+import getStyles from './StatsRow.styles';
 
 const stats = [
   {
@@ -21,38 +22,7 @@ const stats = [
 
 const StatsRow = React.memo(() => {
   const { theme } = useTheme();
-  const styles = StyleSheet.create({
-    statsRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingHorizontal: theme?.spacing?.[4] || 16,
-      paddingVertical: theme?.spacing?.[4] || 16,
-      gap: theme?.spacing?.[2] || 8,
-    },
-    statCard: {
-      flex: 1,
-      backgroundColor: theme?.colors?.surface?.card || '#FFFFFF',
-      borderRadius: 16,
-      padding: theme?.spacing?.[3] || 12,
-      alignItems: 'center',
-      marginHorizontal: theme?.spacing?.[1] || 4,
-      ...(theme?.shadows?.sm || {}),
-      borderWidth: 1,
-      borderColor: theme?.colors?.border?.primary || '#E2E8F0',
-    },
-    statNumber: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: theme?.colors?.text?.primary || '#1E293B',
-      marginTop: theme?.spacing?.[1] || 4,
-      marginBottom: theme?.spacing?.[1] || 4,
-    },
-    statLabel: {
-      fontSize: 12,
-      color: theme?.colors?.text?.secondary || '#64748B',
-      textAlign: 'center',
-    },
-  });
+  const styles = getStyles(theme);
 
   return (
     <View style={styles.statsRow}>

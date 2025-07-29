@@ -9,8 +9,10 @@ const JobCard = ({
   job,
   isApplied = false,
   showApplyButton = true,
+  showToggleButton = false,
   onApplyPress,
   onViewPress,
+  onToggleStatus,
   style = {},
 }) => {
   const navigation = useNavigation();
@@ -109,16 +111,47 @@ const JobCard = ({
         </View>
 
         {/* Job Details */}
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: 'bold',
-            color: theme.colors.text.primary,
-            marginBottom: 12,
-          }}
-        >
-          {job.title}
-        </Text>
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 12,
+        }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              color: theme.colors.text.primary,
+              flex: 1,
+            }}
+          >
+            {job.title}
+          </Text>
+          
+          {/* Status Badge - Only show for job owners */}
+          {showToggleButton && (
+            <View
+              style={{
+                backgroundColor: job.is_active ? '#10B981' : '#6B7280',
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 12,
+                marginLeft: 8,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: '600',
+                  color: 'white',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {job.is_active ? 'Active' : 'Inactive'}
+              </Text>
+            </View>
+          )}
+        </View>
 
         {/* Job Meta */}
         <View
@@ -257,6 +290,43 @@ const JobCard = ({
             )
           ) : (
             <View style={{ flex: 1 }} />
+          )}
+
+          {/* Toggle Active/Inactive Button - Only show for job owners */}
+          {showToggleButton && (
+            <TouchableOpacity
+              style={{
+                backgroundColor: job.is_active ? '#EF4444' : '#10B981',
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 6,
+                marginRight: 8,
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+              onPress={e => {
+                e.stopPropagation();
+                if (onToggleStatus) {
+                  onToggleStatus(job);
+                }
+              }}
+            >
+              <Feather 
+                name={job.is_active ? 'pause-circle' : 'play-circle'} 
+                size={14} 
+                color="white" 
+                style={{ marginRight: 4 }}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color: 'white',
+                }}
+              >
+                {job.is_active ? 'Disable' : 'Enable'}
+              </Text>
+            </TouchableOpacity>
           )}
 
           <TouchableOpacity

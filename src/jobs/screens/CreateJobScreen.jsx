@@ -209,7 +209,7 @@ const CreateJobScreen = () => {
           is_active: !isDraft, // Use is_active instead of status
         };
 
-        console.log('Creating job with payload:', jobPayload);
+  
 
         // Create job using the job service
         const { data: createdJob, error } = await jobService.createJob(jobPayload);
@@ -219,7 +219,7 @@ const CreateJobScreen = () => {
           throw error;
         }
 
-        console.log('Job created successfully:', createdJob);
+
 
         Alert.alert(
           'Success!',

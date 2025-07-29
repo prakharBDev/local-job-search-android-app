@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import {
   View,
   Text,
@@ -304,9 +304,7 @@ const ProfileScreen = ({ navigation }) => {
     ]);
   };
 
-  const handleSettings = () => {
-    navigation.navigate('Settings');
-  };
+
 
   const handleAbout = () => {
     navigation.navigate('About');
@@ -347,10 +345,6 @@ const ProfileScreen = ({ navigation }) => {
         <AppHeader
           title="Profile"
           subtitle="Manage your account & preferences"
-          rightIcon={
-            <Icon name="settings" size={20} color={theme.colors.primary.main} />
-          }
-          onRightPress={handleSettings}
           background={theme.colors.background.secondary}
           centered={true}
         />
@@ -1373,4 +1367,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default memo(ProfileScreen);

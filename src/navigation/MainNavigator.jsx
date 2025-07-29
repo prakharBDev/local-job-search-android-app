@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Icon } from '../components/elements';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import ErrorBoundary from '../shared/components/ErrorBoundary';
 
 // Import screens
 import DashboardScreen from '../dashboard/screens/DashboardScreen';
@@ -23,25 +24,43 @@ import ApplicationDetailsScreen from '../jobs/screens/ApplicationDetailsScreen';
 import ApplicationsReviewScreen from '../jobs/screens/ApplicationsReviewScreen';
 import JobManagementScreen from '../jobs/screens/JobManagementScreen';
 
+import AboutScreen from '../about/screens/AboutScreen';
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+// Memoized hook to prevent unnecessary re-renders of navigation screens
+const useStackScreenOptions = () => {
+  const { theme } = useTheme();
+  
+  return useMemo(() => ({
+    headerStyle: {
+      backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
+    },
+    headerTintColor: theme?.colors?.text?.primary || '#1E293B',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  }), [theme?.colors?.background?.primary, theme?.colors?.text?.primary]);
+};
+
+// Higher-order component to wrap stack navigators with error boundaries
+const withErrorBoundary = (StackComponent, displayName) => {
+  const WrappedStack = (props) => (
+    <ErrorBoundary>
+      <StackComponent {...props} />
+    </ErrorBoundary>
+  );
+  WrappedStack.displayName = `withErrorBoundary(${displayName})`;
+  return WrappedStack;
+};
+
 // Stack navigators for each tab
 const DashboardStack = () => {
-  const { theme } = useTheme();
+  const screenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
-        },
-        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
+    <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
         name="DashboardMain"
         component={DashboardScreen}
@@ -52,20 +71,10 @@ const DashboardStack = () => {
 };
 
 const JobsStack = () => {
-  const { theme } = useTheme();
+  const screenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
-        },
-        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
+    <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
         name="JobsMain"
         component={JobBrowseScreen}
@@ -91,20 +100,10 @@ const JobsStack = () => {
 };
 
 const MyJobsStack = () => {
-  const { theme } = useTheme();
+  const screenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
-        },
-        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
+    <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
         name="MyJobsMain"
         component={MyJobsScreen}
@@ -116,25 +115,21 @@ const MyJobsStack = () => {
         component={SwipeableJobDetailsScreen}
         options={{ headerShown: false }}
       />
+      
+      <Stack.Screen
+        name="JobsSwipeableJobDetails"
+        component={SwipeableJobDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
 
 const CreateJobStack = () => {
-  const { theme } = useTheme();
+  const screenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
-        },
-        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
+    <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
         name="CreateJobMain"
         component={CreateJobScreen}
@@ -145,20 +140,10 @@ const CreateJobStack = () => {
 };
 
 const JobManagementStack = () => {
-  const { theme } = useTheme();
+  const screenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
-        },
-        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
+    <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
         name="JobManagementMain"
         component={JobManagementScreen}
@@ -169,25 +154,20 @@ const JobManagementStack = () => {
         component={SwipeableJobDetailsScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="JobsSwipeableJobDetails"
+        component={SwipeableJobDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
 
 const ApplicationsReviewStack = () => {
-  const { theme } = useTheme();
+  const screenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
-        },
-        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
+    <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
         name="ApplicationsReviewMain"
         component={ApplicationsReviewScreen}
@@ -198,25 +178,20 @@ const ApplicationsReviewStack = () => {
         component={ApplicationDetailsScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="JobsSwipeableJobDetails"
+        component={SwipeableJobDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
 
 const ProfileStack = () => {
-  const { theme } = useTheme();
+  const screenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme?.colors?.background?.primary || '#FFFFFF',
-        },
-        headerTintColor: theme?.colors?.text?.primary || '#1E293B',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
+    <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
         name="ProfileMain"
         component={ProfileScreen}
@@ -253,9 +228,21 @@ const ProfileStack = () => {
         component={OnboardingScreen}
         options={{ headerShown: false }}
       />
+
+      <Stack.Screen
+        name="About"
+        component={AboutScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
+
+// Wrap critical navigation stacks with error boundaries for better error handling
+const DashboardStackWithBoundary = withErrorBoundary(DashboardStack, 'DashboardStack');
+const JobsStackWithBoundary = withErrorBoundary(JobsStack, 'JobsStack');
+const MyJobsStackWithBoundary = withErrorBoundary(MyJobsStack, 'MyJobsStack');
+const ProfileStackWithBoundary = withErrorBoundary(ProfileStack, 'ProfileStack');
 
 const MainNavigator = () => {
   const { theme } = useTheme();
@@ -330,14 +317,14 @@ const MainNavigator = () => {
         <>
           <Tab.Screen
             name="Dashboard"
-            component={DashboardStack}
+            component={DashboardStackWithBoundary}
             options={{
               tabBarLabel: 'Dashboard',
             }}
           />
           <Tab.Screen
             name="MyJobs"
-            component={MyJobsStack}
+            component={MyJobsStackWithBoundary}
             options={{
               tabBarLabel: 'My Jobs',
             }}
@@ -358,7 +345,7 @@ const MainNavigator = () => {
           />
           <Tab.Screen
             name="Profile"
-            component={ProfileStack}
+            component={ProfileStackWithBoundary}
             options={{
               tabBarLabel: 'Profile',
             }}
@@ -369,28 +356,28 @@ const MainNavigator = () => {
         <>
           <Tab.Screen
             name="Dashboard"
-            component={DashboardStack}
+            component={DashboardStackWithBoundary}
             options={{
               tabBarLabel: 'Dashboard',
             }}
           />
           <Tab.Screen
             name="Jobs"
-            component={JobsStack}
+            component={JobsStackWithBoundary}
             options={{
               tabBarLabel: 'Jobs',
             }}
           />
           <Tab.Screen
             name="MyJobs"
-            component={MyJobsStack}
+            component={MyJobsStackWithBoundary}
             options={{
               tabBarLabel: 'Applied',
             }}
           />
           <Tab.Screen
             name="Profile"
-            component={ProfileStack}
+            component={ProfileStackWithBoundary}
             options={{
               tabBarLabel: 'Profile',
             }}

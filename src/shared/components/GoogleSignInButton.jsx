@@ -18,10 +18,9 @@ export default function GoogleSignInButton({ onSuccess, disabled = false }) {
   }, []);
 
   const handleGoogleSignIn = async () => {
-    if (disabled) {
-      console.log('Google Sign-In button is disabled');
-      return;
-    }
+          if (disabled) {
+        return;
+      }
 
     try {
       await GoogleSignin.hasPlayServices();
@@ -40,13 +39,10 @@ export default function GoogleSignInButton({ onSuccess, disabled = false }) {
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
-        console.log('User cancelled Google Sign-In');
       } else if (error.code === statusCodes.IN_PROGRESS) {
         // operation (e.g. sign in) is in progress already
-        console.log('Google Sign-In already in progress');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         // play services not available or outdated
-        console.log('Google Play Services not available');
         if (onSuccess) {
           onSuccess({
             data: null,

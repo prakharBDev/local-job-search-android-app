@@ -264,18 +264,9 @@ const EditProfileScreen = ({ navigation, route }) => {
           return;
         }
 
-        console.log('Loaded company data:', companyProfile);
+  
 
         if (companyProfile) {
-          console.log('Setting company data with:', {
-            company_name: companyProfile.company_name,
-            industry: companyProfile.industry,
-            company_size: companyProfile.company_size,
-            company_description: companyProfile.company_description,
-            website: companyProfile.website,
-            contact_email: companyProfile.contact_email,
-            users: companyProfile.users,
-          });
 
           // Check if company profile is empty (all fields undefined/null)
           const isProfileEmpty =
@@ -287,9 +278,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             !companyProfile.contact_email;
 
           if (isProfileEmpty) {
-            console.log(
-              'Company profile exists but is empty, populating with default data...',
-            );
+
             // Update the existing company profile with default data
             try {
               const { data: updatedProfile, error: updateError } =
@@ -305,10 +294,7 @@ const EditProfileScreen = ({ navigation, route }) => {
               if (updateError) {
                 console.error('Error updating company profile:', updateError);
               } else {
-                console.log(
-                  'Updated company profile with default data:',
-                  updatedProfile,
-                );
+
                 // Reload the profile data to get the updated information
                 loadUserProfileData();
                 return; // Exit early to avoid setting empty data
@@ -361,7 +347,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             bio: '', // Bio field doesn't exist for company profiles
           }));
         } else {
-          console.log('No company profile found, creating one...');
+
           // Create a default company profile
           try {
             const { data: newProfile, error: createError } =
@@ -374,7 +360,7 @@ const EditProfileScreen = ({ navigation, route }) => {
             if (createError) {
               console.error('Error creating company profile:', createError);
             } else {
-              console.log('Created new company profile:', newProfile);
+
               // Reload the profile data
               loadUserProfileData();
             }

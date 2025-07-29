@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -686,4 +686,4 @@ const JobBrowseScreen = () => {
   );
 };
 
-export default JobBrowseScreen;
+export default memo(JobBrowseScreen);

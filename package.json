@@ -29,6 +29,7 @@
     "apk:size": "du -sh android/app/build/intermediates/apk/release/app-release.apk",
     "build": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle",
     "build:release": "./scripts/build-and-install.sh",
+    "build:release:no-minify": "./scripts/build-release-no-minify.sh",
     "lint-staged": "lint-staged",
     "docs:generate": "node scripts/generate-docs.js",
     "docs:validate": "node scripts/generate-docs.js --validate-only",

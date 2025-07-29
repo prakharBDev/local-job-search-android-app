@@ -12,7 +12,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { applicationService, jobService } from '../../services';
+import { applicationService, jobService, companyService } from '../../services';
 
 // Import components
 import Card from '../../components/blocks/Card';
@@ -22,6 +22,7 @@ import Icon from '../../components/elements/Icon';
 import Input from '../../components/elements/Input';
 
 const ApplicationsReviewScreen = () => {
+
   const { theme } = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
@@ -48,20 +49,56 @@ const ApplicationsReviewScreen = () => {
 
       // Load job details if jobId is provided
       if (jobId) {
-        const job = await jobService.getJobById(jobId);
-        setSelectedJob(job);
+        const { data: job, error: jobError } = await jobService.getJobById(jobId);
+        if (jobError) {
+          console.error('Error loading job:', jobError);
+        } else {
+          setSelectedJob(job);
+        }
       }
 
       // Load applications
       if (userRoles?.isCompany && user?.id) {
-        const jobApplications = jobId
-          ? await applicationService.getApplicationsByJob(jobId)
-          : await applicationService.getApplicationsByCompany(user.id);
-        setApplications(jobApplications || []);
+        if (jobId) {
+          // Load applications for a specific job
+          const { data: jobApplications, error: appsError } = await applicationService.getJobApplications(jobId);
+          
+          if (appsError) {
+            console.error('Error loading applications:', appsError);
+            Alert.alert('Error', 'Failed to load applications. Please try again.');
+            setApplications([]);
+          } else {
+
+            setApplications(jobApplications || []);
+          }
+        } else {
+          // Load all applications for the company
+          // First get company profile
+          const { data: companyProfile, error: profileError } = await companyService.getCompanyProfile(user.id);
+          
+          if (profileError || !companyProfile) {
+            console.error('Error loading company profile:', profileError);
+            Alert.alert('Error', 'Company profile not found. Please complete your profile setup.');
+            setApplications([]);
+          } else {
+            // Then get applications by company
+            const { data: companyApplications, error: appsError } = await applicationService.getApplicationsByCompany(companyProfile.id);
+            
+            if (appsError) {
+              console.error('Error loading applications:', appsError);
+              Alert.alert('Error', 'Failed to load applications. Please try again.');
+              setApplications([]);
+            } else {
+
+            setApplications(companyApplications || []);
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading applications:', error);
       Alert.alert('Error', 'Failed to load applications. Please try again.');
+      setApplications([]);
     } finally {
       setLoading(false);
     }
@@ -81,16 +118,21 @@ const ApplicationsReviewScreen = () => {
   const handleUpdateStatus = async (applicationId, newStatus) => {
     try {
       setStatusUpdateLoading(true);
-      await applicationService.updateApplicationStatus(
+      const { data, error } = await applicationService.updateApplicationStatus(
         applicationId,
         newStatus,
+      );
+
+      if (error) {
+        throw error;
+      }
 
       // Update local state
       setApplications(prevApplications =>
         prevApplications.map(app =>
           app.id === applicationId ? { ...app, status: newStatus } : app,
         ),
-      ))
+      );
 
       // Update selected application if it's the one being updated
       if (selectedApplication?.id === applicationId) {
@@ -112,13 +154,13 @@ const ApplicationsReviewScreen = () => {
   const getStatusBadgeColor = status => {
     switch (status) {
       case 'applied':
-        return theme.colors.primary;
+        return '#6174f9';
       case 'under_review':
-        return theme.colors.warning;
+        return '#F59E0B';
       case 'hired':
-        return theme.colors.success;
+        return '#75ce9b';
       case 'rejected':
-        return theme.colors.error;
+        return '#EF4444';
       default:
         return theme.colors.gray;
     }
@@ -149,12 +191,13 @@ const ApplicationsReviewScreen = () => {
     return applications.filter(app => app.status === filterStatus);
   };
 
-  const renderApplicationCard = application => (
+  const renderApplicationCard = application => {
+    return (
     <Card key={application.id} style={styles.applicationCard}>
       <View style={styles.applicationHeader}>
         <View style={styles.applicantInfo}>
           <Text style={[styles.applicantName, { color: theme.colors.text }]}>
-            {application.seeker_profile?.user?.name || 'Unknown Applicant'}
+            {application.seeker_profiles?.users?.name || 'Job Applicant'}
           </Text>
           <Text
             style={[
@@ -162,7 +205,7 @@ const ApplicationsReviewScreen = () => {
               { color: theme.colors.textSecondary },
             ]}
           >
-            {application.seeker_profile?.user?.email || 'No email'}
+            {application.seeker_profiles?.users?.email || 'applicant@example.com'}
           </Text>
         </View>
         <Badge
@@ -172,15 +215,49 @@ const ApplicationsReviewScreen = () => {
         />
       </View>
 
-      {application.message && (
+      {application.cover_letter && (
         <Text
           style={[
             styles.applicationMessage,
             { color: theme.colors.textSecondary },
           ]}
         >
-          "{application.message}"
+          "{application.cover_letter}"
         </Text>
+      )}
+
+      {/* Skills Section */}
+      {application.seeker_profiles?.seeker_skills && application.seeker_profiles.seeker_skills.length > 0 && (
+        <View style={styles.skillsSection}>
+          <Text style={[styles.skillsLabel, { color: theme.colors.textSecondary }]}>
+            Skills:
+          </Text>
+          <View style={styles.skillsContainer}>
+            {application.seeker_profiles.seeker_skills.map((skillItem, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={[
+                  styles.skillChip, 
+                  { 
+                    backgroundColor: index % 2 === 0 ? '#6174f9' : '#75ce9b'
+                  }
+                ]}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.skillChipText, { color: '#FFFFFF' }]}>
+                  {skillItem.skills?.name || 'Unknown Skill'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
+      {(!application.seeker_profiles?.seeker_skills || application.seeker_profiles.seeker_skills.length === 0) && (
+        <View style={styles.skillsSection}>
+          <Text style={[styles.skillsLabel, { color: theme.colors.textSecondary }]}>
+            Skills: <Text style={{ color: theme.colors.gray }}>Not specified</Text>
+          </Text>
+        </View>
       )}
 
       <View style={styles.applicationFooter}>
@@ -189,19 +266,21 @@ const ApplicationsReviewScreen = () => {
         </Text>
 
         <TouchableOpacity
-          style={[styles.viewButton, { backgroundColor: theme.colors.primary }]}
+          style={[styles.viewButton, { backgroundColor: '#6174f9' }]}
           onPress={() => handleViewApplication(application)}
         >
-          <Icon name="eye" size={16} color={theme.colors.white} />
-          <Text style={[styles.viewButtonText, { color: theme.colors.white }]}>
+          <Icon name="eye" size={16} color="#FFFFFF" />
+          <Text style={[styles.viewButtonText, { color: '#FFFFFF' }]}>
             View Details
           </Text>
         </TouchableOpacity>
       </View>
     </Card>
-  );
+    );
+  };
 
-  const renderApplicationModal = () => (
+  const renderApplicationModal = () => {
+    return (
     <Modal
       visible={showApplicationModal}
       animationType="slide"
@@ -213,126 +292,240 @@ const ApplicationsReviewScreen = () => {
           style={[styles.modalContent, { backgroundColor: theme.colors.white }]}
         >
           <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
-              Application Details
-            </Text>
+            <View style={styles.modalHeaderContent}>
+              <Icon name="user" size={24} color={theme.colors.primary} />
+              <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
+                Application Details
+              </Text>
+            </View>
             <TouchableOpacity
               onPress={() => setShowApplicationModal(false)}
               style={styles.closeButton}
             >
-              <Icon name="close" size={24} color={theme.colors.gray} />
+              <Icon name="x" size={24} color={theme.colors.gray} />
             </TouchableOpacity>
           </View>
 
           {selectedApplication && (
-            <ScrollView style={styles.modalBody}>
-              <View style={styles.applicantDetails}>
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  Applicant Name
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                  {selectedApplication.seeker_profile?.user?.name || 'Unknown'}
-                </Text>
-                
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  Email
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                  {selectedApplication.seeker_profile?.user?.email || 'No email'}
-                </Text>
-                
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  Phone
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                  {selectedApplication.seeker_profile?.user?.phone_number || 'No phone'}
-                </Text>
-                
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  Experience Level
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                  {selectedApplication.seeker_profile?.experience_level || 'Not specified'}
-                </Text>
-                
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  Education
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                  {`10th: ${selectedApplication.seeker_profile?.tenth_percentage || 'N/A'}% | 12th: ${selectedApplication.seeker_profile?.twelfth_percentage || 'N/A'}% | Graduation: ${selectedApplication.seeker_profile?.graduation_percentage || 'N/A'}%`}
-                </Text>
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              {/* Applicant Profile Section */}
+              <View style={styles.profileSection}>
+                <View style={styles.profileHeader}>
+                  <View style={styles.avatarContainer}>
+                    <Icon name="user" size={32} color={theme.colors.white} />
+                  </View>
+                  <View style={styles.profileInfo}>
+                    <Text style={[styles.applicantName, { color: theme.colors.text }]}>
+                      {selectedApplication.seeker_profiles?.users?.name || 'Job Applicant'}
+                    </Text>
+                    <Text style={[styles.applicantEmail, { color: theme.colors.textSecondary }]}>
+                      {selectedApplication.seeker_profiles?.users?.email || 'applicant@example.com'}
+                    </Text>
+                    <Badge 
+                      text={getStatusText(selectedApplication.status)}
+                      color={getStatusBadgeColor(selectedApplication.status)}
+                      size="small"
+                    />
+                  </View>
+                </View>
               </View>
-              
-              {selectedApplication.message && (
-                <View style={styles.messageSection}>
-                  <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                    Cover Message
+
+              {/* Contact Information */}
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                  Contact Information
+                </Text>
+                <View style={styles.infoGrid}>
+                  <View style={styles.infoItem}>
+                    <Icon name="phone" size={16} color={theme.colors.primary} />
+                    <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>
+                      Phone
+                    </Text>
+                    <Text style={[styles.infoValue, { color: theme.colors.text }]}>
+                      {selectedApplication.seeker_profiles?.users?.phone_number || 'Not provided'}
+                    </Text>
+                  </View>
+                  <View style={styles.infoItem}>
+                    <Icon name="calendar" size={16} color={theme.colors.primary} />
+                    <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>
+                      Applied
+                    </Text>
+                    <Text style={[styles.infoValue, { color: theme.colors.text }]}>
+                      {selectedApplication.created_at ? new Date(selectedApplication.created_at).toLocaleDateString('en-GB') : 'Recently'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Experience & Education */}
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                  Experience & Education
+                </Text>
+                <View style={styles.infoGrid}>
+                  <View style={styles.infoItem}>
+                    <Icon name="briefcase" size={16} color={theme.colors.primary} />
+                    <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>
+                      Experience
+                    </Text>
+                    <Text style={[styles.infoValue, { color: theme.colors.text, fontWeight: 'bold' }]}>
+                      {selectedApplication.seeker_profiles?.experience_level || 'Not specified'}
+                    </Text>
+                  </View>
+                  <View style={styles.educationContainer}>
+                    <View style={styles.educationHeader}>
+                      <Icon name="book" size={16} color={theme.colors.primary} />
+                      <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>
+                        Education
+                      </Text>
+                    </View>
+                    <View style={styles.educationDetails}>
+                      <View style={styles.educationItem}>
+                        <Text style={[styles.educationLabel, { color: theme.colors.textSecondary }]}>
+                          10th Standard
+                        </Text>
+                        <Text style={[styles.educationPercentage, { color: theme.colors.text }]}>
+                          {selectedApplication.seeker_profiles?.tenth_percentage || 'N/A'}%
+                        </Text>
+                      </View>
+                      <View style={styles.educationItem}>
+                        <Text style={[styles.educationLabel, { color: theme.colors.textSecondary }]}>
+                          12th Standard
+                        </Text>
+                        <Text style={[styles.educationPercentage, { color: theme.colors.text }]}>
+                          {selectedApplication.seeker_profiles?.twelfth_percentage || 'N/A'}%
+                        </Text>
+                      </View>
+                      <View style={styles.educationItem}>
+                        <Text style={[styles.educationLabel, { color: theme.colors.textSecondary }]}>
+                          Graduation
+                        </Text>
+                        <Text style={[styles.educationPercentage, { color: theme.colors.text }]}>
+                          {selectedApplication.seeker_profiles?.graduation_percentage || 'N/A'}%
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Skills Section */}
+              {selectedApplication.seeker_profiles?.seeker_skills && selectedApplication.seeker_profiles.seeker_skills.length > 0 && (
+                <View style={styles.section}>
+                  <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                    Skills & Expertise
                   </Text>
-                  <Text style={[styles.messageText, { color: theme.colors.text }]}>
-                    {selectedApplication.message}
+                  <View style={styles.skillsModalContainer}>
+                    {selectedApplication.seeker_profiles.seeker_skills.map((skillItem, index) => (
+                      <TouchableOpacity 
+                        key={index} 
+                        style={[
+                          styles.skillModalChip, 
+                          { 
+                            backgroundColor: index % 2 === 0 ? '#6174f9' : '#75ce9b'
+                          }
+                        ]}
+                        activeOpacity={0.8}
+                      >
+                        <Icon name="award" size={14} color="#FFFFFF" />
+                        <Text style={[styles.skillModalChipText, { color: '#FFFFFF' }]}>
+                          {skillItem.skills?.name || 'Unknown Skill'}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+              {(!selectedApplication.seeker_profiles?.seeker_skills || selectedApplication.seeker_profiles.seeker_skills.length === 0) && (
+                <View style={styles.section}>
+                  <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                    Skills & Expertise
+                  </Text>
+                  <Text style={[styles.noSkillsText, { color: theme.colors.textSecondary }]}>
+                    No skills specified by the applicant
                   </Text>
                 </View>
               )}
               
-              <View style={styles.statusSection}>
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  Current Status
-                </Text>
-                <Badge 
-                  text={getStatusText(selectedApplication.status)}
-                  color={getStatusBadgeColor(selectedApplication.status)}
-                  size="medium"
-                />
-              </View>
+              {/* Cover Letter */}
+              {selectedApplication.cover_letter && (
+                <View style={styles.section}>
+                  <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                    Cover Letter
+                  </Text>
+                  <View style={[styles.coverLetterContainer, { backgroundColor: theme.colors.background }]}>
+                    <Text style={[styles.coverLetterText, { color: theme.colors.text }]}>
+                      {selectedApplication.cover_letter}
+                    </Text>
+                  </View>
+                </View>
+              )}
               
-              <View style={styles.actionsSection}>
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  Update Status
+              {/* Status Actions - Standalone without card wrapper */}
+              <View style={styles.statusActionsContainer}>
+                <Text style={[styles.statusActionsTitle, { color: theme.colors.text }]}>
+                  Update Application Status
                 </Text>
                 <View style={styles.statusButtons}>
-                  <Button
-                    title="Under Review"
+                  <TouchableOpacity
+                    style={[
+                      styles.statusButton,
+                      { 
+                        backgroundColor: selectedApplication.status === 'under_review' 
+                          ? '#F59E0B' 
+                          : '#FBBF24',
+                        opacity: selectedApplication.status === 'under_review' ? 0.8 : 1
+                      },
+                      selectedApplication.status === 'under_review' && styles.statusButtonActive
+                    ]}
                     onPress={() => handleUpdateStatus(selectedApplication.id, 'under_review')}
-                    style={[styles.statusButton, { backgroundColor: theme.colors.warning }]}
-                    textStyle={[styles.statusButtonText, { color: theme.colors.white }]}
                     disabled={statusUpdateLoading || selectedApplication.status === 'under_review'}
-                  />
-                  <Button
-                    title="Hire"
-                    onPress={() =>
-                      handleUpdateStatus(selectedApplication.id, 'hired')
-                    }
+                  >
+                    <Icon name="clock" size={20} color="#FFFFFF" />
+                    <Text style={[styles.statusButtonText, { color: '#FFFFFF' }]}>
+                      Under Review
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
                     style={[
                       styles.statusButton,
-                      { backgroundColor: theme.colors.success },
+                      { 
+                        backgroundColor: selectedApplication.status === 'hired' 
+                          ? '#75ce9b' 
+                          : '#3DD598',
+                        opacity: selectedApplication.status === 'hired' ? 0.8 : 1
+                      },
+                      selectedApplication.status === 'hired' && styles.statusButtonActive
                     ]}
-                    textStyle={[
-                      styles.statusButtonText,
-                      { color: theme.colors.white },
-                    ]}
-                    disabled={
-                      statusUpdateLoading ||
-                      selectedApplication.status === 'hired'
-                    }
-                  />
-                  <Button
-                    title="Reject"
-                    onPress={() =>
-                      handleUpdateStatus(selectedApplication.id, 'rejected')
-                    }
+                    onPress={() => handleUpdateStatus(selectedApplication.id, 'hired')}
+                    disabled={statusUpdateLoading || selectedApplication.status === 'hired'}
+                  >
+                    <Icon name="check" size={20} color="#FFFFFF" />
+                    <Text style={[styles.statusButtonText, { color: '#FFFFFF' }]}>
+                      Hire
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
                     style={[
                       styles.statusButton,
-                      { backgroundColor: theme.colors.error },
+                      { 
+                        backgroundColor: selectedApplication.status === 'rejected' 
+                          ? '#EF4444' 
+                          : '#F87171',
+                        opacity: selectedApplication.status === 'rejected' ? 0.8 : 1
+                      },
+                      selectedApplication.status === 'rejected' && styles.statusButtonActive
                     ]}
-                    textStyle={[
-                      styles.statusButtonText,
-                      { color: theme.colors.white },
-                    ]}
-                    disabled={
-                      statusUpdateLoading ||
-                      selectedApplication.status === 'rejected'
-                    }
-                  />
+                    onPress={() => handleUpdateStatus(selectedApplication.id, 'rejected')}
+                    disabled={statusUpdateLoading || selectedApplication.status === 'rejected'}
+                  >
+                    <Icon name="x" size={20} color="#FFFFFF" />
+                    <Text style={[styles.statusButtonText, { color: '#FFFFFF' }]}>
+                      Reject
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </ScrollView>
@@ -341,6 +534,7 @@ const ApplicationsReviewScreen = () => {
       </View>
     </Modal>
   );
+  };
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
@@ -439,7 +633,7 @@ const ApplicationsReviewScreen = () => {
                     style={[
                       styles.filterButton,
                       filterStatus === 'all' && {
-                        backgroundColor: theme.colors.primary,
+                        backgroundColor: '#6174f9',
                       },
                     ]}
                     onPress={() => setFilterStatus('all')}
@@ -450,7 +644,7 @@ const ApplicationsReviewScreen = () => {
                         {
                           color:
                             filterStatus === 'all'
-                              ? theme.colors.white
+                              ? '#FFFFFF'
                               : theme.colors.text,
                         },
                       ]}
@@ -463,7 +657,7 @@ const ApplicationsReviewScreen = () => {
                     style={[
                       styles.filterButton,
                       filterStatus === 'applied' && {
-                        backgroundColor: theme.colors.primary,
+                        backgroundColor: '#6174f9',
                       },
                     ]}
                     onPress={() => setFilterStatus('applied')}
@@ -474,7 +668,7 @@ const ApplicationsReviewScreen = () => {
                         {
                           color:
                             filterStatus === 'applied'
-                              ? theme.colors.white
+                              ? '#FFFFFF'
                               : theme.colors.text,
                         },
                       ]}
@@ -491,7 +685,7 @@ const ApplicationsReviewScreen = () => {
                     style={[
                       styles.filterButton,
                       filterStatus === 'under_review' && {
-                        backgroundColor: theme.colors.primary,
+                        backgroundColor: '#6174f9',
                       },
                     ]}
                     onPress={() => setFilterStatus('under_review')}
@@ -502,7 +696,7 @@ const ApplicationsReviewScreen = () => {
                         {
                           color:
                             filterStatus === 'under_review'
-                              ? theme.colors.white
+                              ? '#FFFFFF'
                               : theme.colors.text,
                         },
                       ]}
@@ -520,7 +714,7 @@ const ApplicationsReviewScreen = () => {
                     style={[
                       styles.filterButton,
                       filterStatus === 'hired' && {
-                        backgroundColor: theme.colors.primary,
+                        backgroundColor: '#6174f9',
                       },
                     ]}
                     onPress={() => setFilterStatus('hired')}
@@ -531,7 +725,7 @@ const ApplicationsReviewScreen = () => {
                         {
                           color:
                             filterStatus === 'hired'
-                              ? theme.colors.white
+                              ? '#FFFFFF'
                               : theme.colors.text,
                         },
                       ]}
@@ -548,7 +742,7 @@ const ApplicationsReviewScreen = () => {
                     style={[
                       styles.filterButton,
                       filterStatus === 'rejected' && {
-                        backgroundColor: theme.colors.primary,
+                        backgroundColor: '#6174f9',
                       },
                     ]}
                     onPress={() => setFilterStatus('rejected')}
@@ -559,7 +753,7 @@ const ApplicationsReviewScreen = () => {
                         {
                           color:
                             filterStatus === 'rejected'
-                              ? theme.colors.white
+                              ? '#FFFFFF'
                               : theme.colors.text,
                         },
                       ]}
@@ -709,77 +903,354 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   modalContent: {
-    width: '90%',
-    maxHeight: '80%',
-    borderRadius: 12,
+    width: '100%',
+    maxHeight: '85%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    flex: 1,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
+  },
+  modalHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
+    color: '#111827',
   },
   closeButton: {
-    padding: 4,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
   },
   modalBody: {
-    padding: 20,
+    padding: 24,
+    backgroundColor: '#FFFFFF',
   },
-  applicantDetails: {
-    marginBottom: 20,
-  },
-  detailLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 4,
-    marginTop: 12,
-  },
-  detailValue: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  messageSection: {
-    marginBottom: 20,
-  },
-  messageText: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontStyle: 'italic',
-    padding: 12,
+  profileSection: {
+    marginBottom: 24,
+    padding: 24,
     backgroundColor: '#F8FAFC',
-    borderRadius: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  statusSection: {
-    marginBottom: 20,
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
-  actionsSection: {
+  avatarContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#6174f9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  applicantName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    color: '#111827',
+  },
+  applicantEmail: {
+    fontSize: 15,
+    marginBottom: 10,
+    color: '#6B7280',
+  },
+  section: {
+    marginBottom: 24,
+    padding: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
     marginBottom: 20,
+    color: '#111827',
+    letterSpacing: 0.3,
+  },
+  infoGrid: {
+    gap: 16,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  infoLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    minWidth: 70,
+    color: '#374151',
+  },
+  infoValue: {
+    fontSize: 15,
+    flex: 1,
+    color: '#111827',
+    fontWeight: '500',
+  },
+  coverLetterContainer: {
+    padding: 24,
+    borderRadius: 16,
+    marginTop: 16,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  coverLetterText: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontStyle: 'italic',
+    color: '#374151',
   },
   statusButtons: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 8,
+    gap: 16,
+    marginTop: 20,
   },
   statusButton: {
     flex: 1,
-    paddingVertical: 8,
-    borderRadius: 6,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    minHeight: 80,
+  },
+  statusButtonActive: {
+    opacity: 0.9,
+    transform: [{ scale: 0.95 }],
+    shadowOpacity: 0.25,
   },
   statusButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  educationContainer: {
+    marginTop: 12,
+  },
+  educationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  educationDetails: {
+    gap: 8,
+  },
+  educationItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  educationLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  educationPercentage: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#75ce9b',
+    letterSpacing: 0.5,
+  },
+  emptyHint: {
+    fontSize: 14,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  loadingSubtext: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  // Skills styles for application cards
+  skillsSection: {
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  skillsLabel: {
     fontSize: 12,
     fontWeight: '600',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  skillChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 6,
+    marginBottom: 6,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  skillChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  // Skills styles for modal
+  skillsModalContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 16,
+  },
+  skillModalChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  skillModalChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  noSkillsText: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingVertical: 16,
+  },
+  modalFooter: {
+    padding: 24,
+    paddingTop: 16,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  footerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 16,
+    color: '#111827',
+    letterSpacing: 0.3,
+  },
+  statusActionsContainer: {
+    marginTop: 24,
+    marginBottom: 24,
+  },
+  statusActionsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 20,
+    color: '#111827',
+    letterSpacing: 0.3,
   },
 });
 

@@ -156,13 +156,6 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
         contact_email: profileData.contact_email,
       };
 
-      console.log('🏢 [CompanyProfileSetup] Creating company profile:', {
-        userId: profile.user_id,
-        companyName: profile.company_name,
-        contactEmail: profile.contact_email,
-        hasDescription: !!profile.company_description
-      });
-
       // Check if company profile already exists and update it instead of creating new
       const { data: existingProfile } = await companyService.getCompanyProfile(user.id);
       

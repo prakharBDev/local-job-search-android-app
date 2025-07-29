@@ -33,7 +33,7 @@ export const buildJobQuery = (options = {}) => {
     }
     ${includeCategory ? ',job_categories(id, name)' : ''}
     ${includeSkills ? ',job_skills(skill_id, skills(id, name))' : ''}
-    ${includeApplications ? ',applications(id, status, created_at)' : ''}
+    ${includeApplications ? ',applications(id, status, created_at, seeker_profiles(id, users(id, name, email)))' : ''}
   `
     .replace(/\s+/g, ' ')
     .trim();
@@ -163,7 +163,7 @@ export const buildCompanyProfileQuery = (userId, options = {}) => {
  * @param {Object} options - Query options
  * @returns {Promise<{data: any, error: Error|null}>}
  */
-export const buildApplicationQuery = (options = {}) => {
+export const buildApplicationQuery = async (options = {}) => {
   const {
     filters = {},
     includeJob = true,
@@ -182,11 +182,8 @@ export const buildApplicationQuery = (options = {}) => {
       ',jobs(id,title,description,city,salary,job_categories(id,name),company_profiles(id,company_name,is_verified))';
   }
 
-  if (includeSeeker) {
-    select += ',seeker_profiles(experience_level,users(name,email))';
-  }
-
-  return apiClient.query('applications', {
+  // First get applications without seeker profiles
+  const { data: applications, error } = await apiClient.query('applications', {
     select,
     filters,
     orderBy,
@@ -195,6 +192,70 @@ export const buildApplicationQuery = (options = {}) => {
     cache,
     cacheKey: `applications_${JSON.stringify(options)}`,
   });
+
+  if (error || !applications) {
+    return { data: applications, error };
+  }
+
+  // If we don't need seeker profiles or no applications, return as is
+  if (!includeSeeker || applications.length === 0) {
+    return { data: applications, error: null };
+  }
+
+  // Get unique seeker IDs
+  const seekerIds = [...new Set(applications.map(app => app.seeker_id).filter(Boolean))];
+
+  if (seekerIds.length === 0) {
+    return { data: applications, error: null };
+  }
+
+  // Fetch seeker profiles separately with skills
+  const { data: seekerProfiles, error: seekerError } = await apiClient.supabase
+    .from('seeker_profiles')
+    .select(
+      `
+      id,
+      user_id,
+      experience_level,
+      tenth_percentage,
+      twelfth_percentage,
+      graduation_percentage,
+      users(
+        id,
+        name,
+        email,
+        phone_number
+      ),
+      seeker_skills(
+        skill_id,
+        skills(
+          id,
+          name
+        )
+      )
+    `
+    )
+    .in('id', seekerIds);
+
+  if (seekerError) {
+    console.warn('Error fetching seeker profiles in buildApplicationQuery:', seekerError);
+  }
+
+  // Create a map of seeker profiles by ID
+  const seekerProfileMap = {};
+  if (seekerProfiles) {
+    seekerProfiles.forEach(profile => {
+      seekerProfileMap[profile.id] = profile;
+    });
+  }
+
+  // Combine applications with seeker profiles
+  const enrichedApplications = applications.map(app => ({
+    ...app,
+    seeker_profiles: seekerProfileMap[app.seeker_id] || null
+  }));
+
+  return { data: enrichedApplications, error: null };
 };
 
 /**

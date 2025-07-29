@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import {
   View,
   Text,
@@ -83,6 +83,11 @@ const MyJobsScreen = () => {
           return;
         }
 
+        if (!profile) {
+          setError('Company profile not found. Please complete your company profile setup.');
+          return;
+        }
+
         setCompanyProfile(profile);
 
         if (profile?.id) {
@@ -100,7 +105,35 @@ const MyJobsScreen = () => {
             return;
           }
 
-          setJobs(companyJobs || []);
+          // Fetch applications separately for each job if the query didn't include them properly
+          const jobsWithApplications = await Promise.all(
+            (companyJobs || []).map(async (job) => {
+              try {
+                // Fetch applications for this specific job
+                const { data: jobApplications, error: appError } = 
+                  await applicationService.getJobApplications(job.id);
+                
+                if (appError) {
+                  console.error(`Error fetching applications for job ${job.id}:`, appError);
+                  return { ...job, applications: job.applications || [] };
+                }
+                
+                
+                return { 
+                  ...job, 
+                  applications: jobApplications || job.applications || []
+                };
+              } catch (error) {
+                console.error(`Error processing applications for job ${job.id}:`, error);
+                return { ...job, applications: job.applications || [] };
+              }
+            })
+          );
+          
+          // Set jobs with enhanced applications data
+          setJobs(jobsWithApplications);
+        } else {
+          setError('Invalid company profile. Please contact support.');
         }
       } else {
         // Load seeker profile and applications
@@ -165,6 +198,74 @@ const MyJobsScreen = () => {
       loadData();
     }
   }, [user?.id, userRoles, isCompany]);
+
+  // Handle job status toggle with validation
+  const handleToggleJobStatus = async (job) => {
+    try {
+      const newStatus = !job.is_active;
+      const action = newStatus ? 'enable' : 'disable';
+      
+      Alert.alert(
+        `${action.charAt(0).toUpperCase() + action.slice(1)} Job`,
+        `Are you sure you want to ${action} "${job.title}"?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: action.charAt(0).toUpperCase() + action.slice(1),
+            style: newStatus ? 'default' : 'destructive',
+            onPress: async () => {
+              try {
+                setLoading(true);
+
+                const { data, error } = await jobService.toggleJobStatus(
+                  job.id,
+                  newStatus,
+                  user.id
+                );
+
+                if (error) {
+                  console.error('Error toggling job status:', error);
+                  Alert.alert(
+                    'Error',
+                    error.message || 'Failed to update job status. Please try again.'
+                  );
+                  return;
+                }
+
+                // Update the local state
+                setJobs(prevJobs =>
+                  prevJobs.map(j =>
+                    j.id === job.id ? { ...j, is_active: newStatus } : j
+                  )
+                );
+
+                // Also refresh the job applications in case status change affects application visibility
+                setTimeout(() => {
+                  loadData();
+                }, 1000);
+
+                Alert.alert(
+                  'Success',
+                  `Job "${job.title}" has been ${newStatus ? 'enabled' : 'disabled'}.`
+                );
+              } catch (error) {
+                console.error('Error in toggle handler:', error);
+                Alert.alert('Error', 'Something went wrong. Please try again.');
+              } finally {
+                setLoading(false);
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Error in handleToggleJobStatus:', error);
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    }
+  };
 
   // Handle logout with confirmation and error handling
   const handleLogout = async () => {
@@ -488,6 +589,26 @@ const MyJobsScreen = () => {
                           ]}>
                             {job.title}
                           </Text>
+                          
+                          {/* Status Badge */}
+                          <View style={{
+                            backgroundColor: job.is_active ? '#10B981' : '#6B7280',
+                            alignSelf: 'flex-start',
+                            paddingHorizontal: 8,
+                            paddingVertical: 4,
+                            borderRadius: 12,
+                            marginBottom: 8,
+                          }}>
+                            <Text style={{
+                              fontSize: 10,
+                              fontWeight: '600',
+                              color: 'white',
+                              textTransform: 'uppercase',
+                            }}>
+                              {job.is_active ? 'Active' : 'Inactive'}
+                            </Text>
+                          </View>
+                          
                           <View style={{
                             flexDirection: 'row',
                             alignItems: 'center'
@@ -583,6 +704,45 @@ const MyJobsScreen = () => {
                             })}
                           </Text>
                         </View>
+                      </View>
+                      
+                      {/* Toggle Button */}
+                      <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'flex-end',
+                        marginTop: 12,
+                        paddingTop: 12,
+                        borderTopWidth: 1,
+                        borderTopColor: '#F3F4F6'
+                      }}>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: job.is_active ? '#EF4444' : '#10B981',
+                            paddingHorizontal: 16,
+                            paddingVertical: 8,
+                            borderRadius: 8,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            handleToggleJobStatus(job);
+                          }}
+                        >
+                          <Feather 
+                            name={job.is_active ? 'pause-circle' : 'play-circle'} 
+                            size={16} 
+                            color="white" 
+                            style={{ marginRight: 6 }}
+                          />
+                          <Text style={{
+                            color: 'white',
+                            fontSize: 14,
+                            fontWeight: '600',
+                          }}>
+                            {job.is_active ? 'Disable Job' : 'Enable Job'}
+                          </Text>
+                        </TouchableOpacity>
                       </View>
                     </TouchableOpacity>
                   ))}
@@ -969,4 +1129,4 @@ const MyJobsScreen = () => {
   );
 };
 
-export default MyJobsScreen;
+export default memo(MyJobsScreen);

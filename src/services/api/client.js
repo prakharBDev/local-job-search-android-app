@@ -12,6 +12,20 @@ class ApiClient {
     this.retryDelay = 1000;
     this.cache = new Map();
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    this.defaultTimeout = 30000; // 30 seconds default timeout
+  }
+
+  /**
+   * Wraps operation with timeout handling
+   * @private
+   */
+  withTimeout(operation, timeout) {
+    return Promise.race([
+      operation(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), timeout)
+      )
+    ]);
   }
 
   /**
@@ -26,6 +40,7 @@ class ApiClient {
       cache = false,
       cacheKey = null,
       defer = false,
+      timeout = this.defaultTimeout, // Optional timeout parameter - backward compatible
       ...operationOptions
     } = options;
 
@@ -47,7 +62,10 @@ class ApiClient {
         attempt++
       ) {
         try {
-          const result = await operation(this.supabase, operationOptions);
+          const result = await this.withTimeout(
+            () => operation(this.supabase, operationOptions),
+            timeout
+          );
 
           // Cache result if enabled
           if (cache && cacheKey && result.data) {
@@ -183,7 +201,8 @@ class ApiClient {
     return (
       nonRetryableCodes.includes(error.code) ||
       error.message?.includes('validation') ||
-      error.message?.includes('authentication')
+      error.message?.includes('authentication') ||
+      error.message?.includes('Request timeout') // Don't retry timeout errors
     );
   }
 

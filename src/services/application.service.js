@@ -99,10 +99,6 @@ const applicationService = {
    */
   async getSeekerApplications(seekerId, status = null) {
     try {
-      console.log('=== GET SEEKER APPLICATIONS ===');
-      console.log('Seeker ID:', seekerId);
-      console.log('Status filter:', status);
-      
       const { data, error } = await buildApplicationQuery({
         filters: {
           seeker_id: seekerId,
@@ -117,14 +113,10 @@ const applicationService = {
         cacheKey: `applications_seeker_${seekerId}_${status || 'all'}`,
       });
 
-      console.log('Applications data:', data);
-      console.log('Applications error:', error);
-
       if (error) {
         throw error;
       }
 
-      console.log('=== END GET SEEKER APPLICATIONS ===');
       return { data, error: null };
     } catch (error) {
       console.error('Error in getSeekerApplications:', error);
@@ -280,9 +272,27 @@ const applicationService = {
    */
   async getApplicationsByCompany(companyId) {
     try {
+      // Use buildApplicationQuery for consistency
       const { data, error } = await apiClient.request(
         async () => {
-          const { data, error } = await apiClient.supabase
+          // First get all jobs for this company
+          const { data: companyJobs, error: jobsError } = await apiClient.supabase
+            .from('jobs')
+            .select('id')
+            .eq('company_id', companyId);
+
+          if (jobsError) {
+            return { data: null, error: jobsError };
+          }
+
+          if (!companyJobs || companyJobs.length === 0) {
+            return { data: [], error: null };
+          }
+
+          const jobIds = companyJobs.map(job => job.id);
+
+          // Get applications first
+          const { data: applications, error: appsError } = await apiClient.supabase
             .from('applications')
             .select(
               `
@@ -292,26 +302,67 @@ const applicationService = {
                 title,
                 city,
                 created_at
-              ),
-              seeker_profiles(
-                id,
-                experience_level,
-                tenth_percentage,
-                twelfth_percentage,
-                graduation_percentage,
-                users(
-                  id,
-                  name,
-                  email,
-                  phone_number
-                )
               )
             `,
             )
-            .eq('jobs.company_id', companyId)
+            .in('job_id', jobIds)
             .order('created_at', { ascending: false });
 
-          return { data, error };
+          if (appsError) {
+            return { data: null, error: appsError };
+          }
+
+          if (!applications || applications.length === 0) {
+            return { data: [], error: null };
+          }
+
+          // Get unique seeker IDs
+          const seekerIds = [...new Set(applications.map(app => app.seeker_id))];
+
+          // Now fetch real seeker data since RLS is disabled
+      
+          
+          const { data: seekerProfiles, error: seekerError } = await apiClient.supabase
+            .from('seeker_profiles')
+            .select(`
+              id,
+              experience_level,
+              tenth_percentage,
+              twelfth_percentage,
+              graduation_percentage,
+              users!user_id (
+                id,
+                name,
+                email,
+                phone_number
+              ),
+              seeker_skills(
+                skill_id,
+                skills(
+                  id,
+                  name
+                )
+              )
+            `)
+            .in('id', seekerIds);
+
+          
+
+          // Create a map of seeker profiles by ID
+          const seekerProfileMap = {};
+          if (seekerProfiles && Array.isArray(seekerProfiles)) {
+            seekerProfiles.forEach(profile => {
+              seekerProfileMap[profile.id] = profile;
+            });
+          }
+
+          // Combine applications with real seeker profiles
+          const enrichedApplications = applications.map(app => ({
+            ...app,
+            seeker_profiles: seekerProfileMap[app.seeker_id] || null
+          }));
+
+          return { data: enrichedApplications, error: null };
         },
         {
           cache: true,
@@ -527,9 +578,6 @@ const applicationService = {
    */
   async getSeekerApplicationStats(seekerId) {
     try {
-      console.log('=== GET SEEKER APPLICATION STATS ===');
-      console.log('Seeker ID:', seekerId);
-      
       const { data, error } = await apiClient.request(
         async () => {
           const { data, error } = await apiClient.supabase
@@ -545,9 +593,6 @@ const applicationService = {
           context: 'getSeekerApplicationStats',
         },
       );
-
-      console.log('Raw applications data:', data);
-      console.log('Raw applications error:', error);
 
       if (error) {
         throw error;
@@ -566,9 +611,6 @@ const applicationService = {
         recent: data.filter(app => new Date(app.created_at) >= thirtyDaysAgo)
           .length,
       };
-
-      console.log('Calculated stats:', stats);
-      console.log('=== END GET SEEKER APPLICATION STATS ===');
 
       return { data: stats, error: null };
     } catch (error) {

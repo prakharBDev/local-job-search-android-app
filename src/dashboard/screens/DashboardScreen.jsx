@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import {
   View,
   Text,
@@ -15,11 +15,11 @@ import { AppHeader } from '../../components/elements';
 import { bluewhiteTheme } from '../../theme/bluewhite-theme';
 
 const DashboardScreen = () => {
-  const { user, userRecord, logout, resetOnboarding } = useAuth();
+  const { user, userRecord, logout } = useAuth();
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('This Week');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [isResettingOnboarding, setIsResettingOnboarding] = useState(false);
+
 
   // Use actual user data from auth context - prioritize userRecord name
   const userName = useMemo(
@@ -69,34 +69,7 @@ const DashboardScreen = () => {
     ]);
   }, [logout, navigation]);
 
-  const handleDebugResetOnboarding = useCallback(async () => {
-    Alert.alert('Debug: Reset Onboarding', 'This will reset your onboarding status and force you through onboarding again. Continue?', [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Reset',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            setIsResettingOnboarding(true);
-            await resetOnboarding();
-            Alert.alert('Success', 'Onboarding has been reset. The app will now redirect you to onboarding.');
-          } catch (error) {
-            console.error('Reset onboarding error:', error);
-            Alert.alert('Error', 'Failed to reset onboarding. Please try again.');
-          } finally {
-            setIsResettingOnboarding(false);
-          }
-        },
-      },
-    ]);
-  }, [resetOnboarding]);
 
-  const handleDebugInfo = useCallback(() => {
-    Alert.alert('Debug Info', `User ID: ${user?.id}\nUser Type: ${userRecord?.is_seeker ? 'Seeker' : 'Company'}\nOnboarding Completed: ${userRecord?.onboarding_completed}\nLast Step: ${userRecord?.last_onboarding_step}\nCity: ${userRecord?.city || 'Not set'}`);
-  }, [user?.id, userRecord]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -252,30 +225,7 @@ const DashboardScreen = () => {
           </View>
         </View>
 
-        {/* Debug Section - Only show in development */}
-        <View style={styles.debugSection}>
-          <Text style={styles.debugTitle}>Debug Tools</Text>
-          <View style={styles.debugButtons}>
-            <TouchableOpacity
-              style={styles.debugButton}
-              onPress={handleDebugInfo}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.debugButtonText}>Show User Info</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.debugButton, styles.debugButtonDanger]}
-              onPress={handleDebugResetOnboarding}
-              disabled={isResettingOnboarding}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.debugButtonText}>
-                {isResettingOnboarding ? 'Resetting...' : 'Reset Onboarding'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -602,61 +552,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
-  // Debug Styles
-  debugSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 24,
-    marginTop: 24,
-    shadowColor: bluewhiteTheme.colors.text.tertiary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: bluewhiteTheme.colors.background.tertiary,
-  },
-  debugTitle: {
-    fontWeight: '600',
-    fontSize: 20,
-    color: '#1E293B',
-    fontFamily: 'System',
-    letterSpacing: -0.3,
-    marginBottom: 16,
-  },
-  debugButtons: {
-    flexDirection: 'column',
-    gap: 12,
-  },
-  debugButton: {
-    backgroundColor: '#EFF6FF',
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    shadowColor: '#6174f9',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#6174f9',
-  },
-  debugButtonText: {
-    color: '#6174f9',
-    fontWeight: '600',
-    fontSize: 15,
-    fontFamily: 'System',
-    letterSpacing: -0.1,
-  },
-  debugButtonDanger: {
-    backgroundColor: '#FEE2E2',
-    borderColor: '#FCA5A5',
-    borderWidth: 1,
-  },
-  debugButtonDangerText: {
-    color: '#991B1B',
-  },
+
 });
 
-export default DashboardScreen;
+export default memo(DashboardScreen);

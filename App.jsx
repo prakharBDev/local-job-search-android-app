@@ -9,7 +9,7 @@ import { Platform, StatusBar, SafeAreaView, View, Text, ActivityIndicator, Touch
 import MainNavigator from './src/navigation/MainNavigator';
 import IndexScreen from './src/landingpage/screens/IndexScreen';
 import SplashScreen from './src/splash/screens/SplashScreen';
-import SettingsScreen from './src/settings/screens/SettingsScreen';
+
 import AboutScreen from './src/about/screens/AboutScreen';
 import CitySelectionScreen from './src/onboarding/screens/CitySelectionScreen';
 import OnboardingScreen from './src/onboarding/screens/OnboardingScreen';

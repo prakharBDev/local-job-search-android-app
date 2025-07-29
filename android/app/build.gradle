@@ -122,16 +122,16 @@ android {
         debug {
             signingConfig signingConfigs.debug
             // Enable minification even in debug for testing
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            minifyEnabled true  // Temporarily disable ProGuard/R8 for release builds
+            shrinkResources true  // Temporarily disable resource shrinking
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 

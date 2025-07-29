@@ -227,7 +227,7 @@ const SwipeableJobDetailsScreen = () => {
           { text: 'OK', style: 'default' },
           {
             text: 'View My Applications',
-            onPress: () => navigation.navigate('MyJobsAppliedJobs'),
+            onPress: () => navigation.navigate('MyJobsMain'),
           },
         ],
       );
@@ -251,7 +251,7 @@ const SwipeableJobDetailsScreen = () => {
             { text: 'OK', style: 'default' },
             {
               text: 'View My Applications',
-              onPress: () => navigation.navigate('MyJobsAppliedJobs'),
+              onPress: () => navigation.navigate('MyJobsMain'),
             }
           ],
         );
@@ -906,7 +906,7 @@ const SwipeableJobDetailsScreen = () => {
             <TouchableOpacity
               key={tab}
               onPress={() => {
-                console.log('Tab pressed:', tab);
+            
                 setActiveTab(tab);
               }}
               style={{

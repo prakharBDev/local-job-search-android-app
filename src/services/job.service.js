@@ -151,6 +151,87 @@ const jobService = {
   },
 
   /**
+   * Toggle job active status (enable/disable) with authorization validation
+   * @param {string} jobId - Job ID
+   * @param {boolean} isActive - New active status
+   * @param {string} userId - User ID making the request (for validation)
+   * @returns {Promise<{data: Object|null, error: Error|null}>}
+   */
+  async toggleJobStatus(jobId, isActive, userId) {
+    try {
+      const operation = async supabase => {
+        // First, get the job to validate ownership
+        const { data: job, error: fetchError } = await supabase
+          .from('jobs')
+          .select('id, company_id, is_active, title')
+          .eq('id', jobId)
+          .single();
+
+        if (fetchError) {
+          throw fetchError;
+        }
+
+        if (!job) {
+          throw new Error('Job not found');
+        }
+
+        // Validate authorization - check company ownership
+        let isAuthorized = false;
+
+        if (job.company_id) {
+          const { data: companyProfile, error: companyError } = await supabase
+            .from('company_profiles')
+            .select('id, user_id')
+            .eq('id', job.company_id)
+            .single();
+
+          if (!companyError && companyProfile && companyProfile.user_id === userId) {
+            isAuthorized = true;
+          }
+        }
+
+        if (!isAuthorized) {
+          throw new Error('You are not authorized to modify this job');
+        }
+
+        // Update the job status
+        const { data: updatedJob, error: updateError } = await supabase
+          .from('jobs')
+          .update({
+            is_active: isActive,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', jobId)
+          .select()
+          .single();
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        return { data: updatedJob, error: null };
+      };
+
+      const { data, error } = await apiClient.request(operation, {
+        cache: false,
+        retry: false,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Clear related cache entries
+      apiClient.clearCache('jobs_');
+
+      return { data, error: null };
+    } catch (error) {
+      const normalizedError = handleApiError(error, 'toggleJobStatus');
+      return { data: null, error: normalizedError };
+    }
+  },
+
+  /**
    * Delete job (soft delete by setting is_active to false)
    * @param {string} jobId - Job ID
    * @returns {Promise<{error: Error|null}>}
@@ -243,6 +324,7 @@ const jobService = {
       return { data: null, error: normalizedError };
     }
   },
+
 
   /**
    * Get jobs by category

@@ -119,7 +119,7 @@ class OnboardingService {
         }
         
         if (!hasProfile) {
-          console.log('⚠️ [OnboardingService] User marked as completed but has no profile, forcing onboarding');
+    
           // Force onboarding if no profile exists
           return { isComplete: false, missingSteps: ['role_selection'], error: null };
         }
@@ -169,7 +169,7 @@ class OnboardingService {
             !seekerCategories?.length ||
             !seekerRecord?.[0]?.experience_level
           ) {
-            console.log('⚠️ [OnboardingService] User marked as completed but seeker profile is incomplete');
+    
             return { isComplete: false, missingSteps: ['seeker_profile_incomplete'], error: null };
           }
         }
@@ -193,7 +193,7 @@ class OnboardingService {
             !companyRecord?.[0]?.company_name ||
             !companyRecord?.[0]?.contact_email
           ) {
-            console.log('⚠️ [OnboardingService] User marked as completed but company profile is incomplete');
+    
             return { isComplete: false, missingSteps: ['company_profile_incomplete'], error: null };
           }
         }
@@ -340,11 +340,11 @@ class OnboardingService {
 
       if (user.is_seeker === false && companyProfile?.[0]) {
         const companyId = companyProfile[0].id;
-        console.log('🏢 [OnboardingService] Found company profile, checking completeness. Company ID:', companyId);
+  
 
         // If user has reached OnboardingSuccess before, don't make them go through setup again
         if (user?.last_onboarding_step === 'completed' || user?.onboarding_completed) {
-          console.log('✅ [OnboardingService] User has completed onboarding before, profile is considered complete');
+          // User has completed onboarding before
         } else {
           // Check if company profile has required fields
           const { data: companyRecord, error: companyRecordError } =
@@ -427,7 +427,7 @@ class OnboardingService {
 
           // If user has reached OnboardingSuccess before, don't make them go through setup again
           if (user?.last_onboarding_step === 'completed' || user?.onboarding_completed) {
-            console.log('✅ [OnboardingService] User has completed onboarding before, profile is considered complete');
+            // User has completed onboarding before
           } else {
             const { data: companyRecord, error: companyRecordError } =
               await apiClient.query('company_profiles', {
@@ -472,7 +472,7 @@ class OnboardingService {
   determineNextScreen(userRecord, missingSteps) {
     // Only log if there are missing steps (something needs to be done)
     if (missingSteps.length > 0) {
-      console.log('🧭 [OnboardingService] Missing steps found:', missingSteps);
+      // Missing steps found
     }
 
     if (missingSteps.includes('city_selection')) {
@@ -551,7 +551,7 @@ class OnboardingService {
   clearOnboardingCache(userId) {
     if (this._cachedResults && this._cachedResults[userId]) {
       delete this._cachedResults[userId];
-      console.log('🧹 [OnboardingService] Cleared onboarding cache for user:', userId);
+  
     }
     if (this._lastCheck) {
       const cacheKey = `completion_check_${userId}`;
@@ -564,7 +564,7 @@ class OnboardingService {
     apiClient.clearCache(`user_full_${userId}`);
     apiClient.clearCache(`seeker_profile_${userId}`);
     apiClient.clearCache(`company_profile_${userId}`);
-    console.log('🧹 [OnboardingService] Cleared all related caches for user:', userId);
+
   }
 
   /**
@@ -616,7 +616,7 @@ class OnboardingService {
    * @param {string} userId - User ID
    */
   async debugResetOnboarding(userId) {
-    console.log('🔧 [OnboardingService] DEBUG: Resetting onboarding for user:', userId);
+
     
     // Clear all caches first
     this.clearOnboardingCache(userId);
@@ -634,7 +634,7 @@ class OnboardingService {
     if (error) {
       console.error('❌ [OnboardingService] Failed to reset onboarding:', error);
     } else {
-      console.log('✅ [OnboardingService] Successfully reset onboarding status');
+
     }
 
     return !error;
@@ -647,7 +647,7 @@ class OnboardingService {
    */
   async fixIncompleteCompanyProfile(userId) {
     try {
-      console.log('🔧 [OnboardingService] Fixing incomplete company profile for user:', userId);
+  
       
       // Get user email
       const { data: userRecord, error: userError } = await apiClient.query('users', {
@@ -683,7 +683,7 @@ class OnboardingService {
 
       // Update profile with contact_email if missing
       if (!profile.contact_email) {
-        console.log('📧 [OnboardingService] Adding missing contact_email to company profile');
+
         const { error: updateError } = await apiClient.supabase
           .from('company_profiles')
           .update({ contact_email: userEmail })
@@ -693,7 +693,7 @@ class OnboardingService {
           throw updateError;
         }
 
-        console.log('✅ [OnboardingService] Successfully updated company profile with contact_email');
+        
       }
 
       // Mark onboarding as completed
@@ -710,7 +710,7 @@ class OnboardingService {
         throw userUpdateError;
       }
 
-      console.log('✅ [OnboardingService] Successfully marked onboarding as completed');
+
       
       // Clear cache
       this.clearOnboardingCache(userId);

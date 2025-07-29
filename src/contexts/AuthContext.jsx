@@ -45,8 +45,35 @@ const initialState = {
 };
 
 /**
+ * Helper function to derive user roles from userRecord or explicit roles
+ * @param {Object} userRecord - User record from database
+ * @param {Object} explicitRoles - Explicitly provided roles
+ * @returns {Object} User roles object
+ */
+const deriveUserRoles = (userRecord, explicitRoles) => {
+  if (explicitRoles) {
+    return explicitRoles;
+  }
+  
+  if (userRecord?.is_seeker !== undefined) {
+    return {
+      isSeeker: userRecord.is_seeker,
+      isCompany: !userRecord.is_seeker,
+      isPoster: !userRecord.is_seeker,
+    };
+  }
+  
+  // Default roles
+  return {
+    isSeeker: false,
+    isCompany: false,
+    isPoster: false,
+  };
+};
+
+/**
  * Auth Reducer
- * Optimized for predictable state updates
+ * Optimized for predictable state updates with helper functions
  */
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -55,19 +82,7 @@ const authReducer = (state, action) => {
 
     case AUTH_ACTIONS.SET_USER:
       // Automatically determine user roles based on is_seeker field
-      let userRoles = {
-        isSeeker: false,
-        isCompany: false,
-        isPoster: false,
-      };
-      
-      if (action.payload.userRecord?.is_seeker !== undefined) {
-        userRoles = {
-          isSeeker: action.payload.userRecord.is_seeker,
-          isCompany: !action.payload.userRecord.is_seeker,
-          isPoster: !action.payload.userRecord.is_seeker,
-        };
-      }
+      const userRoles = deriveUserRoles(action.payload.userRecord);
 
       return {
         ...state,
@@ -87,24 +102,12 @@ const authReducer = (state, action) => {
       return { ...state, error: null };
 
     case AUTH_ACTIONS.SET_ONBOARDING_STATUS:
-      // Update user roles if provided in onboarding status
-      let updatedUserRoles = state.userRoles;
-      if (action.payload.userRoles) {
-        updatedUserRoles = action.payload.userRoles;
-      } else if (action.payload.userRecord?.is_seeker !== undefined) {
-        updatedUserRoles = {
-          isSeeker: action.payload.userRecord.is_seeker,
-          isCompany: !action.payload.userRecord.is_seeker,
-          isPoster: !action.payload.userRecord.is_seeker,
-        };
-      }
-
       return {
         ...state,
         needsCitySelection: action.payload.needsCitySelection,
         needsProfileSetup: action.payload.needsProfileSetup,
         needsRoleSelection: action.payload.needsRoleSelection,
-        userRoles: updatedUserRoles,
+        userRoles: deriveUserRoles(action.payload.userRecord, action.payload.userRoles),
       };
 
     case AUTH_ACTIONS.LOGOUT:
@@ -373,14 +376,34 @@ export const AuthProvider = ({ children }) => {
           if (userError) {
             // If user doesn't exist in database, force logout
             if (userError.code === 'PGRST116') {
-              await logout();
+              // Inline logout to avoid circular dependency
+              await AsyncStorage.multiRemove([
+                'user_session',
+                'user_data',
+                'onboarding_status',
+              ]);
+              const { error: signOutError } = await supabase.auth.signOut();
+              if (signOutError) {
+                console.error('Logout error:', signOutError);
+              }
+              dispatch({ type: AUTH_ACTIONS.LOGOUT });
               return;
             }
             throw userError;
           }
 
           if (!userData) {
-            await logout();
+            // Inline logout to avoid circular dependency
+            await AsyncStorage.multiRemove([
+              'user_session',
+              'user_data',
+              'onboarding_status',
+            ]);
+            const { error: signOutError } = await supabase.auth.signOut();
+            if (signOutError) {
+              console.error('Logout error:', signOutError);
+            }
+            dispatch({ type: AUTH_ACTIONS.LOGOUT });
             return;
           }
 
@@ -480,7 +503,7 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
     }
-  }, [logout]);
+  }, []); // Remove logout dependency to prevent circular dependency
 
   // Set up auth state listener
   useEffect(() => {
@@ -555,7 +578,7 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
 
     return () => subscription.unsubscribe();
-  }, [checkAuthStatus]);
+  }, []); // Remove checkAuthStatus dependency to prevent memory leaks
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(

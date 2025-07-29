@@ -355,7 +355,7 @@ const IndexScreen = () => {
         isNewUser,
         phoneNumber: `+91 ${phone}`,
       });
-      console.log('Google sign-in successful for:', user.email);
+      
       Alert.alert(
         'Welcome!',
         isNewUser
@@ -735,24 +735,6 @@ const IndexScreen = () => {
                 },
               ]}
             >
-              <Text style={styles.footerCtaText}>
-                Ready to take the next step in your career?
-              </Text>
-
-              <Button
-                variant="outline"
-                size="lg"
-                onPress={handleExploreOpportunities}
-                style={styles.footerButton}
-                accessibilityLabel="Explore job opportunities"
-              >
-                <View style={styles.buttonContent}>
-                  <Feather name="briefcase" size={20} color="#6174f9" />
-                  <Text style={styles.footerButtonText}>
-                    Explore Opportunities
-                  </Text>
-                </View>
-              </Button>
             </Animated.View>
           )}
         </ScrollView>

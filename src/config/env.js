@@ -23,10 +23,9 @@ export const validateEnvironment = () => {
       `Missing required environment variables: ${missingVars.join(', ')}`,
     );
     console.error(
-      'Please create a .env file in the project root with the following variables:',
+      'Please create a .env file in the project root with the required Supabase configuration variables.',
     );
-    console.error('SUPABASE_URL=your_supabase_url_here');
-    console.error('SUPABASE_ANON_KEY=your_supabase_anon_key_here');
+    console.error('Check the documentation for setup instructions.');
     throw new Error(
       `Missing required environment variables: ${missingVars.join(', ')}`,
     );

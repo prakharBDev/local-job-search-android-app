@@ -14,13 +14,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import Feather from 'react-native-vector-icons/Feather';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
-import PopularJobCard from './MyJobsScreen/PopularJobCard';
-import RecentJobCard from './MyJobsScreen/RecentJobCard';
 import { getStyles } from './MyJobsScreen.styles';
-import {
-  popularJobs as mockPopularJobs,
-  recentJobs as mockRecentJobs,
-} from './MyJobsScreen/mockData';
 import {
   AppHeader,
   Icon,
@@ -29,8 +23,12 @@ import {
   Button,
 } from '../../components/elements';
 import JobCard from '../../components/blocks/JobCard';
-import seekerService from '../../services/seeker.service';
-import applicationService from '../../services/application.service';
+import { 
+  seekerService,
+  applicationService,
+  jobService,
+  companyService,
+} from '../../services';
 import { apiClient } from '../../services/api/client';
 
 const MyJobsScreen = () => {
@@ -38,8 +36,7 @@ const MyJobsScreen = () => {
   const navigation = useNavigation();
 
   const [fadeAnim] = useState(new Animated.Value(0));
-  const [popularJobs, setPopularJobs] = useState([]);
-  const [recentJobs, setRecentJobs] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -52,9 +49,13 @@ const MyJobsScreen = () => {
     total: 0,
   });
   const [seekerProfile, setSeekerProfile] = useState(null);
+  const [companyProfile, setCompanyProfile] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  
+  // Determine if user is a company
+  const isCompany = userRoles?.isCompany || userRoles?.isPoster || false;
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -65,84 +66,105 @@ const MyJobsScreen = () => {
     }).start();
   }, [fadeAnim]);
 
-  useEffect(() => {
-    // Load data based on user role
-    const loadData = async () => {
-      try {
-        setLoading(true);
+  // Load data based on user role
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        if (userRoles?.isCompany) {
-          // Load mock data for companies
-          await new Promise(resolve => setTimeout(resolve, 500));
-          setPopularJobs(mockPopularJobs);
-          setRecentJobs(mockRecentJobs);
-        } else {
-          // Load real application data for seekers
-          if (user?.id) {
-            const { data: profile, error: profileError } =
-              await seekerService.getSeekerProfile(user.id);
+      if (isCompany) {
+        // Load company profile and jobs
+        const { data: profile, error: profileError } = 
+          await companyService.getCompanyProfile(user.id);
 
-            if (profileError) {
-              console.error('Error loading seeker profile:', profileError);
-              return;
-            }
-
-            setSeekerProfile(profile);
-
-            if (profile) {
-              // Clear cache to ensure fresh data
-              apiClient.clearCache(`applications_seeker_${profile.id}`);
-
-              // Load applications and stats in parallel
-              const [applicationsResult, statsResult] = await Promise.all([
-                applicationService.getSeekerApplications(profile.id),
-                applicationService.getSeekerApplicationStats(profile.id),
-              ]);
-
-              const { data: userApplications, error: applicationsError } =
-                applicationsResult;
-              const { data: userStats, error: statsError } = statsResult;
-
-              if (applicationsError) {
-                console.error('Error loading applications:', applicationsError);
-                return;
-              }
-
-              if (statsError) {
-                console.error('Error loading stats:', statsError);
-              }
-
-              setApplications(userApplications || []);
-              setStats(
-                userStats || {
-                  applied: 0,
-                  under_review: 0,
-                  hired: 0,
-                  rejected: 0,
-                  total: 0,
-                },
-              );
-            }
-          }
+        if (profileError) {
+          console.error('Error loading company profile:', profileError);
+          setError('Failed to load company profile');
+          return;
         }
 
-        setError(null);
-      } catch (err) {
-        console.error('Error loading data:', err);
-        setError('Failed to load data');
-        setPopularJobs([]);
-        setRecentJobs([]);
-        setApplications([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+        setCompanyProfile(profile);
 
-    // Wait for user roles to be loaded
-    if (user && userRoles && userRoles.length > 0) {
+        if (profile?.id) {
+          // Load jobs created by this company
+          const { data: companyJobs, error: jobsError } = 
+            await jobService.getJobsByCompany(profile.id, {
+              includeApplications: true,
+              includeCategory: true,
+              limit: 50
+            });
+
+          if (jobsError) {
+            console.error('Error loading company jobs:', jobsError);
+            setError('Failed to load your jobs');
+            return;
+          }
+
+          setJobs(companyJobs || []);
+        }
+      } else {
+        // Load seeker profile and applications
+        const { data: profile, error: profileError } =
+          await seekerService.getSeekerProfile(user.id);
+
+        if (profileError) {
+          console.error('Error loading seeker profile:', profileError);
+          return;
+        }
+
+        setSeekerProfile(profile);
+
+        if (profile) {
+          // Clear cache to ensure fresh data
+          apiClient.clearCache(`applications_seeker_${profile.id}`);
+
+          // Load applications and stats in parallel
+          const [applicationsResult, statsResult] = await Promise.all([
+            applicationService.getSeekerApplications(profile.id),
+            applicationService.getSeekerApplicationStats(profile.id),
+          ]);
+
+          const { data: userApplications, error: applicationsError } =
+            applicationsResult;
+          const { data: userStats, error: statsError } = statsResult;
+
+          if (applicationsError) {
+            console.error('Error loading applications:', applicationsError);
+            return;
+          }
+
+          if (statsError) {
+            console.error('Error loading stats:', statsError);
+          }
+
+          setApplications(userApplications || []);
+          setStats(
+            userStats || {
+              applied: 0,
+              under_review: 0,
+              hired: 0,
+              rejected: 0,
+              total: 0,
+            },
+          );
+        }
+      }
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError('Failed to load data');
+      setJobs([]);
+      setApplications([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Load data when component mounts and user/userRoles are available
+    if (user?.id && userRoles) {
       loadData();
     }
-  }, [user, userRoles]);
+  }, [user?.id, userRoles, isCompany]);
 
   // Handle logout with confirmation and error handling
   const handleLogout = async () => {
@@ -179,9 +201,6 @@ const MyJobsScreen = () => {
     ]);
   };
 
-  // Filter jobs (no search functionality for this screen)
-  const filteredPopularJobs = popularJobs;
-  const filteredRecentJobs = recentJobs;
 
   // Helper functions for application display
   const getStatusBadgeColor = status => {
@@ -251,35 +270,7 @@ const MyJobsScreen = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      if (user?.id && seekerProfile) {
-        // Clear cache and reload data
-        apiClient.clearCache(`applications_seeker_${seekerProfile.id}`);
-
-        const [applicationsResult, statsResult] = await Promise.all([
-          applicationService.getSeekerApplications(seekerProfile.id),
-          applicationService.getSeekerApplicationStats(seekerProfile.id),
-        ]);
-
-        const { data: userApplications, error: applicationsError } =
-          applicationsResult;
-        const { data: userStats, error: statsError } = statsResult;
-
-        if (!applicationsError) {
-          setApplications(userApplications || []);
-        }
-
-        if (!statsError) {
-          setStats(
-            userStats || {
-              applied: 0,
-              under_review: 0,
-              hired: 0,
-              rejected: 0,
-              total: 0,
-            },
-          );
-        }
-      }
+      await loadData();
     } catch (error) {
       console.error('Error refreshing data:', error);
     } finally {
@@ -427,59 +418,204 @@ const MyJobsScreen = () => {
         )}
 
         {/* Company View - Job Postings */}
-        {userRoles?.isCompany && (
+        {isCompany && (
           <>
-            {/* Active Job Postings Section */}
-            {filteredPopularJobs.length > 0 && (
+            {/* Job Postings List */}
+            {jobs.length > 0 && (
               <Animated.View
                 style={[
-                  getStyles(theme).popularJobsContainer,
+                  getStyles(theme).recentJobsContainer,
                   { opacity: fadeAnim },
                 ]}
               >
                 <View style={getStyles(theme).sectionHeader}>
                   <Text style={getStyles(theme).sectionTitle}>
-                    Active Job Postings
+                    Your Job Postings ({jobs.length})
                   </Text>
-                  <TouchableOpacity>
-                    <Text style={getStyles(theme).seeAllText}>See all</Text>
-                  </TouchableOpacity>
                 </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={getStyles(theme).popularJobsScroll}
-                >
-                  {filteredPopularJobs.map((job, index) => (
-                    <PopularJobCard key={job.id} job={job} index={index} />
+                
+
+                <View style={getStyles(theme).recentJobsList}>
+                  {jobs.map((job) => (
+                    <TouchableOpacity
+                      key={job.id}
+                      style={[
+                        getStyles(theme).applicationCard,
+                        { 
+                          marginBottom: 16,
+                          padding: 20,
+                          backgroundColor: '#FFFFFF',
+                          borderRadius: 16,
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.08,
+                          shadowRadius: 8,
+                          elevation: 4,
+                          borderLeftWidth: 4,
+                          borderLeftColor: '#6174f9',
+                        }
+                      ]}
+                      onPress={() => handleViewJob(job)}
+                      activeOpacity={0.7}
+                    >
+                      {/* Header with job title and icon */}
+                      <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'flex-start',
+                        marginBottom: 12
+                      }}>
+                        <View style={{
+                          width: 48,
+                          height: 48,
+                          backgroundColor: theme.colors.primary.light,
+                          borderRadius: 12,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginRight: 12
+                        }}>
+                          <Feather name="briefcase" size={24} color="#6174f9" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[
+                            getStyles(theme).sectionTitle,
+                            { 
+                              fontSize: 18,
+                              fontWeight: '600',
+                              color: theme.colors.text.primary,
+                              marginBottom: 4,
+                              lineHeight: 24
+                            }
+                          ]}>
+                            {job.title}
+                          </Text>
+                          <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center'
+                          }}>
+                            <View style={{
+                              backgroundColor: '#6174f9',
+                              paddingHorizontal: 8,
+                              paddingVertical: 4,
+                              borderRadius: 12,
+                              marginRight: 8
+                            }}>
+                              <Text style={{
+                                color: '#FFFFFF',
+                                fontSize: 12,
+                                fontWeight: '500'
+                              }}>
+                                {job.job_categories?.name || 'General'}
+                              </Text>
+                            </View>
+                            {job.applications && job.applications.length > 0 && (
+                              <View style={{
+                                backgroundColor: '#F3F4F6',
+                                paddingHorizontal: 8,
+                                paddingVertical: 4,
+                                borderRadius: 12,
+                                flexDirection: 'row',
+                                alignItems: 'center'
+                              }}>
+                                <Feather name="users" size={12} color="#6B7280" />
+                                <Text style={{
+                                  color: '#6B7280',
+                                  fontSize: 12,
+                                  fontWeight: '500',
+                                  marginLeft: 4
+                                }}>
+                                  {job.applications.length}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      </View>
+                      
+                      {/* Job description */}
+                      <Text style={[
+                        getStyles(theme).sectionSubtitle,
+                        { 
+                          marginBottom: 16,
+                          fontSize: 14,
+                          lineHeight: 20,
+                          color: theme.colors.text.secondary
+                        }
+                      ]} numberOfLines={3}>
+                        {job.description}
+                      </Text>
+                      
+                      {/* Location and metadata */}
+                      <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingTop: 12,
+                        borderTopWidth: 1,
+                        borderTopColor: '#F3F4F6'
+                      }}>
+                        <View style={{
+                          flexDirection: 'row',
+                          alignItems: 'center'
+                        }}>
+                          <Feather name="map-pin" size={14} color="#6B7280" />
+                          <Text style={{
+                            marginLeft: 6,
+                            fontSize: 14,
+                            color: '#6B7280',
+                            fontWeight: '500'
+                          }}>
+                            {job.city}
+                          </Text>
+                        </View>
+                        <View style={{
+                          flexDirection: 'row',
+                          alignItems: 'center'
+                        }}>
+                          <Feather name="calendar" size={14} color="#6B7280" />
+                          <Text style={{
+                            marginLeft: 6,
+                            fontSize: 12,
+                            color: '#9CA3AF'
+                          }}>
+                            {new Date(job.created_at).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
                   ))}
-                </ScrollView>
+                </View>
               </Animated.View>
             )}
 
-            {/* Draft Job Postings Section */}
-            {filteredRecentJobs.length > 0 && (
-              <View style={getStyles(theme).recentJobsContainer}>
-                <View style={getStyles(theme).sectionHeader}>
-                  <Text style={getStyles(theme).sectionTitle}>
-                    Draft Job Postings
-                  </Text>
-                  <TouchableOpacity>
-                    <Text style={getStyles(theme).seeAllText}>See all</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={getStyles(theme).recentJobsList}>
-                  {filteredRecentJobs.map((job, index) => (
-                    <RecentJobCard key={job.id} item={job} index={index} />
-                  ))}
-                </View>
-              </View>
+            {/* Empty State for Company */}
+            {jobs.length === 0 && !loading && (
+              <Animated.View style={[
+                getStyles(theme).emptyState,
+                { opacity: fadeAnim }
+              ]}>
+                <Icon name="briefcase" size={64} color={theme.colors.text.secondary} />
+                <Text style={getStyles(theme).emptyTitle}>
+                  No Job Postings Yet
+                </Text>
+                <Text style={getStyles(theme).emptyDescription}>
+                  Create your first job posting to start hiring talented candidates
+                </Text>
+                <Button
+                  title="Create Your First Job"
+                  onPress={() => navigation.navigate('CreateJob')}
+                  style={getStyles(theme).emptyButton}
+                  textStyle={getStyles(theme).emptyButtonText}
+                />
+              </Animated.View>
             )}
           </>
         )}
 
         {/* Seeker View - Applications */}
-        {!userRoles?.isCompany && (
+        {!isCompany && (
           <>
             {/* Recent Applications Section */}
             <Animated.View
@@ -689,42 +825,6 @@ const MyJobsScreen = () => {
           </>
         )}
 
-        {/* No Results Message */}
-        {!loading &&
-          !error &&
-          ((userRoles?.isCompany &&
-            filteredPopularJobs.length === 0 &&
-            filteredRecentJobs.length === 0) ||
-            (!userRoles?.isCompany && applications.length === 0)) && (
-            <Animated.View
-              style={[
-                getStyles(theme).noResultsContainer,
-                { opacity: fadeAnim },
-              ]}
-            >
-              <Feather name="search" size={48} color="#9CA3AF" />
-              <Text style={getStyles(theme).noResultsText}>
-                {userRoles?.isCompany
-                  ? 'No job postings found'
-                  : 'No applications found'}
-              </Text>
-              <Text style={getStyles(theme).noResultsSubtext}>
-                {userRoles?.isCompany
-                  ? 'Try creating a new job posting'
-                  : 'Start applying to jobs to see them here'}
-              </Text>
-              {!userRoles?.isCompany && (
-                <TouchableOpacity
-                  style={getStyles(theme).browseButton}
-                  onPress={() => navigation.navigate('Jobs')}
-                >
-                  <Text style={getStyles(theme).browseButtonText}>
-                    Browse Jobs
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </Animated.View>
-          )}
 
         {/* Filter Modal */}
         {showFilterModal && (

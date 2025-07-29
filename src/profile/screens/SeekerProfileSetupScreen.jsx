@@ -139,7 +139,7 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
         user?.phone_number ||
         user?.user_metadata?.phone_number;
 
-      await updateUserRecord({
+      const userUpdateData = {
         name:
           user?.user_metadata?.full_name ||
           user?.email?.split('@')[0] ||
@@ -147,7 +147,9 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
         phone_number: phoneToSave,
         city: selectedCity.toLowerCase(),
         is_seeker: true,
-      });
+      };
+      
+      await updateUserRecord(userUpdateData);
 
       // Check if seeker profile already exists
       const { data: existingProfile, error: checkError } =
@@ -166,57 +168,72 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
         createdProfile = updatedProfile;
       } else {
         // Create seeker profile using user.id from AuthContext
-        const profile = {
-          ...profileData,
-          user_id: user.id,
-        };
-
         const { data: newProfile, error } =
-          await seekerService.createSeekerProfile(profile);
+          await seekerService.createSeekerProfile(user.id, profileData);
         if (error) {
+          console.error('Error creating profile:', error);
           throw error;
         }
         createdProfile = newProfile;
       }
 
-      // Add skills and categories (these methods now handle duplicates)
-      const skillsResult = await seekerService.addSeekerSkills(
-        createdProfile.id,
-        selectedSkills.map(s => s.id),
-      );
-      if (skillsResult.error) {
-        console.warn(
-          'Warning: Some skills may not have been added:',
-          skillsResult.error,
+      // Add skills and categories (service methods expect userId, not profile.id)
+      
+      if (selectedSkills.length > 0) {
+        const skillsResult = await seekerService.addSeekerSkills(
+          user.id,
+          selectedSkills.map(s => s.id),
         );
+        if (skillsResult.error) {
+          console.error('Error adding skills:', skillsResult.error);
+          console.warn(
+            'Warning: Some skills may not have been added:',
+            skillsResult.error,
+          );
+        } else {
+        }
       }
 
-      const categoriesResult = await seekerService.addSeekerCategories(
-        createdProfile.id,
-        selectedCategories.map(c => c.id),
-      );
-      if (categoriesResult.error) {
-        console.warn(
-          'Warning: Some categories may not have been added:',
-          categoriesResult.error,
+      if (selectedCategories.length > 0) {
+        const categoriesResult = await seekerService.addSeekerCategories(
+          user.id,
+          selectedCategories.map(c => c.id),
         );
+        if (categoriesResult.error) {
+          console.error('Error adding categories:', categoriesResult.error);
+          console.warn(
+            'Warning: Some categories may not have been added:',
+            categoriesResult.error,
+          );
+        } else {
+        }
       }
 
-      // Update onboarding status to mark this step as complete
-      await onboardingService.updateOnboardingProgress(user.id, {
-        onboarding_completed: true,
-        last_onboarding_step: 'seeker_profile_complete',
-      });
-
-      if (nextScreen && selectedRoles?.isPoster) {
+      // Update onboarding status based on whether user needs company profile
+      if (selectedRoles?.isPoster) {
+        // User also needs to create company profile, don't mark onboarding as completed yet
+        await onboardingService.updateOnboardingProgress(user.id, {
+          last_onboarding_step: 'seeker_profile_complete',
+        });
+        
+        // Navigate to company profile setup
         navigation.replace('CompanyProfileSetup', { selectedRoles });
       } else {
-        // Navigate to success screen instead of directly to main
+        // User only selected seeker role, mark onboarding as completed
+        await onboardingService.updateOnboardingProgress(user.id, {
+          onboarding_completed: true,
+          last_onboarding_step: 'completed',
+        });
+        
+        // Navigate to success screen
         navigation.replace('OnboardingSuccess');
       }
     } catch (error) {
       console.error('Profile setup error:', error);
-      Alert.alert('Error', 'Failed to set up your profile. Please try again.');
+      Alert.alert(
+        'Profile Setup Failed', 
+        `Failed to set up your profile: ${error.message || 'Unknown error'}. Please try again.`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -366,6 +383,7 @@ const SeekerProfileSetupScreen = ({ navigation, route }) => {
           <Button
             onPress={handleComplete}
             loading={isLoading}
+            variant="cta"
             style={styles.completeButton}
           >
             {nextScreen ? 'Continue to Company Profile' : 'Complete Setup'}
@@ -414,8 +432,8 @@ const getStyles = theme =>
       alignItems: 'center',
     },
     cityButtonSelected: {
-      borderColor: theme?.colors?.primary?.main || '#3C4FE0',
-      backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
+      borderColor: theme?.colors?.primary?.main || '#6174f9',
+      backgroundColor: theme?.colors?.primary?.main || '#6174f9',
     },
     cityButtonText: {
       fontSize: 14,
@@ -441,8 +459,8 @@ const getStyles = theme =>
       backgroundColor: theme?.colors?.background?.secondary || '#F8FAFC',
     },
     experienceButtonSelected: {
-      borderColor: theme?.colors?.primary?.main || '#3C4FE0',
-      backgroundColor: theme?.colors?.primary?.main || '#3C4FE0',
+      borderColor: theme?.colors?.primary?.main || '#6174f9',
+      backgroundColor: theme?.colors?.primary?.main || '#6174f9',
     },
     experienceButtonText: {
       fontSize: 12,

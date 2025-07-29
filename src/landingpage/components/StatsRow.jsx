@@ -31,7 +31,7 @@ const StatsRow = React.memo(() => {
           <Feather
             name={stat.icon}
             size={24}
-            color={theme?.colors?.primary?.main || '#3C4FE0'}
+            color={theme?.colors?.primary?.main || '#6174f9'}
           />
           <Text style={styles.statNumber}>{stat.number}</Text>
           <Text style={styles.statLabel}>{stat.label}</Text>

@@ -336,7 +336,7 @@ const SwipeableJobDetailsScreen = () => {
           </Text>
           <TouchableOpacity
             style={{
-              backgroundColor: theme?.colors?.primary?.main || '#6475f8',
+              backgroundColor: theme?.colors?.primary?.main || '#6174f9',
               paddingHorizontal: 20,
               paddingVertical: 12,
               borderRadius: 8,
@@ -375,7 +375,7 @@ const SwipeableJobDetailsScreen = () => {
         >
           <ActivityIndicator
             size="large"
-            color={theme?.colors?.primary?.main || '#6475f8'}
+            color={theme?.colors?.primary?.main || '#6174f9'}
           />
         </View>
       </SafeAreaView>
@@ -411,7 +411,7 @@ const SwipeableJobDetailsScreen = () => {
           </Text>
           <TouchableOpacity
             style={{
-              backgroundColor: theme?.colors?.primary?.main || '#6475f8',
+              backgroundColor: theme?.colors?.primary?.main || '#6174f9',
               paddingHorizontal: 20,
               paddingVertical: 12,
               borderRadius: 8,
@@ -531,7 +531,7 @@ const SwipeableJobDetailsScreen = () => {
                     width: 6,
                     height: 6,
                     borderRadius: 3,
-                    backgroundColor: theme?.colors?.primary?.main || '#6475f8',
+                    backgroundColor: theme?.colors?.primary?.main || '#6174f9',
                     marginTop: 8,
                     marginRight: 12,
                   }}
@@ -792,12 +792,12 @@ const SwipeableJobDetailsScreen = () => {
                     key={skill.id || index}
                     style={{
                       backgroundColor:
-                        theme?.colors?.primary?.main || '#6475f8',
+                        theme?.colors?.primary?.main || '#6174f9',
                       borderRadius: 20,
                       paddingHorizontal: 12,
                       paddingVertical: 6,
                       borderWidth: 1,
-                      borderColor: theme?.colors?.primary?.main || '#6475f8',
+                      borderColor: theme?.colors?.primary?.main || '#6174f9',
                     }}
                   >
                     <Text
@@ -915,7 +915,7 @@ const SwipeableJobDetailsScreen = () => {
                 borderRadius: 6,
                 backgroundColor:
                   activeTab === tab
-                    ? theme?.colors?.primary?.main || '#6475f8'
+                    ? theme?.colors?.primary?.main || '#6174f9'
                     : 'transparent',
                 alignItems: 'center',
                 zIndex: 2001,
@@ -966,7 +966,7 @@ const SwipeableJobDetailsScreen = () => {
                 height: 60,
                 borderRadius: 15,
                 backgroundColor:
-                  `${theme?.colors?.primary?.main || '#6475f8'  }20`,
+                  `${theme?.colors?.primary?.main || '#6174f9'  }20`,
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: 16,
@@ -980,7 +980,7 @@ const SwipeableJobDetailsScreen = () => {
               <Feather
                 name="briefcase"
                 size={24}
-                color={theme?.colors?.primary?.main || '#6475f8'}
+                color={theme?.colors?.primary?.main || '#6174f9'}
               />
             </View>
 

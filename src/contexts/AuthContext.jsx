@@ -180,21 +180,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Add updateUserRecord function
+  // Memoize the updateUserRecord function
   const updateUserRecord = useCallback(
     async updates => {
       try {
-        if (!state.user?.id) {
-          throw new Error('No user found');
-        }
+        dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
-        // Update user metadata in Supabase
-        const { data, error } = await supabase.auth.updateUser({
-          data: updates,
-        });
+        // Update auth user profile
+        const { data, error } = await supabase.auth.updateUser(updates);
 
         if (error) {
-          throw error;
+          dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
+          return { data: null, error };
         }
 
         // Also update the users table for phone_number and city
@@ -208,30 +205,43 @@ export const AuthProvider = ({ children }) => {
         if (updates.city) {
           userTableUpdates.city = updates.city;
         }
+        if (updates.is_seeker !== undefined) {
+          userTableUpdates.is_seeker = updates.is_seeker;
+        }
+        if (updates.onboarding_completed !== undefined) {
+          userTableUpdates.onboarding_completed = updates.onboarding_completed;
+        }
+        if (updates.last_onboarding_step) {
+          userTableUpdates.last_onboarding_step = updates.last_onboarding_step;
+        }
 
         if (Object.keys(userTableUpdates).length > 0) {
-          const { error: userTableError } = await supabase
+          const { data: userTableData, error: userTableError } = await supabase
             .from('users')
             .update(userTableUpdates)
-            .eq('id', state.user.id);
+            .eq('id', state.user.id)
+            .select();
 
           if (userTableError) {
-            console.error('Error updating users table:', userTableError);
+            dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: userTableError.message });
+            return { data: null, error: userTableError };
           }
         }
 
         // Update local state
+        const updatedUserRecord = { ...state.userRecord, ...updates, ...userTableUpdates };
+        
         dispatch({
           type: AUTH_ACTIONS.SET_USER,
           payload: {
             user: data.user,
-            userRecord: { ...state.userRecord, ...updates, ...userTableUpdates },
+            userRecord: updatedUserRecord,
           },
         });
 
         return { data, error: null };
       } catch (error) {
-        console.error('Error updating user record:', error);
+        dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
         return { data: null, error };
       }
     },
@@ -290,14 +300,6 @@ export const AuthProvider = ({ children }) => {
           throw onboardingError;
         }
 
-        console.log('🎭 [AuthContext] Setting user roles from onboarding service:', {
-          userRoles: onboardingStatus.userRoles || [],
-          needsCitySelection: onboardingStatus.needsCitySelection,
-          needsProfileSetup: onboardingStatus.needsProfileSetup,
-          needsRoleSelection: onboardingStatus.needsRoleSelection,
-          onboardingComplete: onboardingStatus.isComplete
-        });
-
         dispatch({
           type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
           payload: {
@@ -343,7 +345,6 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
   }, []);
 
-  // Memoize the checkAuthStatus function
   const checkAuthStatus = useCallback(async () => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
@@ -369,13 +370,25 @@ export const AuthProvider = ({ children }) => {
             .eq('id', session.user.id)
             .single();
 
-          if (!userError && userData) {
-            // Merge auth user data with database user data
-            userRecord = {
-              ...session.user,
-              ...userData,
-            };
+          if (userError) {
+            // If user doesn't exist in database, force logout
+            if (userError.code === 'PGRST116') {
+              await logout();
+              return;
+            }
+            throw userError;
           }
+
+          if (!userData) {
+            await logout();
+            return;
+          }
+
+          // Merge auth user data with database user data
+          userRecord = {
+            ...session.user,
+            ...userData,
+          };
         } catch (userError) {
           console.warn('Failed to fetch user data from users table:', userError);
           // Fallback to just auth user data
@@ -397,6 +410,9 @@ export const AuthProvider = ({ children }) => {
             throw onboardingError;
           }
 
+          // Store onboarding status in AsyncStorage for persistence
+          await AsyncStorage.setItem('onboarding_status', JSON.stringify(onboardingStatus));
+
           dispatch({
             type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
             payload: {
@@ -408,29 +424,63 @@ export const AuthProvider = ({ children }) => {
           });
         } catch (onboardingError) {
           console.warn('Failed to get onboarding status:', onboardingError);
-          // Set default onboarding status
-          dispatch({
-            type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
-            payload: {
-              needsCitySelection: true,
-              needsProfileSetup: true,
-              needsRoleSelection: true,
-              userRoles: {
-                isSeeker: false,
-                isCompany: false,
-                isPoster: false,
+          // Try to load cached onboarding status
+          try {
+            const cachedStatus = await AsyncStorage.getItem('onboarding_status');
+            if (cachedStatus) {
+              const parsedStatus = JSON.parse(cachedStatus);
+              dispatch({
+                type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
+                payload: {
+                  needsCitySelection: parsedStatus.needsCitySelection,
+                  needsProfileSetup: parsedStatus.needsProfileSetup,
+                  needsRoleSelection: parsedStatus.needsRoleSelection,
+                  userRoles: parsedStatus.userRoles || [],
+                },
+              });
+            } else {
+              // Set default onboarding status
+              dispatch({
+                type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
+                payload: {
+                  needsCitySelection: true,
+                  needsProfileSetup: true,
+                  needsRoleSelection: true,
+                  userRoles: {
+                    isSeeker: false,
+                    isCompany: false,
+                    isPoster: false,
+                  },
+                },
+              });
+            }
+          } catch (cacheError) {
+            console.warn('Failed to load cached onboarding status:', cacheError);
+            // Set default onboarding status
+            dispatch({
+              type: AUTH_ACTIONS.SET_ONBOARDING_STATUS,
+              payload: {
+                needsCitySelection: true,
+                needsProfileSetup: true,
+                needsRoleSelection: true,
+                userRoles: {
+                  isSeeker: false,
+                  isCompany: false,
+                  isPoster: false,
+                },
               },
-            },
-          });
+            });
+          }
         }
       }
 
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
     } catch (error) {
+      console.error('checkAuthStatus error:', error);
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
     }
-  }, []);
+  }, [logout]);
 
   // Set up auth state listener
   useEffect(() => {
@@ -521,6 +571,47 @@ export const AuthProvider = ({ children }) => {
       updateUserProfile,
       clearError,
       checkAuthStatus,
+      
+      // Helper functions
+      getPhoneNumber: () => {
+        // Get phone number from userRecord first, then from user metadata
+        if (state.userRecord?.phone_number) {
+          return state.userRecord.phone_number;
+        }
+        if (state.user?.user_metadata?.phone) {
+          return state.user.user_metadata.phone;
+        }
+        return "Not specified";
+      },
+      
+      resetOnboarding: async () => {
+        if (!state.user?.id) return;
+        
+        try {
+          // Reset onboarding status in database
+          const { error } = await supabase
+            .from('users')
+            .update({
+              onboarding_completed: false,
+              last_onboarding_step: null,
+              city: null,
+            })
+            .eq('id', state.user.id);
+            
+          if (error) {
+            console.error('Failed to reset onboarding:', error);
+            return;
+          }
+          
+          // Clear onboarding cache
+          await AsyncStorage.removeItem('onboarding_status');
+          
+          // Re-check auth status to update onboarding states
+          await checkAuthStatus();
+        } catch (error) {
+          console.error('Error resetting onboarding:', error);
+        }
+      },
     }),
     [
       state,

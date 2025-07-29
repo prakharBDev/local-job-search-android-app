@@ -682,7 +682,7 @@ const ProfileSetupScreen = ({ navigation, route }) => {
             subtitle={`${
               currentMode === 'seeker' ? 'Job Seeker' : 'Job Poster'
             } Profile`}
-            leftIcon={<Icon name="arrow-left" size={20} color="#3B82F6" />}
+            leftIcon={<Icon name="arrow-left" size={20} color="#6174f9" />}
             onLeftPress={
               currentStep === 1 ? () => navigation.goBack() : handleBack
             }
@@ -787,7 +787,7 @@ const styles = {
     backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
-    shadowColor: '#3B82F6',
+    shadowColor: '#6174f9',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.08,
     shadowRadius: 20,
@@ -831,7 +831,7 @@ const styles = {
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    shadowColor: '#3B82F6',
+    shadowColor: '#6174f9',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -840,7 +840,7 @@ const styles = {
   stepText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#3B82F6',
+    color: '#6174f9',
     fontFamily: 'System',
     letterSpacing: -0.1,
   },
@@ -865,9 +865,9 @@ const styles = {
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6174f9',
     borderRadius: 12,
-    shadowColor: '#3B82F6',
+    shadowColor: '#6174f9',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -958,9 +958,9 @@ const styles = {
     elevation: 2,
   },
   optionChipActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
-    shadowColor: '#3B82F6',
+    backgroundColor: '#6174f9',
+    borderColor: '#6174f9',
+    shadowColor: '#6174f9',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -996,8 +996,8 @@ const styles = {
   },
   experienceCardActive: {
     backgroundColor: '#EFF6FF',
-    borderColor: '#3B82F6',
-    shadowColor: '#3B82F6',
+    borderColor: '#6174f9',
+    shadowColor: '#6174f9',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -1016,7 +1016,7 @@ const styles = {
     letterSpacing: -0.1,
   },
   experienceTextActive: {
-    color: '#3B82F6',
+    color: '#6174f9',
     fontWeight: '600',
   },
   categoryGrid: {
@@ -1038,9 +1038,9 @@ const styles = {
     elevation: 2,
   },
   categoryChipActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
-    shadowColor: '#3B82F6',
+    backgroundColor: '#6174f9',
+    borderColor: '#6174f9',
+    shadowColor: '#6174f9',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -1072,10 +1072,10 @@ const styles = {
     borderTopColor: '#F1F5F9',
   },
   nextButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6174f9',
     borderRadius: 18,
     height: 56,
-    shadowColor: '#3B82F6',
+    shadowColor: '#6174f9',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 16,

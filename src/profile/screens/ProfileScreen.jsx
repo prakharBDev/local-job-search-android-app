@@ -53,12 +53,8 @@ const ProfileScreen = ({ navigation }) => {
         return;
       }
 
-      console.log('User data from users table:', userData);
-
       // Determine user type based on is_seeker flag
       const isSeeker = userData?.is_seeker ?? true; // Default to seeker if not specified
-      
-      console.log('User type determined:', isSeeker ? 'seeker' : 'company');
 
       // Fetch appropriate profile data based on user type
       let result;
@@ -69,7 +65,6 @@ const ProfileScreen = ({ navigation }) => {
       }
 
       if (result.data) {
-        console.log('Profile data loaded:', result.data);
         setProfileData(result.data);
       }
     } catch (error) {
@@ -186,41 +181,30 @@ const ProfileScreen = ({ navigation }) => {
 
   // Get phone number from user record
   const getPhoneNumber = () => {
-    console.log('Getting phone number - profileData:', profileData);
-    console.log('Getting phone number - user:', user);
-    console.log('Getting phone number - userRecord:', userRecord);
-    
     // Check profile data first (for both seekers and companies)
     if (profileData?.phone_number) {
-      console.log('Found phone in profileData.phone_number:', profileData.phone_number);
       return profileData.phone_number;
     }
     // Check nested user data from profile (for company profiles) - database field
     if (profileData?.users?.phone_number) {
-      console.log('Found phone in profileData.users.phone_number:', profileData.users.phone_number);
       return profileData.users.phone_number;
     }
     // Check userRecord from AuthContext (contains data from users table)
     if (userRecord?.phone_number) {
-      console.log('Found phone in userRecord.phone_number:', userRecord.phone_number);
       return userRecord.phone_number;
     }
     // Check user metadata
     if (user?.user_metadata?.phone_number) {
-      console.log('Found phone in user.user_metadata.phone_number:', user.user_metadata.phone_number);
       return user.user_metadata.phone_number;
     }
     // Check user.phone (Supabase auth field)
     if (user?.phone) {
-      console.log('Found phone in user.phone:', user.phone);
       return user.phone;
     }
     // Check user.phone_number (database field - should not exist in auth user)
     if (user?.phone_number) {
-      console.log('Found phone in user.phone_number:', user.phone_number);
       return user.phone_number;
     }
-    console.log('No phone number found, returning "Not specified"');
     return 'Not specified';
   };
 

@@ -124,14 +124,9 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
   };
 
   const handleComplete = async () => {
-    console.log('🚀 [CompanyProfileSetup] Starting profile completion process');
-    
     if (!validateForm()) {
-      console.log('❌ [CompanyProfileSetup] Form validation failed');
       return;
     }
-
-    console.log('✅ [CompanyProfileSetup] Form validation passed');
     setIsLoading(true);
     try {
       // user.id comes from AuthContext, which is the single source of truth for authentication
@@ -140,12 +135,6 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
         user?.phone_number ||
         user?.user_metadata?.phone_number;
 
-      console.log('👤 [CompanyProfileSetup] Updating user record with:', {
-        userId: user.id,
-        city: selectedCity.toLowerCase(),
-        isSeeker: selectedRoles?.isSeeker || false,
-        hasPhone: !!phoneToSave
-      });
 
       await updateUserRecord({
         name:
@@ -157,7 +146,6 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
         is_seeker: selectedRoles?.isSeeker || false,
       });
 
-      console.log('✅ [CompanyProfileSetup] User record updated successfully');
 
       // Create company profile using user.id from AuthContext
       // Only include fields that exist in the company_profiles table schema
@@ -180,45 +168,33 @@ const CompanyProfileSetupScreen = ({ navigation, route }) => {
       
       let profileResult;
       if (existingProfile) {
-        console.log('🔄 [CompanyProfileSetup] Updating existing company profile:', existingProfile.id);
         profileResult = await companyService.updateCompanyProfile(existingProfile.id, {
           company_name: profile.company_name,
           company_description: profile.company_description,
           contact_email: profile.contact_email,
         });
       } else {
-        console.log('➕ [CompanyProfileSetup] Creating new company profile');
         profileResult = await companyService.createCompanyProfile(profile);
       }
 
       const { data: finalProfile, error } = profileResult;
 
       if (error) {
-        console.error('❌ [CompanyProfileSetup] Company profile operation failed:', error);
+        console.error('Company profile operation failed:', error);
         throw error;
       }
 
-      console.log('✅ [CompanyProfileSetup] Company profile operation successful:', {
-        profileId: finalProfile?.id,
-        userId: finalProfile?.user_id,
-        action: existingProfile ? 'updated' : 'created'
-      });
 
       // Clear onboarding cache to force fresh check
-      console.log('🧹 [CompanyProfileSetup] Clearing onboarding cache');
       onboardingService.clearOnboardingCache(user.id);
 
-      // Mark onboarding as completed
-      console.log('🎯 [CompanyProfileSetup] Marking onboarding as completed');
+      // Mark onboarding as completed (this is the final step)
       await updateUserRecord({
         onboarding_completed: true,
         last_onboarding_step: 'completed',
       });
 
-      console.log('✅ [CompanyProfileSetup] Onboarding marked as completed');
-
-      // Navigate to success screen instead of directly to main
-      console.log('🧭 [CompanyProfileSetup] Navigating to OnboardingSuccess screen');
+      // Navigate to success screen
       navigation.replace('OnboardingSuccess');
     } catch (error) {
       console.error('Profile setup error:', error);
@@ -452,9 +428,9 @@ const getStyles = theme =>
       elevation: 2,
     },
     cityButtonSelected: {
-      borderColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
-      backgroundColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
-      shadowColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
+      borderColor: theme?.colors?.primary?.main || '#6174f9',
+      backgroundColor: theme?.colors?.primary?.main || '#6174f9',
+      shadowColor: theme?.colors?.primary?.main || '#6174f9',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.15,
       shadowRadius: 8,
@@ -489,9 +465,9 @@ const getStyles = theme =>
       elevation: 1,
     },
     optionButtonSelected: {
-      borderColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
-      backgroundColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
-      shadowColor: theme?.colors?.jobCategories?.primary?.background || '#6475f8',
+      borderColor: theme?.colors?.primary?.main || '#6174f9',
+      backgroundColor: theme?.colors?.primary?.main || '#6174f9',
+      shadowColor: theme?.colors?.primary?.main || '#6174f9',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.15,
       shadowRadius: 4,

@@ -47,7 +47,6 @@ class OnboardingService {
       const cacheKey = `completion_check_${userId}`;
       if (this._lastCheck && this._lastCheck[cacheKey] && (now - this._lastCheck[cacheKey]) < 2000) {
         if (this._cachedResults && this._cachedResults[userId]) {
-          console.log('🔄 [OnboardingService] Returning cached result from duplicate check');
           return this._cachedResults[userId];
         }
       }
@@ -56,7 +55,6 @@ class OnboardingService {
       this._lastCheck[cacheKey] = now;
       this._cachedResults = this._cachedResults || {};
       
-      // console.log('🔍 [OnboardingService] Checking profile completion for user:', userId);
       const missingSteps = [];
 
       // Check if user has city selected and onboarding status
@@ -72,65 +70,225 @@ class OnboardingService {
       );
 
       if (userError) {
-        console.error('❌ [OnboardingService] Error fetching user record:', userError);
         throw userError;
       }
 
       const user = userRecord?.[0];
-      // console.log('👤 [OnboardingService] User record:', { userId, onboarding_completed: user?.onboarding_completed, is_seeker: user?.is_seeker });
 
-      // If onboarding is already completed, skip all checks
-      if (user?.onboarding_completed) {
-        // console.log('✅ [OnboardingService] Onboarding already completed, skipping checks');
+      // Add safety check for undefined user
+      if (!user) {
+        console.warn('⚠️ [OnboardingService] User record not found for userId:', userId);
+        return { isComplete: false, missingSteps: ['role_selection'], error: null };
+      }
+
+      // Check if onboarding is explicitly marked as completed
+      if (user?.onboarding_completed === true) {
+        // Query for the relevant profile based on user type
+        let hasProfile = false;
+        let seekerProfile = null;
+        let companyProfile = null;
+        
+        if (user.is_seeker) {
+          // Check seeker profile
+          const { data: seekerProfileData, error: seekerError } = await apiClient.query(
+            'seeker_profiles',
+            {
+              select: 'id',
+              filters: { user_id: userId },
+              limit: 1,
+              cache: true,
+              cacheKey: `seeker_profile_${userId}`,
+            },
+          );
+          seekerProfile = seekerProfileData;
+          hasProfile = !!seekerProfile?.[0];
+        } else {
+          // Check company profile
+          const { data: companyProfileData, error: companyError } = await apiClient.query(
+            'company_profiles',
+            {
+              select: 'id',
+              filters: { user_id: userId },
+              limit: 1,
+              cache: true,
+              cacheKey: `company_profile_${userId}`,
+            },
+          );
+          companyProfile = companyProfileData;
+          hasProfile = !!companyProfile?.[0];
+        }
+        
+        if (!hasProfile) {
+          console.log('⚠️ [OnboardingService] User marked as completed but has no profile, forcing onboarding');
+          // Force onboarding if no profile exists
+          return { isComplete: false, missingSteps: ['role_selection'], error: null };
+        }
+        
+        // If user has a profile, check if it's actually complete
+        if (user.is_seeker) {
+          // Check seeker profile completeness
+          const { data: seekerSkills, error: skillsError } =
+            await apiClient.query('seeker_skills', {
+              select: 'skill_id',
+              filters: { seeker_id: seekerProfile[0].id },
+              cache: true,
+              cacheKey: `seeker_skills_${seekerProfile[0].id}`,
+            });
+
+          if (skillsError) {
+            throw skillsError;
+          }
+
+          const { data: seekerCategories, error: categoriesError } =
+            await apiClient.query('seeker_categories', {
+              select: 'category_id',
+              filters: { seeker_id: seekerProfile[0].id },
+              cache: true,
+              cacheKey: `seeker_categories_${seekerProfile[0].id}`,
+            });
+
+          if (categoriesError) {
+            throw categoriesError;
+          }
+
+          const { data: seekerRecord, error: seekerRecordError } =
+            await apiClient.query('seeker_profiles', {
+              select: 'experience_level',
+              filters: { id: seekerProfile[0].id },
+              limit: 1,
+              cache: true,
+              cacheKey: `seeker_record_${seekerProfile[0].id}`,
+            });
+
+          if (seekerRecordError) {
+            throw seekerRecordError;
+          }
+
+          if (
+            !seekerSkills?.length ||
+            !seekerCategories?.length ||
+            !seekerRecord?.[0]?.experience_level
+          ) {
+            console.log('⚠️ [OnboardingService] User marked as completed but seeker profile is incomplete');
+            return { isComplete: false, missingSteps: ['seeker_profile_incomplete'], error: null };
+          }
+        }
+
+        if (!user.is_seeker) {
+          // Check company profile completeness
+          const { data: companyRecord, error: companyRecordError } =
+            await apiClient.query('company_profiles', {
+              select: 'company_name, contact_email',
+              filters: { id: companyProfile[0].id },
+              limit: 1,
+              cache: true,
+              cacheKey: `company_record_${companyProfile[0].id}`,
+            });
+
+          if (companyRecordError) {
+            throw companyRecordError;
+          }
+
+          if (
+            !companyRecord?.[0]?.company_name ||
+            !companyRecord?.[0]?.contact_email
+          ) {
+            console.log('⚠️ [OnboardingService] User marked as completed but company profile is incomplete');
+            return { isComplete: false, missingSteps: ['company_profile_incomplete'], error: null };
+          }
+        }
+
+        // Only return complete if user has valid profiles
         return { isComplete: true, missingSteps: [], error: null };
       }
 
+      // Always check for city selection first
       if (!user?.city) {
         missingSteps.push('city_selection');
       }
 
-      // Check if user has roles selected
-      // console.log('🔍 [OnboardingService] Checking user profiles...');
-      const { data: seekerProfile, error: seekerError } = await apiClient.query(
-        'seeker_profiles',
-        {
-          select: 'id, experience_level, created_at',
-          filters: { user_id: userId },
-          limit: 1,
-          cache: true,
-          cacheKey: `seeker_profile_${userId}`,
-        },
-      );
+      // Check for the relevant profile based on user type
+      let hasProfile = false;
+      let seekerProfile = null;
+      let companyProfile = null;
+      
+      if (user.is_seeker === true) {
+        // Check seeker profile only
+        const { data: seekerProfileData, error: seekerError } = await apiClient.query(
+          'seeker_profiles',
+          {
+            select: 'id, experience_level, created_at',
+            filters: { user_id: userId },
+            limit: 1,
+            cache: true,
+            cacheKey: `seeker_profile_${userId}`,
+          },
+        );
+        if (seekerError) {
+          throw seekerError;
+        }
+        seekerProfile = seekerProfileData;
+        hasProfile = !!seekerProfile?.[0];
+      } else if (user.is_seeker === false) {
+        // Check company profile only
+        const { data: companyProfileData, error: companyError } = await apiClient.query(
+          'company_profiles',
+          {
+            select: 'id, company_name, contact_email, created_at',
+            filters: { user_id: userId },
+            limit: 1,
+            cache: true,
+            cacheKey: `company_profile_${userId}`,
+          },
+        );
+        if (companyError) {
+          throw companyError;
+        }
+        companyProfile = companyProfileData;
+        hasProfile = !!companyProfile?.[0];
+      } else {
+        // For new users (is_seeker is undefined), check both profile types
+        const { data: seekerProfileData, error: seekerError } = await apiClient.query(
+          'seeker_profiles',
+          {
+            select: 'id, experience_level, created_at',
+            filters: { user_id: userId },
+            limit: 1,
+            cache: true,
+            cacheKey: `seeker_profile_${userId}`,
+          },
+        );
+        if (seekerError) {
+          throw seekerError;
+        }
+        seekerProfile = seekerProfileData;
 
-      if (seekerError) {
-        console.error('❌ [OnboardingService] Error fetching seeker profile:', seekerError);
-        throw seekerError;
+        const { data: companyProfileData, error: companyError } = await apiClient.query(
+          'company_profiles',
+          {
+            select: 'id, company_name, contact_email, created_at',
+            filters: { user_id: userId },
+            limit: 1,
+            cache: true,
+            cacheKey: `company_profile_${userId}`,
+          },
+        );
+        if (companyError) {
+          throw companyError;
+        }
+        companyProfile = companyProfileData;
+        
+        // For new users, if either profile exists, they've made a choice
+        hasProfile = !!(seekerProfile?.[0] || companyProfile?.[0]);
       }
 
-      // console.log('👨‍💼 [OnboardingService] Seeker profile:', { exists: !!seekerProfile?.[0] });
-
-      const { data: companyProfile, error: companyError } =
-        await apiClient.query('company_profiles', {
-          select: 'id, company_name, contact_email, created_at',
-          filters: { user_id: userId },
-          limit: 1,
-          cache: true,
-          cacheKey: `company_profile_${userId}`,
-        });
-
-      if (companyError) {
-        console.error('❌ [OnboardingService] Error fetching company profile:', companyError);
-        throw companyError;
-      }
-
-      // console.log('🏢 [OnboardingService] Company profile:', { exists: !!companyProfile?.[0] });
-
-      if (!seekerProfile?.[0] && !companyProfile?.[0]) {
+      // If no profile exists, role selection is needed
+      if (!hasProfile) {
         missingSteps.push('role_selection');
       }
 
       // Check if profiles are complete
-      if (seekerProfile?.[0]) {
+      if (user.is_seeker === true && seekerProfile?.[0]) {
         const seekerId = seekerProfile[0].id;
 
         const { data: seekerSkills, error: skillsError } =
@@ -180,7 +338,7 @@ class OnboardingService {
         }
       }
 
-      if (companyProfile?.[0]) {
+      if (user.is_seeker === false && companyProfile?.[0]) {
         const companyId = companyProfile[0].id;
         console.log('🏢 [OnboardingService] Found company profile, checking completeness. Company ID:', companyId);
 
@@ -199,40 +357,102 @@ class OnboardingService {
             });
 
           if (companyRecordError) {
-            console.error('❌ [OnboardingService] Error fetching company record:', companyRecordError);
             throw companyRecordError;
           }
-
-          const company = companyRecord?.[0];
-          console.log('🏢 [OnboardingService] Company profile data:', {
-            companyId,
-            company_name: company?.company_name,
-            contact_email: company?.contact_email,
-            hasCompanyName: !!company?.company_name,
-            hasContactEmail: !!company?.contact_email
-          });
 
           if (
             !companyRecord?.[0]?.company_name ||
             !companyRecord?.[0]?.contact_email
           ) {
-            console.log('⚠️ [OnboardingService] Company profile incomplete, adding to missing steps');
             missingSteps.push('company_profile_incomplete');
-          } else {
-            console.log('✅ [OnboardingService] Company profile is complete');
           }
         }
-      } else {
-        console.log('🔍 [OnboardingService] No company profile found for user');
+      }
+
+      // For new users (is_seeker is undefined), check both profile types for completeness
+      if (user.is_seeker === undefined) {
+        if (seekerProfile?.[0]) {
+          // User has a seeker profile, check its completeness
+          const seekerId = seekerProfile[0].id;
+
+          const { data: seekerSkills, error: skillsError } =
+            await apiClient.query('seeker_skills', {
+              select: 'skill_id',
+              filters: { seeker_id: seekerId },
+              cache: true,
+              cacheKey: `seeker_skills_${seekerId}`,
+            });
+
+          if (skillsError) {
+            throw skillsError;
+          }
+
+          const { data: seekerCategories, error: categoriesError } =
+            await apiClient.query('seeker_categories', {
+              select: 'category_id',
+              filters: { seeker_id: seekerId },
+              cache: true,
+              cacheKey: `seeker_categories_${seekerId}`,
+            });
+
+          if (categoriesError) {
+            throw categoriesError;
+          }
+
+          const { data: seekerRecord, error: seekerRecordError } =
+            await apiClient.query('seeker_profiles', {
+              select: 'experience_level',
+              filters: { id: seekerId },
+              limit: 1,
+              cache: true,
+              cacheKey: `seeker_record_${seekerId}`,
+            });
+
+          if (seekerRecordError) {
+            throw seekerRecordError;
+          }
+
+          if (
+            !seekerSkills?.length ||
+            !seekerCategories?.length ||
+            !seekerRecord?.[0]?.experience_level
+          ) {
+            missingSteps.push('seeker_profile_incomplete');
+          }
+        }
+
+        if (companyProfile?.[0]) {
+          // User has a company profile, check its completeness
+          const companyId = companyProfile[0].id;
+
+          // If user has reached OnboardingSuccess before, don't make them go through setup again
+          if (user?.last_onboarding_step === 'completed' || user?.onboarding_completed) {
+            console.log('✅ [OnboardingService] User has completed onboarding before, profile is considered complete');
+          } else {
+            const { data: companyRecord, error: companyRecordError } =
+              await apiClient.query('company_profiles', {
+                select: 'company_name, contact_email',
+                filters: { id: companyId },
+                limit: 1,
+                cache: true,
+                cacheKey: `company_record_${companyId}`,
+              });
+
+            if (companyRecordError) {
+              throw companyRecordError;
+            }
+
+            if (
+              !companyRecord?.[0]?.company_name ||
+              !companyRecord?.[0]?.contact_email
+            ) {
+              missingSteps.push('company_profile_incomplete');
+            }
+          }
+        }
       }
 
       const isComplete = missingSteps.length === 0;
-      console.log('📊 [OnboardingService] Profile completion check result:', {
-        userId,
-        isComplete,
-        missingSteps,
-        totalMissingSteps: missingSteps.length
-      });
 
       const result = { isComplete, missingSteps, error: null };
       this._cachedResults[userId] = result;
@@ -318,7 +538,6 @@ class OnboardingService {
       apiClient.clearCache(`user_google_${userData.id}`);
       apiClient.clearCache(`user_onboarding_${userData.id}`);
 
-      return { data, error: null };
     } catch (error) {
       const apiError = handleApiError(error, 'createInitialUserRecord');
       return { data: null, error: apiError };
@@ -510,11 +729,13 @@ class OnboardingService {
    */
   async getOnboardingStatus(userId) {
     try {
+      
       const {
         isComplete,
         missingSteps,
         error: completionError,
       } = await this.checkProfileCompletion(userId);
+
 
       if (completionError) {
         throw completionError;
@@ -531,11 +752,35 @@ class OnboardingService {
         },
       );
 
+
       if (userError) {
         throw userError;
       }
 
       const user = userRecord?.[0];
+      
+      // Add safety check for undefined user
+      if (!user) {
+        console.warn('⚠️ [OnboardingService] User record not found in getOnboardingStatus for userId:', userId);
+        return {
+          status: {
+            isComplete: false,
+            missingSteps: ['role_selection'],
+            nextScreen: 'Onboarding',
+            userRecord: null,
+            needsCitySelection: true,
+            needsRoleSelection: true,
+            needsProfileSetup: true,
+            userRoles: {
+              isSeeker: false,
+              isCompany: false,
+              isPoster: false,
+            },
+          },
+          error: null,
+        };
+      }
+      
       const nextScreen = this.determineNextScreen(user, missingSteps);
 
       // Check for existing profiles to determine user roles
@@ -551,7 +796,7 @@ class OnboardingService {
       );
 
       if (seekerError) {
-        console.warn('Error fetching seeker profile:', seekerError);
+        console.warn('⚠️ [OnboardingService] Error fetching seeker profile:', seekerError);
       }
 
       const { data: companyProfile, error: companyError } = await apiClient.query(
@@ -566,8 +811,9 @@ class OnboardingService {
       );
 
       if (companyError) {
-        console.warn('Error fetching company profile:', companyError);
+        console.warn('⚠️ [OnboardingService] Error fetching company profile:', companyError);
       }
+
 
       // Determine user roles based on is_seeker flag, with fallback to profile existence
       let isSeeker = user?.is_seeker;
@@ -588,29 +834,125 @@ class OnboardingService {
         isPoster: isSeeker === false,  // alias for company
       };
 
+
       // Only log user roles if there's something noteworthy
       if (isSeeker === undefined) {
         console.log('⚠️ [OnboardingService] User role not determined, showing role selection');
       }
 
+      const status = {
+        isComplete,
+        missingSteps,
+        nextScreen,
+        userRecord: user,
+        needsCitySelection: missingSteps.includes('city_selection'),
+        needsRoleSelection: missingSteps.includes('role_selection'),
+        needsProfileSetup:
+          missingSteps.includes('seeker_profile_incomplete') ||
+          missingSteps.includes('company_profile_incomplete'),
+        userRoles,
+      };
+
+
       return {
-        status: {
-          isComplete,
-          missingSteps,
-          nextScreen,
-          userRecord: user,
-          needsCitySelection: missingSteps.includes('city_selection'),
-          needsRoleSelection: missingSteps.includes('role_selection'),
-          needsProfileSetup:
-            missingSteps.includes('seeker_profile_incomplete') ||
-            missingSteps.includes('company_profile_incomplete'),
-          userRoles,
-        },
+        status,
         error: null,
       };
     } catch (error) {
+      console.error('❌ [OnboardingService] getOnboardingStatus error:', error);
       const apiError = handleApiError(error, 'getOnboardingStatus');
       return { status: null, error: apiError };
+    }
+  }
+
+  /**
+   * Reset onboarding progress for a user
+   * @param {string} userId - User ID
+   * @returns {Promise<{data: Object|null, error: Error|null}>}
+   */
+  async resetOnboardingProgress(userId) {
+    try {
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('users')
+            .update({
+              onboarding_completed: false,
+              last_onboarding_step: null,
+              city: null, // Reset city selection
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId)
+            .select()
+            .single();
+
+          return { data, error };
+        },
+        {
+          cache: false,
+          retries: false,
+          context: 'resetOnboardingProgress',
+        },
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      // Clear all related caches
+      this.clearOnboardingCache(userId);
+      apiClient.clearCache(`user_onboarding_${userId}`);
+      apiClient.clearCache(`user_full_${userId}`);
+
+      return { data, error: null };
+    } catch (error) {
+      const apiError = handleApiError(error, 'resetOnboardingProgress');
+      return { data: null, error: apiError };
+    }
+  }
+
+  /**
+   * Mark onboarding as completed
+   * @param {string} userId - User ID
+   * @returns {Promise<{data: Object|null, error: Error|null}>}
+   */
+  async completeOnboarding(userId) {
+    try {
+      const { data, error } = await apiClient.request(
+        async () => {
+          const { data, error } = await apiClient.supabase
+            .from('users')
+            .update({
+              onboarding_completed: true,
+              last_onboarding_step: 'completed',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId)
+            .select()
+            .single();
+
+          return { data, error };
+        },
+        {
+          cache: false,
+          retries: false,
+          context: 'completeOnboarding',
+        },
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      // Clear all related caches
+      this.clearOnboardingCache(userId);
+      apiClient.clearCache(`user_onboarding_${userId}`);
+      apiClient.clearCache(`user_full_${userId}`);
+
+      return { data, error: null };
+    } catch (error) {
+      const apiError = handleApiError(error, 'completeOnboarding');
+      return { data: null, error: apiError };
     }
   }
 }

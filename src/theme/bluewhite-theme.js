@@ -24,12 +24,12 @@ export const bluewhiteTheme = {
 
     // Primary colors - Traditional blue-white theme
     primary: {
-      main: '#3C4FE0', // Deep blue as per original theme
+      main: '#6174f9', // Deep blue as per original theme
       secondary: '#5c6bf7', // Darker blue for hover states
       light: '#7c88f9', // Lighter blue for info tags
       dark: '#2E3FD0', // Dark blue for contrast
       foreground: '#FFFFFF', // White text on primary buttons
-      brand: '#3C4FE0', // Main brand color - deep blue
+      brand: '#6174f9', // Main brand color - deep blue
     },
 
     // Secondary colors
@@ -42,7 +42,7 @@ export const bluewhiteTheme = {
 
     // Accent colors - Traditional blue-white theme
     accent: {
-      blue: '#3C4FE0', // Deep blue as per original theme
+      blue: '#6174f9', // Deep blue as per original theme
       green: '#3DD598', // Vibrant green for job categories
       pink: '#FF647C', // Vibrant pink for job categories
       purple: '#8B5CF6', // Violet purple for job categories
@@ -56,12 +56,12 @@ export const bluewhiteTheme = {
     interactive: {
       hover: '#F1F5F9', // Light hover state
       pressed: '#E2E8F0', // Pressed state
-      focus: '#3C4FE0', // Focus ring color - deep blue
+      focus: '#6174f9', // Focus ring color - deep blue
       disabled: '#F8FAFC', // Disabled background
       border: {
         primary: '#E2E8F0', // Default border
         secondary: '#CBD5E1', // Secondary border
-        focus: '#3C4FE0', // Focus border - deep blue
+        focus: '#6174f9', // Focus border - deep blue
         error: '#EF4444', // Error border
       },
     },
@@ -71,7 +71,7 @@ export const bluewhiteTheme = {
       success: '#10B981', // Green for success
       warning: '#F59E0B', // Amber for warnings
       error: '#EF4444', // Red for errors
-      info: '#3C4FE0', // Deep blue for info
+      info: '#6174f9', // Deep blue for info
     },
 
     // Shadows
@@ -119,9 +119,9 @@ export const bluewhiteTheme = {
     // Add border property for compatibility with theme usage in App.jsx
     border: {
       primary: '#E2E8F0', // matches interactive.border.primary
-      secondary: '#6475f8', // Updated to match new purple
+      secondary: '#6174f9', // Updated to match new purple
       inactive: '#CBD5E1',
-      focus: '#6475f8', // Updated to match new purple
+      focus: '#6174f9', // Updated to match new purple
     },
 
     // CTA and special colors - Updated with reference colors
@@ -134,7 +134,7 @@ export const bluewhiteTheme = {
     // Job category colors - Updated with specific user-requested colors
     jobCategories: {
       primary: {
-        background: '#6475f8', // User requested purple
+        background: '#6174f9', // User requested purple
         text: '#FFFFFF', // Light text for contrast on dark background
         iconBg: 'rgba(255, 255, 255, 0.2)', // Light overlay for icons
       },
@@ -145,7 +145,7 @@ export const bluewhiteTheme = {
       },
       // Legacy categories for backward compatibility
       tech: {
-        background: '#6475f8', // User requested purple
+        background: '#6174f9', // User requested purple
         text: '#FFFFFF',
         iconBg: 'rgba(255, 255, 255, 0.2)',
       },
@@ -155,7 +155,7 @@ export const bluewhiteTheme = {
         iconBg: 'rgba(255, 255, 255, 0.2)',
       },
       marketing: {
-        background: '#6475f8', // User requested purple
+        background: '#6174f9', // User requested purple
         text: '#FFFFFF',
         iconBg: 'rgba(255, 255, 255, 0.2)',
       },
@@ -169,7 +169,7 @@ export const bluewhiteTheme = {
     // Company colors - Updated with user-requested colors
     company: {
       apple: {
-        background: '#6475f8', // User requested purple
+        background: '#6174f9', // User requested purple
         accent: '#4F46E5', // Darker purple accent for icons
         text: '#FFFFFF', // White text for contrast
       },
@@ -179,7 +179,7 @@ export const bluewhiteTheme = {
         text: '#FFFFFF', // White text for contrast
       },
       netflix: {
-        background: '#6475f8', // User requested purple
+        background: '#6174f9', // User requested purple
         accent: '#4F46E5', // Darker purple accent for icons
         text: '#FFFFFF', // White text for contrast
       },
@@ -189,7 +189,7 @@ export const bluewhiteTheme = {
         text: '#FFFFFF', // White text for contrast
       },
       google: {
-        background: '#6475f8', // User requested purple
+        background: '#6174f9', // User requested purple
         accent: '#4F46E5', // Darker purple accent for icons
         text: '#FFFFFF', // White text for contrast
       },
@@ -237,8 +237,8 @@ export const bluewhiteTheme = {
 
     // Gradients for compatibility
     gradients: {
-      neon: ['#6475f8', '#7c88f9'],
-      cyber: ['#10B981', '#6475f8'],
+      neon: ['#6174f9', '#7c88f9'],
+      cyber: ['#10B981', '#6174f9'],
       accent: ['#F59E0B', '#EF4444'],
       background: ['#FFFFFF', '#F8FAFC'],
     },

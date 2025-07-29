@@ -105,7 +105,7 @@ const getStyles = theme =>
       lineHeight: 16,
     },
     footerLink: {
-      color: theme?.colors?.primary?.cyan || '#3C4FE0',
+      color: theme?.colors?.primary?.cyan || '#6174f9',
       fontWeight: '500',
     },
     validationText: {
@@ -143,8 +143,9 @@ const LoginScreen = ({ onLogin }) => {
   const handlePhoneChange = text => {
     // Remove +91 prefix if user tries to type it
     const cleanText = text.replace(/^\+91\s*/, '');
-    // Limit to 10 digits
-    const limitedText = cleanText.replace(/\D/g, '').slice(0, 10);
+    // Only allow digits and limit to 10 digits
+    const digitsOnly = cleanText.replace(/\D/g, '');
+    const limitedText = digitsOnly.slice(0, 10);
     setPhoneNumber(limitedText);
 
     // Clear error when user starts typing
@@ -258,6 +259,9 @@ const LoginScreen = ({ onLogin }) => {
             error={phoneError}
             style={styles.phoneInput}
             maxLength={10}
+            // Additional input restrictions
+            autoComplete="tel"
+            textContentType="telephoneNumber"
           />
 
           <GoogleSignInButton
@@ -276,7 +280,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="search"
                 size={16}
-                color={theme?.colors?.primary?.cyan || '#3C4FE0'}
+                color={theme?.colors?.primary?.cyan || '#6174f9'}
               />
               <Text style={styles.featureText}>Find your dream job</Text>
             </View>
@@ -284,7 +288,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="briefcase"
                 size={16}
-                color={theme?.colors?.primary?.cyan || '#3C4FE0'}
+                color={theme?.colors?.primary?.cyan || '#6174f9'}
               />
               <Text style={styles.featureText}>Post job opportunities</Text>
             </View>
@@ -292,7 +296,7 @@ const LoginScreen = ({ onLogin }) => {
               <FontAwesome
                 name="users"
                 size={16}
-                color={theme?.colors?.primary?.cyan || '#3C4FE0'}
+                color={theme?.colors?.primary?.cyan || '#6174f9'}
               />
               <Text style={styles.featureText}>Connect with professionals</Text>
             </View>

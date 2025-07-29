@@ -28,6 +28,27 @@ import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 const CreateJobScreen = () => {
   const navigation = useNavigation();
   const { userRoles, userRecord, isLoading: authLoading } = useAuth();
+  const [companyProfile, setCompanyProfile] = useState(null);
+
+  // Fetch company profile when component mounts
+  useEffect(() => {
+    const fetchCompanyProfile = async () => {
+      if (userRecord?.id && userRoles?.isCompany) {
+        try {
+          const { data, error } = await companyService.getCompanyProfile(userRecord.id);
+          if (error) {
+            console.error('Error fetching company profile:', error);
+          } else {
+            setCompanyProfile(data);
+          }
+        } catch (error) {
+          console.error('Error in fetchCompanyProfile:', error);
+        }
+      }
+    };
+
+    fetchCompanyProfile();
+  }, [userRecord?.id, userRoles?.isCompany]);
 
   // Redirect job seekers away from this screen
   useEffect(() => {
@@ -161,62 +182,66 @@ const CreateJobScreen = () => {
   };
 
     const handleSubmit = async (isDraft = false) => {
-    if (!isDraft && !validateForm()) {
-      Alert.alert(
-        'Validation Error',
-        'Please fix the errors in the form before submitting.',
-        [{ text: 'OK', style: 'default' }],
-      );
-      return;
-    }
+      if (!isDraft && !validateForm()) {
+        Alert.alert(
+          'Validation Error',
+          'Please fix the errors in the form before submitting.',
+          [{ text: 'OK', style: 'default' }],
+        );
+        return;
+      }
 
-    animateButton();
-    setIsLoading(true);
+      animateButton();
+      setIsLoading(true);
 
-    try {
-      // Clean up arrays
-      const cleanRequirements = formData.requirements.filter(req => req.trim());
-      const cleanSkills = formData.skills.filter(skill => skill.trim());
+      try {
+        // Clean up arrays
+        const cleanRequirements = formData.requirements.filter(req => req.trim());
+        const cleanSkills = formData.skills.filter(skill => skill.trim());
 
-      // Prepare job data for API
-      const jobPayload = {
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        requirements: cleanRequirements,
-        skills: cleanSkills,
-        experienceLevel: formData.experienceLevel,
-        location: formData.location.trim(),
-        salary: parseInt(formData.salary.replace(/,/g, '')),
-        jobType: formData.jobType,
-        status: isDraft ? 'draft' : 'active',
-      };
+        // Prepare job data for API
+        const jobPayload = {
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          salary: formData.salary.replace(/,/g, ''), // Keep as string as per schema
+          city: formData.city || userRecord?.city,
+          company_id: companyProfile?.id, // Use the fetched company profile ID
+          is_active: !isDraft, // Use is_active instead of status
+        };
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+        console.log('Creating job with payload:', jobPayload);
 
-      // Use the job payload (this satisfies the linter)
-      console.log('Job created:', jobPayload);
+        // Create job using the job service
+        const { data: createdJob, error } = await jobService.createJob(jobPayload);
 
-      Alert.alert(
-        'Success!',
-        `Job ${isDraft ? 'saved as draft' : 'published'} successfully!`,
-        [
-          {
-            text: 'Continue',
-            onPress: () => navigation.goBack(),
-          },
-        ],
-      );
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        'Failed to save job. Please check your connection and try again.',
-        [{ text: 'OK', style: 'default' }],
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        if (error) {
+          console.error('Job creation error:', error);
+          throw error;
+        }
+
+        console.log('Job created successfully:', createdJob);
+
+        Alert.alert(
+          'Success!',
+          `Job ${isDraft ? 'saved as draft' : 'published'} successfully!`,
+          [
+            {
+              text: 'Continue',
+              onPress: () => navigation.goBack(),
+            },
+          ],
+        );
+      } catch (error) {
+        console.error('Job creation failed:', error);
+        Alert.alert(
+          'Error',
+          'Failed to save job. Please check your connection and try again.',
+          [{ text: 'OK', style: 'default' }],
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
   const updateArrayField = (field, index, value) => {
     const newArray = [...formData[field]];
@@ -341,7 +366,7 @@ const CreateJobScreen = () => {
             onPress={() => addArrayField(field)}
             accessibilityLabel={`Add ${label.toLowerCase()}`}
           >
-            <Feather name="plus" size={16} color="#3B82F6" />
+            <Feather name="plus" size={16} color="#6174f9" />
             <Text style={getStyles(theme).addButtonText}>
               Add {label.slice(0, -1)}
             </Text>
@@ -642,7 +667,7 @@ const CreateJobScreen = () => {
                       gap: 8,
                     }}
                   >
-                    <Feather name="save" size={18} color="#3B82F6" />
+                    <Feather name="save" size={18} color="#6174f9" />
                     <Text
                       style={[
                         getStyles(theme).buttonText,

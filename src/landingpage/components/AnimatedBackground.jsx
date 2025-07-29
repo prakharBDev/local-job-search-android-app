@@ -17,7 +17,7 @@ const AnimatedBackground = () => {
 
   // Element definitions
   const elements = [
-    { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
+    { type: 'circle', color: '#6174f9', size: 80, style: 'floatingElement' },
     {
       type: 'small',
       color: '#10B981',
@@ -31,7 +31,7 @@ const AnimatedBackground = () => {
       size: 60,
       style: 'floatingElementSquare',
     },
-    { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
+    { type: 'circle', color: '#6174f9', size: 80, style: 'floatingElement' },
     {
       type: 'small',
       color: '#10B981',
@@ -45,7 +45,7 @@ const AnimatedBackground = () => {
       size: 60,
       style: 'floatingElementSquare',
     },
-    { type: 'circle', color: '#3B82F6', size: 80, style: 'floatingElement' },
+    { type: 'circle', color: '#6174f9', size: 80, style: 'floatingElement' },
     {
       type: 'small',
       color: '#10B981',
@@ -123,7 +123,7 @@ const AnimatedBackground = () => {
     floatingElement: {
       position: 'absolute',
       borderRadius: 40,
-      backgroundColor: '#3B82F6',
+      backgroundColor: '#6174f9',
       width: 80,
       height: 80,
     },

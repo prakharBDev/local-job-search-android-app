@@ -80,7 +80,7 @@ const getStyles = theme =>
       fontSize: 16,
     },
     button: {
-      backgroundColor: theme?.colors?.primary?.cyan || '#3C4FE0',
+      backgroundColor: theme?.colors?.primary?.cyan || '#6174f9',
       padding: 15,
       borderRadius: 8,
       alignItems: 'center',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,22 +7,29 @@ import {
   Animated,
   StyleSheet,
   Alert,
+  Dimensions,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Feather from 'react-native-vector-icons/Feather';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/elements/Button';
 import Card from '../../components/blocks/Card';
+import DebugUtils from '../../utils/debug';
+import { onboardingService } from '../../services';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const CitySelectionScreen = ({ navigation }) => {
   const { theme } = useTheme();
-  const { updateUserRecord } = useAuth();
+  const { updateUserRecord, user, checkAuthStatus, logout } = useAuth();
   const [selectedCity, setSelectedCity] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(0.95));
 
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.spring(scaleAnim, {
       toValue: 1,
       tension: 100,
@@ -37,7 +44,7 @@ const CitySelectionScreen = ({ navigation }) => {
       name: 'Morena',
       description: 'Industrial hub with growing opportunities',
       icon: 'map-pin',
-      color: ['#3B82F6', '#2563EB'],
+      color: ['#6174f9', '#6174f9'],
     },
     {
       id: 'gwalior',
@@ -62,11 +69,28 @@ const CitySelectionScreen = ({ navigation }) => {
     }
 
     setIsLoading(true);
+    
     try {
-      await updateUserRecord({ city: selectedCity.toLowerCase() });
-      // Navigation will be handled automatically by the auth state change
+      // Update user record with selected city
+      const result = await updateUserRecord({ city: selectedCity.toLowerCase() });
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      // Clear onboarding cache to force fresh check
+      onboardingService.clearOnboardingCache(user.id);
+      
+      // Force a re-check of onboarding status
+      await checkAuthStatus();
+      
     } catch (error) {
-      console.error('City update error:', error);
+      // Store error for debugging in release builds
+      await DebugUtils.logError('CitySelection', 'handleContinue', error, {
+        selectedCity,
+        userId: user?.id,
+      });
+      
       Alert.alert(
         'Error',
         'Failed to update your city preference. Please try again.',
@@ -90,11 +114,37 @@ const CitySelectionScreen = ({ navigation }) => {
         <Animated.View
           style={[styles.content, { transform: [{ scale: scaleAnim }] }]}
         >
+          {/* Header with Back Button */}
+          <View style={styles.headerContainer}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => {
+                Alert.alert(
+                  'Cancel Setup',
+                  'Are you sure you want to cancel? You can complete setup later.',
+                  [
+                    { text: 'Continue Setup', style: 'cancel' },
+                    {
+                      text: 'Cancel',
+                      style: 'destructive',
+                      onPress: () => {
+                        // Sign out user to return to login
+                        logout();
+                      },
+                    },
+                  ],
+                );
+              }}
+            >
+              <Feather name="arrow-left" size={24} color={theme?.colors?.text?.primary || '#1E293B'} />
+            </TouchableOpacity>
+          </View>
+
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.iconContainer}>
               <LinearGradient
-                colors={['#3B82F6', '#2563EB']}
+                colors={['#6174f9', '#6174f9']}
                 style={styles.iconGradient}
               >
                 <Feather name="map-pin" size={32} color="#FFFFFF" />
@@ -175,8 +225,17 @@ const CitySelectionScreen = ({ navigation }) => {
                       setIsLoading(true);
                       try {
                         await updateUserRecord({ city: 'morena' }); // Default to morena (already lowercase)
+                        // Clear onboarding cache to force fresh check
+                        onboardingService.clearOnboardingCache(user.id);
+                        
+                        // Force a re-check of onboarding status
+                        await checkAuthStatus();
                       } catch (error) {
                         console.error('Skip error:', error);
+                        Alert.alert(
+                          'Error',
+                          'Failed to skip city selection. Please try again.',
+                        );
                       } finally {
                         setIsLoading(false);
                       }
@@ -204,53 +263,70 @@ const getStyles = theme =>
     },
     content: {
       flex: 1,
-      paddingHorizontal: 24,
-      paddingTop: 60,
+      paddingHorizontal: Math.max(24, screenWidth * 0.06),
+      paddingTop: Platform.OS === 'ios' ? 60 : 40,
       paddingBottom: 40,
+    },
+    headerContainer: {
+      paddingTop: Platform.OS === 'ios' ? 20 : 10,
+      paddingBottom: 10,
+      alignItems: 'flex-start',
+    },
+    backButton: {
+      padding: 10,
+      minHeight: 44, // Better touch target
     },
     header: {
       alignItems: 'center',
-      marginBottom: 40,
+      marginBottom: Math.min(32, screenHeight * 0.04),
     },
     iconContainer: {
-      marginBottom: 24,
+      marginBottom: Math.min(20, screenHeight * 0.025),
     },
     iconGradient: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
+      width: Math.min(70, screenWidth * 0.18),
+      height: Math.min(70, screenWidth * 0.18),
+      borderRadius: Math.min(35, screenWidth * 0.09),
       justifyContent: 'center',
       alignItems: 'center',
-      shadowColor: '#3B82F6',
+      shadowColor: theme?.colors?.primary?.main || '#6174f9',
       shadowOffset: { width: 0, height: 8 },
       shadowOpacity: 0.3,
       shadowRadius: 16,
       elevation: 8,
     },
     title: {
-      fontSize: 28,
+      fontSize: Math.min(24, screenWidth * 0.06),
       fontWeight: 'bold',
       color: theme?.colors?.text?.primary || '#1E293B',
       textAlign: 'center',
-      marginBottom: 12,
+      marginBottom: 8,
     },
     subtitle: {
-      fontSize: 16,
+      fontSize: Math.min(16, screenWidth * 0.04),
       color: theme?.colors?.text?.secondary || '#64748B',
       textAlign: 'center',
       lineHeight: 24,
-      paddingHorizontal: 20,
+      paddingHorizontal: Math.max(20, screenWidth * 0.05),
     },
     citiesContainer: {
       flex: 1,
-      gap: 16,
+      gap: Math.min(12, screenHeight * 0.015),
+      justifyContent: 'center',
+      paddingHorizontal: 20,
     },
     cityCard: {
       borderRadius: 16,
       overflow: 'hidden',
+      minHeight: 80, // Ensure consistent height
     },
     cityCardSelected: {
       transform: [{ scale: 1.02 }],
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 4,
     },
     cityCardInner: {
       padding: 0,
@@ -259,27 +335,28 @@ const getStyles = theme =>
     cityCardContent: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 20,
+      padding: Math.min(20, screenWidth * 0.05),
+      minHeight: 80,
     },
     cityIcon: {
-      width: 56,
-      height: 56,
-      borderRadius: 28,
+      width: Math.min(56, screenWidth * 0.14),
+      height: Math.min(56, screenWidth * 0.14),
+      borderRadius: Math.min(28, screenWidth * 0.07),
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: 16,
+      marginRight: Math.min(16, screenWidth * 0.04),
     },
     cityInfo: {
       flex: 1,
     },
     cityName: {
-      fontSize: 20,
+      fontSize: Math.min(20, screenWidth * 0.05),
       fontWeight: '600',
       color: theme?.colors?.text?.primary || '#1E293B',
       marginBottom: 4,
     },
     cityDescription: {
-      fontSize: 14,
+      fontSize: Math.min(14, screenWidth * 0.035),
       color: theme?.colors?.text?.secondary || '#64748B',
       lineHeight: 20,
     },
@@ -287,11 +364,11 @@ const getStyles = theme =>
       marginLeft: 12,
     },
     buttonContainer: {
-      marginTop: 32,
+      marginTop: Math.min(32, screenHeight * 0.04),
       marginBottom: 16,
     },
     continueButton: {
-      height: 56,
+      height: Math.min(56, screenHeight * 0.07),
       borderRadius: 16,
     },
     continueButtonDisabled: {
@@ -300,9 +377,10 @@ const getStyles = theme =>
     skipButton: {
       alignItems: 'center',
       paddingVertical: 12,
+      minHeight: 44, // Better touch target
     },
     skipButtonText: {
-      fontSize: 16,
+      fontSize: Math.min(16, screenWidth * 0.04),
       color: theme?.colors?.text?.tertiary || '#94A3B8',
       textDecorationLine: 'underline',
     },

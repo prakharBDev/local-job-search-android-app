@@ -26,7 +26,7 @@ const Badge = React.memo(
 
       const variantStyles = {
         default: {
-          backgroundColor: theme?.colors?.primary?.cyan || '#3C4FE0',
+          backgroundColor: theme?.colors?.primary?.cyan || '#6174f9',
         },
         secondary: {
           backgroundColor: theme?.colors?.text?.secondary || '#475569',

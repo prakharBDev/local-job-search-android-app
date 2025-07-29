@@ -297,7 +297,7 @@ const MainNavigator = () => {
             <Icon name={iconName} size={focused ? 24 : 22} color={color} />
           );
         },
-        tabBarActiveTintColor: '#3C4FE0',
+        tabBarActiveTintColor: '#6174f9',
         tabBarInactiveTintColor: '#475569',
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
@@ -336,10 +336,10 @@ const MainNavigator = () => {
             }}
           />
           <Tab.Screen
-            name="JobManagement"
-            component={JobManagementStack}
+            name="MyJobs"
+            component={MyJobsStack}
             options={{
-              tabBarLabel: 'Jobs',
+              tabBarLabel: 'My Jobs',
             }}
           />
           <Tab.Screen

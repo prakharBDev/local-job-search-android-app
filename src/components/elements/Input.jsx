@@ -59,8 +59,8 @@ const Input = forwardRef(
       if (isFocused) {
         return {
           ...baseStyle,
-          borderColor: safeTheme.colors.primary.main || '#3C4FE0',
-          shadowColor: safeTheme.colors.primary.main || '#3C4FE0',
+          borderColor: safeTheme.colors.primary.main || '#6174f9',
+          shadowColor: safeTheme.colors.primary.main || '#6174f9',
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.2,
           shadowRadius: 4,
@@ -156,7 +156,13 @@ const Input = forwardRef(
           )}
           <TextInput
             ref={ref}
-            style={[styles.input, multiline && styles.inputMultiline, style]}
+            style={[
+              styles.input, 
+              multiline && styles.inputMultiline, 
+              style,
+              // Force black text color for better visibility on all devices
+              { color: '#000000' }
+            ]}
             placeholder={placeholder}
             placeholderTextColor={safeTheme.colors.text.tertiary || '#94A3B8'}
             value={value}
@@ -168,6 +174,8 @@ const Input = forwardRef(
             editable={editable}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
+            // Add input restrictions for phone numbers
+            maxLength={keyboardType === 'phone-pad' ? 10 : undefined}
             {...props}
           />
           {renderRightIcon()}

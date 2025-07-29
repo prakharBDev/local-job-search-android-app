@@ -7,15 +7,18 @@ import {
   SafeAreaView,
   Image,
   TouchableOpacity,
+  Dimensions,
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/elements/Button';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { CommonActions } from '@react-navigation/native';
 
 const OnboardingSuccessScreen = () => {
   const navigation = useNavigation();
-  const { user, userRecord, userRoles, updateUserRecord } = useAuth();
+  const { user, userRecord, userRoles, updateUserRecord, checkAuthStatus } = useAuth();
 
   const userName =
     userRecord?.name ||
@@ -23,43 +26,39 @@ const OnboardingSuccessScreen = () => {
     user?.email?.split('@')[0] ||
     'FRIEND';
 
-  // Ensure onboarding is marked as completed when this screen is reached
   useEffect(() => {
     const markOnboardingComplete = async () => {
-      console.log('🎉 [OnboardingSuccess] Screen loaded, checking completion status:', {
-        userId: user?.id,
-        onboardingCompleted: userRecord?.onboarding_completed,
-        userName: userName,
-        userRoles: {
-          isSeeker: userRoles.isSeeker,
-          isCompany: userRoles.isCompany
-        }
-      });
-
       if (user?.id && !userRecord?.onboarding_completed) {
-        console.log('🎯 [OnboardingSuccess] Onboarding not marked complete, updating now');
         try {
           await updateUserRecord({
             onboarding_completed: true,
             last_onboarding_step: 'completed',
           });
-          console.log('✅ [OnboardingSuccess] Successfully marked onboarding as completed');
+          await checkAuthStatus();
         } catch (error) {
-          console.error('❌ [OnboardingSuccess] Error marking onboarding as completed:', error);
+          console.error('Error marking onboarding as completed:', error);
         }
-      } else if (userRecord?.onboarding_completed) {
-        console.log('✅ [OnboardingSuccess] Onboarding already marked as completed');
-      } else {
-        console.log('⚠️ [OnboardingSuccess] No user ID available, cannot mark completion');
       }
     };
 
     markOnboardingComplete();
-  }, [user?.id, userRecord?.onboarding_completed, updateUserRecord]);
+  }, [user?.id, userRecord?.onboarding_completed, updateUserRecord, checkAuthStatus]);
 
-  const handleGetStarted = () => {
-    // Navigate to the main app using replace to clear the navigation stack
-    navigation.replace('Main');
+  const handleGetStarted = async () => {
+    try {
+      await checkAuthStatus();
+    } catch (error) {
+      console.error('Error triggering auth status re-evaluation:', error);
+    }
+  };
+
+  const handleViewProfile = async () => {
+    // Navigate to the appropriate profile screen based on user role
+    if (userRoles?.isSeeker) {
+      navigation.navigate('Profile', { screen: 'EditProfile' });
+    } else {
+      navigation.navigate('Profile', { screen: 'CompanyProfileSetup' });
+    }
   };
 
   const styles = getStyles();
@@ -67,7 +66,7 @@ const OnboardingSuccessScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <View style={styles.container}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Success Icon */}
         <View style={styles.iconContainer}>
           <View style={styles.successIcon}>
@@ -94,7 +93,7 @@ const OnboardingSuccessScreen = () => {
             <Text style={styles.summaryTitle}>Your Profile Summary:</Text>
 
             <View style={styles.summaryItem}>
-              <FontAwesome name="map-marker" size={16} color="#3C4FE0" />
+              <FontAwesome name="map-marker" size={16} color="#6174f9" />
               <Text style={styles.summaryText}>
                 Location:{' '}
                 {userRecord?.city
@@ -106,14 +105,14 @@ const OnboardingSuccessScreen = () => {
 
             {userRoles.isSeeker && (
               <View style={styles.summaryItem}>
-                <FontAwesome name="search" size={16} color="#3C4FE0" />
+                <FontAwesome name="search" size={16} color="#6174f9" />
                 <Text style={styles.summaryText}>Job Seeker Profile ✓</Text>
               </View>
             )}
 
             {userRoles.isCompany && (
               <View style={styles.summaryItem}>
-                <FontAwesome name="briefcase" size={16} color="#3C4FE0" />
+                <FontAwesome name="briefcase" size={16} color="#6174f9" />
                 <Text style={styles.summaryText}>Company Profile ✓</Text>
               </View>
             )}
@@ -162,15 +161,17 @@ const OnboardingSuccessScreen = () => {
 
           <TouchableOpacity
             style={styles.profileButton}
-            onPress={() => navigation.navigate('Profile')}
+            onPress={handleViewProfile}
           >
             <Text style={styles.profileButtonText}>View Profile</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const getStyles = () =>
   StyleSheet.create({
@@ -179,19 +180,19 @@ const getStyles = () =>
       backgroundColor: '#FFFFFF',
     },
     container: {
-      flex: 1,
       backgroundColor: '#FFFFFF',
-      paddingHorizontal: 24,
+      paddingHorizontal: Math.max(24, screenWidth * 0.06),
+      paddingTop: Math.min(20, screenHeight * 0.025),
+      paddingBottom: Math.min(32, screenHeight * 0.04),
     },
     iconContainer: {
-      flex: 1,
-      justifyContent: 'center',
       alignItems: 'center',
+      paddingVertical: Math.min(20, screenHeight * 0.025),
     },
     successIcon: {
-      width: 100,
-      height: 100,
-      borderRadius: 50,
+      width: Math.min(100, screenWidth * 0.25),
+      height: Math.min(100, screenWidth * 0.25),
+      borderRadius: Math.min(50, screenWidth * 0.125),
       backgroundColor: '#22C55E',
       alignItems: 'center',
       justifyContent: 'center',
@@ -202,109 +203,107 @@ const getStyles = () =>
       elevation: 8,
     },
     content: {
-      flex: 1,
-      justifyContent: 'flex-start',
-      paddingTop: 20,
+      paddingTop: Math.min(10, screenHeight * 0.0125),
     },
     title: {
-      fontSize: 32,
+      fontSize: Math.min(32, screenWidth * 0.08),
       fontWeight: 'bold',
       color: '#1E293B',
       textAlign: 'center',
-      marginBottom: 12,
+      marginBottom: Math.min(12, screenHeight * 0.015),
     },
     subtitle: {
-      fontSize: 18,
+      fontSize: Math.min(18, screenWidth * 0.045),
       color: '#64748B',
       textAlign: 'center',
-      marginBottom: 20,
+      marginBottom: Math.min(20, screenHeight * 0.025),
     },
     profileTypeContainer: {
       backgroundColor: '#F0F9FF',
-      paddingHorizontal: 20,
-      paddingVertical: 12,
+      paddingHorizontal: Math.min(20, screenWidth * 0.05),
+      paddingVertical: Math.min(12, screenHeight * 0.015),
       borderRadius: 20,
       alignSelf: 'center',
-      marginBottom: 24,
+      marginBottom: Math.min(24, screenHeight * 0.03),
       borderWidth: 1,
       borderColor: '#BAE6FD',
     },
     profileTypeText: {
-      fontSize: 16,
+      fontSize: Math.min(16, screenWidth * 0.04),
       fontWeight: '600',
       color: '#1E293B',
       textAlign: 'center',
     },
     summaryContainer: {
       backgroundColor: '#F8FAFC',
-      padding: 20,
+      padding: Math.min(20, screenWidth * 0.05),
       borderRadius: 12,
-      marginBottom: 24,
+      marginBottom: Math.min(24, screenHeight * 0.03),
       borderWidth: 1,
       borderColor: '#E2E8F0',
     },
     summaryTitle: {
-      fontSize: 18,
+      fontSize: Math.min(18, screenWidth * 0.045),
       fontWeight: '600',
       color: '#1E293B',
-      marginBottom: 16,
+      marginBottom: Math.min(16, screenHeight * 0.02),
     },
     summaryItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 8,
-      gap: 12,
+      marginBottom: Math.min(8, screenHeight * 0.01),
+      gap: Math.min(12, screenWidth * 0.03),
     },
     summaryText: {
-      fontSize: 16,
+      fontSize: Math.min(16, screenWidth * 0.04),
       color: '#475569',
       flex: 1,
     },
     nextStepsContainer: {
       backgroundColor: '#F0F9FF',
-      padding: 20,
+      padding: Math.min(20, screenWidth * 0.05),
       borderRadius: 12,
       borderWidth: 1,
       borderColor: '#BAE6FD',
-      marginBottom: 32,
+      marginBottom: Math.min(32, screenHeight * 0.04),
     },
     nextStepsTitle: {
-      fontSize: 18,
+      fontSize: Math.min(18, screenWidth * 0.045),
       fontWeight: '600',
       color: '#1E293B',
-      marginBottom: 16,
+      marginBottom: Math.min(16, screenHeight * 0.02),
     },
     nextStepItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 8,
-      gap: 12,
+      marginBottom: Math.min(8, screenHeight * 0.01),
+      gap: Math.min(12, screenWidth * 0.03),
     },
     nextStepText: {
-      fontSize: 16,
+      fontSize: Math.min(16, screenWidth * 0.04),
       color: '#475569',
       flex: 1,
     },
     actions: {
-      paddingBottom: 24,
-      gap: 16,
+      paddingBottom: Math.min(24, screenHeight * 0.03),
+      gap: Math.min(16, screenHeight * 0.02),
     },
     getStartedButton: {
-      minHeight: 56,
+      minHeight: Math.min(56, screenHeight * 0.07),
       borderRadius: 12,
-      shadowColor: '#3C4FE0',
+      shadowColor: '#6174f9',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 8,
       elevation: 4,
     },
     profileButton: {
-      paddingVertical: 16,
+      paddingVertical: Math.min(16, screenHeight * 0.02),
       alignItems: 'center',
     },
     profileButtonText: {
-      fontSize: 16,
-      color: '#3C4FE0',
+      fontSize: Math.min(16, screenWidth * 0.04),
+      color: '#6174f9',
       fontWeight: '500',
     },
   });

@@ -6,7 +6,7 @@ import Icon from '../../components/elements/Icon';
 const getGradientColors = (role, theme) => {
   const roleColors = {
     'Job Seeker': [
-      theme?.colors?.primary?.cyan || '#3C4FE0',
+      theme?.colors?.primary?.cyan || '#6174f9',
       theme?.colors?.primary?.purple || '#8B5CF6',
     ],
     Employer: [
@@ -15,7 +15,7 @@ const getGradientColors = (role, theme) => {
     ],
     Recruiter: [
       theme?.colors?.primary?.green || '#10B981',
-      theme?.colors?.primary?.blue || '#3B82F6',
+      theme?.colors?.primary?.blue || '#6174f9',
     ],
   };
   return roleColors[role] || roleColors['Job Seeker'];
@@ -63,7 +63,7 @@ const ProfileItem = ({ profile, isSelected, onPress, theme }) => {
             styles.profileItemRole,
             {
               color: theme?.colors?.text?.secondary || '#475569',
-              backgroundColor: `${theme?.colors?.primary?.cyan || '#3C4FE0'}20`,
+              backgroundColor: `${theme?.colors?.primary?.cyan || '#6174f9'}20`,
             },
           ]}
         >
@@ -83,7 +83,7 @@ const ProfileItem = ({ profile, isSelected, onPress, theme }) => {
         <Icon
           name="check"
           size={20}
-          color={theme?.colors?.primary?.cyan || '#3C4FE0'}
+          color={theme?.colors?.primary?.cyan || '#6174f9'}
         />
       )}
     </TouchableOpacity>
@@ -100,8 +100,8 @@ const styles = StyleSheet.create({
   },
   selectedProfile: {
     borderWidth: 2,
-    borderColor: '#3C4FE0',
-    backgroundColor: '#3C4FE010',
+    borderColor: '#6174f9',
+    backgroundColor: '#6174f910',
   },
   profileItemImage: {
     width: 40,

@@ -22,6 +22,7 @@ import {
   categoriesService,
   applicationService,
   seekerService,
+  companyService,
 } from '../../services';
 import { getStyles } from './JobBrowseScreen.styles';
 import PopularJobCard from './MyJobsScreen/PopularJobCard';
@@ -29,7 +30,7 @@ import PopularJobCard from './MyJobsScreen/PopularJobCard';
 const JobBrowseScreen = () => {
   const navigation = useNavigation();
   const { theme } = useTheme();
-  const { user, userRecord } = useAuth();
+  const { user, userRecord, userRoles } = useAuth();
   const styles = getStyles(theme);
 
   // State management
@@ -45,28 +46,41 @@ const JobBrowseScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [appliedJobs, setAppliedJobs] = useState(new Set());
   const [seekerProfile, setSeekerProfile] = useState(null);
+  const [companyProfile, setCompanyProfile] = useState(null);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  
+  // Determine if user is a company/poster
+  const isCompany = userRoles?.isCompany || userRoles?.isPoster || false;
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // Get seeker profile for applications
+  // Get profile (seeker or company) based on user type
   useEffect(() => {
-    const getSeekerProfile = async () => {
+    const getProfile = async () => {
       if (user?.id) {
         try {
-          const { data, error } = await seekerService.getSeekerProfile(user.id);
-          if (data && !error) {
-            setSeekerProfile(data);
+          if (isCompany) {
+            // Get company profile
+            const { data, error } = await companyService.getCompanyProfile(user.id);
+            if (data && !error) {
+              setCompanyProfile(data);
+            }
+          } else {
+            // Get seeker profile
+            const { data, error } = await seekerService.getSeekerProfile(user.id);
+            if (data && !error) {
+              setSeekerProfile(data);
+            }
           }
         } catch (error) {
-          console.error('Error fetching seeker profile:', error);
+          console.error('Error fetching profile:', error);
         }
       }
     };
 
-    getSeekerProfile();
-  }, [user]);
+    getProfile();
+  }, [user, isCompany]);
 
   // Load initial data
   useEffect(() => {
@@ -80,12 +94,16 @@ const JobBrowseScreen = () => {
     }).start();
   }, []);
 
-  // Load jobs when filters change
+  // Load jobs when filters change or company profile is available
   useEffect(() => {
     if (categories.length > 0) {
+      // For company users, wait until company profile is loaded
+      if (isCompany && !companyProfile?.id) {
+        return;
+      }
       loadJobs();
     }
-  }, [searchQuery, selectedCity, selectedCategory]);
+  }, [searchQuery, selectedCity, selectedCategory, isCompany, companyProfile?.id]);
 
   const loadPopularJobs = async () => {
     try {
@@ -133,7 +151,8 @@ const JobBrowseScreen = () => {
     }
   };
 
-  const loadJobs = async () => {
+  // Load jobs for seekers (all available jobs)
+  const loadJobsForSeekers = async () => {
     try {
       const filters = {
         city: selectedCity,
@@ -141,6 +160,7 @@ const JobBrowseScreen = () => {
         ...(searchQuery.trim() && { search: searchQuery.trim() }),
       };
 
+      // Load jobs with filters
       const { data: jobsData, error } = await jobService.getJobs(filters);
 
       if (error) {
@@ -154,8 +174,43 @@ const JobBrowseScreen = () => {
         await checkAppliedJobs(jobsData);
       }
     } catch (error) {
-      console.error('Error loading jobs:', error);
+      console.error('Error loading jobs for seekers:', error);
       Alert.alert('Error', 'Failed to load jobs. Please try again.');
+    }
+  };
+
+  // Load jobs for company (only their own jobs)
+  const loadJobsForCompany = async () => {
+    try {
+      if (!companyProfile?.id) {
+        setJobs([]);
+        return;
+      }
+
+      // Use the dedicated service method for company jobs
+      const { data: jobsData, error } = await jobService.getJobsByCompany(companyProfile.id, {
+        includeApplications: true, // Include application count for company view
+        includeCategory: true,
+        limit: 50
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setJobs(jobsData || []);
+    } catch (error) {
+      console.error('Error loading company jobs:', error);
+      Alert.alert('Error', 'Failed to load your jobs. Please try again.');
+    }
+  };
+
+  // Main load function that delegates to appropriate method
+  const loadJobs = async () => {
+    if (isCompany) {
+      await loadJobsForCompany();
+    } else {
+      await loadJobsForSeekers();
     }
   };
 
@@ -316,38 +371,57 @@ const JobBrowseScreen = () => {
             {job.description || 'No description available'}
           </Text>
 
-          {/* Action Buttons */}
+          {/* Action Buttons - Different for company vs seeker */}
           <View style={styles.cardActions}>
-            {isApplied ? (
-              <View style={styles.appliedBadge}>
-                <Feather name="check-circle" size={16} color="#10B981" />
-                <Text style={styles.appliedText}>Applied</Text>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={styles.applyButton}
-                onPress={e => {
-                  e.stopPropagation();
-                  handleApplyJob(job);
-                }}
-              >
-                <Text style={styles.applyButtonText}>Apply Now</Text>
-              </TouchableOpacity>
+            {!isCompany && (
+              <>
+                {isApplied ? (
+                  <View style={styles.appliedBadge}>
+                    <Feather name="check-circle" size={16} color="#10B981" />
+                    <Text style={styles.appliedText}>Applied</Text>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.applyButton}
+                    onPress={e => {
+                      e.stopPropagation();
+                      handleApplyJob(job);
+                    }}
+                  >
+                    <Text style={styles.applyButtonText}>Apply Now</Text>
+                  </TouchableOpacity>
+                )}
+              </>
             )}
 
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={e => {
-                e.stopPropagation();
-                // TODO: Implement save job functionality
-              }}
-            >
-              <Feather
-                name={job.bookmarked ? 'bookmark' : 'bookmark'}
-                size={16}
-                color={job.bookmarked ? '#6475f8' : '#6B7280'}
-              />
-            </TouchableOpacity>
+            {isCompany ? (
+              // Company actions - Edit/Manage job
+              <TouchableOpacity
+                style={[styles.applyButton, { backgroundColor: '#10B981' }]}
+                onPress={e => {
+                  e.stopPropagation();
+                  // Navigate to edit job or job management
+                  navigation.navigate('CreateJob', { jobData: job, isEdit: true });
+                }}
+              >
+                <Text style={styles.applyButtonText}>Edit Job</Text>
+              </TouchableOpacity>
+            ) : (
+              // Seeker actions - Save job
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={e => {
+                  e.stopPropagation();
+                  // TODO: Implement save job functionality
+                }}
+              >
+                <Feather
+                  name={job.bookmarked ? 'bookmark' : 'bookmark'}
+                  size={16}
+                  color={job.bookmarked ? '#6174f9' : '#6B7280'}
+                />
+              </TouchableOpacity>
+            )}
           </View>
         </TouchableOpacity>
       </Card>
@@ -388,8 +462,11 @@ const JobBrowseScreen = () => {
       <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
         {/* App Header */}
         <AppHeader
-          title="Find Jobs"
-          subtitle={`Discover opportunities in ${selectedCity}`}
+          title={isCompany ? "My Jobs" : "Find Jobs"}
+          subtitle={isCompany 
+            ? `Manage your company's job postings` 
+            : `Discover opportunities in ${selectedCity}`
+          }
           rightIcon={
             <TouchableOpacity onPress={() => setShowFilterModal(true)}>
               <Icon name="filter" size={20} color={theme.colors.primary.main} />
@@ -450,10 +527,14 @@ const JobBrowseScreen = () => {
           {jobs.length === 0 ? (
             <View style={styles.emptyState}>
               <Feather name="briefcase" size={48} color="#D1D5DB" />
-              <Text style={styles.emptyStateTitle}>No Jobs Found</Text>
+              <Text style={styles.emptyStateTitle}>
+                {isCompany ? "No Jobs Posted" : "No Jobs Found"}
+              </Text>
               <Text style={styles.emptyStateText}>
-                Try adjusting your search criteria or check back later for new
-                opportunities.
+                {isCompany 
+                  ? "You haven't posted any jobs yet. Create your first job posting to get started."
+                  : "Try adjusting your search criteria or check back later for new opportunities."
+                }
               </Text>
             </View>
           ) : (

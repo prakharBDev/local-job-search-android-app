@@ -776,6 +776,8 @@ const EditProfileScreen = ({ navigation, route }) => {
                   paddingHorizontal: 16,
                   paddingVertical: 12,
                   fontSize: 16,
+                  // Force black text color for better visibility
+                  color: '#000000',
                 },
               ]}
               placeholderTextColor={theme.colors.textSecondary}
@@ -1112,6 +1114,8 @@ const EditProfileScreen = ({ navigation, route }) => {
                   paddingHorizontal: 16,
                   paddingVertical: 12,
                   fontSize: 16,
+                  // Force black text color for better visibility
+                  color: '#000000',
                 },
               ]}
               placeholderTextColor={theme.colors.textSecondary}

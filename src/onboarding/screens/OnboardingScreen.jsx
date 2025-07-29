@@ -11,13 +11,18 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Feather from 'react-native-vector-icons/Feather';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/elements/Button';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useTheme } from '../../contexts/ThemeContext';
+import { onboardingService } from '../../services';
+import DebugUtils from '../../utils/debug';
 
 const OnboardingScreen = () => {
   const navigation = useNavigation();
-  const { user, userRecord, updateUserRecord } = useAuth();
+  const { user, userRecord, updateUserRecord, checkAuthStatus } = useAuth();
+  const { theme } = useTheme();
 
   // Get user name from authentication data
   const userName =
@@ -32,10 +37,68 @@ const OnboardingScreen = () => {
   });
 
   const toggleRole = role => {
-    setSelectedRoles(prev => ({
+    setSelectedRoles({
       isSeeker: role === 'isSeeker',
       isPoster: role === 'isPoster',
-    }));
+    });
+  };
+
+  const handleBackToCitySelection = () => {
+    Alert.alert(
+      'Go Back to City Selection',
+      'Are you sure you want to go back to city selection?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Go Back',
+          onPress: async () => {
+            try {
+              
+              // Reset city selection and role to force back to city selection
+              const updateResult = await updateUserRecord({ 
+                city: null,
+                is_seeker: null
+              });
+              
+              // Clear onboarding cache to force fresh check
+              onboardingService.clearOnboardingCache(user.id);
+              
+              // Force a re-check of onboarding status
+              await checkAuthStatus();
+              
+              // Give a moment for the state to update and check navigation states
+              setTimeout(async () => {
+                
+                // Force another onboarding status check
+                try {
+                  const statusResult = await onboardingService.getOnboardingStatus(user.id);
+                  
+                  // Trigger another auth check if needed
+                  if (statusResult?.status?.needsCitySelection) {
+                    await checkAuthStatus();
+                  }
+                } catch (statusError) {
+                  console.error('Error checking fresh status:', statusError);
+                }
+              }, 2000);
+              
+            } catch (error) {
+              // Store error for debugging in release builds
+              await DebugUtils.logError('OnboardingScreen', 'handleBackToCitySelection', error, {
+                userId: user?.id,
+                userRecord: userRecord,
+              });
+              
+              console.error('Error resetting city selection:', error);
+              Alert.alert(
+                'Error',
+                'Failed to go back to city selection. Please try again.',
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handleContinue = async () => {
@@ -48,23 +111,37 @@ const OnboardingScreen = () => {
     }
 
     try {
-      // Update user record with role selections
-      await updateUserRecord({
-        is_seeker: selectedRoles.isSeeker,
+      // Determine the role to save (prioritize seeker if both selected)
+      const isSeeker = selectedRoles.isSeeker;
+      
+      // Update user record with role selection
+      const updateResult = await updateUserRecord({
+        is_seeker: isSeeker,
+        last_onboarding_step: 'role_selected',
       });
 
-      // Navigate based on selected roles
-      if (selectedRoles.isSeeker && selectedRoles.isPoster) {
-        // User selected both roles - start with seeker profile
+      if (updateResult.error) {
+        throw new Error(updateResult.error);
+      }
+
+      // Clear onboarding cache to force fresh check
+      onboardingService.clearOnboardingCache(user.id);
+
+      // Navigate based on selected role
+      if (isSeeker) {
+        // User selected seeker role
         navigation.navigate('SeekerProfileSetup', { selectedRoles });
-      } else if (selectedRoles.isSeeker) {
-        // User selected only seeker role
-        navigation.navigate('SeekerProfileSetup', { selectedRoles });
-      } else if (selectedRoles.isPoster) {
-        // User selected only poster role
+      } else {
+        // User selected poster role
         navigation.navigate('CompanyProfileSetup', { selectedRoles });
       }
     } catch (error) {
+      // Store error for debugging in release builds
+      await DebugUtils.logError('OnboardingScreen', 'handleContinue', error, {
+        selectedRoles,
+        userId: user?.id,
+      });
+      
       console.error('Error updating user roles:', error);
       Alert.alert(
         'Error',
@@ -73,11 +150,20 @@ const OnboardingScreen = () => {
     }
   };
 
-  const styles = getStyles();
+  const styles = getStyles(theme);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      
+      {/* Back Button */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={handleBackToCitySelection}
+      >
+        <Feather name="arrow-left" size={24} color={theme?.colors?.text?.primary || '#1E293B'} />
+      </TouchableOpacity>
+      
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Hero Section with Image */}
         <View style={styles.heroSection}>
@@ -89,15 +175,11 @@ const OnboardingScreen = () => {
           <View style={styles.heroContent}>
             <Text style={styles.welcomeText}>Welcome, {userName}!</Text>
             <Text style={styles.heroTitle}>Choose Your Path</Text>
-            <Text style={styles.heroSubtitle}>
-              Tell us what you'd like to do on our platform
-            </Text>
           </View>
         </View>
 
         {/* Role Selection Section */}
         <View style={styles.selectionSection}>
-          <Text style={styles.sectionTitle}>What would you like to do?</Text>
           <Text style={styles.sectionSubtitle}>
             Choose one option to get started
           </Text>
@@ -113,7 +195,7 @@ const OnboardingScreen = () => {
               activeOpacity={0.7}
             >
               <View style={styles.roleCardHeader}>
-                <View style={[styles.roleIcon, { backgroundColor: '#3B82F6' }]}>
+                <View style={[styles.roleIcon, { backgroundColor: theme?.colors?.primary?.main || '#6174f9' }]}>
                   <FontAwesome name="search" size={24} color="#FFFFFF" />
                 </View>
                 <View style={styles.roleCheckbox}>
@@ -195,7 +277,7 @@ const OnboardingScreen = () => {
   );
 };
 
-const getStyles = () =>
+const getStyles = (theme) =>
   StyleSheet.create({
     safeArea: {
       flex: 1,
@@ -267,9 +349,9 @@ const getStyles = () =>
       borderColor: '#E5E7EB',
     },
     roleCardSelected: {
-      borderColor: '#3B82F6',
+      borderColor: theme?.colors?.primary?.main || '#6174f9',
       backgroundColor: '#EFF6FF',
-      shadowColor: '#3B82F6',
+      shadowColor: theme?.colors?.primary?.main || '#6174f9',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.1,
       shadowRadius: 8,
@@ -303,8 +385,8 @@ const getStyles = () =>
       backgroundColor: '#FFFFFF',
     },
     checkboxSelected: {
-      borderColor: '#3B82F6',
-      backgroundColor: '#3B82F6',
+      borderColor: theme?.colors?.primary?.main || '#6174f9',
+      backgroundColor: theme?.colors?.primary?.main || '#6174f9',
     },
     roleCardContent: {
       flex: 1,
@@ -329,7 +411,7 @@ const getStyles = () =>
     continueButton: {
       marginBottom: 16,
       borderRadius: 16,
-      shadowColor: '#3C4FE0',
+      shadowColor: '#6174f9',
       shadowOffset: { width: 0, height: 6 },
       shadowOpacity: 0.2,
       shadowRadius: 12,
@@ -349,6 +431,20 @@ const getStyles = () =>
       color: '#9CA3AF',
       textAlign: 'center',
       lineHeight: 20,
+    },
+    backButton: {
+      position: 'absolute',
+      top: 50,
+      left: 20,
+      zIndex: 10,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 20,
+      padding: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
     },
   });
 

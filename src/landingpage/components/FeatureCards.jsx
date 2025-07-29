@@ -8,7 +8,7 @@ const features = [
     icon: 'target',
     title: 'Smart Matching',
     description: 'AI-powered job recommendations',
-    color: ['#3C4FE0', '#6366F1'],
+    color: ['#6174f9', '#6366F1'],
     delay: 0,
   },
   {
@@ -102,7 +102,7 @@ const FeatureCards = () => {
                 <Feather
                   name={feature.icon}
                   size={24}
-                  color="#3C4FE0" // or any dark color you prefer
+                  color="#6174f9" // or any dark color you prefer
                 />
               </View>
               <Text style={styles.featureTitle}>{feature.title}</Text>

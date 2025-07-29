@@ -143,8 +143,9 @@ const IndexScreen = () => {
   const handlePhoneChange = text => {
     // Remove +91 prefix if user tries to type it
     const cleanText = text.replace(/^\+91\s*/, '');
-    // Limit to 10 digits
-    const limitedText = cleanText.replace(/\D/g, '').slice(0, 10);
+    // Only allow digits and limit to 10 digits
+    const digitsOnly = cleanText.replace(/\D/g, '');
+    const limitedText = digitsOnly.slice(0, 10);
     setPhone(limitedText);
     if (phoneError) {
       setPhoneError(validatePhone(`+91 ${limitedText}`));
@@ -282,26 +283,49 @@ const IndexScreen = () => {
         .select('*')
         .eq('id', user.id)
         .single();
+      
+      
       let userRecord = existingUser;
       let isNewUser = false;
       if (userError && userError.code === 'PGRST116') {
         isNewUser = true;
         const newUserData = {
-          id: user.id,
+          id: user.id, // Use the Supabase auth user ID directly
           email: user.email,
           name: user.user_metadata?.full_name || user.email?.split('@')[0],
           phone_number: `+91 ${phone}`, // Add phone number to new user
-          provider: 'google',
           google_id: user.id || user.user_metadata?.sub,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           city: 'morena',
         };
-        const { data: createdUser, error: createError } = await supabase
+        
+        
+        // Try to insert with explicit ID first
+        let { data: createdUser, error: createError } = await supabase
           .from('users')
           .insert([newUserData])
           .select()
           .single();
+          
+        // If that fails, try without specifying ID (let database generate it)
+        if (createError && createError.code === '23505') { // Unique constraint violation
+          const { id, ...userDataWithoutId } = newUserData;
+          const { data: retryUser, error: retryError } = await supabase
+            .from('users')
+            .insert([userDataWithoutId])
+            .select()
+            .single();
+            
+          if (retryError) {
+            console.error('Retry user creation error:', retryError);
+            throw retryError;
+          }
+          createdUser = retryUser;
+          createError = null;
+        }
+        
+        
         if (createError) {
           console.error('User creation error:', createError);
           throw createError;
@@ -389,6 +413,14 @@ const IndexScreen = () => {
     setIsLogin(!isLogin);
     setEmailError('');
     setPhoneError('');
+  };
+
+  // Handle "Explore Opportunities" button click - scroll to login section
+  const handleExploreOpportunities = () => {
+    // Scroll to the auth card section
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
   };
 
   return (
@@ -631,7 +663,7 @@ const IndexScreen = () => {
                   <View
                     style={[styles.featureIcon, { backgroundColor: '#EFF6FF' }]}
                   >
-                    <Feather name="zap" size={24} color="#3B82F6" />
+                    <Feather name="zap" size={24} color="#6174f9" />
                   </View>
                   <Text style={styles.featureTitle}>Smart Matching</Text>
                   <Text style={styles.featureDescription}>
@@ -710,12 +742,12 @@ const IndexScreen = () => {
               <Button
                 variant="outline"
                 size="lg"
-                onPress={handleLogin}
+                onPress={handleExploreOpportunities}
                 style={styles.footerButton}
                 accessibilityLabel="Explore job opportunities"
               >
                 <View style={styles.buttonContent}>
-                  <Feather name="briefcase" size={20} color="#1E88E5" />
+                  <Feather name="briefcase" size={20} color="#6174f9" />
                   <Text style={styles.footerButtonText}>
                     Explore Opportunities
                   </Text>

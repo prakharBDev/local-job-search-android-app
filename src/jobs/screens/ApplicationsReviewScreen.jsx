@@ -12,7 +12,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { applicationService, jobService, companyService } from '../../services';
+import { applicationService, jobService, companyService } from '../../services/index.js';
 
 // Import components
 import Card from '../../components/blocks/Card';

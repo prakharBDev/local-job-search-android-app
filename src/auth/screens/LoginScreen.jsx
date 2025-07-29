@@ -7,7 +7,7 @@ import Input from '../../components/elements/Input';
 import GoogleSignInButton from '../../shared/components/GoogleSignInButton';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { onboardingService } from '../../services';
+import { onboardingService } from '../../services/index.js';
 
 const getStyles = theme =>
   StyleSheet.create({

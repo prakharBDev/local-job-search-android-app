@@ -21,8 +21,8 @@ import {
   companyService,
   categoriesService,
   skillsService,
-} from '../../services';
-import { apiClient } from '../../services/api';
+} from '../../services/index.js';
+import { apiClient } from '../../services/api/index.js';
 import { theme } from '../../theme';
 
 const EditProfileScreen = ({ navigation, route }) => {

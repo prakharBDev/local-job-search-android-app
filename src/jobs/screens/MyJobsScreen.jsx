@@ -28,7 +28,7 @@ import {
   applicationService,
   jobService,
   companyService,
-} from '../../services';
+} from '../../services/index.js';
 import { apiClient } from '../../services/api/client';
 
 const MyJobsScreen = () => {

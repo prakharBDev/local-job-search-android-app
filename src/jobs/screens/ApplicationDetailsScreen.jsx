@@ -16,7 +16,7 @@ import Button from '../../components/elements/Button';
 import { AppHeader, Icon } from '../../components/elements';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { applicationService } from '../../services';
+import { applicationService } from '../../services/index.js';
 import { getStyles } from './ApplicationDetailsScreen.styles';
 
 const ApplicationDetailsScreen = () => {

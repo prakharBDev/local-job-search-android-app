@@ -18,7 +18,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/elements/Button';
 import Card from '../../components/blocks/Card';
 import DebugUtils from '../../utils/debug';
-import { onboardingService } from '../../services';
+import { onboardingService } from '../../services/index.js';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 

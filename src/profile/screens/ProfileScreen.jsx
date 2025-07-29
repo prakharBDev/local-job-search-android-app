@@ -13,7 +13,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../contexts/UserContext';
-import { seekerService, companyService, userService } from '../../services';
+import { seekerService, companyService, userService } from '../../services/index.js';
 import { AppHeader, Icon } from '../../components/elements';
 import { theme } from '../../theme';
 

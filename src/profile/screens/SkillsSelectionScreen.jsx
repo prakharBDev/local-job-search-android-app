@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import Button from '../../components/elements/Button';
-import { skillsService } from '../../services';
+import { skillsService } from '../../services/index.js';
 
 const SkillsSelectionScreen = ({ navigation, route }) => {
   const { theme } = useTheme();

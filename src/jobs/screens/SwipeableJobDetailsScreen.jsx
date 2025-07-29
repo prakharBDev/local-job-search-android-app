@@ -17,7 +17,7 @@ import {
   applicationService, 
   seekerService,
   jobService 
-} from '../../services';
+} from '../../services/index.js';
 import { Icon } from '../../components/elements';
 import { getStyles } from './SwipeableJobDetailsScreen.styles';
 

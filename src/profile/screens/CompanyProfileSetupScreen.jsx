@@ -12,7 +12,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/elements/Button';
 import Input from '../../components/elements/Input';
-import { companyService, onboardingService } from '../../services';
+import { companyService, onboardingService } from '../../services/index.js';
 import { supabase } from '../../utils/supabase';
 
 const CompanyProfileSetupScreen = ({ navigation, route }) => {

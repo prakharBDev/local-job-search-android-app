@@ -17,8 +17,7 @@ import {
   skillsService,
   categoriesService,
   onboardingService,
-} from '../../services';
-import { supabase } from '../../utils/supabase';
+} from '../../services/index.js';
 
 const SeekerProfileSetupScreen = ({ navigation, route }) => {
   const { theme } = useTheme();

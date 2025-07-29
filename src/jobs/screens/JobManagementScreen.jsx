@@ -11,7 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { jobService, companyService } from '../../services';
+import { jobService, companyService } from '../../services/index.js';
 
 // Import components
 import Card from '../../components/blocks/Card';

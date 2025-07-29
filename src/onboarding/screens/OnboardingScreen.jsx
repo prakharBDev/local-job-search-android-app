@@ -16,7 +16,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/elements/Button';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useTheme } from '../../contexts/ThemeContext';
-import { onboardingService } from '../../services';
+import { onboardingService } from '../../services/index.js';
 import DebugUtils from '../../utils/debug';
 
 const OnboardingScreen = () => {

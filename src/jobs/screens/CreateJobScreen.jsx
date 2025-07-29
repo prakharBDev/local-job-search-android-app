@@ -22,7 +22,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AppHeader, Icon } from '../../components/elements';
 import { getStyles } from './CreateJobScreen.styles.js';
 import { useAuth } from '../../contexts/AuthContext';
-import { jobService, categoriesService, companyService } from '../../services';
+import { jobService, categoriesService, companyService } from '../../services/index.js';
 import { seedDatabase, checkSeedingStatus } from '../../utils/seedData';
 
 const CreateJobScreen = () => {

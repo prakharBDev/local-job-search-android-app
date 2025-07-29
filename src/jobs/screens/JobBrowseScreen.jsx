@@ -23,7 +23,7 @@ import {
   applicationService,
   seekerService,
   companyService,
-} from '../../services';
+} from '../../services/index.js';
 import { getStyles } from './JobBrowseScreen.styles';
 import PopularJobCard from './MyJobsScreen/PopularJobCard';
 
